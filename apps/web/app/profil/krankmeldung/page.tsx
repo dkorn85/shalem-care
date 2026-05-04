@@ -1,6 +1,9 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { KrankmeldungWizard } from "@/components/KrankmeldungWizard";
+import { AUKaskade } from "@/components/AUKaskade";
+import { BemCard } from "@/components/BemCard";
+import { WiedereingliederungCard } from "@/components/WiedereingliederungCard";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
 import { getStationOfPerson, getStation } from "@/lib/hierarchy/store";
@@ -11,8 +14,10 @@ import {
   seedKrankmeldungOnce,
 } from "@/lib/krankmeldung/store";
 import { listKrankenkassen } from "@/lib/krankmeldung/krankenkasse-api";
-import { computeKrankengeldFristen } from "@/lib/krankmeldung/krankenkasse-api";
 import { STATUS_LABEL, SYMPTOM_LABEL, AU_TYPE_LABEL } from "@/lib/krankmeldung/types";
+import { computeAuStatus } from "@/lib/au-cascade/phases";
+import { findActiveBemFallForPerson } from "@/lib/bem/store";
+import { findActiveWePlan } from "@/lib/wiedereingliederung/store";
 
 export const metadata = {
   title: "Krankmeldung",
@@ -70,8 +75,18 @@ export default async function KrankmeldungPage() {
       />
 
       {aktiv && (
-        <KrankengeldFristen vonDatum={aktiv.vonDatum} />
+        <AUKaskade
+          status={computeAuStatus({
+            auBeginn: aktiv.vonDatum,
+            bisDatum: aktiv.bisDatum,
+            kumulierteAuTage12Mo: kumulierteAuTage(verlauf),
+            wiedereingliederungAktiv: !!findActiveWePlan(CURRENT_USER_ID),
+          })}
+        />
       )}
+
+      <BemCard fall={findActiveBemFallForPerson(CURRENT_USER_ID)} />
+      <WiedereingliederungCard plan={findActiveWePlan(CURRENT_USER_ID)} />
 
       {verlauf.length > 0 && (
         <section className="mt-8">
@@ -99,35 +114,22 @@ export default async function KrankmeldungPage() {
   );
 }
 
-function KrankengeldFristen({ vonDatum }: { vonDatum: string }) {
-  const f = computeKrankengeldFristen(vonDatum);
-  return (
-    <section className="mt-8 surface rounded-2xl p-5">
-      <h2 className="font-display text-[14px] font-semibold tracking-tight2 mb-3">
-        Lohnfortzahlung & Krankengeld — Fristen
-      </h2>
-      <ul className="space-y-1.5 text-[13px]">
-        <li className="flex justify-between gap-3 border-b border-app-soft pb-1.5">
-          <span className="text-mute">AU-Beginn</span>
-          <span className="font-mono">{f.ankerDatum}</span>
-        </li>
-        <li className="flex justify-between gap-3 border-b border-app-soft pb-1.5">
-          <span className="text-mute">Lohnfortzahlung durch Arbeitgeber bis (§ 3 EFZG, 6 Wochen)</span>
-          <span className="font-mono">{f.lohnfortzahlungBis}</span>
-        </li>
-        <li className="flex justify-between gap-3 border-b border-app-soft pb-1.5">
-          <span className="text-mute">Krankengeld ab (§ 44 SGB V, durch GKV)</span>
-          <span className="font-mono">{f.krankengeldAb}</span>
-        </li>
-        <li className="flex justify-between gap-3">
-          <span className="text-mute">Maximal-Bezugsdauer (78 Wochen je Krankheit)</span>
-          <span className="font-mono">{f.voraussichtlicheBezugsdauerTage} Tage</span>
-        </li>
-      </ul>
-      <p className="text-[11px] text-soft mt-3">
-        Krankengeld beträgt 70 % vom Brutto, max. 90 % vom Netto. Wird i.d.R. von der KK direkt
-        ausgezahlt, sobald die eAU-Folgebescheinigungen lückenlos vorliegen.
-      </p>
-    </section>
-  );
+// Kumulative AU-Tage in den letzten 12 Monaten — Trigger für BEM-Pflicht.
+function kumulierteAuTage(verlauf: { vonDatum: string; bisDatum?: string; voraussichtlichBis: string }[]): number {
+  const heute = new Date();
+  const vor12 = new Date(heute);
+  vor12.setMonth(vor12.getMonth() - 12);
+  const grenze = vor12.toISOString().slice(0, 10);
+  let summe = 0;
+  for (const k of verlauf) {
+    const von = k.vonDatum > grenze ? k.vonDatum : grenze;
+    const bis = k.bisDatum ?? k.voraussichtlichBis;
+    if (bis < grenze) continue;
+    const tage = Math.max(
+      0,
+      Math.floor((new Date(bis).getTime() - new Date(von).getTime()) / 86400000),
+    );
+    summe += tage;
+  }
+  return summe;
 }

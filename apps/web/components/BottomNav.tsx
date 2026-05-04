@@ -7,7 +7,7 @@ type NavItem = {
 };
 
 const NURSE_NAV: NavItem[] = [
-  { href: "/", label: "Heute", icon: <HomeIcon /> },
+  { href: "/pflege", label: "Heute", icon: <HomeIcon /> },
   { href: "/dienst", label: "Station", icon: <WardIcon /> },
   { href: "/tausch", label: "Markt", icon: <MarketIcon /> },
   { href: "/profil", label: "Profil", icon: <UserIcon /> },

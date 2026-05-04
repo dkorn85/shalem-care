@@ -117,7 +117,7 @@ export default async function DienstAktivPage() {
     >
       {/* ─── Header / Aktiver Dienst ─────────────────────────── */}
       <header className="mb-6 anim-slideUp">
-        <Link href="/" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
+        <Link href="/pflege" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
           ← Dienstplan
         </Link>
         {active && (
