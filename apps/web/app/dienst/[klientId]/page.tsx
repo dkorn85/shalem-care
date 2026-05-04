@@ -26,6 +26,8 @@ import { BalanceCheckIn } from "@/components/BalanceCheckIn";
 import { listChecks, seedSalutoOnce } from "@/lib/salutogenese/store";
 import { Lebensziele } from "@/components/Lebensziele";
 import { listZiele, seedZieleOnce } from "@/lib/selbstbestimmung/store";
+import { Bilanzierung } from "@/components/Bilanzierung";
+import { listBilanz, tagesBilanz, seedBilanzOnce } from "@/lib/bilanz/store";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -44,6 +46,7 @@ export default async function DienstKlientPage({
   seedAnfragenOnce();
   seedSalutoOnce();
   seedZieleOnce();
+  seedBilanzOnce();
 
   const { klientId } = await params;
   const { date } = await searchParams;
@@ -83,6 +86,9 @@ export default async function DienstKlientPage({
   // Salutogenese-Verlauf
   const balanceChecks = listChecks(klientId, 30);
   const lebensziele = listZiele(klientId);
+  const heuteIso = new Date().toISOString().slice(0, 10);
+  const heuteBilanz = tagesBilanz(klientId, heuteIso);
+  const letzteBilanz = listBilanz(klientId, new Date(Date.now() - 48 * 3_600_000).toISOString());
 
   // Verordnungs-Anfragen + verfügbare Ärzte
   const verordnungsAnfragen = listAnfragen({ klientId });
@@ -135,6 +141,16 @@ export default async function DienstKlientPage({
           </div>
         </section>
       )}
+
+      {/* ─── Bilanzierung (Vivendi/MediFox-Quintessenz) ─── */}
+      <section className="mb-6">
+        <Bilanzierung
+          klientId={klient.id}
+          authorId={CURRENT_USER_ID}
+          heute={heuteBilanz}
+          letzte={letzteBilanz}
+        />
+      </section>
 
       {/* ─── Salutogenese-Check ─────────────────────────────── */}
       <section className="mb-6">

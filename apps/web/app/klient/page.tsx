@@ -148,7 +148,22 @@ export default async function KlientPage() {
         </div>
       </section>
 
-      <section className="grid sm:grid-cols-2 gap-3 mb-6">
+      <section className="grid sm:grid-cols-3 gap-3 mb-6">
+        <Link
+          href="/klient/akte"
+          className="surface-hover rounded-2xl p-5 group relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, rgb(var(--vibe-team) / 0.08), rgb(var(--thu) / 0.05))" }}
+        >
+          <span aria-hidden className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full" style={{ background: "rgb(var(--vibe-team))" }} />
+          <div className="ml-2.5">
+            <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Volle Transparenz</div>
+            <h3 className="font-display text-[16px] font-semibold tracking-tight2">Meine Akte ansehen</h3>
+            <p className="text-[12px] text-mute mt-1.5">Alles was Pflege & Arzt notiert haben — in einfacher Sprache</p>
+            <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-team))" }}>
+              Öffnen →
+            </div>
+          </div>
+        </Link>
         <Link href="/klient/anfrage" className="surface-hover rounded-2xl p-5 group">
           <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Pflege anfragen</div>
           <h3 className="font-display text-[16px] font-semibold tracking-tight2">Wunschpflegekraft buchen</h3>

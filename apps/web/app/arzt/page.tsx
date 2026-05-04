@@ -4,6 +4,7 @@ import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
 import { STATUS_LABEL, KATEGORIE_LABEL, KATEGORIE_FARBE, STATUS_FARBE, DRINGLICHKEIT_LABEL } from "@/lib/verordnung/types";
+import { PraxisCockpit } from "@/components/PraxisCockpit";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -46,12 +47,28 @@ export default async function ArztPraxisPage() {
         </p>
       </header>
 
-      <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-8">
+      <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Tile label="Offene Anfragen"  value={offene.length} color="var(--fri)" />
         <Tile label="Akut"             value={akute}         color="var(--mon)" alarm={akute > 0} />
         <Tile label="Dringlich"        value={dringliche}    color="var(--vibe-profile)" />
         <Tile label="Heute ausgestellt" value={ausgestellt.filter((a) => a.geschlossenAm?.slice(0, 10) === new Date().toISOString().slice(0, 10)).length} color="var(--thu)" />
       </section>
+
+      <PraxisCockpit
+        scheineQuartal={142}
+        abrechnungEur={28430}
+        scheineFehlend={6}
+        patientenHeute={11}
+        arztName={arzt.name}
+        termineHeute={[
+          { zeit: "08:30", patient: "Helga Reinhardt",   anliegen: "Folgerezept Donepezil" },
+          { zeit: "09:00", patient: "Friedrich Liebenau",anliegen: "Wundkontrolle", videoCall: true },
+          { zeit: "09:30", patient: "Frieder Vogel",     anliegen: "Routine BD-Kontrolle" },
+          { zeit: "10:00", patient: "Anneliese Krause",  anliegen: "Husten + Fieber, Tele-AU", videoCall: true },
+          { zeit: "10:30", patient: "Wilhelm Brand",     anliegen: "HKP-Folgeverordnung" },
+          { zeit: "11:00", patient: "Ines Becker",       anliegen: "Diabetes-Schulung" },
+        ]}
+      />
 
       <section className="mb-8">
         <div className="flex items-baseline justify-between mb-3 gap-2 flex-wrap">

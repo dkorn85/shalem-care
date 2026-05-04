@@ -3,6 +3,10 @@ import { StatsRow } from "@/components/StatsRow";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_LEAD_ID } from "@/lib/seed";
 import { germanLabel } from "@/lib/swap-machine";
+import { getStationOfPerson, getStation, listKlientenAtStation, listPeopleAtStation } from "@/lib/hierarchy/store";
+import { computeErloesForEinrichtung, eurShort } from "@/lib/erloes/erloes";
+import { assessBurnoutRisk } from "@/lib/burnout/risk";
+import { hourlyRateFor } from "@/lib/tariff";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
@@ -21,6 +25,22 @@ export default async function AdminDashboard() {
   const recent = [...offers]
     .sort((a, b) => new Date(b.offeredAt).getTime() - new Date(a.offeredAt).getTime())
     .slice(0, 5);
+
+  // Compliance + Wirtschaftlichkeit für Cockpit
+  const stationId = getStationOfPerson(CURRENT_LEAD_ID) ?? "st-luk-wohn-a";
+  const station = getStation(stationId);
+  const stationKlienten = listKlientenAtStation(stationId);
+  const stationTeam = listPeopleAtStation(stationId).filter((p) => p.role === "nurse" || p.role === "lead");
+  const erloes = await computeErloesForEinrichtung(station?.einrichtungId ?? "kh-essen-mitte");
+
+  const burnoutPerPerson = await Promise.all(
+    stationTeam.map(async (p) => {
+      const slots = await store.listSlotsForPerson(p.id);
+      return { person: p, assessment: assessBurnoutRisk(p.id, slots, new Date(), hourlyRateFor(p.tariffGrade)) };
+    }),
+  );
+  const burnoutKritisch = burnoutPerPerson.filter((b) => b.assessment.level === "kritisch").length;
+  const burnoutWarnung = burnoutPerPerson.filter((b) => b.assessment.level === "warnung").length;
 
   return (
     <AppShell
@@ -45,6 +65,54 @@ export default async function AdminDashboard() {
           ]}
         />
       </div>
+
+      {/* ─── Wirtschaftlichkeits-Cockpit ───────────────────── */}
+      <section className="surface rounded-2xl p-5 mb-6">
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Stations-Wirtschaftlichkeit</p>
+            <h2 className="font-display text-[18px] font-semibold tracking-tight2">{erloes.einrichtungName}</h2>
+          </div>
+          <Link href="/admin/erloes" className="text-[12px] text-mute hover:text-[rgb(var(--fg))]">Detailliert →</Link>
+        </header>
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+          <Mini label="Erlös" value={eurShort(erloes.klientRevenueCents)} color="var(--thu)" />
+          <Mini label="Personal" value={eurShort(erloes.staffCostCents)} color="var(--mon)" />
+          <Mini label="Deckungsbeitrag" value={eurShort(erloes.contributionMarginCents)} color={erloes.contributionMarginCents >= 0 ? "var(--thu)" : "var(--mon)"} />
+          <Mini label="Plattform 4 %" value={eurShort(erloes.platformFeeCents)} color="var(--vibe-stats)" />
+        </div>
+      </section>
+
+      {/* ─── Compliance-Cockpit · ArbZG + Burnout ─────────── */}
+      <section className="surface rounded-2xl p-5 mb-6">
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Compliance & Fürsorge</p>
+            <h2 className="font-display text-[18px] font-semibold tracking-tight2">Wer braucht Aufmerksamkeit?</h2>
+          </div>
+          <span className="text-[11px] text-soft">{stationTeam.length} Personen · {stationKlienten.length} Klient:innen</span>
+        </header>
+        <div className="grid sm:grid-cols-3 gap-2.5 mb-3">
+          <Mini label="Burnout kritisch" value={burnoutKritisch.toString()} color="var(--mon)" alarm={burnoutKritisch > 0} />
+          <Mini label="Burnout Warnung" value={burnoutWarnung.toString()} color="var(--fri)" alarm={burnoutWarnung > 0} />
+          <Mini label="Stations-Auslastung" value={`${Math.round((stationKlienten.length / Math.max(1, station?.bedCount ?? 1)) * 100)} %`} color="var(--vibe-team)" />
+        </div>
+        {burnoutKritisch + burnoutWarnung > 0 && (
+          <ul className="space-y-1.5 text-[12px]">
+            {burnoutPerPerson
+              .filter((b) => b.assessment.level === "kritisch" || b.assessment.level === "warnung")
+              .slice(0, 5)
+              .map((b) => (
+                <li key={b.person.id} className="surface-mute rounded-lg p-2 flex items-baseline justify-between gap-2 flex-wrap">
+                  <span className="font-medium">{b.person.name}</span>
+                  <span className="text-soft">
+                    Score {b.assessment.score} · {b.assessment.metrics.tageInFolge}d am Stück · {b.assessment.metrics.naechteInFolge} Nächte in Folge
+                  </span>
+                </li>
+              ))}
+          </ul>
+        )}
+      </section>
 
       <div className="grid lg:grid-cols-3 gap-3 mb-6">
         <QuickLink
@@ -93,6 +161,17 @@ export default async function AdminDashboard() {
         </ul>
       </section>
     </AppShell>
+  );
+}
+
+function Mini({ label, value, color, alarm }: { label: string; value: string; color: string; alarm?: boolean }) {
+  return (
+    <div className="surface-mute rounded-xl p-3">
+      <div className="text-[10px] uppercase tracking-wider text-soft font-medium">{label}</div>
+      <div className="font-display font-semibold text-[20px] mt-1 leading-none" style={{ color: alarm ? "rgb(var(--mon))" : `rgb(${color})` }}>
+        {value}
+      </div>
+    </div>
   );
 }
 
