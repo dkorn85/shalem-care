@@ -2,6 +2,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { Wordmark, Logo } from "@/components/Logo";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
+import { DemoTour } from "@/components/DemoTour";
 import { HANDBUCH_KAPITEL, WANDEL_TABELLE, KNEIPP_SAEULEN } from "@/lib/heilkunst/philosophie";
 import { HAUSMITTEL, AETHERISCHE_OELE, ANWENDUNGSTYP_LABEL, ANWENDUNGSTYP_FARBE } from "@/lib/heilkunst/hausmittel";
 import type { Anwendungstyp } from "@/lib/heilkunst/hausmittel";
@@ -52,7 +53,14 @@ export default async function LandingPage() {
               {t("landing.heroSubtitle")}
             </p>
             <div className="flex flex-wrap items-center gap-3 mt-7 anim-slideUp" style={{ animationDelay: "0.2s" }}>
-              <Link href="/" className="btn btn-primary text-[15px] px-5 py-2.5">
+              <DemoTour
+                trigger={
+                  <span className="btn btn-primary text-[15px] px-5 py-2.5 cursor-pointer">
+                    ▶ {locale === "en" ? "Start guided demo tour" : "Geführte Demo-Tour starten"}
+                  </span>
+                }
+              />
+              <Link href="/" className="btn text-[15px] px-5 py-2.5">
                 {t("landing.cta.nurse")}
               </Link>
               <Link href="/admin" className="btn text-[15px] px-5 py-2.5">

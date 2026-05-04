@@ -2,6 +2,11 @@ import Link from "next/link";
 import { Wordmark } from "./Logo";
 import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
+import { LocaleSwitcher } from "./LocaleSwitcher";
+import { PersonaSwitcher } from "./PersonaSwitcher";
+import { getLocale } from "@/lib/i18n/server";
+
+const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
 export type KlientUser = {
   name: string;
@@ -10,13 +15,14 @@ export type KlientUser = {
   klientName?: string;
 };
 
-export function KlientShell({
+export async function KlientShell({
   user,
   children,
 }: {
   user: KlientUser;
   children: React.ReactNode;
 }) {
+  const locale = await getLocale();
   const subtitle =
     user.relation === "self" ? "Klient:in"
     : user.relation === "angehörige" ? `für ${user.klientName ?? "Angehörige"}`
@@ -34,7 +40,9 @@ export function KlientShell({
               Klient-Sicht
             </span>
           </div>
-          <div className="flex items-center gap-3">
+          <div className="flex items-center gap-3 flex-wrap">
+            {DEMO_MODE && <PersonaSwitcher demoMode={DEMO_MODE} />}
+            <LocaleSwitcher current={locale} />
             <div className="text-right hidden sm:block">
               <div className="text-[13px] font-medium">{user.name}</div>
               <div className="text-[11px] text-soft">{subtitle}</div>

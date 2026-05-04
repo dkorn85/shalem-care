@@ -1,12 +1,18 @@
 import Link from "next/link";
 import { KlientShell } from "@/components/KlientShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { VerordnungsAnfrageForm } from "@/components/VerordnungsAnfrageForm";
 import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
 import { listPeopleAtStation, getKlient } from "@/lib/hierarchy/store";
-import { getShiftType } from "@/lib/fhir";
+import { listAktiveVerordnungenFor, seedMedikationOnce } from "@/lib/medikation/store";
+import { findMedikament } from "@/lib/medikation/katalog";
+import { dosierAlsText } from "@/lib/medikation/types";
+import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+
+const KLIENT_ID = "klient-hr";
 
 const SHIFT_LABEL: Record<string, string> = {
   early: "Frühschicht",
@@ -22,9 +28,19 @@ const SHIFT_TIMES: Record<string, string> = {
 
 export default async function KlientPage() {
   seedOnce();
+  seedMedikationOnce();
+  seedAnfragenOnce();
   const people = listPeopleAtStation("st-luk-wohn-a");
   const wohnbereich = "Wohnbereich Annahof, St. Lukas";
-  const klient = getKlient("klient-hr");
+  const klient = getKlient(KLIENT_ID);
+
+  // Medikation + Verordnungs-Anfragen für Klient-Sicht
+  const aktiveVOs = listAktiveVerordnungenFor(KLIENT_ID);
+  const meineAnfragen = listAnfragen({ klientId: KLIENT_ID });
+  const allDoctorsRaw = await store.listPeople();
+  const doctors = allDoctorsRaw
+    .filter((p) => p.role === "doctor" || p.role === "psychologist")
+    .map((p) => ({ id: p.id, name: p.name, fachrichtung: p.fachrichtung, arztPraxis: p.arztPraxis }));
 
   // Demo: wer hat heute Frühschicht? (deterministisch erste Pflegekraft mit Frühschicht)
   const today = new Date();
@@ -132,13 +148,13 @@ export default async function KlientPage() {
         </div>
       </section>
 
-      <section className="grid sm:grid-cols-2 gap-3">
-        <Link href="/klient/notizen" className="surface-hover rounded-2xl p-5 group">
-          <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Pflegenotizen</div>
-          <h3 className="font-display text-[16px] font-semibold tracking-tight2">Letzte 7 Tage</h3>
-          <p className="text-[12px] text-mute mt-1.5">Beobachtungen, Wundverlauf, Stimmung</p>
+      <section className="grid sm:grid-cols-2 gap-3 mb-6">
+        <Link href="/klient/anfrage" className="surface-hover rounded-2xl p-5 group">
+          <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Pflege anfragen</div>
+          <h3 className="font-display text-[16px] font-semibold tracking-tight2">Wunschpflegekraft buchen</h3>
+          <p className="text-[12px] text-mute mt-1.5">Begleitung, Spaziergang, zusätzliche Hilfe</p>
           <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-stats))" }}>
-            Ansehen →
+            Anfragen →
           </div>
         </Link>
         <Link href="/klient/bewertung" className="surface-hover rounded-2xl p-5 group">
@@ -149,6 +165,53 @@ export default async function KlientPage() {
             Geben →
           </div>
         </Link>
+      </section>
+
+      {/* ─── Medikamentenplan zur Einsicht ───────────────── */}
+      <section className="surface rounded-2xl p-5 sm:p-6 mb-6">
+        <header className="flex items-baseline justify-between gap-3 flex-wrap mb-3">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Mein Medikamentenplan</p>
+            <h2 className="font-display text-[18px] font-semibold tracking-tight2 mt-1">Aktuelle Verordnungen ({aktiveVOs.length})</h2>
+          </div>
+        </header>
+        {aktiveVOs.length === 0 ? (
+          <p className="text-[13px] text-soft">Keine laufenden Verordnungen.</p>
+        ) : (
+          <ul className="space-y-1.5 text-[13px]">
+            {aktiveVOs.map((v) => {
+              const m = findMedikament(v.medikamentId);
+              if (!m) return null;
+              return (
+                <li key={v.id} className="surface-mute rounded-lg p-3 flex items-baseline justify-between gap-3 flex-wrap">
+                  <div className="min-w-0 flex-1">
+                    <div className="font-medium">{m.handelsname}</div>
+                    <div className="text-[11px] text-mute font-mono">
+                      {m.wirkstoff} · {m.staerke} · <span className="text-[rgb(var(--fg))]">{dosierAlsText(v.dosierung)}</span>
+                    </div>
+                    <div className="text-[11px] text-soft mt-0.5">{v.indikation} · {v.verordnetVon}</div>
+                  </div>
+                  <div className="flex gap-1 shrink-0">
+                    {m.btm && <span className="chip text-[10px]" style={{ background: "rgb(var(--mon) / 0.15)", color: "rgb(var(--mon))" }}>BtM</span>}
+                    {m.priscus && <span className="chip text-[10px]" style={{ background: "rgb(var(--vibe-profile) / 0.15)", color: "rgb(var(--vibe-profile))" }}>PRISCUS</span>}
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </section>
+
+      {/* ─── Verordnung selbst beim Arzt anfordern ──────── */}
+      <section className="mb-6">
+        <VerordnungsAnfrageForm
+          klientId={KLIENT_ID}
+          authorId={KLIENT_ID}
+          authorName="Helga Reinhardt"
+          authorRole="klient"
+          doctors={doctors}
+          bestehende={meineAnfragen}
+        />
       </section>
 
       <p className="text-[11px] text-soft mt-10 max-w-prose">
