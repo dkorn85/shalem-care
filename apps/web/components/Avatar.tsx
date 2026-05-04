@@ -38,7 +38,7 @@ export function KlientAvatar({
         borderRadius: "50%",
         boxShadow: ring ? `0 0 0 2px rgb(${ring})` : undefined,
         background: has
-          ? "rgb(var(--bg-mute))"
+          ? "transparent"
           : "linear-gradient(135deg, rgb(var(--wed)), rgb(var(--vibe-team)))",
       }}
       aria-hidden
@@ -107,6 +107,30 @@ export function PersonAvatar({
           {initials}
         </span>
       )}
+    </div>
+  );
+}
+
+// PortraitFrame — größere Variante für Profil-Header & Persona-Tour:
+// quadratisch, abgerundete Ecken, transparenter Hintergrund.
+export function PortraitFrame({
+  src,
+  alt,
+  size = 96,
+  shape = "rounded",
+}: {
+  src: string;
+  alt?: string;
+  size?: number;
+  shape?: "circle" | "rounded" | "square";
+}) {
+  const radius = shape === "circle" ? "50%" : shape === "rounded" ? size * 0.18 : 0;
+  return (
+    <div
+      className="relative shrink-0 overflow-hidden"
+      style={{ width: size, height: size, borderRadius: radius, background: "transparent" }}
+    >
+      <Image src={src} alt={alt ?? ""} fill sizes={`${size}px`} className="object-cover" />
     </div>
   );
 }

@@ -22,6 +22,10 @@ import { findMedikament, MEDIKAMENTEN_KATALOG } from "@/lib/medikation/katalog";
 import { generateTherapieFor } from "@/lib/dienst/dienst-actions";
 import { VerordnungsAnfrageForm } from "@/components/VerordnungsAnfrageForm";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
+import { BalanceCheckIn } from "@/components/BalanceCheckIn";
+import { listChecks, seedSalutoOnce } from "@/lib/salutogenese/store";
+import { Lebensziele } from "@/components/Lebensziele";
+import { listZiele, seedZieleOnce } from "@/lib/selbstbestimmung/store";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -38,6 +42,8 @@ export default async function DienstKlientPage({
   seedDokuOnce();
   seedMedikationOnce();
   seedAnfragenOnce();
+  seedSalutoOnce();
+  seedZieleOnce();
 
   const { klientId } = await params;
   const { date } = await searchParams;
@@ -73,6 +79,10 @@ export default async function DienstKlientPage({
 
   const activeRisks = new Set<string>();
   for (const e of allEntries.slice(0, 5)) for (const r of e.risiken) activeRisks.add(r);
+
+  // Salutogenese-Verlauf
+  const balanceChecks = listChecks(klientId, 30);
+  const lebensziele = listZiele(klientId);
 
   // Verordnungs-Anfragen + verfügbare Ärzte
   const verordnungsAnfragen = listAnfragen({ klientId });
@@ -125,6 +135,28 @@ export default async function DienstKlientPage({
           </div>
         </section>
       )}
+
+      {/* ─── Salutogenese-Check ─────────────────────────────── */}
+      <section className="mb-6">
+        <BalanceCheckIn
+          klientId={klient.id}
+          klientName={klient.name}
+          erfasstVon={CURRENT_USER_ID}
+          erfassteFuerSelf={false}
+          letzte={balanceChecks}
+        />
+      </section>
+
+      {/* ─── Lebensziele (Person-zentriert) ──────────────── */}
+      <section className="mb-6">
+        <Lebensziele
+          klientId={klient.id}
+          klientName={klient.name}
+          ziele={lebensziele}
+          authorId={CURRENT_USER_ID}
+          asKlient={false}
+        />
+      </section>
 
       {/* ─── Schnell-Doku ───────────────────────────────────── */}
       <section className="mb-6">

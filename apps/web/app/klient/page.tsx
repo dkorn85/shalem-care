@@ -3,6 +3,10 @@ import { KlientShell } from "@/components/KlientShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
 import { PersonAvatar } from "@/components/Avatar";
 import { VerordnungsAnfrageForm } from "@/components/VerordnungsAnfrageForm";
+import { BalanceCheckIn } from "@/components/BalanceCheckIn";
+import { listChecks, seedSalutoOnce } from "@/lib/salutogenese/store";
+import { Lebensziele } from "@/components/Lebensziele";
+import { listZiele, seedZieleOnce } from "@/lib/selbstbestimmung/store";
 import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
 import { listPeopleAtStation, getKlient } from "@/lib/hierarchy/store";
@@ -31,6 +35,10 @@ export default async function KlientPage() {
   seedOnce();
   seedMedikationOnce();
   seedAnfragenOnce();
+  seedSalutoOnce();
+  seedZieleOnce();
+  const balanceChecks = listChecks(KLIENT_ID, 30);
+  const lebensziele = listZiele(KLIENT_ID);
   const people = listPeopleAtStation("st-luk-wohn-a");
   const wohnbereich = "Wohnbereich Annahof, St. Lukas";
   const klient = getKlient(KLIENT_ID);
@@ -157,6 +165,28 @@ export default async function KlientPage() {
             Geben →
           </div>
         </Link>
+      </section>
+
+      {/* ─── Balance-Check (Salutogenese) ───────────────── */}
+      <section className="mb-6">
+        <BalanceCheckIn
+          klientId={KLIENT_ID}
+          klientName="Helga Reinhardt"
+          erfasstVon="self"
+          erfassteFuerSelf={true}
+          letzte={balanceChecks}
+        />
+      </section>
+
+      {/* ─── Lebensziele ────────────────────────────────── */}
+      <section className="mb-6">
+        <Lebensziele
+          klientId={KLIENT_ID}
+          klientName="Helga Reinhardt"
+          ziele={lebensziele}
+          authorId={KLIENT_ID}
+          asKlient={true}
+        />
       </section>
 
       {/* ─── Medikamentenplan zur Einsicht ───────────────── */}
