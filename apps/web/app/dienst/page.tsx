@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar, PersonAvatar } from "@/components/Avatar";
 import { SchichtBriefingPanel } from "@/components/SchichtBriefing";
 import { DokuKalender } from "@/components/DokuKalender";
 import { store } from "@/lib/swap-store";
@@ -26,6 +27,16 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { RISIKO_LABEL } from "@/lib/doku/types";
 import type { RisikoTyp } from "@/lib/doku/types";
+
+export const metadata = {
+  title: "Stationsansicht",
+  description: "Aktiver Dienst — KI-Briefing, Klient-Übersicht, Schicht-Chat, Doku-Kalender, Burnout-Radar.",
+  openGraph: {
+    title: "Stationsansicht · Shalem Care",
+    description: "Alles was die Schicht braucht in einem Blick.",
+    images: [{ url: "/og/dienst.png", width: 1200, height: 630, alt: "Shalem Care · Stationsansicht" }],
+  },
+};
 
 const SCHICHT_LABEL: Record<string, string> = {
   early: "Frühschicht",
@@ -101,7 +112,7 @@ export default async function DienstAktivPage() {
   return (
     <AppShell
       role="nurse"
-      user={{ name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
+      user={{ id: nurse.id, name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       {/* ─── Header / Aktiver Dienst ─────────────────────────── */}
@@ -173,12 +184,7 @@ export default async function DienstAktivPage() {
           <ul className="grid grid-cols-2 gap-2 text-[12px]">
             {[nurse, ...teamHere].map((p) => (
               <li key={p.id} className="flex items-center gap-2 surface-mute rounded-lg p-2">
-                <div
-                  className="w-7 h-7 rounded-full grid place-items-center text-[10px] font-semibold text-white shrink-0"
-                  style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--thu)))" }}
-                >
-                  {p.initials}
-                </div>
+                <PersonAvatar id={p.id} initials={p.initials} size={32} role={p.role} />
                 <div className="min-w-0">
                   <div className="truncate">{p.name}</div>
                   <div className="text-soft text-[10px]">
@@ -209,10 +215,11 @@ export default async function DienstAktivPage() {
                   <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full" style={{ background: "rgb(var(--mon))" }} />
                 )}
                 <div className="flex items-start gap-3">
-                  <PflegegradIcon pflegegrad={r.klient.pflegegrad} size={42} withChip={false} />
+                  <KlientAvatar id={r.klient.id} initials={r.klient.initials} size={48} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-1.5 flex-wrap">
                       <span className="text-[14px] font-medium truncate">{r.klient.name}</span>
+                      <PflegegradIcon pflegegrad={r.klient.pflegegrad} size={20} withChip={false} />
                       <span className="text-[11px] text-soft">PG {r.klient.pflegegrad}</span>
                     </div>
                     {r.klient.notes && (

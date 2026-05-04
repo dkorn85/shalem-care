@@ -7,6 +7,16 @@ import { STATUS_LABEL, KATEGORIE_LABEL, KATEGORIE_FARBE, STATUS_FARBE, DRINGLICH
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
+export const metadata = {
+  title: "Arzt-Praxis",
+  description: "Verordnungs-Anfragen aus Pflege und Klient:innen, mit eRezept-Pipeline.",
+  openGraph: {
+    title: "Praxis · Shalem Care",
+    description: "Verordnungen in 3 Klicks — eRezept-Code automatisch.",
+    images: [{ url: "/og/arzt.png", width: 1200, height: 630, alt: "Shalem Care · Arzt-Praxis" }],
+  },
+};
+
 const CURRENT_DOCTOR_ID = "person-arzt-001";
 
 export default async function ArztPraxisPage() {
@@ -22,7 +32,7 @@ export default async function ArztPraxisPage() {
   return (
     <AppShell
       role="doctor"
-      user={{ name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
+      user={{ id: arzt.id, name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
       station={arzt.arztPraxis ?? "Praxis"}
     >
       <header className="mb-6 anim-slideUp">

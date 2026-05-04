@@ -6,7 +6,7 @@
 // erscheint nur, wenn der User explizit auf „Demo-Tour starten" klickt.
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRef, useState } from "react";
 
 type TourStop = {
   href: string;
@@ -21,6 +21,7 @@ type TourPath = {
   who: string;
   intro: string;
   color: string;
+  loop?: string;          // optionale Hover-Loop-Video-URL
   stops: TourStop[];
 };
 
@@ -30,6 +31,7 @@ const PATHS: TourPath[] = [
     emoji: "🩺",
     who: "Pflegekraft · Dennis Reuter",
     color: "var(--mon)",
+    loop: "/loops/loop-persona-pflegekraft.mp4",
     intro:
       "Pflegekraft im Wohnstift, Frühschicht. Folge dem typischen Tagesablauf — vom Dienstplan über Doku, Medikation bis Krankmeldung.",
     stops: [
@@ -64,6 +66,7 @@ const PATHS: TourPath[] = [
     emoji: "🌿",
     who: "Klient:in · Helga Reinhardt",
     color: "var(--wed)",
+    loop: "/loops/loop-persona-klient.mp4",
     intro:
       "78 Jahre, PG 3, Demenz mittelgradig, mobil mit Rollator. So sieht Pflege aus deren Perspektive aus.",
     stops: [
@@ -126,6 +129,7 @@ const PATHS: TourPath[] = [
     emoji: "👩‍⚕️",
     who: "Arzt:Ärztin · Dr. Hartmann",
     color: "var(--vibe-profile)",
+    loop: "/loops/loop-persona-arzt.mp4",
     intro:
       "Hausärztin in Bochum-Süd. Verordnungs-Anfragen aus Pflege und Klient:innen — zentral, mit eRezept-Pipeline.",
     stops: [
@@ -185,17 +189,7 @@ export function DemoTour({ trigger }: { trigger: React.ReactNode }) {
               <ul className="grid sm:grid-cols-2 gap-2.5">
                 {PATHS.map((p) => (
                   <li key={p.id}>
-                    <button
-                      onClick={() => setPath(p.id)}
-                      className="surface-hover rounded-xl p-4 text-left w-full block relative overflow-hidden"
-                    >
-                      <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full" style={{ background: `rgb(${p.color})` }} />
-                      <div className="ml-2.5">
-                        <div className="text-[20px] mb-1">{p.emoji}</div>
-                        <div className="text-[14px] font-medium">{p.who}</div>
-                        <div className="text-[12px] text-mute mt-1 leading-snug">{p.intro}</div>
-                      </div>
-                    </button>
+                    <PersonaCard p={p} onSelect={() => setPath(p.id)} />
                   </li>
                 ))}
               </ul>
@@ -246,5 +240,37 @@ export function DemoTour({ trigger }: { trigger: React.ReactNode }) {
         </div>
       )}
     </>
+  );
+}
+
+function PersonaCard({ p, onSelect }: { p: TourPath; onSelect: () => void }) {
+  const ref = useRef<HTMLVideoElement | null>(null);
+  return (
+    <button
+      onClick={onSelect}
+      onMouseEnter={() => { ref.current?.play().catch(() => {}); }}
+      onMouseLeave={() => { ref.current?.pause(); if (ref.current) ref.current.currentTime = 0; }}
+      className="surface-hover rounded-xl p-0 text-left w-full block relative overflow-hidden"
+    >
+      <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full z-10" style={{ background: `rgb(${p.color})` }} />
+      {p.loop && (
+        <div className="aspect-video w-full bg-[rgb(var(--bg-mute))] overflow-hidden">
+          <video
+            ref={ref}
+            src={p.loop}
+            muted
+            loop
+            playsInline
+            preload="metadata"
+            className="w-full h-full object-cover"
+          />
+        </div>
+      )}
+      <div className="p-4 ml-2.5">
+        <div className="text-[20px] mb-1">{p.emoji}</div>
+        <div className="text-[14px] font-medium">{p.who}</div>
+        <div className="text-[12px] text-mute mt-1 leading-snug">{p.intro}</div>
+      </div>
+    </button>
   );
 }

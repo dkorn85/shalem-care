@@ -14,6 +14,16 @@ import { listKrankenkassen } from "@/lib/krankmeldung/krankenkasse-api";
 import { computeKrankengeldFristen } from "@/lib/krankmeldung/krankenkasse-api";
 import { STATUS_LABEL, SYMPTOM_LABEL, AU_TYPE_LABEL } from "@/lib/krankmeldung/types";
 
+export const metadata = {
+  title: "Krankmeldung",
+  description: "Krank? Drei Klicks — Tele-AU, eAU an die Krankenkasse, Auto-Vertretung mit Bonus.",
+  openGraph: {
+    title: "Krankmeldung · Shalem Care",
+    description: "Vertretung kümmert sich automatisch — du kannst dich auskurieren.",
+    images: [{ url: "/og/krankmeldung.png", width: 1200, height: 630, alt: "Shalem Care · Krankmeldung" }],
+  },
+};
+
 export default async function KrankmeldungPage() {
   seedOnce();
   seedKrankmeldungOnce();
@@ -32,7 +42,7 @@ export default async function KrankmeldungPage() {
   return (
     <AppShell
       role="nurse"
-      user={{ name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
+      user={{ id: nurse.id, name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6">

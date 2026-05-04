@@ -6,6 +6,7 @@ import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
 import { listRatingsFor, reputationScoreFor, topRatingTags, seedRatingsOnce } from "@/lib/ratings/ratings-store";
 import { getStationOfPerson, getStation, getEinrichtung } from "@/lib/hierarchy/store";
 import { findActiveKrankmeldungForPerson, seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
+import { PersonAvatar } from "@/components/Avatar";
 import { STATUS_LABEL, SYMPTOM_LABEL } from "@/lib/krankmeldung/types";
 import { assessBurnoutRisk } from "@/lib/burnout/risk";
 import { BurnoutWarning } from "@/components/BurnoutWarning";
@@ -30,7 +31,7 @@ export default async function ProfilPage() {
   return (
     <AppShell
       role="nurse"
-      user={{ name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
+      user={{ id: nurse.id, name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6 anim-slideUp">
@@ -74,12 +75,7 @@ export default async function ProfilPage() {
         {/* Stammdaten */}
         <div className="lg:col-span-7 surface rounded-2xl p-6 anim-slideUp" style={{ animationDelay: "0.05s" }}>
           <div className="flex items-center gap-4 mb-6">
-            <div
-              className="w-16 h-16 rounded-full grid place-items-center text-[20px] font-semibold text-white"
-              style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--sun)))" }}
-            >
-              {nurse.initials}
-            </div>
+            <PersonAvatar id={nurse.id} initials={nurse.initials} size={72} role={nurse.role} />
             <div>
               <h2 className="font-display text-[20px] font-semibold">{nurse.name}</h2>
               <p className="text-[13px] text-mute">{nurse.qualifications.join(" · ")} · {nurse.tariffGrade.replace("TVOED-P_", "")}</p>

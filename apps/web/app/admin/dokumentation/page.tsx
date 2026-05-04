@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar } from "@/components/Avatar";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_LEAD_ID } from "@/lib/seed";
 import { getStationOfPerson, getStation, listKlientenAtStation } from "@/lib/hierarchy/store";
@@ -28,7 +29,7 @@ export default async function DokumentationOverviewPage() {
   return (
     <AppShell
       role="lead"
-      user={{ name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
+      user={{ id: lead.id, name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6 anim-slideUp">
@@ -63,7 +64,8 @@ export default async function DokumentationOverviewPage() {
                 className="surface-hover rounded-xl p-4 flex items-center gap-4 anim-float"
                 style={{ animationDelay: `${idx * 0.04}s` }}
               >
-                <PflegegradIcon pflegegrad={k.pflegegrad} size={44} withChip={false} />
+                <KlientAvatar id={k.id} initials={k.initials} size={48} />
+                <PflegegradIcon pflegegrad={k.pflegegrad} size={20} withChip={false} />
                 <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="text-[14px] font-medium">{k.name}</span>

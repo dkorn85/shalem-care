@@ -4,6 +4,7 @@ import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { PersonaSwitcher } from "./PersonaSwitcher";
+import { PersonAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
@@ -43,7 +44,7 @@ export async function AppShell({
   children,
 }: {
   role: Role;
-  user: { name: string; subtitle: string; initials: string };
+  user: { id?: string; name: string; subtitle: string; initials: string };
   station: string;
   children: React.ReactNode;
 }) {
@@ -118,10 +119,7 @@ export async function AppShell({
         </div>
 
         <div className="border-t border-app-soft px-4 py-3 flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-full grid place-items-center text-[11px] font-semibold text-white"
-               style={{ background: "linear-gradient(135deg, rgb(var(--accent)), rgb(var(--sat)))" }}>
-            {user.initials}
-          </div>
+          <PersonAvatar id={user.id ?? "—"} initials={user.initials} size={36} role={role === "doctor" ? "doctor" : role} />
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-medium truncate">{user.name}</div>
             <div className="text-[11px] text-soft truncate">{user.subtitle}</div>

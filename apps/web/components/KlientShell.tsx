@@ -4,6 +4,7 @@ import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 import { PersonaSwitcher } from "./PersonaSwitcher";
+import { KlientAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
@@ -13,6 +14,7 @@ export type KlientUser = {
   initials: string;
   relation: "self" | "angehörige" | "betreuer";
   klientName?: string;
+  klientId?: string;
 };
 
 export async function KlientShell({
@@ -47,12 +49,8 @@ export async function KlientShell({
               <div className="text-[13px] font-medium">{user.name}</div>
               <div className="text-[11px] text-soft">{subtitle}</div>
             </div>
-            <div
-              className="w-9 h-9 rounded-full grid place-items-center text-[12px] font-semibold text-white"
-              style={{ background: "linear-gradient(135deg, rgb(var(--sun)), rgb(var(--fri)))" }}
-            >
-              {user.initials}
-            </div>
+            <KlientAvatar id={user.klientId ?? "—"} initials={user.initials} size={40} />
+
           </div>
         </div>
       </header>

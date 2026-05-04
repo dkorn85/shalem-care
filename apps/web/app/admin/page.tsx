@@ -25,7 +25,7 @@ export default async function AdminDashboard() {
   return (
     <AppShell
       role="lead"
-      user={{ name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
+      user={{ id: lead.id, name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
       station="Pulmologie 3B"
     >
       <header className="mb-8">

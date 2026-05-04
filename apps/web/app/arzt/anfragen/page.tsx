@@ -33,7 +33,7 @@ export default async function AnfragenListePage({ searchParams }: { searchParams
   return (
     <AppShell
       role="doctor"
-      user={{ name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
+      user={{ id: arzt.id, name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
       station={arzt.arztPraxis ?? "Praxis"}
     >
       <header className="mb-6">

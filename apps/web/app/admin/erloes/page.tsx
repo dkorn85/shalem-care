@@ -1,5 +1,6 @@
 import { AppShell } from "@/components/AppShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar, PersonAvatar } from "@/components/Avatar";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_LEAD_ID } from "@/lib/seed";
 import { getStationOfPerson, getStation } from "@/lib/hierarchy/store";
@@ -8,6 +9,16 @@ import { KOSTENTRAEGER_LABEL, KOSTENTRAEGER_FARBE } from "@/lib/abrechnung/types
 import type { Kostentraeger } from "@/lib/abrechnung/types";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+
+export const metadata = {
+  title: "Erlös",
+  description: "Erlös pro Einrichtung, Station, Klient — über alle Kostenträger (SGB XI/V/IX/VIII/XII, KiBiZ).",
+  openGraph: {
+    title: "Erlös · Shalem Care",
+    description: "Pflegegrad-Pauschale + erbrachte Leistungsmodule, transparent pro Klient.",
+    images: [{ url: "/og/erloes.png", width: 1200, height: 630, alt: "Shalem Care · Erlös" }],
+  },
+};
 
 export default async function ErloesPage() {
   seedOnce();
@@ -24,7 +35,7 @@ export default async function ErloesPage() {
   return (
     <AppShell
       role="lead"
-      user={{ name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
+      user={{ id: lead.id, name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6">
@@ -121,7 +132,7 @@ export default async function ErloesPage() {
                       {s.klienten.map((k) => (
                         <li key={k.klient.id} className="text-[12px] surface-mute rounded-lg p-2.5">
                           <div className="flex items-center gap-3">
-                            <PflegegradIcon pflegegrad={k.pflegegrad} size={36} withChip={false} />
+                            <KlientAvatar id={k.klient.id} initials={k.klient.initials} size={36} ring={`var(--mon)`} />
                             <div className="flex-1 min-w-0">
                               <div className="truncate font-medium">{k.klient.name}</div>
                               <div className="text-soft text-[11px]">
@@ -168,12 +179,7 @@ export default async function ErloesPage() {
                     <ul className="space-y-1.5">
                       {s.staff.map((p) => (
                         <li key={p.person.id} className="flex items-center gap-2.5 text-[12px]">
-                          <div
-                            className="w-7 h-7 rounded-full grid place-items-center text-[10px] font-semibold text-white shrink-0"
-                            style={{ background: `linear-gradient(135deg, rgb(var(--mon)), rgb(var(--thu)))` }}
-                          >
-                            {p.person.initials}
-                          </div>
+                          <PersonAvatar id={p.person.id} initials={p.person.initials} size={28} role={p.person.role} />
                           <div className="flex-1 min-w-0">
                             <div className="truncate">
                               {p.person.name}

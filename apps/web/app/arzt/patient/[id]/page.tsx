@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar } from "@/components/Avatar";
 import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
 import { getKlient, getStation } from "@/lib/hierarchy/store";
@@ -40,7 +41,7 @@ export default async function ArztPatientPage({ params }: { params: Promise<{ id
   return (
     <AppShell
       role="doctor"
-      user={{ name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
+      user={{ id: arzt.id, name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
       station={arzt.arztPraxis ?? "Praxis"}
     >
       <header className="mb-6">
@@ -48,7 +49,8 @@ export default async function ArztPatientPage({ params }: { params: Promise<{ id
           ← Patient:innen
         </Link>
         <div className="flex items-start gap-4 anim-slideUp">
-          <PflegegradIcon pflegegrad={klient.pflegegrad} size={64} withChip={false} />
+          <KlientAvatar id={klient.id} initials={klient.initials} size={84} />
+          <PflegegradIcon pflegegrad={klient.pflegegrad} size={28} withChip={false} />
           <div className="flex-1 min-w-0">
             <h1 className="font-display text-[28px] font-bold tracking-tight2">{klient.name}</h1>
             <p className="text-[13px] text-mute mt-1">

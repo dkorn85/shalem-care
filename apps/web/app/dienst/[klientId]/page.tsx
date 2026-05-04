@@ -5,6 +5,7 @@ import { AiDokuAssistant } from "@/components/AiDokuAssistant";
 import { MedikationsListe } from "@/components/MedikationsListe";
 import { TherapieVorschlaege } from "@/components/TherapieVorschlaege";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar } from "@/components/Avatar";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
 import { getKlient, getStation, getStationOfPerson } from "@/lib/hierarchy/store";
@@ -83,7 +84,7 @@ export default async function DienstKlientPage({
   return (
     <AppShell
       role="nurse"
-      user={{ name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
+      user={{ id: nurse.id, name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6">
@@ -91,9 +92,12 @@ export default async function DienstKlientPage({
           ← Stationsansicht
         </Link>
         <div className="flex items-start gap-4 anim-slideUp">
-          <PflegegradIcon pflegegrad={klient.pflegegrad} size={64} withChip={false} />
+          <KlientAvatar id={klient.id} initials={klient.initials} size={84} />
           <div className="flex-1 min-w-0">
-            <h1 className="font-display text-[28px] font-bold tracking-tight2">{klient.name}</h1>
+            <div className="flex items-center gap-2">
+              <h1 className="font-display text-[28px] font-bold tracking-tight2">{klient.name}</h1>
+              <PflegegradIcon pflegegrad={klient.pflegegrad} size={28} withChip={false} />
+            </div>
             <p className="text-[13px] text-mute mt-1">
               Pflegegrad {klient.pflegegrad}
               {klientStation && ` · ${klientStation.name}`}

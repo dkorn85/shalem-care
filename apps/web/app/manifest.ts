@@ -15,8 +15,12 @@ export default function manifest(): MetadataRoute.Manifest {
     lang: "de",
     categories: ["medical", "productivity", "health", "social"],
     icons: [
-      // Verwendet das vorhandene Hero-Logo. Maskable-Variante in Phase 1
-      // mit dediziertem 1024×1024-Icon ergänzen (siehe docs/ASSETS_NEEDED.md).
+      {
+        src: "/icon-maskable.png",
+        sizes: "1024x1024",
+        type: "image/png",
+        purpose: "maskable",
+      },
       {
         src: "/brand/01_logo_hero_1x1.png",
         sizes: "512x512",

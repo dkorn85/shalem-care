@@ -14,7 +14,7 @@ export default async function TauschPage() {
   return (
     <AppShell
       role="nurse"
-      user={{ name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
+      user={{ id: nurse.id, name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
       station="Pulmologie 3B"
     >
       <header className="mb-6 flex items-end justify-between gap-4 flex-wrap">

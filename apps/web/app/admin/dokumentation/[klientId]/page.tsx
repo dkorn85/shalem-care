@@ -4,6 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { AiDokuAssistant } from "@/components/AiDokuAssistant";
 import { MedikationsListe } from "@/components/MedikationsListe";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar } from "@/components/Avatar";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_LEAD_ID, CURRENT_USER_ID } from "@/lib/seed";
 import { getKlient, getStation, getStationOfPerson } from "@/lib/hierarchy/store";
@@ -64,7 +65,7 @@ export default async function KlientDokuPage({
   return (
     <AppShell
       role="lead"
-      user={{ name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
+      user={{ id: lead.id, name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6">
@@ -72,7 +73,8 @@ export default async function KlientDokuPage({
           ← Zurück zur Übersicht
         </Link>
         <div className="flex items-start gap-4 anim-slideUp">
-          <PflegegradIcon pflegegrad={klient.pflegegrad} size={64} withChip={false} />
+          <KlientAvatar id={klient.id} initials={klient.initials} size={84} />
+          <PflegegradIcon pflegegrad={klient.pflegegrad} size={28} withChip={false} />
           <div className="flex-1 min-w-0">
             <h1 className="font-display text-[28px] font-bold tracking-tight2">{klient.name}</h1>
             <p className="text-[13px] text-mute mt-1">

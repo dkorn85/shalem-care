@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { KlientShell } from "@/components/KlientShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { PersonAvatar } from "@/components/Avatar";
 import { VerordnungsAnfrageForm } from "@/components/VerordnungsAnfrageForm";
 import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
@@ -65,6 +66,7 @@ export default async function KlientPage() {
         name: "Helga Reinhardt",
         initials: "HR",
         relation: "self",
+        klientId: KLIENT_ID,
       }}
     >
       <header className="mb-8 anim-slideUp">
@@ -84,12 +86,7 @@ export default async function KlientPage() {
           <p className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Heute betreut Sie</p>
           {todaysCarer ? (
             <div className="flex items-center gap-4">
-              <div
-                className="w-16 h-16 rounded-full grid place-items-center text-[20px] font-semibold text-white shrink-0"
-                style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--fri)))" }}
-              >
-                {todaysCarer.initials}
-              </div>
+              <PersonAvatar id={todaysCarer.id} initials={todaysCarer.initials} size={64} role={todaysCarer.role} />
               <div className="flex-1 min-w-0">
                 <h2 className="font-display text-[22px] font-bold tracking-tight2">{todaysCarer.name}</h2>
                 <p className="text-[13px] text-mute mt-1">
@@ -131,12 +128,7 @@ export default async function KlientPage() {
                   <div className="text-[11px] text-soft font-mono">{format(d, "d.M.", { locale: de })}</div>
                   {carer && (
                     <div className="mt-2.5">
-                      <div
-                        className="w-8 h-8 rounded-full grid place-items-center text-[10px] font-semibold text-white"
-                        style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--fri)))" }}
-                      >
-                        {carer.initials}
-                      </div>
+                      <PersonAvatar id={carer.id} initials={carer.initials} size={32} role={carer.role} />
                       <div className="text-[11px] mt-1.5 truncate">{carer.name.split(" ")[0]}</div>
                       <div className="text-[10px] text-soft">{SHIFT_TIMES[shift]}</div>
                     </div>

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { KlientAvatar } from "@/components/Avatar";
 import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
 import { listKlienten, getStation } from "@/lib/hierarchy/store";
@@ -25,7 +26,7 @@ export default async function ArztPatientenPage() {
   return (
     <AppShell
       role="doctor"
-      user={{ name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
+      user={{ id: arzt.id, name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
       station={arzt.arztPraxis ?? "Praxis"}
     >
       <header className="mb-6">
@@ -45,7 +46,8 @@ export default async function ArztPatientenPage() {
             <li key={k.id}>
               <Link href={`/arzt/patient/${k.id}`} className="surface-hover rounded-2xl p-4 block anim-float">
                 <div className="flex items-start gap-3">
-                  <PflegegradIcon pflegegrad={k.pflegegrad} size={42} withChip={false} />
+                  <KlientAvatar id={k.id} initials={k.initials} size={48} />
+                  <PflegegradIcon pflegegrad={k.pflegegrad} size={20} withChip={false} />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 flex-wrap">
                       <span className="text-[14px] font-medium truncate">{k.name}</span>
