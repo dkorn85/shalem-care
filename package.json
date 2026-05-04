@@ -7,8 +7,9 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "build": "cd apps/web && npm install && npm run build && node ../../scripts/post-build.mjs",
-    "start": "node apps/web/.next/standalone/apps/web/server.js",
-    "postinstall": "cd apps/web && npm install"
+    "// note":             "Hostinger setzt NODE_ENV=production, deshalb erzwingen wir --include=dev — ohne tailwindcss/postcss/typescript scheitert next build.",
+    "build":               "cd apps/web && npm install --include=dev && npm run build && node ../../scripts/post-build.mjs",
+    "start":               "node apps/web/.next/standalone/apps/web/server.js",
+    "postinstall":         "cd apps/web && npm install --include=dev"
   }
 }
