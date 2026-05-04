@@ -12,9 +12,10 @@ const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 type Role = "nurse" | "lead" | "doctor";
 
 const NURSE_NAV = [
-  { href: "/",                label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
+  { href: "/pflege",          label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/dienst",          label: "Stationsansicht",vibe: "var(--vibe-team)",    icon: WardIcon },
   { href: "/tausch",          label: "Tausch-Markt",  vibe: "var(--vibe-market)",   icon: SwapIcon },
+  { href: "/fortbildung",     label: "Fortbildung",   vibe: "var(--fri)",           icon: BookIcon },
   { href: "/profil",          label: "Mein Profil",   vibe: "var(--vibe-profile)",  icon: ProfileIcon },
 ];
 
@@ -51,16 +52,16 @@ export async function AppShell({
   const locale = await getLocale();
   const nav = role === "lead" ? LEAD_NAV : role === "doctor" ? DOCTOR_NAV : NURSE_NAV;
   const switchRole = role === "lead"
-    ? { href: "/", label: "→ Pflegekraft-Sicht" }
+    ? { href: "/pflege", label: "→ Pflegekraft-Sicht" }
     : role === "doctor"
-      ? { href: "/", label: "→ Pflegekraft-Sicht" }
+      ? { href: "/pflege", label: "→ Pflegekraft-Sicht" }
       : { href: "/admin", label: "→ Träger-Admin" };
 
   return (
     <div className="min-h-screen flex">
       <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-app-soft bg-[rgb(var(--bg-elev))]">
         <div className="px-5 pt-5 pb-3">
-          <Link href="/willkommen" className="block">
+          <Link href="/" className="block">
             <Wordmark />
           </Link>
           <p className="text-[12px] text-soft mt-1.5 ml-9">{station}</p>
@@ -167,3 +168,4 @@ function ClockIcon()   { return <svg width="14" height="14" viewBox="0 0 14 14" 
 function EuroIcon()    { return <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M10.5 3.5a4.5 4.5 0 100 7M2.5 5.5h5M2.5 8.5h5" strokeLinecap="round"/></svg>; }
 function DokuIcon()    { return <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinejoin="round"><path d="M3 1.5h6l3 3v8a.5.5 0 01-.5.5h-8a.5.5 0 01-.5-.5V2a.5.5 0 01.5-.5z"/><path d="M9 1.5v3h3M5 7h4M5 9.5h4"/></svg>; }
 function WardIcon()    { return <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M2 12V5l5-3 5 3v7"/><rect x="5" y="7" width="4" height="5"/><path d="M7 4.5v1.5"/></svg>; }
+function BookIcon()    { return <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M3 2.5h7a1.5 1.5 0 011.5 1.5v8a.5.5 0 01-.5.5H4a1 1 0 01-1-1V2.5zM3 11.5h8.5"/><path d="M6 5h3"/></svg>; }

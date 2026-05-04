@@ -19,13 +19,14 @@ type Persona = {
 
 const PERSONAS: Persona[] = [
   {
-    href: "/",
+    href: "/pflege",
     label: "Pflegekraft",
     who: "Dennis Reuter",
     emoji: "🩺",
     color: "var(--mon)",
     matches: (p) =>
-      p === "/" ||
+      p === "/pflege" ||
+      p.startsWith("/pflege") ||
       p.startsWith("/dienst") ||
       p.startsWith("/tausch") ||
       p.startsWith("/profil"),
