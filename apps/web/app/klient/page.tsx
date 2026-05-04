@@ -1,0 +1,159 @@
+import Link from "next/link";
+import { KlientShell } from "@/components/KlientShell";
+import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { store } from "@/lib/swap-store";
+import { seedOnce } from "@/lib/seed";
+import { listPeopleAtStation, getKlient } from "@/lib/hierarchy/store";
+import { getShiftType } from "@/lib/fhir";
+import { format } from "date-fns";
+import { de } from "date-fns/locale";
+
+const SHIFT_LABEL: Record<string, string> = {
+  early: "Frühschicht",
+  late: "Spätschicht",
+  night: "Nachtschicht",
+};
+
+const SHIFT_TIMES: Record<string, string> = {
+  early: "06–14 Uhr",
+  late: "14–22 Uhr",
+  night: "22–06 Uhr",
+};
+
+export default async function KlientPage() {
+  seedOnce();
+  const people = listPeopleAtStation("st-luk-wohn-a");
+  const wohnbereich = "Wohnbereich Annahof, St. Lukas";
+  const klient = getKlient("klient-hr");
+
+  // Demo: wer hat heute Frühschicht? (deterministisch erste Pflegekraft mit Frühschicht)
+  const today = new Date();
+  const allSlots = await store.listSlots();
+  const todaysShifts = allSlots.filter((s) => {
+    const slotDate = new Date(s.start!);
+    return slotDate.toDateString() === today.toDateString();
+  });
+
+  const todaysCarer = people.find((p) => p.role === "nurse");
+
+  // Nächste 7 Tage — wer kommt
+  const next7Days = Array.from({ length: 7 }, (_, i) => {
+    const d = new Date(today);
+    d.setDate(d.getDate() + i);
+    return d;
+  });
+
+  return (
+    <KlientShell
+      user={{
+        name: "Helga Reinhardt",
+        initials: "HR",
+        relation: "self",
+      }}
+    >
+      <header className="mb-8 anim-slideUp">
+        <p className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Heute, {format(today, "EEEE d. MMMM", { locale: de })}</p>
+        <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05] text-balance">
+          Guten Tag,<br /><span className="rainbow-text">Frau Reinhardt</span>.
+        </h1>
+        <div className="flex items-center gap-4 mt-4 flex-wrap">
+          <p className="text-[14px] text-mute">{wohnbereich}</p>
+          {klient && <PflegegradIcon pflegegrad={klient.pflegegrad} size={48} withLabel={false} withChip={true} />}
+        </div>
+      </header>
+
+      <section className="surface rounded-2xl p-6 mb-6 relative overflow-hidden">
+        <span aria-hidden className="absolute left-0 top-6 bottom-6 w-[3px] rounded-full" style={{ background: "rgb(var(--vibe-team))" }} />
+        <div className="ml-3">
+          <p className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Heute betreut Sie</p>
+          {todaysCarer ? (
+            <div className="flex items-center gap-4">
+              <div
+                className="w-16 h-16 rounded-full grid place-items-center text-[20px] font-semibold text-white shrink-0"
+                style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--fri)))" }}
+              >
+                {todaysCarer.initials}
+              </div>
+              <div className="flex-1 min-w-0">
+                <h2 className="font-display text-[22px] font-bold tracking-tight2">{todaysCarer.name}</h2>
+                <p className="text-[13px] text-mute mt-1">
+                  Pflegefachkraft · Frühschicht · 06–14 Uhr
+                </p>
+                <p className="text-[13px] text-soft mt-1.5">War schon 4 Mal bei Ihnen — Sie kennen sich.</p>
+              </div>
+            </div>
+          ) : (
+            <p className="text-[14px] text-mute">Heute ist niemand eingeteilt — bitte Stationsleitung kontaktieren.</p>
+          )}
+          <div className="mt-4 flex flex-wrap gap-2">
+            <Link href="/klient/anfrage" className="btn">+ Pflegeanfrage stellen</Link>
+            <Link href="/klient/notizen" className="btn btn-ghost">Notizen ansehen</Link>
+          </div>
+        </div>
+      </section>
+
+      <section className="mb-8">
+        <h2 className="font-display text-[18px] font-semibold tracking-tight2 mb-4">Nächste sieben Tage</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-7 gap-2">
+          {next7Days.map((d, idx) => {
+            const dayClass = ["day-mon", "day-tue", "day-wed", "day-thu", "day-fri", "day-sat", "day-sun"][d.getDay() === 0 ? 6 : d.getDay() - 1];
+            // Demo: rotiere Pflegekräfte durch
+            const carer = people.filter((p) => p.role === "nurse")[idx % people.filter((p) => p.role === "nurse").length];
+            const shifts = ["early", "early", "late", "early", "early", "early", "late"];
+            const shift = shifts[idx];
+            return (
+              <article
+                key={d.toISOString()}
+                className={`${dayClass} surface-mute rounded-xl p-3 anim-float relative overflow-hidden`}
+                style={{ animationDelay: `${idx * 0.04}s` }}
+              >
+                <span aria-hidden className="absolute top-0 left-3 right-3 h-[3px] rounded-full" style={{ background: "rgb(var(--day))" }} />
+                <div className="pt-2">
+                  <div className="text-[11px] font-bold uppercase tracking-wider" style={{ color: "rgb(var(--day))" }}>
+                    {format(d, "EEEEEE", { locale: de })}
+                  </div>
+                  <div className="text-[11px] text-soft font-mono">{format(d, "d.M.", { locale: de })}</div>
+                  {carer && (
+                    <div className="mt-2.5">
+                      <div
+                        className="w-8 h-8 rounded-full grid place-items-center text-[10px] font-semibold text-white"
+                        style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--fri)))" }}
+                      >
+                        {carer.initials}
+                      </div>
+                      <div className="text-[11px] mt-1.5 truncate">{carer.name.split(" ")[0]}</div>
+                      <div className="text-[10px] text-soft">{SHIFT_TIMES[shift]}</div>
+                    </div>
+                  )}
+                </div>
+              </article>
+            );
+          })}
+        </div>
+      </section>
+
+      <section className="grid sm:grid-cols-2 gap-3">
+        <Link href="/klient/notizen" className="surface-hover rounded-2xl p-5 group">
+          <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Pflegenotizen</div>
+          <h3 className="font-display text-[16px] font-semibold tracking-tight2">Letzte 7 Tage</h3>
+          <p className="text-[12px] text-mute mt-1.5">Beobachtungen, Wundverlauf, Stimmung</p>
+          <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-stats))" }}>
+            Ansehen →
+          </div>
+        </Link>
+        <Link href="/klient/bewertung" className="surface-hover rounded-2xl p-5 group">
+          <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Rückmeldung</div>
+          <h3 className="font-display text-[16px] font-semibold tracking-tight2">Pflegekräfte bewerten</h3>
+          <p className="text-[12px] text-mute mt-1.5">Hilft anderen Klient:innen und der Genossenschaft</p>
+          <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-profile))" }}>
+            Geben →
+          </div>
+        </Link>
+      </section>
+
+      <p className="text-[11px] text-soft mt-10 max-w-prose">
+        Hinweis: Die Klient-Sicht ist Phase-1-Stub. Echte Pflegedoku, Wundverlauf, Medikamenten-Plan kommen in Phase 3 (Klientenakte) mit FHIR-Observation- und CarePlan-Resources.
+      </p>
+    </KlientShell>
+  );
+}

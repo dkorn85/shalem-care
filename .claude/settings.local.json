@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(npx tsc *)",
+      "Bash(echo \"exit=$?\")",
+      "Bash(where pdftoppm *)",
+      "Bash(pdftotext -layout \"C:/Users/dkorn/Downloads/hausmittelrunde_3_0_4.pdf\" \"C:/Users/dkorn/Downloads/hausmittelrunde.txt\")",
+      "Bash(pdftotext -layout \"C:/Users/dkorn/Downloads/pflegehandbuch_v_1_0-iX434Y0hhsGLFgXB.pdf\" \"C:/Users/dkorn/Downloads/pflegehandbuch.txt\")"
+    ]
+  }
+}

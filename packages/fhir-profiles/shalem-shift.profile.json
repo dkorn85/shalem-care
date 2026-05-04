@@ -1,0 +1,89 @@
+{
+  "resourceType": "StructureDefinition",
+  "url": "https://shalem.care/fhir/StructureDefinition/ShalemShift",
+  "version": "0.1.0",
+  "name": "ShalemShift",
+  "title": "Shalem Care Shift (Schicht)",
+  "status": "draft",
+  "experimental": true,
+  "date": "2026-05-04",
+  "publisher": "Shalem Care eG (i.G.)",
+  "description": "Profile auf FHIR Slot zur Repräsentation einer Pflege-Schicht im deutschen Tarifkontext (TVöD-P, AVR Caritas, AVR Diakonie). Erweitert Slot um Schichttyp, Tarifwerk, geforderte Qualifikation und Status im Tausch-Marktplatz.",
+  "fhirVersion": "4.0.1",
+  "kind": "resource",
+  "abstract": false,
+  "type": "Slot",
+  "baseDefinition": "http://hl7.org/fhir/StructureDefinition/Slot",
+  "derivation": "constraint",
+  "differential": {
+    "element": [
+      {
+        "id": "Slot",
+        "path": "Slot",
+        "definition": "Pflege-Schicht in einer Einrichtung."
+      },
+      {
+        "id": "Slot.extension:shiftType",
+        "path": "Slot.extension",
+        "sliceName": "shiftType",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": ["https://shalem.care/fhir/StructureDefinition/shift-type"]
+          }
+        ]
+      },
+      {
+        "id": "Slot.extension:tariff",
+        "path": "Slot.extension",
+        "sliceName": "tariff",
+        "min": 1,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": ["https://shalem.care/fhir/StructureDefinition/tariff"]
+          }
+        ]
+      },
+      {
+        "id": "Slot.extension:qualificationRequired",
+        "path": "Slot.extension",
+        "sliceName": "qualificationRequired",
+        "min": 0,
+        "max": "*",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": ["https://shalem.care/fhir/StructureDefinition/qualification-required"]
+          }
+        ]
+      },
+      {
+        "id": "Slot.extension:swapStatus",
+        "path": "Slot.extension",
+        "sliceName": "swapStatus",
+        "min": 0,
+        "max": "1",
+        "type": [
+          {
+            "code": "Extension",
+            "profile": ["https://shalem.care/fhir/StructureDefinition/swap-status"]
+          }
+        ]
+      },
+      {
+        "id": "Slot.start",
+        "path": "Slot.start",
+        "min": 1
+      },
+      {
+        "id": "Slot.end",
+        "path": "Slot.end",
+        "min": 1
+      }
+    ]
+  }
+}

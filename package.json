@@ -1,0 +1,14 @@
+{
+  "name": "shalem-care",
+  "version": "0.11.0",
+  "private": true,
+  "description": "Shalem Care — open social-care platform · monorepo entry for hosters that expect a root package.json (Hostinger, Render, Railway). Real app lives in apps/web.",
+  "engines": {
+    "node": ">=20.10.0"
+  },
+  "scripts": {
+    "build": "cd apps/web && npm install && npm run build && node ../../scripts/post-build.mjs",
+    "start": "node apps/web/.next/standalone/apps/web/server.js",
+    "postinstall": "cd apps/web && npm install"
+  }
+}
