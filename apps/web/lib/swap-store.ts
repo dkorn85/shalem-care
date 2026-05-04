@@ -50,6 +50,11 @@ export interface SwapStore {
   createSlot(slot: Slot, ownerId: string): Promise<Slot>;
   swapSlotOwners(slotIdA: string, slotIdB: string | undefined, newOwner: string, originalOwner: string): Promise<void>;
 
+  // Lead / Disposition
+  reassignSlot?(slotId: string, newOwnerId: string | null): Promise<Slot | null>;
+  deleteSlot?(slotId: string): Promise<boolean>;
+  getSlotOwner?(slotId: string): Promise<string | null>;
+
   // People
   listPeople(): Promise<Person[]>;
   getPerson(id: string): Promise<Person | null>;

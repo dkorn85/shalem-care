@@ -70,4 +70,25 @@ export class InMemorySwapStore implements SwapStore {
 
   async listPeople() { return Array.from(this.people.values()); }
   async getPerson(id: string) { return this.people.get(id) ?? null; }
+
+  async reassignSlot(slotId: string, newOwnerId: string | null): Promise<Slot | null> {
+    const slot = this.slots.get(slotId);
+    if (!slot) return null;
+    if (newOwnerId === null) {
+      this.slotOwner.delete(slotId);
+    } else {
+      this.slotOwner.set(slotId, newOwnerId);
+    }
+    return slot;
+  }
+
+  async deleteSlot(slotId: string): Promise<boolean> {
+    const had = this.slots.delete(slotId);
+    this.slotOwner.delete(slotId);
+    return had;
+  }
+
+  async getSlotOwner(slotId: string): Promise<string | null> {
+    return this.slotOwner.get(slotId) ?? null;
+  }
 }

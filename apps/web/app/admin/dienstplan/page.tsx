@@ -1,31 +1,95 @@
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { DienstplanEditor } from "@/components/DienstplanEditor";
+import type { PersonRow, FreeSlot, SuggestionForSlot } from "@/components/DienstplanEditor";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_LEAD_ID } from "@/lib/seed";
-import { getShiftType } from "@/lib/fhir";
-import { format, eachDayOfInterval, isSameDay, startOfWeek, endOfWeek } from "date-fns";
-import { de } from "date-fns/locale";
+import { getShiftType, type ShiftType } from "@/lib/fhir";
+import { computeCoordinatorSuggestions } from "@/lib/dispo/actions";
+import { getSlotImportSource } from "@/lib/dispo/store";
+import { eachDayOfInterval, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 
-const SHIFT_LABEL: Record<string, string> = { early: "F", late: "S", night: "N" };
-const SHIFT_TONE: Record<string, string> = {
-  early: "bg-amber-100 text-amber-700",
-  late:  "bg-purple-100 text-purple-700",
-  night: "bg-night-100 text-night-700",
-};
-
-const DAY_CLASS = ["day-mon", "day-tue", "day-wed", "day-thu", "day-fri", "day-sat", "day-sun"];
-
-export default async function DienstplanPage() {
+export default async function DienstplanPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ week?: string }>;
+}) {
   seedOnce();
+  const { week: weekParam } = await searchParams;
+
   const lead = (await store.getPerson(CURRENT_LEAD_ID))!;
-  const people = (await store.listPeople()).filter((p) => p.role === "nurse");
+  const allPeople = await store.listPeople();
+  const nurses = allPeople.filter((p) => p.role === "nurse" || p.role === "lead");
 
-  const weekStart = startOfWeek(new Date("2026-05-06"), { weekStartsOn: 1 });
-  const weekEnd = endOfWeek(new Date("2026-05-06"), { weekStartsOn: 1 });
+  // Anker-Datum
+  const anchor = weekParam ? new Date(weekParam) : new Date("2026-05-06");
+  const weekStart = startOfWeek(anchor, { weekStartsOn: 1 });
+  const weekEnd = endOfWeek(anchor, { weekStartsOn: 1 });
   const days = eachDayOfInterval({ start: weekStart, end: weekEnd });
+  const dayKeys = days.map((d) => d.toISOString().slice(0, 10));
 
-  const personSlots = await Promise.all(
-    people.map(async (p) => ({ person: p, slots: await store.listSlotsForPerson(p.id) }))
+  // Slots pro Person
+  const slotsByPerson = await Promise.all(
+    nurses.map(async (p) => ({ person: p, slots: await store.listSlotsForPerson(p.id) })),
   );
+  const rows: PersonRow[] = slotsByPerson.map(({ person, slots }) => {
+    const shiftsByDay: Record<string, { slotId: string; shiftType: ShiftType }> = {};
+    for (const s of slots) {
+      if (!s.start || !s.id) continue;
+      const dKey = days.find((d) => isSameDay(new Date(s.start!), d))?.toISOString().slice(0, 10);
+      if (!dKey) continue;
+      const t = getShiftType(s) ?? "early";
+      shiftsByDay[dKey] = { slotId: s.id, shiftType: t };
+    }
+    return {
+      id: person.id,
+      name: person.name,
+      initials: person.initials,
+      role: person.role,
+      shiftsByDay,
+    };
+  });
+
+  // Freie Slots in der Woche (Slots ohne Owner, mit Start in der Woche)
+  const ownedIds = new Set<string>();
+  for (const r of slotsByPerson) for (const s of r.slots) if (s.id) ownedIds.add(s.id);
+  const allSlots = await store.listSlots();
+  const freeSlots = allSlots.filter((s) => {
+    if (!s.id || !s.start) return false;
+    if (ownedIds.has(s.id)) return false;
+    const start = new Date(s.start);
+    return start >= weekStart && start <= weekEnd;
+  });
+
+  const freeSlotsByDay: Record<string, FreeSlot[]> = {};
+  for (const dKey of dayKeys) freeSlotsByDay[dKey] = [];
+  for (const s of freeSlots) {
+    if (!s.id || !s.start) continue;
+    const dKey = days.find((d) => isSameDay(new Date(s.start!), d))?.toISOString().slice(0, 10);
+    if (!dKey) continue;
+    const importSrc = getSlotImportSource(s.id);
+    const ref = s.schedule?.reference ?? "";
+    const stationLabel = ref.includes("st-luk") ? "St. Lukas" : ref.includes("pulmologie") ? "Pulmologie 3B" : ref.replace("Schedule/", "");
+    freeSlotsByDay[dKey].push({
+      slotId: s.id,
+      shiftType: getShiftType(s) ?? "early",
+      date: dKey,
+      shortLabel: importSrc ? `Träger-Import · ${stationLabel}` : stationLabel,
+      source: importSrc ? "carrier_import" : "lead_manual",
+    });
+  }
+
+  // KI-Vorschläge berechnen für die freien Slots
+  const sugg = await computeCoordinatorSuggestions();
+  const suggestions: Record<string, SuggestionForSlot["topMatches"]> = {};
+  if (sugg.ok) {
+    for (const s of sugg.suggestions) {
+      suggestions[s.slotId] = s.topMatches;
+    }
+  }
+
+  const totalFree = freeSlots.length;
+  const totalSuggested = Object.values(suggestions).filter((m) => m.length > 0).length;
 
   return (
     <AppShell
@@ -35,59 +99,50 @@ export default async function DienstplanPage() {
     >
       <header className="mb-6">
         <h1 className="font-display text-[28px] font-bold tracking-tight2">Dienstplan</h1>
-        <p className="text-[13px] text-mute mt-1">KW 19 · 4.–10. Mai 2026 · Lesen erst, in v0.4 dann editierbar.</p>
+        <p className="text-[13px] text-mute mt-1.5 max-w-prose">
+          Klick auf eine Zelle zum Bearbeiten · neue Schicht anlegen · Schicht in den Tausch-Markt
+          freigeben · KI-Vorschlag für freie Slots übernehmen.
+        </p>
+        <div className="flex items-center gap-3 mt-4 flex-wrap">
+          <Link
+            href="/admin/dienstplan/import"
+            className="btn text-[13px]"
+          >
+            ⬆ Träger-Import
+          </Link>
+          <Link
+            href="/admin/dienstplan/koordinator"
+            className="btn btn-primary text-[13px]"
+          >
+            🧠 KI-Koordinator ({totalFree} frei · {totalSuggested} mit Vorschlag)
+          </Link>
+          <span className="text-[11px] text-soft">
+            KW {iso8601Week(weekStart)} · {weekStart.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })} – {weekEnd.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}
+          </span>
+        </div>
       </header>
 
-      <section className="surface rounded-2xl p-2 sm:p-4 overflow-x-auto">
-        <table className="w-full min-w-[720px]">
-          <thead>
-            <tr>
-              <th className="text-left px-3 py-2.5 text-[11px] uppercase tracking-wide text-soft font-medium">Person</th>
-              {days.map((d, i) => (
-                <th key={d.toISOString()} className={`${DAY_CLASS[i]} text-center px-2 py-2.5 relative`}>
-                  <span
-                    aria-hidden
-                    className="absolute top-1.5 left-1/2 -translate-x-1/2 h-[3px] w-8 rounded-full"
-                    style={{ background: "rgb(var(--day))" }}
-                  />
-                  <div className="text-[11px] font-bold tracking-wider mt-1.5" style={{ color: "rgb(var(--day))" }}>
-                    {format(d, "EEEEEE", { locale: de }).toUpperCase()}
-                  </div>
-                  <div className="text-[10px] text-soft font-mono mt-0.5">{format(d, "d.M.")}</div>
-                </th>
-              ))}
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-[rgb(var(--border-soft))]">
-            {personSlots.map(({ person, slots }, rowIdx) => (
-              <tr key={person.id} className="anim-float" style={{ animationDelay: `${rowIdx * 0.04}s` }}>
-                <td className="px-3 py-2 text-[13px] font-medium whitespace-nowrap">{person.name}</td>
-                {days.map((d) => {
-                  const slot = slots.find((s) => isSameDay(new Date(s.start!), d));
-                  const t = slot ? getShiftType(slot) : null;
-                  return (
-                    <td key={d.toISOString()} className="px-1.5 py-2 text-center">
-                      {slot && t ? (
-                        <span className={`inline-flex items-center justify-center w-7 h-7 rounded-md text-[12px] font-bold ${SHIFT_TONE[t]}`}>
-                          {SHIFT_LABEL[t]}
-                        </span>
-                      ) : (
-                        <span className="text-soft text-[12px]">·</span>
-                      )}
-                    </td>
-                  );
-                })}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </section>
+      <DienstplanEditor
+        days={dayKeys}
+        rows={rows}
+        freeSlotsByDay={freeSlotsByDay}
+        suggestions={suggestions}
+      />
 
       <p className="text-[12px] text-soft mt-4 flex items-center gap-3 flex-wrap">
         <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded bg-amber-500" /> Frühschicht</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded bg-purple-500" /> Spätschicht</span>
         <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded bg-night-500" /> Nachtschicht</span>
+        <span className="inline-flex items-center gap-1.5"><span className="w-2 h-2 rounded-full" style={{ background: "rgb(var(--thu))" }} /> KI-Vorschlag verfügbar</span>
       </p>
     </AppShell>
   );
+}
+
+function iso8601Week(d: Date): number {
+  const tmp = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  const dayNum = tmp.getUTCDay() || 7;
+  tmp.setUTCDate(tmp.getUTCDate() + 4 - dayNum);
+  const yearStart = new Date(Date.UTC(tmp.getUTCFullYear(), 0, 1));
+  return Math.ceil(((tmp.getTime() - yearStart.getTime()) / 86_400_000 + 1) / 7);
 }
