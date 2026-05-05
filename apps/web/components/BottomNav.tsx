@@ -58,16 +58,26 @@ const EHRENAMT_NAV: NavItem[] = [
   { href: "/ehrenamt/protokoll",  label: "Protokoll",   icon: <CheckIcon /> },
 ];
 
-export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" }) {
+const HAUSWIRT_NAV: NavItem[] = [
+  { href: "/hauswirtschaft", label: "Übersicht", icon: <HomeIcon /> },
+];
+
+const HEILERZ_NAV: NavItem[] = [
+  { href: "/heilerziehung", label: "Übersicht", icon: <HomeIcon /> },
+];
+
+export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung" }) {
   const items =
-    role === "lead"      ? LEAD_NAV   :
-    role === "klient"    ? KLIENT_NAV :
-    role === "doctor"    ? DOCTOR_NAV :
-    role === "therapie"  ? THERAPIE_NAV :
-    role === "sozial"    ? SOZIAL_NAV :
-    role === "erziehung" ? ERZIEHUNG_NAV :
-    role === "ehrenamt"  ? EHRENAMT_NAV :
-                           NURSE_NAV;
+    role === "lead"           ? LEAD_NAV       :
+    role === "klient"         ? KLIENT_NAV     :
+    role === "doctor"         ? DOCTOR_NAV     :
+    role === "therapie"       ? THERAPIE_NAV   :
+    role === "sozial"         ? SOZIAL_NAV     :
+    role === "erziehung"      ? ERZIEHUNG_NAV  :
+    role === "ehrenamt"       ? EHRENAMT_NAV   :
+    role === "hauswirtschaft" ? HAUSWIRT_NAV   :
+    role === "heilerziehung"  ? HEILERZ_NAV    :
+                                NURSE_NAV;
 
   return (
     <nav

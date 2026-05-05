@@ -61,6 +61,18 @@ const GROUPS: PersonaGroup[] = [
         portrait: "/people/person-ehrenamt-001.png",
         matches: (p) => p.startsWith("/ehrenamt"),
       },
+      {
+        href: "/heilerziehung", label: "Heilerziehung", who: "Anika Stein",
+        emoji: "🌱", color: "var(--sat)",
+        portrait: "/anamnese/header-heilerz.png",
+        matches: (p) => p.startsWith("/heilerziehung"),
+      },
+      {
+        href: "/hauswirtschaft", label: "Hauswirtschaft", who: "Helmut Brandt",
+        emoji: "🍲", color: "var(--sun)",
+        portrait: "/anamnese/header-hauswirt.png",
+        matches: (p) => p.startsWith("/hauswirtschaft"),
+      },
     ],
   },
   {

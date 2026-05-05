@@ -9,7 +9,7 @@ import { getLocale } from "@/lib/i18n/server";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
-type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt";
+type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung";
 
 const NURSE_NAV = [
   { href: "/pflege",          label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
@@ -54,6 +54,16 @@ const EHRENAMT_NAV = [
   { href: "/ehrenamt/protokoll",  label: "Protokoll",     vibe: "var(--vibe-profile)",  icon: DokuIcon },
 ];
 
+const HAUSWIRT_NAV = [
+  { href: "/hauswirtschaft",          label: "Übersicht",    vibe: "var(--sun)",          icon: GridIcon },
+  { href: "/fortbildung",             label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
+];
+
+const HEILERZ_NAV = [
+  { href: "/heilerziehung",           label: "Übersicht",    vibe: "var(--sat)",          icon: GridIcon },
+  { href: "/fortbildung",             label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
+];
+
 const LEAD_NAV = [
   { href: "/admin",                label: "Übersicht",      vibe: "var(--vibe-plan)",     icon: GridIcon },
   { href: "/admin/dienstplan",     label: "Dienstplan",     vibe: "var(--vibe-team)",     icon: PlanIcon },
@@ -80,13 +90,15 @@ export async function AppShell({
 }) {
   const locale = await getLocale();
   const nav =
-    role === "lead"      ? LEAD_NAV     :
-    role === "doctor"    ? DOCTOR_NAV   :
-    role === "therapie"  ? THERAPIE_NAV :
-    role === "sozial"    ? SOZIAL_NAV   :
-    role === "erziehung" ? ERZIEHUNG_NAV :
-    role === "ehrenamt"  ? EHRENAMT_NAV  :
-                           NURSE_NAV;
+    role === "lead"           ? LEAD_NAV       :
+    role === "doctor"         ? DOCTOR_NAV     :
+    role === "therapie"       ? THERAPIE_NAV   :
+    role === "sozial"         ? SOZIAL_NAV     :
+    role === "erziehung"      ? ERZIEHUNG_NAV  :
+    role === "ehrenamt"       ? EHRENAMT_NAV   :
+    role === "hauswirtschaft" ? HAUSWIRT_NAV   :
+    role === "heilerziehung"  ? HEILERZ_NAV    :
+                                NURSE_NAV;
   const switchRole = role === "lead"
     ? { href: "/pflege", label: "→ Pflegekraft-Sicht" }
     : role === "doctor"
