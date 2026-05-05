@@ -97,6 +97,29 @@ export default async function ProfilPage() {
           </div>
           <AudioMuteToggle />
         </div>
+
+        {/* DSGVO-Selbstbedienung */}
+        {aktiv.quelle === "auth" && (
+          <div className="mt-3 pt-3 border-t border-app-soft flex items-baseline justify-between gap-2 flex-wrap">
+            <div>
+              <p className="text-[11px] uppercase tracking-wider text-soft mb-0.5 font-medium">DSGVO · deine Rechte</p>
+              <p className="text-[11px] text-mute leading-snug max-w-md">
+                Daten als JSON exportieren (Art. 20) oder Konto + alle Daten endgültig löschen (Art. 17).
+              </p>
+            </div>
+            <Link
+              href="/profil/dsgvo"
+              className="text-[12px] px-3 py-1.5 rounded-md transition-colors"
+              style={{
+                background: "transparent",
+                color: "rgb(var(--vibe-stats))",
+                boxShadow: "inset 0 0 0 1px rgb(var(--vibe-stats) / 0.3)",
+              }}
+            >
+              Daten + Konto verwalten →
+            </Link>
+          </div>
+        )}
       </section>
 
       <Link

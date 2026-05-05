@@ -44,7 +44,7 @@ const PUNKTE: { titel: string; detail: string; status: Status; norm: string }[] 
   { titel: "Audit-Log (lückenlos, append-only)", detail: "Alle Schreib-Operationen mit user_id + Zeitstempel. Tabelle ist insert-only, niemand kann löschen.", status: "in_arbeit", norm: "BSI ORP.4.A19, DSGVO Art. 30" },
 
   // Geplant
-  { titel: "DSGVO-Lösch-Endpoint (Art. 17)", detail: "User kann eigene Daten exportieren + löschen. Zeitstempel + Bestätigungs-Email.", status: "geplant", norm: "DSGVO Art. 17/20" },
+  { titel: "DSGVO-Lösch-Endpoint (Art. 17 + 20)", detail: "User kann eigene Daten als JSON exportieren + Konto + Daten endgültig löschen. UI unter /profil/dsgvo. Phase 2: auth.users via Edge-Function.", status: "umgesetzt", norm: "DSGVO Art. 17/20" },
   { titel: "DSFA + AVVs", detail: "Datenschutz-Folgenabschätzung Art. 35 mit externem DSB. Auftragsverarbeitungs-Verträge mit Supabase, Hostinger, Stripe.", status: "geplant", norm: "DSGVO Art. 28, 35" },
   { titel: "BSI-IT-Grundschutz-Profil", detail: "Schutzklasse 'Hoch' für Gesundheitsdaten. Sicherheits-Konzept dokumentiert, Pen-Test vor Pilot-Start.", status: "geplant", norm: "BSI Standard 200-2" },
   { titel: "Pseudonymisierung in Aktivitäts-Feed", detail: "Externe Sicht zeigt nur Initialen + Rolle, niemals Klarnamen.", status: "geplant", norm: "DSGVO Art. 4(5)" },
