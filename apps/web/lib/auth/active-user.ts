@@ -59,6 +59,19 @@ export async function getActivePersona(fallbackPersonId?: string, fallbackRolle?
     demoPersonId: fallbackPersonId ?? DEFAULT_PERSONA.demoPersonId,
   };
 
+  // 0. Rollen-Switch-Cookie pruefen — uebersteuert die Persona-Ermittlung
+  let rolleOverride: { rolle: RegistrierRolle; personId: string } | null = null;
+  try {
+    const cookieStore = await cookies();
+    const raw = cookieStore.get("shalem-rolle-override")?.value;
+    if (raw) {
+      const parsed = JSON.parse(raw) as { rolle: RegistrierRolle; personId: string };
+      if (parsed.rolle && parsed.personId) rolleOverride = parsed;
+    }
+  } catch {
+    // ignore
+  }
+
   // 1. Auth-Login pruefen
   if (isAuthConfigured()) {
     try {
@@ -75,18 +88,29 @@ export async function getActivePersona(fallbackPersonId?: string, fallbackRolle?
           return {
             quelle: "auth",
             personId: user.id,
-            rolle: (profile.haupt_rolle as RegistrierRolle) ?? fallbackRolle ?? null,
+            rolle: rolleOverride?.rolle ?? (profile.haupt_rolle as RegistrierRolle) ?? fallbackRolle ?? null,
             demoMode,
             displayName: profile.display_name ?? user.email ?? null,
             schreibrecht: demoMode !== "viewer",
             email: user.email ?? null,
-            demoPersonId: profile.demo_person_id ?? fallbackPersonId ?? null,
+            demoPersonId: rolleOverride?.personId ?? profile.demo_person_id ?? fallbackPersonId ?? null,
           };
         }
       }
     } catch {
       // bei Auth-Fehler stumm auf Cookie/Default fallen
     }
+  }
+
+  // 1b. Auch ohne Auth: Rollen-Switch wirkt
+  if (rolleOverride) {
+    return {
+      ...fallback,
+      quelle: "persona-cookie",
+      personId: rolleOverride.personId,
+      rolle: rolleOverride.rolle,
+      demoPersonId: rolleOverride.personId,
+    };
   }
 
   // 2. Persona-Switcher-Cookie lesen
