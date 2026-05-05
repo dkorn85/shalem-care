@@ -34,10 +34,18 @@ export interface AIProvider {
 // ─── Auswahl des Providers via Env ───────────────────────
 
 import { DeepSeekProvider } from "./deepseek";
+import { AnthropicProvider } from "./anthropic";
 import { MockProvider } from "./mock";
 
 export function getAIProvider(): AIProvider {
   const provider = (process.env.SHALEM_AI_PROVIDER ?? "auto").toLowerCase();
+
+  if (provider === "anthropic" || (provider === "auto" && process.env.ANTHROPIC_API_KEY)) {
+    return new AnthropicProvider({
+      apiKey: process.env.ANTHROPIC_API_KEY!,
+      model: process.env.SHALEM_AI_MODEL ?? "claude-haiku-4-5-20251001",
+    });
+  }
 
   if (provider === "deepseek" || (provider === "auto" && process.env.DEEPSEEK_API_KEY)) {
     return new DeepSeekProvider({
