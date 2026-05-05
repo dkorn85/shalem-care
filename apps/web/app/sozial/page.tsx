@@ -10,6 +10,7 @@ import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 import { seedOnce } from "@/lib/seed";
+import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
 const FAELLE = [
   { id: "f-1", name: "Familie Cordes",       sgb: "VIII", thema: "Hilfe zur Erziehung",       phase: "Hilfeplan",  prio: 2, naechsterTermin: "morgen 10:00", farbe: "var(--vibe-team)" },
@@ -34,6 +35,7 @@ export default async function SozialPage() {
   seedKonferenzOnce();
   seedAktivitaetOnce();
   seedInboxOnce();
+  const aktiv = await getActivePersona("person-sozial-001", "sozialarbeit");
   const konf = naechsteKonferenzFuerKlient("klient-hr");
   const sozialInbox = listInbox("sozialarbeit");
   const sozialInboxKpi = inboxKpi("sozialarbeit");
@@ -42,7 +44,7 @@ export default async function SozialPage() {
   return (
     <AppShell
       role="sozial"
-      user={{ id: "person-sozial-001", name: "Mira Wagner", subtitle: "Sozialarbeiterin BA · DGCC-Case-Managerin", initials: "MW" }}
+      user={userPropsAus(aktiv, { id: "person-sozial-001", name: "Mira Wagner", subtitle: "Sozialarbeiterin BA · DGCC-Case-Managerin", initials: "MW" })}
       station="ASD Pankow"
     >
       <header className="mb-6">

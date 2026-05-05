@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
 const KLIENTEN = [
   { id: "h-1", name: "Tarek B. (4 J.)",    setting: "Kita-Inklusion · Mäuse-Gruppe",          icf: "b117 / d710 / e310",   budget: "Persönliches Budget § 29 SGB IX",    farbe: "var(--sat)" },
@@ -23,8 +24,9 @@ const KONFERENZEN = [
 export const metadata = { title: "Heilerziehung · Cockpit" };
 
 export default async function HeilerziehungPage() {
+  const aktiv = await getActivePersona("person-as-005", "heilerziehung");
   return (
-    <AppShell role="heilerziehung" user={{ id: "person-as-005", name: "Anika Stein", subtitle: "Heilerziehungspflegerin · BTHG-erfahren", initials: "AS" }} station="Lebenshilfe Berlin">
+    <AppShell role="heilerziehung" user={userPropsAus(aktiv, { id: "person-as-005", name: "Anika Stein", subtitle: "Heilerziehungspflegerin · BTHG-erfahren", initials: "AS" })} station="Lebenshilfe Berlin">
       <header className="mb-6">
         <div className="grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-7">

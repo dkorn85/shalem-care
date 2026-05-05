@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
 const GRUPPE = {
   name: "Mäuse-Gruppe",
@@ -38,10 +39,11 @@ export const metadata = {
 };
 
 export default async function ErziehungPage() {
+  const aktiv = await getActivePersona("erzieher-001", "erziehung");
   return (
     <AppShell
       role="erziehung"
-      user={{ id: "erzieher-001", name: "Yvonne Berger", subtitle: "Erzieherin · staatlich anerkannt", initials: "YB" }}
+      user={userPropsAus(aktiv, { id: "erzieher-001", name: "Yvonne Berger", subtitle: "Erzieherin · staatlich anerkannt", initials: "YB" })}
       station={GRUPPE.name}
     >
       <header className="mb-6">

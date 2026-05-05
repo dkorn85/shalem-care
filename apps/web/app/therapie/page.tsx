@@ -9,6 +9,7 @@ import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
+import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { seedOnce } from "@/lib/seed";
 
 const HEUTE = [
@@ -35,6 +36,7 @@ export default async function TherapiePage() {
   seedKonferenzOnce();
   seedAktivitaetOnce();
   seedInboxOnce();
+  const aktiv = await getActivePersona("person-therapeut-001", "therapie");
   const konf = naechsteKonferenzFuerKlient("klient-hr");
   const therapieInbox = listInbox("therapie");
   const therapieInboxKpi = inboxKpi("therapie");
@@ -42,7 +44,7 @@ export default async function TherapiePage() {
   return (
     <AppShell
       role="therapie"
-      user={{ id: "person-therapeut-001", name: "Sebastian Rauer", subtitle: "Physio · Manuelle Therapie · ZVK", initials: "SR" }}
+      user={userPropsAus(aktiv, { id: "person-therapeut-001", name: "Sebastian Rauer", subtitle: "Physio · Manuelle Therapie · ZVK", initials: "SR" })}
       station="Praxis Steglitz"
     >
       <header className="mb-6">

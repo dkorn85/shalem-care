@@ -16,6 +16,7 @@ import { dosierAlsText } from "@/lib/medikation/types";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce, KONFERENZTYP_LABEL } from "@/lib/konferenz/store";
 import { BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
+import { getActivePersona } from "@/lib/auth/active-user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -40,6 +41,7 @@ export default async function KlientPage() {
   seedSalutoOnce();
   seedZieleOnce();
   seedKonferenzOnce();
+  const aktiv = await getActivePersona(KLIENT_ID, "klient");
   const konf = naechsteKonferenzFuerKlient(KLIENT_ID);
   const balanceChecks = listChecks(KLIENT_ID, 30);
   const lebensziele = listZiele(KLIENT_ID);
@@ -75,8 +77,10 @@ export default async function KlientPage() {
   return (
     <KlientShell
       user={{
-        name: "Helga Reinhardt",
-        initials: "HR",
+        name: aktiv.quelle === "auth" && aktiv.displayName ? aktiv.displayName : "Helga Reinhardt",
+        initials: aktiv.quelle === "auth" && aktiv.displayName
+          ? aktiv.displayName.split(/\s+/).filter(Boolean).map((s: string) => s[0]).slice(0, 2).join("").toUpperCase()
+          : "HR",
         relation: "self",
         klientId: KLIENT_ID,
       }}

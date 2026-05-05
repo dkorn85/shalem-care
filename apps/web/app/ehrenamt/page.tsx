@@ -6,6 +6,7 @@ import { KonferenzCard } from "@/components/KonferenzCard";
 import { MeineKlienten } from "@/components/MeineKlienten";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 import { seedOnce } from "@/lib/seed";
+import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
 const BEGLEITUNG = [
   { id: "b-1", klient: "Helga Reinhardt",  thema: "Wöchentlicher Tee-Nachmittag", naechster: "Do 15:00", dauer: "90 min", farbe: "var(--wed)" },
@@ -34,11 +35,12 @@ export const metadata = {
 export default async function EhrenamtPage() {
   seedOnce();
   seedKonferenzOnce();
+  const aktiv = await getActivePersona("person-ehrenamt-001", "ehrenamt");
   const konf = naechsteKonferenzFuerKlient("klient-hr");
   return (
     <AppShell
       role="ehrenamt"
-      user={{ id: "person-ehrenamt-001", name: "Rita Schöndorf", subtitle: "Ehrenamtliche Begleitung · 3 Klient:innen", initials: "RS" }}
+      user={userPropsAus(aktiv, { id: "person-ehrenamt-001", name: "Rita Schöndorf", subtitle: "Ehrenamtliche Begleitung · 3 Klient:innen", initials: "RS" })}
       station="Hospiz-Verein Berlin"
     >
       <header className="mb-6">

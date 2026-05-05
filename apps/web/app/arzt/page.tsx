@@ -8,6 +8,7 @@ import { PraxisCockpit } from "@/components/PraxisCockpit";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
+import { getActivePersona } from "@/lib/auth/active-user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -29,18 +30,25 @@ export default async function ArztPraxisPage() {
   seedAktivitaetOnce();
   seedInboxOnce();
 
-  const arzt = (await store.getPerson(CURRENT_DOCTOR_ID))!;
+  const aktiv = await getActivePersona(CURRENT_DOCTOR_ID, "arzt");
+  const arztId = aktiv.demoPersonId ?? CURRENT_DOCTOR_ID;
+  const arzt = (await store.getPerson(arztId))!;
   const inboxItems = listInbox("arzt");
   const inboxStats = inboxKpi("arzt");
-  const offene = listAnfragen({ arztId: CURRENT_DOCTOR_ID, status: ["offen", "in_pruefung", "rueckfrage"] });
-  const ausgestellt = listAnfragen({ arztId: CURRENT_DOCTOR_ID, status: ["ausgestellt"] }).slice(0, 5);
+  const offene = listAnfragen({ arztId, status: ["offen", "in_pruefung", "rueckfrage"] });
+  const ausgestellt = listAnfragen({ arztId, status: ["ausgestellt"] }).slice(0, 5);
   const akute = offene.filter((a) => a.dringlichkeit === "akut").length;
   const dringliche = offene.filter((a) => a.dringlichkeit === "dringlich").length;
 
   return (
     <AppShell
       role="doctor"
-      user={{ id: arzt.id, name: arzt.name, subtitle: arzt.fachrichtung ?? "Arzt", initials: arzt.initials }}
+      user={{
+        id: arzt.id,
+        name: aktiv.quelle === "auth" && aktiv.displayName ? aktiv.displayName : arzt.name,
+        subtitle: aktiv.quelle === "auth" ? `${arzt.fachrichtung ?? "Arzt"} · eingeloggt` : (arzt.fachrichtung ?? "Arzt"),
+        initials: arzt.initials,
+      }}
       station={arzt.arztPraxis ?? "Praxis"}
     >
       <header className="mb-6 anim-slideUp">
