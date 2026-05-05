@@ -158,7 +158,7 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 | ASSETS_FLOWSTATE.md (Block 1–6) | ✓ ausgeliefert |
 | ASSETS_BEFUNDE.md (Block 7–11) | ✓ ausgeliefert |
 | ASSETS_IMAGING.md (Block 12) | ✓ 23 Dateien ausgeliefert |
-| ASSETS_LIVEDEMO.md (Block 13–18) | ⏳ neu · 22 Stills + 3 Loops für Konferenz-Live, Inbox, Notfall, /warum, Demo-Tour-Lead, OG-Cards |
+| ASSETS_LIVEDEMO.md (Block 13–18) | ✓ 25 von 27 ausgeliefert · Block 18 OG-Cards (db-status, inbox, onboarding, heilerziehung, hauswirtschaft) noch ausstehend |
 | PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
 | ROADMAP_NEXT.md | 14 Inhalts-Themen mit Priorisierung |
 
@@ -180,9 +180,9 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 - [ ] **gematik-TI-Konnektor-Stub** für eAU + eRezept
 
 ### Priorität C · weitere Inhalte
-- [ ] **Notfall-Modul** (`/notfall`) — Klient-Notruf-Knopf + Eskalations-Kette
+- [x] ~~**Notfall-Modul** (`/notfall`)~~ — Stub mit Eskalations-Kette (4 Stufen) + SOS-Demo-Knopf + Phase-2-Roadmap (VAPID, Twilio, BLE-Pendant)
+- [x] ~~**Marketing-Page `/warum`**~~ — Differenzierung Honorar-Verleih vs. Genossenschaft, 4-%-Visual, Cross-Profession-Story, CTA Beitritt
 - [ ] **i18n vervollständigen** — neue Berufe + Befunde-Akte EN
-- [ ] **Marketing-Page `/warum`** — Differenzierung zu Honorar-Verleihern
 - [ ] **Hauswirtschaft + Heilerziehung Sub-Routes**
 
 ### Priorität D · Eye-Candy
@@ -241,5 +241,6 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 11. **Cross-Profession-Inbox in 5 Cockpits** (Übernehmen/Erledigt/Delegieren · KPI · Status-Filter)
 12. **Konferenz Live-Mode** (Notizen auto-save · Agenda-Status · Beschluss-Composer · Live-Protokoll)
 13. **Supabase-DB live** — Schema + 12 Klient:innen + DB-Driver mit Seed-Fallback + `/admin/db-status`
+14. **25 Demo-Assets** ausgeliefert (Block 13–17) + `/warum` Marketing-Page + `/notfall` Stub mit Eskalations-Kette
 
 Build clean, ready to push. **76 Routen.**
