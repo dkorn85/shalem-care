@@ -2,6 +2,8 @@ import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
+import { KonferenzCard } from "@/components/KonferenzCard";
+import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 
 const FAELLE = [
   { id: "f-1", name: "Familie Cordes",       sgb: "VIII", thema: "Hilfe zur Erziehung",       phase: "Hilfeplan",  prio: 2, naechsterTermin: "morgen 10:00", farbe: "var(--vibe-team)" },
@@ -22,6 +24,8 @@ export const metadata = {
 };
 
 export default async function SozialPage() {
+  seedKonferenzOnce();
+  const konf = naechsteKonferenzFuerKlient("klient-hr");
   const akut = FAELLE.filter((f) => f.prio === 3).length;
   const chronisch = FAELLE.filter((f) => f.prio <= 2).length;
   return (
@@ -69,6 +73,8 @@ export default async function SozialPage() {
           ))}
         </ul>
       </CockpitSection>
+
+      {konf && <KonferenzCard konferenz={konf} eigenerBeruf="sozialarbeit" eigenePersonId="person-sozial-001" />}
 
       <AndereBegleiter eigenerBeruf="sozialarbeit" />
 
