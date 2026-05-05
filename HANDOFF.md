@@ -166,6 +166,9 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 | ASSETS_LIVEDEMO_2.md | ✓ 37 von 38 ausgeliefert (Block 19-24) — fehlend: 19.7 og/anmelden |
 | AUDIT_DEADLINKS.md | NEU · 13 Befunde aus 76 Routen — 4 echte tote Links jetzt gefixt |
 | TECH_ROADMAP.md | NEU · Auth-Vervollständigung · DB-Migration · Realtime/Push · Compliance — pro Item Aufwand+Blocker |
+| AUDIT_DESIGN.md | NEU · Asset-Skalierungs-Audit · 6 Major-Befunde, 7 Mittel, 5 Minor — Hero-Bilder werden in 9+ Routen als kleine Cards gequetscht |
+| PLAN_MODULAR.md | NEU · Modularisierungs-Plan · 5 Top-Komponenten (AccentCard, HeroBanner, SectionHeader, MediaSplit, RevealOnScroll) — ~1200 LoC weg |
+| AUDIO_PLAN.md | NEU · ElevenLabs-Sound-Strategie · 22 Audio-Files, 2 Stimm-Profile (Klara/Jonas), Phase-B-Klone von Dennis+Lana mit DSGVO-Pfad |
 | PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
 | ROADMAP_NEXT.md | 14 Inhalts-Themen mit Priorisierung |
 
@@ -261,5 +264,9 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 24. **`OnboardingTour`-Komponente auf Startseite** — 5 vertikale 12-s-Loops zeigen typische Plattform-Momente (Klient-Self-Booker · Pflege-Schichtplan · Konferenz · Beitritt · Notfall)
 25. **Treuhand-Fluss-Loop** läuft als sanfter Hintergrund auf `/treuhand` mit Caption-Overlay — macht den Geld-Fluss visuell lebendig
 26. **Auth-aware Cockpits angefangen** — `lib/auth/active-user.ts` mit `getActivePersona()` (Auth · Persona-Cookie · Default), `requireWriteAccess()`-Guard. **Pflege + Admin** lesen jetzt Auth wenn vorhanden, zeigen den eingeloggten Display-Namen + "eingeloggt"-Subtitle. `/profil` hat eine Auth-Status-Card mit Modus-Indikator + Logout-Button.
+27. **Modulare Komponenten-Library** (von Designer-Sub-Agent geplant) — `HeroBanner` (split/tall/wide mit Loop-Overlay), `AssetCard` (Bild als Background statt klein-Icon), `AccentCard` (3px-Stripe-Pattern), `SectionHeader` (Eyebrow+Titel+Lead), `MediaSplit` (alternierendes Bild-Text-Layout), `SmoothReveal` (CSS-only IntersectionObserver-Cascade). `lib/design/role-theme.ts` zentralisiert Rollen-Farben.
+28. **Treuhand refactored** — Hero auf full-bleed `tall`-Variante mit Treuhand-Loop als hover-Overlay, Drei-Schritt auf `AssetCard` mit echten Bild-Größen statt gequetschten 4:3-Tiles, Ausschüttungs-Diagramm via `MediaSplit` mit Akzent-Glow. SmoothReveal-Cascade beim Scrollen.
+29. **OnboardingTour Smooth-Reveal** — vertikale Loops blenden mit 80ms-Versatz beim Scrollen ein statt alle gleichzeitig. Hover-Glow als 2px-Akzent unter jeder Karte.
+30. **KlartextBegleiter höher** — von 80px-Strip auf 16:5-aspect-Ratio (Audit-Befund: 1600×600-Komposition wurde gequetscht).
 
 Build clean, ready to push. **76 Routen.**
