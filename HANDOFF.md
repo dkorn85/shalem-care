@@ -39,7 +39,8 @@
 - **`/konferenz/[id]`** — interdisziplinäre Fall-/Hilfeplan-Konferenz mit Pre-Reads pro Beruf
 - **`/klient/begleiter`** — Klient sieht alle 8 Begleiter:innen + Konferenz-Slot
 - **`AndereBegleiter`** + **`MeineKlienten`** Komponenten in 4–5 Cockpits eingebaut
-- **NEU: `CrossProfessionInbox`** — pro Beruf abarbeitbare Inbox aus Aktivitäts-Feed-Events mit `zielBeruf`. Status: offen / in Arbeit / erledigt. Quick-Actions: Übernehmen · Erledigt · Delegieren an anderen Beruf. Eingebaut in `/arzt`, `/pflege`, `/therapie`, `/sozial`, `/admin`. KPI-Tiles oben (offen, in Arbeit, heute fertig, akut).
+- **`CrossProfessionInbox`** — pro Beruf abarbeitbare Inbox aus Aktivitäts-Feed-Events mit `zielBeruf`. Status: offen / in Arbeit / erledigt. Quick-Actions: Übernehmen · Erledigt · Delegieren an anderen Beruf. Eingebaut in `/arzt`, `/pflege`, `/therapie`, `/sozial`, `/admin`. KPI-Tiles oben (offen, in Arbeit, heute fertig, akut).
+- **NEU: `KonferenzLive`** — Live-Mode auf `/konferenz/[id]` mit Start/Beenden/Vertagen-Knöpfen. Während `status === "live"`: auto-save Live-Notizen-Textarea, Agenda mit Status-Buttons (besprochen / vertagen / zurück), Beschluss-Composer (was/wer/bis), Beschluss-Liste mit Status-Toggle (offen/in Arbeit/erledigt) + Löschen. Bei abgeschlossenen Konferenzen wird das Live-Protokoll als statisches Read-only angezeigt.
 
 ---
 
@@ -128,7 +129,7 @@ lib/wunde/{types,store}.ts          DNQP-konforme Wunddoku
 lib/genossenschaft/store.ts         Anteile + Mitglieder + Plattform-Bilanz
 lib/selfbooker/store.ts             Self-Buchung mit transparenten Marktpreisen
 lib/team-um-klient/store.ts         CareTeam-Map (Helga-Universum)
-lib/konferenz/store.ts              Fallkonferenz mit Pre-Reads + Agenda
+lib/konferenz/{store,actions}.ts    Fallkonferenz mit Pre-Reads + Agenda + Live-Mode
 lib/zuordnung/store.ts              Person→Klient:innen-Caseloads
 lib/nba/module.ts                   NBA Pflegegrad-Begutachtung
 lib/aktivitaet/feed.ts              Event-Stream zwischen Berufen
@@ -142,7 +143,7 @@ RolePortal · PersonaSwitcher · SpineDiagram · LabTable · ImagingGallery
 GaitAnalysis · DualeDeutung · AnamneseFormular · WundverlaufDoku
 AUKaskade · BemCard · WiedereingliederungCard · KonferenzCard
 AndereBegleiter · MeineKlienten · Berufsnetz · AktivitaetsFeed
-BerufCockpitCard · CrossProfessionInbox
+BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 ```
 
 ---
@@ -162,7 +163,7 @@ BerufCockpitCard · CrossProfessionInbox
 ## Was als nächstes ansteht
 
 ### Priorität A · Demo-Story-Tiefe
-- [ ] **Konferenz live-mode** — während der Konferenz Beschlüsse erfassen, Notizen live mitschreiben
+- [x] ~~**Konferenz live-mode**~~ — Notizen auto-save, Agenda-Status-Buttons, Beschluss-Composer, Live-Protokoll bei abgeschlossen
 - [x] ~~**Cross-Profession-Inbox**~~ — eingebaut in 5 Cockpits (Arzt, Pflege, Therapie, Sozial, Lead) mit Übernehmen/Erledigt/Delegieren-Aktionen
 - [ ] **Demo-Tour-Update** — Lead-Loop fehlt noch (`loop-persona-lead.mp4`)
 - [ ] **Klartext-Wrapper Spread** — auf Befunde + Wundverlauf + Anamnese-Antworten
@@ -233,5 +234,6 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 9. **20 Klient:innen-Roster + Care-Team-Mapping + MeineKlienten**
 10. **`/netz` Echtzeit-Komplettübersicht als neuronales Netzwerk**
 11. **Cross-Profession-Inbox in 5 Cockpits** (Übernehmen/Erledigt/Delegieren · KPI · Status-Filter)
+12. **Konferenz Live-Mode** (Notizen auto-save · Agenda-Status · Beschluss-Composer · Live-Protokoll)
 
 Build clean, ready to push. **76 Routen.**

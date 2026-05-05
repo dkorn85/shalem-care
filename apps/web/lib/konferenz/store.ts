@@ -140,6 +140,68 @@ export function preReadStatus(konferenz: Konferenz, beruf: Berufsfeld): "eingere
   return teilnehmer.preReadEingereicht ? "eingereicht" : "offen";
 }
 
+// ─── Live-Mode Mutators ────────────────────────────────────────────────
+
+function mutate(id: string, fn: (k: Konferenz) => void): Konferenz | null {
+  const k = s.konferenzen.find((x) => x.id === id);
+  if (!k) return null;
+  fn(k);
+  return k;
+}
+
+export function starteKonferenz(id: string): Konferenz | null {
+  return mutate(id, (k) => { k.status = "live"; });
+}
+
+export function beendeKonferenz(id: string, naechsteKonferenz?: string): Konferenz | null {
+  return mutate(id, (k) => {
+    k.status = "abgeschlossen";
+    if (naechsteKonferenz) k.naechsteKonferenz = naechsteKonferenz;
+  });
+}
+
+export function vertageKonferenz(id: string): Konferenz | null {
+  return mutate(id, (k) => { k.status = "vertagt"; });
+}
+
+export function aktualisiereLiveNotizen(id: string, notizen: string): Konferenz | null {
+  return mutate(id, (k) => { k.liveNotizen = notizen; });
+}
+
+export function setzeAgendaStatus(id: string, agendaId: string, status: AgendaPunkt["status"], notiz?: string): Konferenz | null {
+  return mutate(id, (k) => {
+    const a = k.agenda.find((x) => x.id === agendaId);
+    if (!a) return;
+    a.status = status;
+    if (notiz !== undefined) a.notiz = notiz;
+  });
+}
+
+export function fuegeBeschlussHinzu(id: string, was: string, wer: string, bis: string): Konferenz | null {
+  return mutate(id, (k) => {
+    k.beschluesse.push({
+      id: `b-${Date.now()}-${Math.floor(Math.random() * 10000)}`,
+      was,
+      wer,
+      bis,
+      status: "offen",
+    });
+  });
+}
+
+export function setzeBeschlussStatus(id: string, beschlussId: string, status: Beschluss["status"]): Konferenz | null {
+  return mutate(id, (k) => {
+    const b = k.beschluesse.find((x) => x.id === beschlussId);
+    if (b) b.status = status;
+  });
+}
+
+export function loescheBeschluss(id: string, beschlussId: string): Konferenz | null {
+  return mutate(id, (k) => {
+    k.beschluesse = k.beschluesse.filter((b) => b.id !== beschlussId);
+  });
+}
+
 // ─── Demo-Seed ────────────────────────────────────────────────────────
 
 let _seeded = false;
