@@ -8,8 +8,16 @@
 // Phase 2: Auth-Header automatisch durchschleifen (RLS-Policies), Realtime
 // via WebSocket-Channels für Aktivitäts-Feed.
 
-const URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+// Wir akzeptieren beide Namensvarianten:
+// - NEXT_PUBLIC_SUPABASE_URL / NEXT_PUBLIC_SUPABASE_ANON_KEY  (lokal, Browser-exposed)
+// - SUPABASE_URL / SUPABASE_ANON_KEY                          (Hostinger-Auto-Inject, server-only)
+// Server-only wird bevorzugt, wenn beide vorhanden — sicherer.
+const URL =
+  process.env.SUPABASE_URL ??
+  process.env.NEXT_PUBLIC_SUPABASE_URL;
+const KEY =
+  process.env.SUPABASE_ANON_KEY ??
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
 export function isSupabaseConfigured(): boolean {
   return !!(URL && KEY);
