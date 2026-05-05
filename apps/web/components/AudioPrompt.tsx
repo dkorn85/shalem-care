@@ -20,8 +20,20 @@ export type AudioPromptProps = {
   farbe?: string;                  // CSS-Var für Akzent
   groesse?: "small" | "medium";
   fallbackText?: boolean;          // Wenn true: zeig den fallback-Text immer (Klartext-Begleiter-Pattern)
+  voice?: "lana" | "dennis";       // wenn gesetzt: zeigt Wave-Loop hinter Button beim Playback
   className?: string;
 };
+
+const VOICE_WAVE: Record<NonNullable<AudioPromptProps["voice"]>, string> = {
+  lana:   "/loops/voice-lana-wave.mp4",
+  dennis: "/loops/voice-dennis-wave.mp4",
+};
+
+function detectVoice(src: string): "lana" | "dennis" | undefined {
+  if (src.includes("-lana")) return "lana";
+  if (src.includes("-dennis")) return "dennis";
+  return undefined;
+}
 
 export function AudioPrompt({
   src,
@@ -30,8 +42,10 @@ export function AudioPrompt({
   farbe = "var(--accent)",
   groesse = "small",
   fallbackText,
+  voice,
   className = "",
 }: AudioPromptProps) {
+  const detectedVoice = voice ?? detectVoice(src);
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const [muted, setMuted] = useState(false);
   const [playing, setPlaying] = useState(false);
@@ -84,7 +98,7 @@ export function AudioPrompt({
       <button
         type="button"
         onClick={toggle}
-        className={`${padding} ${fontSize} rounded-md transition-all duration-300 inline-flex items-center gap-1.5`}
+        className={`${padding} ${fontSize} rounded-md transition-all duration-300 inline-flex items-center gap-1.5 relative overflow-hidden`}
         style={{
           background: playing ? `rgb(${farbe} / 0.2)` : "transparent",
           color: `rgb(${farbe})`,
@@ -92,12 +106,23 @@ export function AudioPrompt({
         }}
         aria-label={playing ? "Stop" : `Audio: ${label ?? "abspielen"}`}
       >
-        {playing ? (
-          <span aria-hidden style={{ fontSize: "0.9em" }}>■</span>
-        ) : (
-          <span aria-hidden className="inline-block translate-x-[1px]" style={{ fontSize: "0.9em" }}>▶</span>
+        {/* Wave-Loop Hintergrund-Layer beim Playback */}
+        {playing && detectedVoice && (
+          <video
+            src={VOICE_WAVE[detectedVoice]}
+            autoPlay muted loop playsInline
+            aria-hidden
+            className="absolute inset-0 w-full h-full object-cover opacity-40 pointer-events-none mix-blend-soft-light"
+          />
         )}
-        {label && <span className="font-medium">{label}</span>}
+        <span className="relative z-10 inline-flex items-center gap-1.5">
+          {playing ? (
+            <span aria-hidden style={{ fontSize: "0.9em" }}>■</span>
+          ) : (
+            <span aria-hidden className="inline-block translate-x-[1px]" style={{ fontSize: "0.9em" }}>▶</span>
+          )}
+          {label && <span className="font-medium">{label}</span>}
+        </span>
       </button>
       {error && <span className="text-[10px] text-soft italic">{error}</span>}
       {fallbackText && hint && (

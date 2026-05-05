@@ -32,6 +32,13 @@ const STATUS_LABEL: Record<Status, string> = {
   blocker:   "blockiert",
 };
 
+const STATUS_ICON: Record<Status, string> = {
+  umgesetzt: "/icons/status-success.png",
+  in_arbeit: "/icons/status-progress.png",
+  geplant:   "/icons/status-empty.png",
+  blocker:   "/icons/status-warning.png",
+};
+
 const PUNKTE: { titel: string; detail: string; status: Status; norm: string }[] = [
   // Umgesetzt
   { titel: "RLS auf allen DB-Tabellen", detail: "Postgres Row-Level-Security: Klient sieht nur sich, Pflegekraft nur eigene Caseload, service_role für Admin-Ops.", status: "umgesetzt", norm: "DSGVO Art. 25 (Privacy by Design)" },
@@ -102,7 +109,10 @@ export default function CompliancePage() {
             {PUNKTE.map((p, i) => (
               <li key={i} className="surface rounded-xl p-3 relative overflow-hidden">
                 <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${STATUS_FARBE[p.status]})` }} />
-                <div className="ml-2.5 flex items-baseline gap-3 flex-wrap">
+                <div className="ml-2.5 flex items-start gap-3 flex-wrap">
+                  <div className="relative w-12 h-12 shrink-0 opacity-90">
+                    <Image src={STATUS_ICON[p.status]} alt="" fill sizes="48px" className="object-contain" />
+                  </div>
                   <div className="flex-1 min-w-0">
                     <div className="flex items-baseline gap-2 flex-wrap">
                       <span className="font-medium text-[14px]">{p.titel}</span>
@@ -123,9 +133,9 @@ export default function CompliancePage() {
         <section className="surface rounded-2xl p-5">
           <p className="text-[11px] uppercase tracking-wider text-soft mb-3 font-medium">Audit-Log · drei Zustände pro Eintrag</p>
           <ul className="grid sm:grid-cols-3 gap-3">
-            <AuditIcon bild="/compliance/icon-eintrag.png" titel="Eintrag" detail="Schreib-Operation passiert · user_id + Zeitstempel · Hash über Inhalt." />
-            <AuditIcon bild="/compliance/icon-pruefen.png" titel="Geprüft" detail="Pruefer:in (Stationsleitung, Datenschutz-Beauftragte) bestätigt Eintrag." />
-            <AuditIcon bild="/compliance/icon-siegel.png" titel="Versiegelt" detail="Nach 30 Tagen wird der Eintrag mit Hash-Kette versiegelt — unveränderlich." />
+            <AuditIcon bild="/icons/aktion-edit.png" titel="Eintrag" detail="Schreib-Operation passiert · user_id + Zeitstempel · Hash über Inhalt." />
+            <AuditIcon bild="/icons/aktion-verify.png" titel="Geprüft" detail="Pruefer:in (Stationsleitung, Datenschutz-Beauftragte) bestätigt Eintrag." />
+            <AuditIcon bild="/icons/status-private.png" titel="Versiegelt" detail="Nach 30 Tagen wird der Eintrag mit Hash-Kette versiegelt — unveränderlich." />
           </ul>
         </section>
 
