@@ -14,6 +14,7 @@ import { hourlyRateFor } from "@/lib/tariff";
 import { getActivePersona } from "@/lib/auth/active-user";
 import { DEMO_MODI } from "@/lib/auth/demo-modi";
 import { signOut } from "@/lib/auth/actions";
+import { AudioMuteToggle } from "@/components/AudioPrompt";
 
 export default async function ProfilPage() {
   seedOnce();
@@ -85,6 +86,16 @@ export default async function ProfilPage() {
               </button>
             </form>
           )}
+        </div>
+        {/* Audio-Setting */}
+        <div className="mt-3 pt-3 border-t border-app-soft flex items-baseline justify-between gap-2 flex-wrap">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-soft mb-0.5 font-medium">Audio · Klartext-Begleiter & Notruf-Stimme</p>
+            <p className="text-[11px] text-mute leading-snug max-w-md">
+              Lana und Dennis sprechen zu dir bei wichtigen Momenten — Notruf-Bestätigung, Konferenz-Start, Klartext-Befunde. Default ist Ton an, du kannst jederzeit stumm-schalten.
+            </p>
+          </div>
+          <AudioMuteToggle />
         </div>
       </section>
 

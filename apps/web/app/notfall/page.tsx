@@ -7,6 +7,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { SosButton } from "@/components/SosButton";
 
 export const metadata = {
   title: "Notruf · Shalem Care",
@@ -76,35 +77,9 @@ export default function NotfallPage() {
         </div>
       </header>
 
-      {/* Notruf-Knopf-Demo mit Puls-Loop */}
-      <section className="surface rounded-2xl p-6 sm:p-8 mb-6 text-center relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--mon) / 0.04), transparent)" }}>
-        <p className="text-[11px] uppercase tracking-wider text-soft mb-3 font-medium">Demo-Knopf · ohne Funktion</p>
-        <div className="relative w-32 h-32 sm:w-40 sm:h-40 mx-auto">
-          <video
-            src="/loops/notfall-puls.mp4"
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="absolute inset-0 w-full h-full object-cover rounded-full opacity-50 pointer-events-none"
-            aria-hidden
-          />
-          <button
-            type="button"
-            className="absolute inset-0 rounded-full transition-transform hover:scale-105 active:scale-95"
-            style={{
-              background: "radial-gradient(circle, rgb(var(--mon) / 0.25) 0%, rgb(var(--mon) / 0.05) 70%, transparent 100%)",
-              boxShadow: "inset 0 0 0 2px rgb(var(--mon) / 0.4), 0 0 32px rgb(var(--mon) / 0.15)",
-              color: "rgb(var(--mon))",
-            }}
-          >
-            <span className="font-display text-[18px] sm:text-[22px] font-bold tracking-tight2">SOS</span>
-          </button>
-        </div>
-        <p className="text-[12px] text-mute mt-4 max-w-md mx-auto">
-          In Phase 2 löst dieser Knopf die Kette aus — heute ist er nur die visuelle Andeutung
-          des Pendants, das Klient:innen am Hals oder Handgelenk tragen.
-        </p>
+      {/* Notruf-Knopf-Demo mit Puls-Loop + Audio-Bestätigung */}
+      <section className="surface rounded-2xl p-6 sm:p-8 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--mon) / 0.04), transparent)" }}>
+        <SosButton audioSrc="/sounds/notruf-bestaetigt-lana.mp3" />
       </section>
 
       {/* Eskalations-Kette */}
