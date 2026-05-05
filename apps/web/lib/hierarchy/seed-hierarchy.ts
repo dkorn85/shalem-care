@@ -194,4 +194,55 @@ export const KLIENTEN: Klient[] = [
     address: "Henricistr. 92, Zi. 3B-04, 45136 Essen", location: { lat: 51.4556, lng: 7.0116 },
     preferredCarerIds: ["person-dr", "person-ls"], isSelfBooker: false,
     notes: "COPD Stadium III, Sauerstoffpflichtig" },
+
+  // ─── Erweiterung auf 20 Klient:innen ──────────────────────────────
+  // Pflegeheim St. Lukas, Wohnbereich A (gleiche Station wie Helga)
+  { id: "klient-ot",  name: "Otto Tannenberger", initials: "OT", pflegegrad: 4, einrichtungId: "ph-bochum-süd", stationId: "st-luk-wohn-a",
+    address: "Lukasweg 14, Zi. 18, 44805 Bochum", location: { lat: 51.4961, lng: 7.2241 },
+    preferredCarerIds: ["person-fk-004", "person-as-005"], isSelfBooker: false,
+    notes: "Z.n. Schlaganfall, Aphasie, Hemiparese rechts" },
+  { id: "klient-gh",  name: "Gertrud Hopfauf",   initials: "GH", pflegegrad: 5, einrichtungId: "ph-bochum-süd", stationId: "st-luk-wohn-a",
+    address: "Lukasweg 14, Zi. 22, 44805 Bochum", location: { lat: 51.4961, lng: 7.2240 },
+    preferredCarerIds: ["person-as-005", "person-fk-004"], isSelfBooker: false,
+    notes: "Palliativ, Tumorwunde, Schmerzpumpe aktiv" },
+
+  // Wohnbereich B (St. Lukas)
+  { id: "klient-pn",  name: "Peter Niedermeier", initials: "PN", pflegegrad: 3, einrichtungId: "ph-bochum-süd", stationId: "st-luk-wohn-b",
+    address: "Lukasweg 14, Zi. B-08, 44805 Bochum", location: { lat: 51.4960, lng: 7.2238 },
+    preferredCarerIds: ["person-jm-006"], isSelfBooker: true,
+    notes: "Diabetes mellitus T1, Insulinpflichtig, kognitiv klar" },
+  { id: "klient-as-77", name: "Alma Schober",     initials: "AS", pflegegrad: 4, einrichtungId: "ph-bochum-süd", stationId: "st-luk-wohn-b",
+    address: "Lukasweg 14, Zi. B-11, 44805 Bochum", location: { lat: 51.4960, lng: 7.2238 },
+    preferredCarerIds: ["person-jm-006"], isSelfBooker: false,
+    notes: "Demenz fortgeschritten, Validations-Therapie" },
+
+  // Pflegeheim Prenzl-Berg, Hauptstation Wattwege (gleiche Station wie Reinhardt Kuhn)
+  { id: "klient-vh",  name: "Volker Hagedorn",   initials: "VH", pflegegrad: 3, einrichtungId: "ph-prenzl-berg", stationId: "st-wat-haupt",
+    address: "Wattgasse 22, Zi. 4, 10405 Berlin", location: { lat: 52.5392, lng: 13.4194 },
+    preferredCarerIds: [], isSelfBooker: true,
+    notes: "Z.n. Hüft-TEP, Reha-Phase, Mobilisation aktiv" },
+  { id: "klient-mb-66", name: "Margot Bergmann", initials: "MB", pflegegrad: 4, einrichtungId: "ph-prenzl-berg", stationId: "st-wat-haupt",
+    address: "Wattgasse 22, Zi. 9, 10405 Berlin", location: { lat: 52.5392, lng: 13.4194 },
+    preferredCarerIds: [], isSelfBooker: false,
+    notes: "Parkinson Stadium 3 (Hoehn-Yahr), Schluckstörung" },
+
+  // Ambulant Augsburg, Tour Süd (gleiche Tour wie Friedrich + Maria)
+  { id: "klient-hk",  name: "Hannelore Kärcher", initials: "HK", pflegegrad: 3, einrichtungId: "amb-augsburg", stationId: "st-apl-tour-süd",
+    address: "Maximilianstraße 47, 86150 Augsburg", location: { lat: 48.3636, lng: 10.8980 },
+    preferredCarerIds: ["person-st-011", "person-ed-012"], isSelfBooker: true,
+    notes: "Multiple Sklerose, Selbst-Booker für Wunschpflegekraft" },
+  { id: "klient-rs-58", name: "Rolf Schiller",   initials: "RS", pflegegrad: 2, einrichtungId: "amb-augsburg", stationId: "st-apl-tour-süd",
+    address: "Theaterstraße 3, 86150 Augsburg", location: { lat: 48.3691, lng: 10.8946 },
+    preferredCarerIds: ["person-ed-012"], isSelfBooker: true,
+    notes: "Mobilitäts-Hilfe + Begleitung, COPD II" },
+
+  // Klinikum München-Nord, Geriatrie (gleiche Station wie Konrad Obermair)
+  { id: "klient-ed-83", name: "Edith Donhauser", initials: "ED", pflegegrad: 4, einrichtungId: "kh-münchen-nord", stationId: "st-kmn-geri-5",
+    address: "Englschalkinger Str. 77, Zi. 5-12, 81925 München", location: { lat: 48.1690, lng: 11.6485 },
+    preferredCarerIds: ["person-vb-008", "person-le-009"], isSelfBooker: false,
+    notes: "Demenz + Diabetes + Mobilitätseinschränkung" },
+  { id: "klient-jh-77", name: "Josef Hinterbrandner", initials: "JH", pflegegrad: 5, einrichtungId: "kh-münchen-nord", stationId: "st-kmn-geri-5",
+    address: "Englschalkinger Str. 77, Zi. 5-15, 81925 München", location: { lat: 48.1691, lng: 11.6485 },
+    preferredCarerIds: ["person-vb-008"], isSelfBooker: false,
+    notes: "Palliativ, Lungenkarzinom, Schmerz-Therapie" },
 ];

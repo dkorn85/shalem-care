@@ -3,7 +3,9 @@ import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
+import { MeineKlienten } from "@/components/MeineKlienten";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
+import { seedOnce } from "@/lib/seed";
 
 const BEGLEITUNG = [
   { id: "b-1", klient: "Helga Reinhardt",  thema: "Wöchentlicher Tee-Nachmittag", naechster: "Do 15:00", dauer: "90 min", farbe: "var(--wed)" },
@@ -30,6 +32,7 @@ export const metadata = {
 };
 
 export default async function EhrenamtPage() {
+  seedOnce();
   seedKonferenzOnce();
   const konf = naechsteKonferenzFuerKlient("klient-hr");
   return (
@@ -77,6 +80,8 @@ export default async function EhrenamtPage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <MeineKlienten personId="person-ehrenamt-001" beruf="ehrenamt" zugriffspfadFuerKlient={(id) => `/klient/akte?klient=${id}`} />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="ehrenamt" eigenePersonId="person-ehrenamt-001" />}
 

@@ -13,6 +13,7 @@ import { getQualificationCode } from "@/lib/fhir";
 import { findActiveShift } from "@/lib/dienst/active-shift";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
+import { MeineKlienten } from "@/components/MeineKlienten";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 
 export default async function PflegeHome() {
@@ -122,6 +123,8 @@ export default async function PflegeHome() {
       </div>
 
       <SwapMarketplace offers={offers} slotsById={allSlots} peopleById={allPeople} />
+
+      <MeineKlienten personId={CURRENT_USER_ID} beruf="pflege" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="pflege" eigenePersonId="person-dr" />}
       <AndereBegleiter eigenerBeruf="pflege" />
