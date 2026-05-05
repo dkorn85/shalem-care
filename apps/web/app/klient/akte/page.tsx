@@ -88,8 +88,8 @@ export default async function MeineAktePage() {
         </div>
       </header>
 
-      {/* ─── Akte-Navigation: Befunde, Anamnese, Behandlung ──── */}
-      <nav className="grid grid-cols-3 gap-2 mb-6">
+      {/* ─── Akte-Navigation: Befunde, Wunde, Anamnese, Behandlung ──── */}
+      <nav className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <Link
           href="/klient/akte/befunde"
           className="surface-hover rounded-xl p-3 text-center group transition-transform hover:-translate-y-0.5"
@@ -98,6 +98,15 @@ export default async function MeineAktePage() {
           <div className="text-[18px] mb-1">🩻</div>
           <div className="text-[12px] font-medium">Befunde</div>
           <div className="text-[10px] text-soft mt-0.5">Bilder · Labor · Wirbel</div>
+        </Link>
+        <Link
+          href="/klient/akte/wunde"
+          className="surface-hover rounded-xl p-3 text-center group transition-transform hover:-translate-y-0.5"
+          style={{ background: "linear-gradient(135deg, rgb(var(--tue) / 0.06), transparent)" }}
+        >
+          <div className="text-[18px] mb-1">🩹</div>
+          <div className="text-[12px] font-medium">Wundverlauf</div>
+          <div className="text-[10px] text-soft mt-0.5">Foto-Doku</div>
         </Link>
         <Link
           href="/klient/akte/anamnese"
