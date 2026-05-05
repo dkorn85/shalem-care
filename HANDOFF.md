@@ -158,6 +158,7 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 | ASSETS_FLOWSTATE.md (Block 1–6) | ✓ ausgeliefert |
 | ASSETS_BEFUNDE.md (Block 7–11) | ✓ ausgeliefert |
 | ASSETS_IMAGING.md (Block 12) | ✓ 23 Dateien ausgeliefert |
+| ASSETS_LIVEDEMO.md (Block 13–18) | ⏳ neu · 22 Stills + 3 Loops für Konferenz-Live, Inbox, Notfall, /warum, Demo-Tour-Lead, OG-Cards |
 | PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
 | ROADMAP_NEXT.md | 14 Inhalts-Themen mit Priorisierung |
 
