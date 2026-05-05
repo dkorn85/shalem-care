@@ -9,7 +9,7 @@ import { getLocale } from "@/lib/i18n/server";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
-type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung";
+type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung" | "apotheke" | "medizintechnik" | "rettungsdienst" | "bestatter" | "begleitung";
 
 const NURSE_NAV = [
   { href: "/pflege",          label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
@@ -200,9 +200,19 @@ export async function AppShell({
       </main>
 
       <UndoBanner />
-      <BottomNav role={role} />
+      <BottomNav role={mapRoleForBottomNav(role)} />
     </div>
   );
+}
+
+// Neue Berufe (apotheke, medizintechnik, rettungsdienst, bestatter, begleitung)
+// teilen sich vorerst die "lead"-Bottom-Nav-Variante, bis sie eigene
+// Sub-Routen-Strukturen bekommen.
+function mapRoleForBottomNav(r: Role): "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung" {
+  if (r === "apotheke" || r === "medizintechnik" || r === "rettungsdienst" || r === "bestatter" || r === "begleitung") {
+    return "lead";
+  }
+  return r;
 }
 
 function PlanIcon()    { return <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" strokeWidth="1.5"><rect x="2" y="3" width="10" height="9" rx="1.5" /><path d="M2 6h10M5 3V1.5M9 3V1.5" strokeLinecap="round" /></svg>; }

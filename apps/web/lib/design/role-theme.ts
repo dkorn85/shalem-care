@@ -82,6 +82,18 @@ export const ROLE_THEMES: Record<string, RolleTheme> = {
                        "rgb(245 230 250)", "rgb(252 244 254)", "rgb(170 130 200)"),
   lead:          make("lead",          "Stationsleitung", "--vibe-team",
                        "rgb(220 230 250)", "rgb(238 244 252)", "rgb(110 130 200)"),
+  // ─── Erweiterte Berufe (Apotheke, MedTech, Rettungsdienst, Bestatter, Begleitung)
+  apotheke:      make("apotheke",      "Apotheke",        "--vibe-team",
+                       "rgb(220 245 235)", "rgb(238 250 244)", "rgb( 70 160 130)"),
+  medizintechnik:make("medizintechnik","Medizintechnik",  "--vibe-stats",
+                       "rgb(225 235 245)", "rgb(240 246 252)", "rgb(110 130 180)"),
+  rettungsdienst:make("rettungsdienst","Rettungsdienst",  "--mon",
+                       "rgb(255 220 220)", "rgb(255 240 240)", "rgb(220 100 100)"),
+  bestatter:     make("bestatter",     "Bestatter",       "--vibe-profile",
+                       "rgb(235 230 240)", "rgb(246 244 248)", "rgb(120 110 145)"),
+  begleitung:    make("begleitung",    "Würde-Begleitung","--wed",
+                       "rgb(250 235 245)", "rgb(254 246 250)", "rgb(200 120 170)"),
+
   // Strukturell — kein Beruf, sondern Plattform-Modul (neutralere Pastels)
   treuhand:      make("treuhand",      "Treuhand",        "--accent",
                        "rgb(230 240 245)", "rgb(244 250 252)", "rgb(100 150 170)"),
