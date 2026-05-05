@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { KlientShell } from "@/components/KlientShell";
 import { SpineDiagram } from "@/components/SpineDiagram";
@@ -17,6 +18,11 @@ export const metadata = {
   title: "Befunde · Meine Akte",
   description:
     "Multi-View-Befundakte mit Bildgebung, Labor, Gangbild, Wirbelsäulen-Diagramm. Jeder Befund mit schulmedizinischer Deutung und ganzheitlicher Lesart nach tibetischer Medizin.",
+  openGraph: {
+    title: "Befunde · Meine Akte",
+    description: "Bildgebung · Labor · Gangbild · Wirbelsäule — schulmedizinisch + tibetisch gelesen.",
+    images: [{ url: "/og/befunde.png", width: 1200, height: 630 }],
+  },
 };
 
 export default async function BefundePage() {
@@ -34,17 +40,25 @@ export default async function BefundePage() {
         <Link href="/klient/akte" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
           ← Zurück zur Akte
         </Link>
-        <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">
-          Befunde · Multi-View · ganzheitlich gelesen
-        </p>
-        <h1 className="font-display text-[28px] sm:text-[36px] font-bold tracking-tight2 leading-[1.05]">
-          Was zeigt dein Körper, <span className="rainbow-text">und was bedeutet das</span>?
-        </h1>
-        <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
-          Bildgebung, Laborwerte, Gangbild, Wirbelsäulen-Diagramm — alles an einem Ort.
-          Jeder schulmedizinische Befund wird begleitet von einer Deutung der tibetischen Medizin
-          (Sowa Rigpa), die fragt: was sagt dieser Befund über das Ganze deines Lebens?
-        </p>
+
+        <div className="grid lg:grid-cols-12 gap-6 items-end">
+          <div className="lg:col-span-7">
+            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">
+              Befunde · Multi-View · ganzheitlich gelesen
+            </p>
+            <h1 className="font-display text-[28px] sm:text-[36px] font-bold tracking-tight2 leading-[1.05]">
+              Was zeigt dein Körper, <span className="rainbow-text">und was bedeutet das</span>?
+            </h1>
+            <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
+              Bildgebung, Laborwerte, Gangbild, Wirbelsäulen-Diagramm — alles an einem Ort.
+              Jeder schulmedizinische Befund wird begleitet von einer Deutung der tibetischen Medizin
+              (Sowa Rigpa), die fragt: was sagt dieser Befund über das Ganze deines Lebens?
+            </p>
+          </div>
+          <div className="lg:col-span-5 relative aspect-square rounded-2xl overflow-hidden surface">
+            <Image src="/akte/header-multi-view.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" priority />
+          </div>
+        </div>
       </header>
 
       {/* ─── Schnell-Überblick ─── */}
