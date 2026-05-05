@@ -8,6 +8,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { generiereGanzeBelegschaft } from "@/lib/dienstplan/multi-planer";
 import { speichern as speichereInHistorie } from "@/lib/dienstplan/plan-history";
+import { baueDemoplan } from "@/lib/dienstplan/demo-plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -40,13 +41,6 @@ function keyOk(req: NextRequest): boolean {
 }
 
 export async function POST(req: NextRequest) {
-  if (!keyOk(req)) {
-    return NextResponse.json({ error: "Zugangs-Key fehlt oder ist falsch." }, { status: 401 });
-  }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json({ error: "ANTHROPIC_API_KEY nicht gesetzt." }, { status: 503 });
-  }
-
   let body: { jahr?: number; monat?: number; hinweis?: string };
   try { body = await req.json(); } catch { body = {}; }
 
@@ -55,6 +49,25 @@ export async function POST(req: NextRequest) {
   const monat = Number.isInteger(body.monat) && body.monat! >= 1 && body.monat! <= 12
     ? body.monat!
     : heute.getMonth() + 1;
+
+  // Demo-Fallback: ohne Key oder ohne Anthropic-Stack → deterministischer Plan
+  if (!keyOk(req) || !process.env.ANTHROPIC_API_KEY) {
+    const demo = baueDemoplan(jahr, monat);
+    const eintrag = speichereInHistorie({
+      ergebnis: demo,
+      hinweis: body.hinweis ? `Ganze Belegschaft (Demo) · ${body.hinweis}` : "Ganze Belegschaft (Demo · ohne KI)",
+    });
+    return NextResponse.json({
+      ...demo,
+      planId: eintrag.id,
+      gruppen: [{ beruf: "demo", personenAnzahl: demo.stundenBilanz.length, ok: true, dauerMs: 0 }],
+      dauerMs: 0,
+      erfolgreich: 1,
+      gesamtPersonen: demo.stundenBilanz.length,
+      demoFallback: true,
+      demoGrund: !keyOk(req) ? "Kein Zugangs-Key — Demo-Plan eingespielt." : "Anthropic nicht erreichbar — Demo-Plan eingespielt.",
+    });
+  }
 
   try {
     const ergebnis = await generiereGanzeBelegschaft({

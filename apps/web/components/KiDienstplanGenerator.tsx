@@ -65,6 +65,8 @@ type MultiPlanErgebnis = PlanErgebnis & {
   dauerMs?: number;
   erfolgreich?: number;
   gesamtPersonen?: number;
+  demoFallback?: boolean;
+  demoGrund?: string;
 };
 
 type HistoryEintrag = {
@@ -353,19 +355,19 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
 
       <label className="block mb-4">
         <span className="text-[10px] uppercase tracking-wider text-soft font-medium block mb-1">
-          Zugangs-Key
+          Zugangs-Key (optional)
         </span>
         <input
           type="password"
           value={zugangsKey}
           onChange={(e) => setZugangsKey(e.target.value)}
-          placeholder="erforderlich · einmal eingeben, wird im Browser gespeichert"
+          placeholder="leer lassen für Demo-Plan ohne KI-Aufruf"
           className="w-full sm:max-w-xs surface-mute rounded-md px-3 py-2 text-[13px] font-mono"
           autoComplete="off"
         />
         <span className="text-[10px] text-mute italic block mt-1">
-          Verhindert Anthropic-Budget-Verbrennung durch zufällige Demo-Besucher:innen.
-          Default in der ENV: <code className="font-mono">SHALEM_DIENSTPLAN_KEY</code>.
+          Mit Key: Live-Sonnet-Plan via Anthropic. Ohne Key: deterministischer Demo-Plan
+          (rotation-v1, kein KI-Aufruf, keine Kosten). ENV: <code className="font-mono">SHALEM_DIENSTPLAN_KEY</code>.
         </span>
       </label>
 
@@ -503,6 +505,23 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
 
       {ergebnis && (
         <div className="mt-6 space-y-5">
+          {ergebnis.demoFallback && (
+            <div
+              className="rounded-lg p-3 flex items-baseline gap-2 flex-wrap"
+              style={{
+                background: "linear-gradient(135deg, rgb(var(--accent) / 0.10), rgb(var(--thu) / 0.06))",
+                boxShadow: "inset 0 0 0 1px rgb(var(--accent) / 0.3)",
+              }}
+            >
+              <span className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "rgb(var(--accent))" }}>
+                ⓘ Demo-Plan
+              </span>
+              <span className="text-[12px] text-soft">
+                {ergebnis.demoGrund ?? "Deterministisch generiert · kein KI-Aufruf · für Live-Anthropic-Plan Zugangs-Key eintragen."}
+              </span>
+            </div>
+          )}
+
           {ergebnis.zuweisungen.length === 0 && ergebnis.stundenBilanz.length === 0 && (
             <div
               className="rounded-lg p-4"

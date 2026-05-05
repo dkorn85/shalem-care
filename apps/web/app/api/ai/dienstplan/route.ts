@@ -9,6 +9,7 @@ import { generiereMonatsplan, DEMO_BEDARFSMUSTER } from "@/lib/dienstplan/ki-pla
 import { PERSONAL_BUDGETS, sollStundenProMonat } from "@/lib/dienstplan/budget";
 import { CASELOADS } from "@/lib/zuordnung/store";
 import { speichern as speichereInHistorie } from "@/lib/dienstplan/plan-history";
+import { baueDemoplan } from "@/lib/dienstplan/demo-plan";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -67,26 +68,6 @@ const PERSON_NAMES: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
-  if (!keyOk(req)) {
-    return NextResponse.json(
-      { error: "Zugangs-Key fehlt oder ist falsch. Bitte in der UI eintragen (X-Shalem-Key oder ?key=...)." },
-      { status: 401 },
-    );
-  }
-  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
-  if (!rateOk(ip)) {
-    return NextResponse.json(
-      { error: "Zu viele Anfragen. Bitte später erneut versuchen." },
-      { status: 429 },
-    );
-  }
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return NextResponse.json(
-      { error: "ANTHROPIC_API_KEY nicht gesetzt." },
-      { status: 503 },
-    );
-  }
-
   let body: { jahr?: number; monat?: number; hinweis?: string; nurBeruf?: string };
   try { body = await req.json(); } catch { body = {}; }
 
@@ -95,6 +76,31 @@ export async function POST(req: NextRequest) {
   const monat = Number.isInteger(body.monat) && body.monat! >= 1 && body.monat! <= 12
     ? body.monat!
     : heute.getMonth() + 1;
+
+  // Ohne Key (oder bei Anthropic-Down) → deterministischer Demo-Plan.
+  // Kein 401 für Demo-Besucher:innen — der Plan sieht aus wie KI, ist aber lokal gerechnet.
+  if (!keyOk(req) || !process.env.ANTHROPIC_API_KEY) {
+    const demo = baueDemoplan(jahr, monat);
+    const eintrag = speichereInHistorie({
+      ergebnis: demo,
+      hinweis: body.hinweis,
+      nurBeruf: body.nurBeruf,
+    });
+    return NextResponse.json({
+      ...demo,
+      planId: eintrag.id,
+      demoFallback: true,
+      demoGrund: !keyOk(req) ? "Kein Zugangs-Key — Demo-Plan eingespielt." : "Anthropic nicht erreichbar — Demo-Plan eingespielt.",
+    });
+  }
+
+  const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
+  if (!rateOk(ip)) {
+    return NextResponse.json(
+      { error: "Zu viele Anfragen. Bitte später erneut versuchen." },
+      { status: 429 },
+    );
+  }
 
   const mitarbeitende = PERSONAL_BUDGETS
     .filter((pb) => !body.nurBeruf || pb.beruf === body.nurBeruf)
