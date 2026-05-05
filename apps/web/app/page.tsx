@@ -429,6 +429,7 @@ export default async function LandingPage() {
           </div>
           <div className="flex items-center gap-5 text-[13px] text-mute">
             <Link href="/netz" className="hover:text-[rgb(var(--fg))]">Netz · Übersicht</Link>
+            <Link href="/livemap" className="hover:text-[rgb(var(--fg))]">Live-Map · 24 h</Link>
             <Link href="/datenschutz" className="hover:text-[rgb(var(--fg))]">Datenschutz</Link>
             <a href="https://merkabaprojekt.de" className="hover:text-[rgb(var(--fg))]">Merkaba Project</a>
             <Link href="/pflege" className="hover:text-[rgb(var(--fg))]">App</Link>

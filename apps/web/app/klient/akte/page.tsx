@@ -67,7 +67,14 @@ export default async function MeineAktePage() {
 
   return (
     <KlientShell user={{ name: "Helga Reinhardt", initials: "HR", relation: "self", klientId: KLIENT_ID }}>
-      <header className="mb-6">
+      <header className="mb-6 relative overflow-hidden rounded-2xl">
+        <video
+          src="/loops/akte-atem.mp4"
+          autoPlay muted loop playsInline
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover opacity-10 pointer-events-none"
+        />
+        <div className="relative p-1">
         <Link href="/klient" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
           ← Heute
         </Link>
@@ -85,6 +92,7 @@ export default async function MeineAktePage() {
               Fachwörter erkennen Sie an der gepunkteten Unterstreichung. Klick darauf erklärt das Wort.
             </p>
           </div>
+        </div>
         </div>
       </header>
 
