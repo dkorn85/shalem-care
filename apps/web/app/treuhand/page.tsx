@@ -41,6 +41,23 @@ export default function TreuhandPage() {
         </div>
       </header>
 
+      {/* Sanfter Geld-Fluss-Loop unter dem Drei-Schritt */}
+      <section className="relative rounded-2xl overflow-hidden mb-6 surface" style={{ aspectRatio: "16/9" }}>
+        <video
+          src="/loops/treuhand-fluss.mp4"
+          autoPlay muted loop playsInline
+          className="absolute inset-0 w-full h-full object-cover"
+          aria-hidden
+        />
+        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to top, rgb(var(--bg-elev) / 0.85) 0%, rgb(var(--bg-elev) / 0.2) 50%, transparent 100%)" }} />
+        <div className="absolute inset-x-0 bottom-0 p-5 sm:p-6">
+          <p className="text-[11px] uppercase tracking-wider text-soft mb-1 font-medium">Treuhand · in Bewegung</p>
+          <p className="font-display text-[16px] sm:text-[18px] font-bold tracking-tight2">
+            Geld kommt rein, wartet kurz, geht raus — sichtbar nachvollziehbar.
+          </p>
+        </div>
+      </section>
+
       {/* Drei-Schritt-Geld-Fluss */}
       <section className="grid lg:grid-cols-3 gap-3 mb-6">
         <Schritt
