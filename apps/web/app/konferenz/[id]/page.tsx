@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
@@ -5,7 +6,14 @@ import { getKonferenz, seedKonferenzOnce, KONFERENZTYP_LABEL, STATUS_FARBE } fro
 import { BERUFSFELD_LABEL, BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
 import { KonferenzLiveControl } from "@/components/KonferenzLive";
 
-export const metadata = { title: "Konferenz · Detail" };
+export const metadata = {
+  title: "Konferenz · Detail",
+  openGraph: {
+    title: "Konferenz · Shalem Care",
+    description: "Interdisziplinäre Fall-/Hilfeplan-Konferenz mit Pre-Reads, Live-Notizen, Beschluss-Komposer.",
+    images: [{ url: "/og/konferenz.png", width: 1200, height: 630, alt: "Shalem Care · Konferenz" }],
+  },
+};
 
 export default async function KonferenzDetailPage({ params }: { params: Promise<{ id: string }> }) {
   seedKonferenzOnce();
@@ -22,19 +30,33 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
     <AppShell role="lead" user={{ id: "person-de1", name: "Detektiv Eins", subtitle: "Stationsleitung", initials: "DE" }} station="Pulmologie 3B">
       <header className="mb-6">
         <Link href="/admin" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">← Übersicht</Link>
-        <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">
-          {KONFERENZTYP_LABEL[k.typ]} · {k.klientName}
-        </p>
-        <h1 className="font-display text-[28px] sm:text-[36px] font-bold tracking-tight2 leading-[1.05]">
-          {wochentag}, {datumLang} · {uhrzeit}
-        </h1>
-        <p className="text-[14px] text-mute mt-2">{k.anlass}</p>
-        <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
-          <span className="chip" style={{ background: `rgb(${STATUS_FARBE[k.status]} / 0.15)`, color: `rgb(${STATUS_FARBE[k.status]})` }}>
-            {k.status.replace(/_/g, " ")}
-          </span>
-          <span className="chip" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>{k.dauer_min} min</span>
-          <span className="chip font-mono" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>{k.ort}</span>
+        <div className="grid lg:grid-cols-12 gap-6 items-end">
+          <div className="lg:col-span-7">
+            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">
+              {KONFERENZTYP_LABEL[k.typ]} · {k.klientName}
+            </p>
+            <h1 className="font-display text-[28px] sm:text-[36px] font-bold tracking-tight2 leading-[1.05]">
+              {wochentag}, {datumLang} · {uhrzeit}
+            </h1>
+            <p className="text-[14px] text-mute mt-2">{k.anlass}</p>
+            <div className="flex flex-wrap gap-2 mt-3 text-[11px]">
+              <span className="chip" style={{ background: `rgb(${STATUS_FARBE[k.status]} / 0.15)`, color: `rgb(${STATUS_FARBE[k.status]})` }}>
+                {k.status.replace(/_/g, " ")}
+              </span>
+              <span className="chip" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>{k.dauer_min} min</span>
+              <span className="chip font-mono" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>{k.ort}</span>
+            </div>
+          </div>
+          <div className="lg:col-span-5 relative aspect-[16/9] rounded-2xl overflow-hidden surface">
+            <Image
+              src={k.status === "live" ? "/akte/header-konferenz-live.png" : "/akte/header-konferenz.png"}
+              alt=""
+              fill
+              sizes="(max-width: 1024px) 100vw, 40vw"
+              className="object-cover"
+              priority
+            />
+          </div>
         </div>
       </header>
 
