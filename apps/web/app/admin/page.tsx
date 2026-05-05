@@ -83,6 +83,24 @@ export default async function AdminDashboard() {
 
       <CrossProfessionInbox beruf="lead" items={leadInbox} kpi={leadInboxKpi} zugewiesenAn={lead.name} />
 
+      {/* Plattform-Admin-Schnellzugriff (nur sichtbar wenn Auth-User) */}
+      {aktiv.quelle === "auth" && (
+        <section className="surface rounded-2xl p-4 mb-6 grid sm:grid-cols-3 gap-3" style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.04), transparent)" }}>
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-soft mb-1 font-medium">Plattform-Admin · eingeloggt</p>
+            <p className="text-[12px] text-mute leading-snug">Compliance-Werkzeuge für Pruefung + Audit.</p>
+          </div>
+          <Link href="/admin/verifikationen" className="surface-hover rounded-lg p-3 text-[13px] flex items-baseline justify-between">
+            <span>Verifikationen prüfen</span>
+            <span className="text-mute">→</span>
+          </Link>
+          <Link href="/admin/audit-log" className="surface-hover rounded-lg p-3 text-[13px] flex items-baseline justify-between">
+            <span>Audit-Log einsehen</span>
+            <span className="text-mute">→</span>
+          </Link>
+        </section>
+      )}
+
       {/* ─── Wirtschaftlichkeits-Cockpit ───────────────────── */}
       <section className="surface rounded-2xl p-5 mb-6">
         <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">

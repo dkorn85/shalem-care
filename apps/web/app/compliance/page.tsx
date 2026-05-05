@@ -48,7 +48,7 @@ const PUNKTE: { titel: string; detail: string; status: Status; norm: string }[] 
 
   // In Arbeit
   { titel: "Echtheits-Verifizierung Berufsabschlüsse", detail: "Berufsurkunde + IK-Check über Verifications-Tabelle. Phase-2: Verimi/yes® für KYC.", status: "in_arbeit", norm: "intern + DSGVO Art. 5 (Genauigkeit)" },
-  { titel: "Audit-Log (lückenlos, append-only)", detail: "Alle Schreib-Operationen mit user_id + Zeitstempel. Tabelle ist insert-only, niemand kann löschen.", status: "in_arbeit", norm: "BSI ORP.4.A19, DSGVO Art. 30" },
+  { titel: "Audit-Log (lückenlos, append-only)", detail: "Alle Schreib-Operationen mit user_id + Zeitstempel + JSON-Diff. Trigger auf profiles + user_roles + verifications. RLS verhindert Löschen/Updaten — append-only by design. Sicht: /admin/audit-log. Phase-2: Hash-Kette als Tamper-Evidence.", status: "umgesetzt", norm: "BSI ORP.4.A19, DSGVO Art. 30" },
 
   // Geplant
   { titel: "DSGVO-Lösch-Endpoint (Art. 17 + 20)", detail: "User kann eigene Daten als JSON exportieren + Konto + Daten endgültig löschen. UI unter /profil/dsgvo. Phase 2: auth.users via Edge-Function.", status: "umgesetzt", norm: "DSGVO Art. 17/20" },
