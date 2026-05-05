@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { getKonferenz, seedKonferenzOnce, KONFERENZTYP_LABEL, STATUS_FARBE } from "@/lib/konferenz/store";
 import { BERUFSFELD_LABEL, BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
+import { KonferenzLiveControl } from "@/components/KonferenzLive";
 
 export const metadata = { title: "Konferenz · Detail" };
 
@@ -36,6 +37,8 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
           <span className="chip font-mono" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>{k.ort}</span>
         </div>
       </header>
+
+      <KonferenzLiveControl konferenz={k} />
 
       {/* Teilnehmende */}
       <section className="mb-6">
@@ -123,8 +126,8 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
         </section>
       )}
 
-      {/* Agenda */}
-      {k.agenda.length > 0 && (
+      {/* Agenda · static view, ausgeblendet während live (Live-Control zeigt sie) */}
+      {k.agenda.length > 0 && k.status !== "live" && (
         <section className="mb-6">
           <h2 className="font-display text-[18px] font-bold tracking-tight2 mb-3">Agenda</h2>
           <ol className="space-y-2">
@@ -151,8 +154,8 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
         </section>
       )}
 
-      {/* Beschluesse aus letzter Konferenz */}
-      {k.beschluesse.length > 0 && (
+      {/* Beschluesse · static view, ausgeblendet während live (Live-Control zeigt sie) */}
+      {k.beschluesse.length > 0 && k.status !== "live" && (
         <section className="mb-6">
           <h2 className="font-display text-[18px] font-bold tracking-tight2 mb-3">Beschlüsse</h2>
           <ul className="space-y-2">
@@ -177,6 +180,14 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
               );
             })}
           </ul>
+        </section>
+      )}
+
+      {/* Live-Protokoll bei abgeschlossenen / vertagten Konferenzen */}
+      {k.status !== "live" && k.liveNotizen && k.liveNotizen.trim().length > 0 && (
+        <section className="surface rounded-2xl p-5 mb-6">
+          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Protokoll · Live-Notizen</p>
+          <pre className="text-[13px] leading-relaxed whitespace-pre-wrap font-sans">{k.liveNotizen}</pre>
         </section>
       )}
 
