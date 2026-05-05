@@ -110,6 +110,34 @@ export async function getActivePersona(fallbackPersonId?: string, fallbackRolle?
 }
 
 /**
+ * Helper: liefert Initialen aus einem Namen (max. 2 Buchstaben, uppercase).
+ * Nützlich für AppShell-Avatar wenn Auth-Display-Name verwendet wird.
+ */
+export function initialenAus(name: string | null | undefined): string {
+  if (!name) return "??";
+  return name.split(/\s+/).filter(Boolean).map((s) => s[0]).slice(0, 2).join("").toUpperCase();
+}
+
+/**
+ * Helper: liefert das User-Display-Objekt für AppShell, ggf. mit Auth-Override.
+ */
+export function userPropsAus(
+  aktiv: ActivePersona,
+  fallback: { id: string; name: string; subtitle: string; initials: string },
+  authSubtitle?: string,
+): { id: string; name: string; subtitle: string; initials: string } {
+  if (aktiv.quelle === "auth" && aktiv.displayName) {
+    return {
+      id: fallback.id,
+      name: aktiv.displayName,
+      subtitle: authSubtitle ?? `${fallback.subtitle} · eingeloggt`,
+      initials: initialenAus(aktiv.displayName),
+    };
+  }
+  return fallback;
+}
+
+/**
  * Schreibrecht-Guard — wirft Error wenn der aktive User nur Viewer ist.
  * Server-Actions sollten dies vor jeder Schreib-Operation aufrufen.
  */

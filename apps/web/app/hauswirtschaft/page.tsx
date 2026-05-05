@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
 const SPEISEPLAN_HEUTE = [
   { id: "s-1", mahlzeit: "Frühstück",     was: "Vollkorn-Brötchen, Quark, Honig, Tee",         diaeten: ["normal", "diabetes"], farbe: "var(--sun)" },
@@ -34,8 +35,9 @@ const HACCP_HEUTE = [
 export const metadata = { title: "Hauswirtschaft · Cockpit" };
 
 export default async function HauswirtschaftPage() {
+  const aktiv = await getActivePersona("hwf-001", "hauswirtschaft");
   return (
-    <AppShell role="hauswirtschaft" user={{ id: "hwf-001", name: "Helmut Brandt", subtitle: "Hauswirtschaftsleitung · staatl. anerkannt", initials: "HB" }} station="Pulmologie 3B">
+    <AppShell role="hauswirtschaft" user={userPropsAus(aktiv, { id: "hwf-001", name: "Helmut Brandt", subtitle: "Hauswirtschaftsleitung · staatl. anerkannt", initials: "HB" })} station="Pulmologie 3B">
       <header className="mb-6">
         <div className="grid lg:grid-cols-12 gap-6 items-end">
           <div className="lg:col-span-7">
