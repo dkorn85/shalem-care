@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { AndereBegleiter } from "@/components/AndereBegleiter";
 
 const HEUTE = [
   { id: "t-1", zeit: "08:00", patient: "Erika Gärtner",    leistung: "KG-Mobilisation",          dauer: 30, anzahl: "3/12", icd: "M54.5",  region: "LWS",      vibe: "var(--fri)" },
@@ -69,6 +70,8 @@ export default async function TherapiePage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <AndereBegleiter eigenerBeruf="therapie" />
 
       <CockpitSection eyebrow="Verordnungs-Inbox" title="Neue Heilmittel-VOs" count={VERORDNUNGEN_OFFEN.length}>
         <ul className="space-y-2">
