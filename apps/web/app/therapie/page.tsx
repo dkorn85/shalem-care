@@ -4,7 +4,9 @@ import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
+import { MeineKlienten } from "@/components/MeineKlienten";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
+import { seedOnce } from "@/lib/seed";
 
 const HEUTE = [
   { id: "t-1", zeit: "08:00", patient: "Erika Gärtner",    leistung: "KG-Mobilisation",          dauer: 30, anzahl: "3/12", icd: "M54.5",  region: "LWS",      vibe: "var(--fri)" },
@@ -26,6 +28,7 @@ export const metadata = {
 };
 
 export default async function TherapiePage() {
+  seedOnce();
   seedKonferenzOnce();
   const konf = naechsteKonferenzFuerKlient("klient-hr");
   const heuteStunden = HEUTE.reduce((sum, h) => sum + h.dauer / 60, 0);
@@ -74,6 +77,8 @@ export default async function TherapiePage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <MeineKlienten personId="person-therapeut-001" beruf="therapie" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="therapie" eigenePersonId="person-therapeut-001" />}
 
