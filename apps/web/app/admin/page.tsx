@@ -7,13 +7,20 @@ import { getStationOfPerson, getStation, listKlientenAtStation, listPeopleAtStat
 import { computeErloesForEinrichtung, eurShort } from "@/lib/erloes/erloes";
 import { assessBurnoutRisk } from "@/lib/burnout/risk";
 import { hourlyRateFor } from "@/lib/tariff";
+import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
+import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
+import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
 
 export default async function AdminDashboard() {
   seedOnce();
+  seedAktivitaetOnce();
+  seedInboxOnce();
   const lead = (await store.getPerson(CURRENT_LEAD_ID))!;
+  const leadInbox = listInbox("lead");
+  const leadInboxKpi = inboxKpi("lead");
   const offers = await store.listOffers();
   const people = (await store.listPeople()).filter((p) => p.role === "nurse");
   const slots = await store.listSlots();
@@ -65,6 +72,8 @@ export default async function AdminDashboard() {
           ]}
         />
       </div>
+
+      <CrossProfessionInbox beruf="lead" items={leadInbox} kpi={leadInboxKpi} zugewiesenAn={lead.name} />
 
       {/* ─── Wirtschaftlichkeits-Cockpit ───────────────────── */}
       <section className="surface rounded-2xl p-5 mb-6">

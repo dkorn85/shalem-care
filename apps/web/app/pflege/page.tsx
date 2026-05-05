@@ -14,13 +14,20 @@ import { findActiveShift } from "@/lib/dienst/active-shift";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { MeineKlienten } from "@/components/MeineKlienten";
+import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
+import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
+import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 
 export default async function PflegeHome() {
   seedOnce();
   seedKonferenzOnce();
+  seedAktivitaetOnce();
+  seedInboxOnce();
   const konf = naechsteKonferenzFuerKlient("klient-hr");
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
+  const pflegeInbox = listInbox("pflege");
+  const pflegeInboxKpi = inboxKpi("pflege");
   const slots = await store.listSlotsForPerson(CURRENT_USER_ID);
   const offers = await store.listOffers();
   const allSlots = new Map((await store.listSlots()).map((s) => [s.id!, s]));
@@ -123,6 +130,8 @@ export default async function PflegeHome() {
       </div>
 
       <SwapMarketplace offers={offers} slotsById={allSlots} peopleById={allPeople} />
+
+      <CrossProfessionInbox beruf="pflege" items={pflegeInbox} kpi={pflegeInboxKpi} zugewiesenAn={nurse.name} />
 
       <MeineKlienten personId={CURRENT_USER_ID} beruf="pflege" />
 

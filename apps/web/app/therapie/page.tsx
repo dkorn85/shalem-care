@@ -5,6 +5,9 @@ import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufC
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { MeineKlienten } from "@/components/MeineKlienten";
+import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
+import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
+import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 import { seedOnce } from "@/lib/seed";
 
@@ -30,7 +33,11 @@ export const metadata = {
 export default async function TherapiePage() {
   seedOnce();
   seedKonferenzOnce();
+  seedAktivitaetOnce();
+  seedInboxOnce();
   const konf = naechsteKonferenzFuerKlient("klient-hr");
+  const therapieInbox = listInbox("therapie");
+  const therapieInboxKpi = inboxKpi("therapie");
   const heuteStunden = HEUTE.reduce((sum, h) => sum + h.dauer / 60, 0);
   return (
     <AppShell
@@ -61,6 +68,8 @@ export default async function TherapiePage() {
         <CockpitKpi label="Erstgespräche" value={VERORDNUNGEN_OFFEN.length} hint="VOs warten" farbe="var(--vibe-approval)" />
         <CockpitKpi label="Behand. KW 19" value={28}                  unit="von 36" hint="Auslastung 78 %" farbe="var(--vibe-stats)" />
       </div>
+
+      <CrossProfessionInbox beruf="therapie" items={therapieInbox} kpi={therapieInboxKpi} zugewiesenAn="Sebastian Rauer" />
 
       <CockpitSection eyebrow="Tagesplan" title="Heute" count={HEUTE.length}>
         <ul className="space-y-2">

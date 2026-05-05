@@ -5,6 +5,9 @@ import { seedOnce } from "@/lib/seed";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
 import { STATUS_LABEL, KATEGORIE_LABEL, KATEGORIE_FARBE, STATUS_FARBE, DRINGLICHKEIT_LABEL } from "@/lib/verordnung/types";
 import { PraxisCockpit } from "@/components/PraxisCockpit";
+import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
+import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
+import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -23,8 +26,12 @@ const CURRENT_DOCTOR_ID = "person-arzt-001";
 export default async function ArztPraxisPage() {
   seedOnce();
   seedAnfragenOnce();
+  seedAktivitaetOnce();
+  seedInboxOnce();
 
   const arzt = (await store.getPerson(CURRENT_DOCTOR_ID))!;
+  const inboxItems = listInbox("arzt");
+  const inboxStats = inboxKpi("arzt");
   const offene = listAnfragen({ arztId: CURRENT_DOCTOR_ID, status: ["offen", "in_pruefung", "rueckfrage"] });
   const ausgestellt = listAnfragen({ arztId: CURRENT_DOCTOR_ID, status: ["ausgestellt"] }).slice(0, 5);
   const akute = offene.filter((a) => a.dringlichkeit === "akut").length;
@@ -53,6 +60,8 @@ export default async function ArztPraxisPage() {
         <Tile label="Dringlich"        value={dringliche}    color="var(--vibe-profile)" />
         <Tile label="Heute ausgestellt" value={ausgestellt.filter((a) => a.geschlossenAm?.slice(0, 10) === new Date().toISOString().slice(0, 10)).length} color="var(--thu)" />
       </section>
+
+      <CrossProfessionInbox beruf="arzt" items={inboxItems} kpi={inboxStats} zugewiesenAn={arzt.name} />
 
       <PraxisCockpit
         scheineQuartal={142}
