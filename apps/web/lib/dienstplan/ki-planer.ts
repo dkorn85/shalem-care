@@ -113,13 +113,12 @@ Antworte AUSSCHLIESSLICH als JSON nach diesem Schema (kein Markdown, kein Fließ
 }
 
 Wichtig:
-- Plane GENAU die ersten 7 Tage des Monats konkret (Tag für Tag, Person für Person).
-  Das ist ein Rotations-Beispiel — die Plattform setzt das Muster für den Rest fort.
-- Stundenbilanz hochrechnen auf den ganzen Monat (also Wochen-Stunden × Wochenfaktor),
-  nicht nur auf die 7 Tage.
-- Lieber ehrlich zugeben, dass eine Constraint nicht erfüllt ist, als heimlich zu schummeln.
-- Bei zu vielen Personen: wähle 8-10 Personen exemplarisch und nenne die anderen in der
-  Bilanz mit Soll=geplant=Saldo=0 + Kommentar "im Folgemonat priorisieren".`;
+- Plane GENAU 5 aufeinanderfolgende Tage ab dem 1. des Monats (Mo-Fr eines Beispiel-Tages).
+  Das ist ein Rotations-Beispiel — die Plattform setzt das Muster fort.
+- Stundenbilanz auf den ganzen Monat hochgerechnet (~4.3 Wochen).
+- Maximal 5-7 Schichten pro Person in den 5 Tagen.
+- Lieber ehrlich zugeben dass eine Constraint nicht erfüllt ist, als zu schummeln.
+- Halte den JSON-Output kompakt — kurze Begründungen (max 8 Wörter pro Schicht).`;
 
 function buildUserPrompt(eingabe: KiPlanerEingabe): string {
   const c = eingabe.constraints ?? {};
@@ -165,7 +164,9 @@ export async function generiereMonatsplan(eingabe: KiPlanerEingabe): Promise<KiP
 
   const result = await provider.generate(messages, {
     temperature: 0.2,
-    maxTokens: 16000,
+    // 5000 Token Output reicht fuer 5 Tage x 8 Personen Beispiel-Plan +
+    // Bilanz + Kommentar. Bleibt klar unter Hostinger-Proxy-Timeout.
+    maxTokens: 5000,
     jsonMode: true,
   });
 

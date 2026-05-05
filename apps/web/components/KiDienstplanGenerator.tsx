@@ -121,6 +121,12 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
         </span>
       </header>
 
+      <p className="text-[11px] text-mute italic mb-3 max-w-prose">
+        Hinweis: Server-seitig auf max. 8 Personen pro Aufruf gekappt — sonst sprengt der
+        JSON-Output das Hostinger-Gateway-Timeout. Filter "Nur Beruf" hilft die Auswahl
+        gezielt zu lenken.
+      </p>
+
       <div className="grid sm:grid-cols-5 gap-3 mb-4">
         <label className="block">
           <span className="text-[10px] uppercase tracking-wider text-soft font-medium block mb-1">Jahr</span>
