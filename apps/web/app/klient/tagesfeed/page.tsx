@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { KlientShell } from "@/components/KlientShell";
 import { TagesfeedClient } from "@/components/TagesfeedClient";
+import { AnomalieEinSatz } from "@/components/AnomalieEinSatz";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 
 export const metadata = {
@@ -30,6 +31,10 @@ export default function TagesfeedPage() {
           warme, ehrliche Mitteilung. Optional liest sie sie auch vor.
         </p>
       </header>
+
+      <div className="mb-5">
+        <AnomalieEinSatz klientId={DEFAULT_KLIENT.id} klientName={DEFAULT_KLIENT.name} autoLoad />
+      </div>
 
       <TagesfeedClient
         klientId={DEFAULT_KLIENT.id}

@@ -17,6 +17,7 @@ import { KonferenzCard } from "@/components/KonferenzCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { MeineKlienten } from "@/components/MeineKlienten";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
+import { SchichtBriefingClient } from "@/components/SchichtBriefingClient";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
@@ -124,6 +125,8 @@ export default async function PflegeHome() {
         qualification={qualification}
         taskBrief={taskBrief}
       />
+
+      <SchichtBriefingClient personId={personId} personName={nurse.name} />
 
       <HourTarget worked={worked} scheduled={scheduled} target={target} asOf={now} />
 
