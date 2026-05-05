@@ -5,6 +5,7 @@ import { AppShell } from "@/components/AppShell";
 import { getKonferenz, seedKonferenzOnce, KONFERENZTYP_LABEL, STATUS_FARBE } from "@/lib/konferenz/store";
 import { BERUFSFELD_LABEL, BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
 import { KonferenzLiveControl } from "@/components/KonferenzLive";
+import { KonferenzKlientBriefing } from "@/components/KonferenzKlientBriefing";
 
 export const metadata = {
   title: "Konferenz · Detail",
@@ -61,6 +62,10 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
       </header>
 
       <KonferenzLiveControl konferenz={k} />
+
+      {(k.status === "abgeschlossen" || (k.status === "live" && k.beschluesse.length > 0)) && (
+        <KonferenzKlientBriefing konferenzId={k.id} klientName={k.klientName} />
+      )}
 
       {/* Teilnehmende */}
       <section className="mb-6">
