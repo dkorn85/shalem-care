@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { AndereBegleiter } from "@/components/AndereBegleiter";
 
 const FAELLE = [
   { id: "f-1", name: "Familie Cordes",       sgb: "VIII", thema: "Hilfe zur Erziehung",       phase: "Hilfeplan",  prio: 2, naechsterTermin: "morgen 10:00", farbe: "var(--vibe-team)" },
@@ -68,6 +69,8 @@ export default async function SozialPage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <AndereBegleiter eigenerBeruf="sozialarbeit" />
 
       <CockpitSection eyebrow="Hilfeplan" title="Anstehende Reviews" count={HILFEPLAN_REVIEWS.length}>
         <ul className="space-y-2">

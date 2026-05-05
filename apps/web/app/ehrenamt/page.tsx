@@ -1,6 +1,7 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { AndereBegleiter } from "@/components/AndereBegleiter";
 
 const BEGLEITUNG = [
   { id: "b-1", klient: "Helga Reinhardt",  thema: "Wöchentlicher Tee-Nachmittag", naechster: "Do 15:00", dauer: "90 min", farbe: "var(--wed)" },
@@ -72,6 +73,8 @@ export default async function EhrenamtPage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <AndereBegleiter eigenerBeruf="ehrenamt" />
 
       <CockpitSection eyebrow="Protokoll" title="Letzte Begleitungen">
         <ul className="space-y-2">
