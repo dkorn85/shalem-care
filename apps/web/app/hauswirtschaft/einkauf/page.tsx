@@ -11,6 +11,7 @@ export default function EinkaufPage() {
       parentPfad="/hauswirtschaft"
       parentLabel="Hauswirtschaft"
       eyebrow="Hauswirtschaft · Einkauf"
+      headerImage="/hauswirtschaft/header-einkauf.png"
       titel="Einkaufslisten + Liefer-Tour"
       subline="Pro Klient:in eine Wunsch-Liste, mit Allergie- und Diät-Filter. Tour-Optimierung über lokale Lieferanten und Hofläden."
       bausteine={[

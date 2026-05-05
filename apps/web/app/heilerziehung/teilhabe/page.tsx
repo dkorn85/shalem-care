@@ -11,6 +11,7 @@ export default function TeilhabePage() {
       parentPfad="/heilerziehung"
       parentLabel="Heilerziehung"
       eyebrow="Heilerziehung · Teilhabe"
+      headerImage="/heilerziehung/header-teilhabe.png"
       titel="Teilhabeplan nach BTHG"
       subline="Bedarfsfeststellung mit ICF-Bezug, Hilfeplan-Konferenz, Leistungsentscheidung — partizipativ statt 'für', mit klarer Selbstvertretungs-Stimme."
       bausteine={[

@@ -32,7 +32,7 @@ export default function RegistrierenPage() {
   return (
     <main className="min-h-screen bg-app">
       <header className="relative w-full aspect-[16/9] sm:aspect-[16/7] overflow-hidden">
-        <Image src="/warum/wer-traegt.png" alt="" fill priority className="object-cover" sizes="100vw" />
+        <Image src="/auth/header-registrieren.png" alt="" fill priority className="object-cover" sizes="100vw" />
         <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.5) 0%, rgb(var(--bg)) 100%)" }} />
         <div className="absolute inset-x-0 bottom-0 px-6 sm:px-12 pb-8 sm:pb-12 max-w-4xl mx-auto">
           <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Account anlegen</p>
@@ -50,30 +50,27 @@ export default function RegistrierenPage() {
       <article className="max-w-4xl mx-auto px-6 sm:px-12 py-12 space-y-10">
 
         {/* Vertrauens-Stufen erklärt */}
-        <section className="surface rounded-2xl p-5 sm:p-6">
+        <section>
           <p className="text-[11px] uppercase tracking-wider text-soft mb-3 font-medium">Drei Vertrauens-Stufen</p>
           <ul className="grid sm:grid-cols-3 gap-3">
-            <li className="surface-mute rounded-xl p-3 relative overflow-hidden">
-              <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${VERTRAUEN_FARBE.basis})` }} />
-              <div className="ml-2.5">
-                <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: `rgb(${VERTRAUEN_FARBE.basis})` }}>Basis</p>
-                <p className="text-[12px] mt-1 leading-snug">Konto angelegt, Email bestätigt. Reicht für Klient:innen + Demo-Zugriff.</p>
-              </div>
-            </li>
-            <li className="surface-mute rounded-xl p-3 relative overflow-hidden">
-              <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${VERTRAUEN_FARBE.verifiziert})` }} />
-              <div className="ml-2.5">
-                <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: `rgb(${VERTRAUEN_FARBE.verifiziert})` }}>Identität geprüft</p>
-                <p className="text-[12px] mt-1 leading-snug">Berufsurkunde + IK-Check. Nötig für Pflegekräfte, Therapie, Sozialarbeit.</p>
-              </div>
-            </li>
-            <li className="surface-mute rounded-xl p-3 relative overflow-hidden">
-              <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${VERTRAUEN_FARBE.hoch})` }} />
-              <div className="ml-2.5">
-                <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: `rgb(${VERTRAUEN_FARBE.hoch})` }}>Echtheits-zertifiziert</p>
-                <p className="text-[12px] mt-1 leading-snug">Personalausweis-Verifizierung über Verimi/yes®/eHBA. Nötig für Ärzt:innen.</p>
-              </div>
-            </li>
+            <VertrauensTile
+              titel="Basis"
+              beschreibung="Konto angelegt, Email bestätigt. Reicht für Klient:innen + Demo-Zugriff."
+              farbe={VERTRAUEN_FARBE.basis}
+              bild="/auth/vertrauen-basis.png"
+            />
+            <VertrauensTile
+              titel="Identität geprüft"
+              beschreibung="Berufsurkunde + IK-Check. Nötig für Pflegekräfte, Therapie, Sozialarbeit."
+              farbe={VERTRAUEN_FARBE.verifiziert}
+              bild="/auth/vertrauen-verifiziert.png"
+            />
+            <VertrauensTile
+              titel="Echtheits-zertifiziert"
+              beschreibung="Personalausweis-Verifizierung über Verimi/yes®/eHBA. Nötig für Ärzt:innen."
+              farbe={VERTRAUEN_FARBE.hoch}
+              bild="/auth/vertrauen-hoch.png"
+            />
           </ul>
         </section>
 
@@ -99,6 +96,23 @@ export default function RegistrierenPage() {
         </footer>
       </article>
     </main>
+  );
+}
+
+function VertrauensTile({ titel, beschreibung, farbe, bild }: { titel: string; beschreibung: string; farbe: string; bild: string }) {
+  return (
+    <li className="surface rounded-xl overflow-hidden relative">
+      <div className="relative aspect-[4/3]">
+        <Image src={bild} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
+      </div>
+      <div className="p-3 relative">
+        <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${farbe})` }} />
+        <div className="ml-2.5">
+          <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: `rgb(${farbe})` }}>{titel}</p>
+          <p className="text-[12px] mt-1 leading-snug">{beschreibung}</p>
+        </div>
+      </div>
+    </li>
   );
 }
 

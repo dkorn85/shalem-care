@@ -11,6 +11,7 @@ export default function BildungPage() {
       parentPfad="/heilerziehung"
       parentLabel="Heilerziehung"
       eyebrow="Heilerziehung · Bildung"
+      headerImage="/heilerziehung/header-bildung.png"
       titel="Lebensbegleitendes Lernen"
       subline="Bildung als Recht, nicht als Förder-Almosen. Vom Lesen-Üben über Volkshochschul-Kurse bis zu inklusiven Studiengängen — mit Begleitung und Anpassung."
       bausteine={[

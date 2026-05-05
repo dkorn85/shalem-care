@@ -11,6 +11,7 @@ export default function ReinigungPage() {
       parentPfad="/hauswirtschaft"
       parentLabel="Hauswirtschaft"
       eyebrow="Hauswirtschaft · Reinigung"
+      headerImage="/hauswirtschaft/header-reinigung.png"
       titel="Reinigung mit Würde"
       subline="Wäsche · Bad · Wohnraum. Mit Klient:in besprochen, nicht über sie hinweg. Anti-Allergiker-Mittel-Filter, Demenz-sensible Reihenfolge."
       bausteine={[

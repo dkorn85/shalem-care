@@ -11,6 +11,7 @@ export default function TagesstrukturPage() {
       parentPfad="/heilerziehung"
       parentLabel="Heilerziehung"
       eyebrow="Heilerziehung · Tagesstruktur"
+      headerImage="/heilerziehung/header-tagesstruktur.png"
       titel="Tag, der hält ohne zu zwingen"
       subline="Rhythmus statt Stundenplan. Anker im Tagesablauf, die Sicherheit geben, ohne Freiheit zu nehmen. Sensorische Profile, Reizregulation, Pause-Räume."
       bausteine={[
