@@ -25,6 +25,19 @@ function rateOk(ip: string): boolean {
   return b.count <= RATE_LIMIT.max;
 }
 
+/**
+ * Gate gegen Anthropic-Budget-Verbrennung durch Demo-Besucher:innen.
+ * Default-Key ist "31337" — kann via ENV SHALEM_DIENSTPLAN_KEY ueberschrieben
+ * werden. Client schickt den Key im X-Shalem-Key-Header oder ?key=...
+ */
+function keyOk(req: NextRequest): boolean {
+  const erwartet = process.env.SHALEM_DIENSTPLAN_KEY ?? "31337";
+  const headerKey = req.headers.get("x-shalem-key");
+  const queryKey = new URL(req.url).searchParams.get("key");
+  const eingegeben = (headerKey ?? queryKey ?? "").trim();
+  return eingegeben === erwartet;
+}
+
 const PERSON_NAMES: Record<string, string> = {
   "person-dr": "Dennis Reuter",
   "person-as-005": "Aylin Stein (Wundexpertin)",
@@ -45,6 +58,12 @@ const PERSON_NAMES: Record<string, string> = {
 };
 
 export async function POST(req: NextRequest) {
+  if (!keyOk(req)) {
+    return NextResponse.json(
+      { error: "Zugangs-Key fehlt oder ist falsch. Bitte in der UI eintragen (X-Shalem-Key oder ?key=...)." },
+      { status: 401 },
+    );
+  }
   const ip = req.headers.get("x-forwarded-for")?.split(",")[0]?.trim() ?? "unknown";
   if (!rateOk(ip)) {
     return NextResponse.json(
