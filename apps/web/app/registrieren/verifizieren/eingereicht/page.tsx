@@ -14,8 +14,8 @@ export default async function EingereichtPage({ searchParams }: { searchParams?:
   return (
     <main className="min-h-screen bg-app">
       <article className="max-w-2xl mx-auto px-6 sm:px-12 py-16 text-center">
-        <div className="relative w-32 h-32 mx-auto mb-6 opacity-90">
-          <Image src="/inbox/icon-erledigt.png" alt="" fill className="object-contain" sizes="128px" />
+        <div className="relative w-40 h-40 mx-auto mb-6">
+          <Image src="/icons/status-progress.png" alt="" fill className="object-contain" sizes="160px" />
         </div>
         <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Eingereicht</p>
         <h1 className="font-display text-[32px] sm:text-[40px] font-bold tracking-tight3 leading-tight mb-3">

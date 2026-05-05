@@ -92,10 +92,10 @@ export function CrossProfessionInbox({
       </header>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-        <KpiTile label="offen"        value={kpi.offen}         farbe="var(--mon)"           icon="/inbox/icon-uebernehmen.png" alarm={kpi.akut > 0} />
-        <KpiTile label="in Arbeit"    value={kpi.inBearbeitung} farbe="var(--vibe-stats)"    icon="/inbox/icon-delegieren.png" />
-        <KpiTile label="heute fertig" value={kpi.erledigtHeute} farbe="var(--thu)"           icon="/inbox/icon-erledigt.png" />
-        <KpiTile label="akut"         value={kpi.akut}          farbe="var(--vibe-approval)" icon="/inbox/icon-akut.png" alarm={kpi.akut > 0} />
+        <KpiTile label="offen"        value={kpi.offen}         farbe="var(--mon)"           icon="/icons/status-progress.png" alarm={kpi.akut > 0} />
+        <KpiTile label="in Arbeit"    value={kpi.inBearbeitung} farbe="var(--vibe-stats)"    icon="/icons/status-loading.png" />
+        <KpiTile label="heute fertig" value={kpi.erledigtHeute} farbe="var(--thu)"           icon="/icons/status-success.png" />
+        <KpiTile label="akut"         value={kpi.akut}          farbe="var(--vibe-approval)" icon="/icons/status-warning.png" alarm={kpi.akut > 0} />
       </div>
 
       {sichtbar.length === 0 ? (
