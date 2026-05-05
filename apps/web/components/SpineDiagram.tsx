@@ -6,6 +6,7 @@
 //
 // Server-component-tauglich (rein darstellend).
 
+import Image from "next/image";
 import type { Wirbelschaden, Wirbelsegment, Schadenstyp } from "@/lib/befund/types";
 import { ALLE_WIRBEL, SCHADEN_LABEL, SCHWERE_LABEL } from "@/lib/befund/types";
 
@@ -146,7 +147,18 @@ export function SpineDiagram({ schaeden, height = 520 }: { schaeden: Wirbelschad
                   className="absolute left-0 top-2.5 bottom-2.5 w-[3px] rounded-full"
                   style={{ background: SCHADEN_FARBE[s.typ] }}
                 />
-                <div className="ml-2.5">
+                <div className="ml-2.5 flex gap-3">
+                  <div className="shrink-0 w-12 h-12 rounded-md overflow-hidden surface-mute relative">
+                    <Image
+                      src={`/medizin/schaden/${s.typ}.png`}
+                      alt=""
+                      fill
+                      sizes="48px"
+                      className="object-cover"
+                      style={{ mixBlendMode: "multiply", opacity: 0.85 }}
+                    />
+                  </div>
+                  <div className="flex-1 min-w-0">
                   <div className="flex items-baseline gap-2 flex-wrap">
                     <span className="font-medium">{SCHADEN_LABEL[s.typ]}</span>
                     <span className="font-mono text-soft text-[10px]">{s.segmente.join(", ")}</span>
@@ -172,6 +184,7 @@ export function SpineDiagram({ schaeden, height = 520 }: { schaeden: Wirbelschad
                   <p className="text-[10px] text-soft mt-1 font-mono">
                     seit {s.ersterBefund}{s.letzteAktualisierung ? ` · update ${s.letzteAktualisierung}` : ""}
                   </p>
+                  </div>
                 </div>
               </li>
             ))}

@@ -4,6 +4,7 @@
 // und gibt konkrete Empfehlungen aus den fünf Behandlungssäulen
 // der tibetischen Medizin.
 
+import Image from "next/image";
 import type { DualeDeutung as DD } from "@/lib/tibetisch/lehre";
 import { NYEPA_LABEL, NYEPA_FARBE, LEBENSGRUNDLAGE_LABEL, BEHANDLUNG_LABEL } from "@/lib/tibetisch/lehre";
 
@@ -35,6 +36,9 @@ export function DualeDeutung({ deutung }: { deutung: DD }) {
         {/* Tibetische Medizin */}
         <section className="p-5 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--sun) / 0.04), transparent)" }}>
           <span aria-hidden className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full" style={{ background: "rgb(var(--sun))" }} />
+          <div aria-hidden className="absolute right-3 top-3 w-14 h-14 opacity-50 pointer-events-none">
+            <Image src="/tibetisch/nyepa-drei.png" alt="" fill sizes="56px" className="object-contain" />
+          </div>
           <div className="ml-2.5">
             <p className="text-[11px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: "rgb(var(--sun))" }}>
               Tibetische Medizin · Sowa Rigpa

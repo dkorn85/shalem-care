@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { KlientShell } from "@/components/KlientShell";
 import { AnamneseFormular } from "@/components/AnamneseFormular";
@@ -11,6 +12,17 @@ import { BERUF_LABEL, BERUF_FARBE } from "@/lib/fortbildung/katalog";
 const KLIENT_ID = "klient-hr";
 
 type SearchParams = { beruf?: Schema["beruf"] };
+
+const HEADER_BY_BERUF: Record<Schema["beruf"], string> = {
+  pflege:         "/anamnese/header-pflege.png",
+  arzt:           "/anamnese/header-arzt.png",
+  therapie:       "/anamnese/header-therapie.png",
+  sozialarbeit:   "/anamnese/header-sozial.png",
+  erziehung:      "/anamnese/header-erziehung.png",
+  heilerziehung:  "/anamnese/header-heilerz.png",
+  hauswirtschaft: "/anamnese/header-hauswirt.png",
+  ehrenamt:       "/anamnese/header-ehrenamt.png",
+};
 
 export const metadata = {
   title: "Anamnese · Meine Akte",
@@ -26,6 +38,7 @@ export default async function AnamnesePage({ searchParams }: { searchParams?: Pr
   if (!klient) notFound();
 
   const schema = schemaFuerBeruf(beruf);
+  const headerImage = HEADER_BY_BERUF[beruf];
 
   return (
     <KlientShell user={{ name: klient.name, initials: klient.initials, relation: "self", klientId: klient.id }}>
@@ -66,6 +79,28 @@ export default async function AnamnesePage({ searchParams }: { searchParams?: Pr
           );
         })}
       </nav>
+
+      {headerImage && (
+        <div className="relative w-full h-32 sm:h-40 rounded-2xl overflow-hidden mb-5 surface">
+          <Image
+            src={headerImage}
+            alt=""
+            fill
+            sizes="(max-width: 1024px) 100vw, 80vw"
+            className="object-cover"
+            style={{ objectPosition: "center 40%" }}
+          />
+          <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[rgb(var(--bg-elev)/0.85)] via-transparent to-transparent" />
+          <div className="absolute inset-0 flex items-center px-5">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider text-soft font-mono">{schema.id}</p>
+              <p className="font-display text-[16px] font-semibold mt-1" style={{ color: `rgb(${BERUF_FARBE[beruf]})` }}>
+                {BERUF_LABEL[beruf]}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       <AnamneseFormular schema={schema} klientName={klient.name} />
 
