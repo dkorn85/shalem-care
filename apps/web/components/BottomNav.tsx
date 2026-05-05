@@ -23,8 +23,8 @@ const LEAD_NAV: NavItem[] = [
 
 const KLIENT_NAV: NavItem[] = [
   { href: "/klient", label: "Heute", icon: <HomeIcon /> },
-  { href: "/klient/akte", label: "Meine Akte", icon: <UserIcon /> },
-  { href: "/klient/anfrage", label: "Anfrage", icon: <PlusIcon /> },
+  { href: "/klient/akte", label: "Akte", icon: <UserIcon /> },
+  { href: "/klient/buchen", label: "Buchen", icon: <PlusIcon /> },
   { href: "/klient/bewertung", label: "Bewerten", icon: <StarIcon /> },
 ];
 

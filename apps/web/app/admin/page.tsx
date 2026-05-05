@@ -103,11 +103,19 @@ export default async function AdminDashboard() {
               .filter((b) => b.assessment.level === "kritisch" || b.assessment.level === "warnung")
               .slice(0, 5)
               .map((b) => (
-                <li key={b.person.id} className="surface-mute rounded-lg p-2 flex items-baseline justify-between gap-2 flex-wrap">
-                  <span className="font-medium">{b.person.name}</span>
-                  <span className="text-soft">
-                    Score {b.assessment.score} · {b.assessment.metrics.tageInFolge}d am Stück · {b.assessment.metrics.naechteInFolge} Nächte in Folge
-                  </span>
+                <li key={b.person.id}>
+                  <Link
+                    href={`/admin/team/${b.person.id}`}
+                    className="surface-mute rounded-lg p-2 flex items-baseline justify-between gap-2 flex-wrap hover:translate-x-0.5 transition-transform"
+                  >
+                    <span className="font-medium flex items-center gap-2">
+                      <span className="pulse-dot" style={{ background: b.assessment.level === "kritisch" ? "rgb(var(--mon))" : "rgb(var(--fri))" }} />
+                      {b.person.name}
+                    </span>
+                    <span className="text-soft">
+                      Score {b.assessment.score} · {b.assessment.metrics.tageInFolge}d am Stück · {b.assessment.metrics.naechteInFolge} Nächte in Folge <span className="text-mute ml-1">→</span>
+                    </span>
+                  </Link>
                 </li>
               ))}
           </ul>
