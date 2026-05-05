@@ -3,6 +3,7 @@ import Image from "next/image";
 import { notFound } from "next/navigation";
 import { KlientShell } from "@/components/KlientShell";
 import { AnamneseFormular } from "@/components/AnamneseFormular";
+import { KlartextBegleiter } from "@/components/KlartextBegleiter";
 import { seedOnce } from "@/lib/seed";
 import { getKlient } from "@/lib/hierarchy/store";
 import { ALLE_SCHEMAS, schemaFuerBeruf } from "@/lib/anamnese/schemas";
@@ -101,6 +102,8 @@ export default async function AnamnesePage({ searchParams }: { searchParams?: Pr
           </div>
         </div>
       )}
+
+      <KlartextBegleiter beruf={beruf} />
 
       <AnamneseFormular schema={schema} klientName={klient.name} />
 
