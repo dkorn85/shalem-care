@@ -3,6 +3,7 @@ import { Plus_Jakarta_Sans, JetBrains_Mono } from "next/font/google";
 import "./globals.css";
 import { getLocale } from "@/lib/i18n/server";
 import { DemoBanner } from "@/components/DemoBanner";
+import { UserMenuServer } from "@/components/UserMenuServer";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -53,6 +54,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
     <html lang={locale} style={{ colorScheme: "light" }} className={`${jakarta.variable} ${mono.variable}`}>
       <body className="font-sans antialiased min-h-screen tracking-tightish">
         <DemoBanner />
+        <div className="fixed top-2 right-2 sm:top-3 sm:right-3 z-50">
+          <UserMenuServer />
+        </div>
         {children}
       </body>
     </html>

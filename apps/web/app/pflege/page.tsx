@@ -7,6 +7,7 @@ import { NextShift } from "@/components/NextShift";
 import { HourTarget } from "@/components/HourTarget";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
+import { seedRollingSlots } from "@/lib/seed-rolling";
 import { getActivePersona } from "@/lib/auth/active-user";
 import { getStationOfPerson, getStation, getEinrichtung } from "@/lib/hierarchy/store";
 import { hoursWorkedThisMonth, hoursScheduledThisMonth, monthlyHourTargetFor } from "@/lib/tariff";
@@ -22,6 +23,7 @@ import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/
 
 export default async function PflegeHome() {
   seedOnce();
+  await seedRollingSlots();
   seedKonferenzOnce();
   seedAktivitaetOnce();
   seedInboxOnce();

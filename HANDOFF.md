@@ -1,7 +1,8 @@
 # Shalem Care · Session-Handoff
 
 **Stand:** 2026-05-05 · für die nächste Session
-**Branch:** `claude/tender-nightingale-f1bb8b` · 76 Routen · `tsc --noEmit` exit 0 · `next build` exit 0
+**Branch:** `claude/tender-nightingale-f1bb8b` · 92 Routen · `tsc --noEmit` exit 0 · `next build` exit 0
+**Phase 2-Stand:** Auth funktional · Verifizierung-Pipeline live · DSGVO-Selbstbedienung · Audit-Log · Messenger · UserMenu mit Rollen-Switch · 12 Audio-Files (Lana+Dennis) · ~75 Demo-Assets eingespielt
 
 ---
 
@@ -185,10 +186,18 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 
 ### Priorität B · Phase-2-Vorbereitung
 - [x] ~~**Supabase-DB Klient:innen**~~ — Schema (einrichtungen/stationen/klienten) + RLS + 12 Klient:innen seeded · DB-Driver mit Seed-Fallback · `/admin/db-status` zeigt Quelle live
-- [ ] **Supabase weiter ausrollen** — Personen/Slots/Verordnungen/Wunddoku in DB migrieren (Driver-Pattern wie bei klienten)
-- [ ] **Stripe Connect Treuhand-Modul** (lib/treuhand/store.ts)
+- [x] ~~**Auth-Schema + UI**~~ — profiles/user_roles/verifications + RLS + Auto-Profile-Trigger + UI-Wizard
+- [x] ~~**Echtheits-Verifizierung**~~ — File-Upload an Storage + Pruefer-Page + Status-Lifecycle
+- [x] ~~**DSGVO-Selbstbedienung**~~ — Daten-Export + Konto-Löschung
+- [x] ~~**Audit-Log**~~ — Trigger auf alle Auth-Tabellen + append-only RLS + Pruefer-Page
+- [x] ~~**Messenger Phase 1**~~ — Schema + Storage + Form mit @-Mentions + #-Hashtags + Voicemail-Aufnahme im Browser
+- [x] ~~**3-Monats-Dienstplan-Generator**~~ — `seed-rolling.ts` generiert 90 Tage Schichten dynamisch
+- [ ] **Supabase weiter ausrollen** — Slots/Verordnungen/Wunddoku in DB migrieren (Driver-Pattern wie bei klienten)
+- [ ] **Stripe Connect Treuhand-Modul** (lib/treuhand/store.ts → echte Stripe-Integration)
 - [ ] **Push-Notifications** (Web-Push VAPID, Service-Worker)
 - [ ] **gematik-TI-Konnektor-Stub** für eAU + eRezept
+- [ ] **Matrix-Protokoll** für Messenger (Phase 2 · End-to-End-Verschlüsselung pro Klient-Channel)
+- [ ] **Hash-Kette für Audit-Log** (Tamper-Evidence · prev_hash/this_hash-Spalten sind angelegt)
 
 ### Priorität C · weitere Inhalte
 - [x] ~~**Notfall-Modul** (`/notfall`)~~ — Stub mit Eskalations-Kette (4 Stufen) + SOS-Demo-Knopf + Phase-2-Roadmap (VAPID, Twilio, BLE-Pendant)
@@ -278,4 +287,89 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 37. **33 Final-Schliff-Assets eingespielt** (Block 25-30) — 18 Icons (status-* + aktion-*) via PowerShell+System.Drawing aus 2880×2880-Grids gecroppt; 5 Persona-Avatare; 3 Mikro-Patterns; 5 OG-Cards; 2 Audio-Visualizer-Loops. AudioPrompt zeigt Wave-Loop hinter Knopf-Inhalt beim Playback (Auto-Detection lana/dennis aus src-Filename). CrossProfessionInbox + /compliance + /registrieren/verifizieren/eingereicht nutzen jetzt die Status-Icons.
 38. **Audit-Log lückenlos** — neue `audit_log`-Tabelle in Supabase mit Trigger auf profiles + user_roles + verifications. Pro Schreib-Operation (INSERT/UPDATE/DELETE): user_id, Zeitstempel, Tabelle, row_id, vorher+nachher als JSON-Diff. Append-only by RLS-Design (keine update/delete-Policies). `audit_stats_self()`-RPC für eigene Statistik. `/admin/audit-log` Pruefer-Seite mit KPI-Tiles + Stats-pro-Tabelle + Eintrags-Liste mit Aktions-Icons (edit/sign/delete). `/admin` Cockpit hat jetzt Schnellzugriff-Section mit Verifikationen + Audit-Log-Links wenn Auth-User eingeloggt. Compliance-Punkt "Audit-Log lückenlos" von "in Arbeit" → **"umgesetzt"**.
 
-Build clean, ready to push. **76 Routen.**
+39. **UserMenu mit Rollen-Switch** (alle Routen, fixed top-right) — `lib/auth/rolle-switch.ts` mit `switcheRolle()` + `clearRolleSwitch()` + `darfSwitchen()`-Guard. Cookie `shalem-rolle-override` überschreibt `getActivePersona()`. Berechtigt: `demo_mode='superuser'` ODER `haupt_rolle='lead'` ODER `demo_mode='real'`. Dropdown zeigt: Modus-Header (mit Farbe), aktive Rolle/Switch-Status, alle 12 Rollen klickbar mit Cockpit-Pfad-Hint, Footer-Links zu Profil/DSGVO/Messenger/Verifikationen/Audit-Log/Logout. Geöffnet via Avatar-Klick — Klick außerhalb schließt.
+
+40. **3-Monats-Dienstplan-Generator** — `lib/seed-rolling.ts` generiert 90 Tage Schichten relativ zu heute, 4-Wochen-Rotation pro Pflegekraft (Frühschicht 6-14 / Spätschicht 14-22 / Nachtschicht 22-6 / Frei). Patterns für 4 Personen (Dennis/Aylin/Felix/Eda), `personOffset` aus Person-ID-Hash damit jede:r anders startet. Idempotent via `_rollingSeeded`-Flag. Aufruf in `/pflege` via `await seedRollingSlots()` parallel zum normalen Seed. Macht die Demo "lebendig" — Schichten liegen immer in der nahen Zukunft, egal wann jemand reinkommt.
+
+41. **Messenger funktional** — neue `messages`-Tabelle in Supabase mit Trigger an Audit-Log. Felder: `von_user_id`, `klient_id` (optional), `body`, `attachment_url + name`, `voicemail_url + dauer_sec`, `mentions[]`, `hashtags[]`, `parent_id` für Antworten, `gelesen_von[]`. GIN-Indizes auf mentions+hashtags. Storage-Bucket `messenger` mit 25 MB Limit + image/pdf/audio/video MIME. RLS: User sieht eigene + @mention'te + alle mit klient_id-Bezug; Phase-2 Filter über echte CareTeam-Mitgliedschaft. **`/messenger`-Page** mit:
+   - **`@-Mentions`** für Care-Team-Personen (Auto-Suggest aus Helga's CareTeam)
+   - **`#-Hashtags`** für aktive Behandlungen + Prozesse (12 Standard-Tags: wundversorgung, schmerz-nrs, medikation, physiotherapie, konferenz, verordnung, hilfeplan, md-begutachtung, palliativ, ...)
+   - **Datei-Anhang** bis 25 MB (Bilder, PDFs, Audio, Video)
+   - **Voicemail-Aufnahme** im Browser via `MediaRecorder`-API → automatisch hochgeladen, mit Dauer-Anzeige
+   - **Klient-Filter** + **Hashtag-Schnellfilter** via Query-Param
+   - **Token-Renderer** (`tokenizeBody`) macht @-Mentions + #-Hashtags klickbar (verlinken zu Filter-View)
+   - Eigene Messages löschbar
+   - Phase-2: Matrix-Protokoll, E2E-Verschlüsselung pro Klient-Channel, Realtime via Supabase-Channels
+
+42. **Site-URL-Hinweis (offen)** — der Email-Confirm-Test mit `dkorn85@gmail.com` hat funktioniert (Account aktiv, bestätigt, eingeloggt, Profile-Auto-Create). Browser landet aber auf `0.0.0.0:3000` statt `shalem.de` weil entweder: (a) noch ein OAuth-Test-Klick mit lokalem Server lief, oder (b) Site-URL in Supabase nicht final auf `https://shalem.de`. **Action:** Direktlink zur URL-Konfig: https://supabase.com/dashboard/project/gpchwlqeqejxvynewjns/auth/url-configuration → Site URL = `https://shalem.de` + Redirect URLs = `https://shalem.de/auth/callback` und `http://localhost:3000/auth/callback`.
+
+Build clean, ready to push. **92 Routen.**
+
+---
+
+## 🤝 Session-Übergabe — Was die nächste Session als erstes anfasst
+
+### Sofort-Test (5 min · keine Code-Änderungen nötig)
+
+1. **Push** den Branch nach `main` (Pattern unten)
+2. **Browser → `https://shalem.de/anmelden`** mit `dkorn85@gmail.com` + Passwort einloggen
+3. **UserMenu** rechts oben sollte erscheinen — klick drauf, switche durch alle 12 Rollen
+4. **`/messenger`** öffnen → Test-Nachricht senden mit `@person-arzt-001` und `#wundversorgung` → soll mit klickbaren Tokens erscheinen
+5. **`/admin/audit-log`** → Audit-Einträge der gerade gemachten Aktionen sind da
+6. **`/profil/dsgvo`** → Daten als JSON exportieren (sollte alles enthalten)
+
+### Falls Login nicht klappt
+1. Site-URL in Supabase prüfen: https://supabase.com/dashboard/project/gpchwlqeqejxvynewjns/auth/url-configuration
+2. Site URL = `https://shalem.de` (nicht localhost, nicht 0.0.0.0)
+3. Redirect URLs = `https://shalem.de/auth/callback` + `http://localhost:3000/auth/callback`
+
+### Was die nächste Session priorisieren sollte (Auto-Mode-Reihenfolge)
+
+1. **Messenger Phase 2** — Care-Team-RLS-Filter (statt "alle Klient-Messages sichtbar"), Email-Notify bei @-Mention, Antwort-Threads via `parent_id`
+2. **Slot-Migration nach Supabase** — derzeit in-memory; mit der Auth-Pipeline kommen schnell viele User, dann braucht's persistente Slots
+3. **Hash-Kette Audit-Log** — `prev_hash`/`this_hash`-Spalten sind angelegt, Cron-Job + Verify-Funktion fehlen
+4. **Messenger-Voicemail-Player** — Aufnahme funktioniert, Abspielen mit Wave-Visualizer noch nicht
+5. **Stripe Connect Treuhand** (echter Phase-2-Brocken — nicht nur Stub)
+6. **Push-Notifications** für Notruf + Messenger-Mentions (VAPID + Service-Worker)
+
+### Pending User-Aktionen (organisatorisch, nicht-tech)
+
+Aus `docs/STRATEGIE_LIVE.md`:
+- UG-Notar-Termin (1-2 Wochen)
+- DSB extern beauftragen (2-3 Wochen, ~200-300 €/Mo)
+- AÜG-Anwalt für Cross-Träger-Tausch-Frage (4-8 Wochen)
+
+Diese drei Wartezeiten sind der **kritische Pfad** zum Pilot-Start.
+
+### Aktuelle Stack-Übersicht
+
+```
+Frontend:  Next.js 15 App Router · React 19 · TypeScript · Tailwind 3
+Backend:   Supabase (Frankfurt) · PostgREST · RLS · Storage · Auth
+Audio:     ElevenLabs (Lana + Dennis Voice-IDs)
+Hosting:   Hostinger Node.js (Auto-Deploy via GitHub-Push)
+Repo:      github.com/dkorn85/shalem-care · Branch claude/tender-nightingale-f1bb8b
+DB:        gpchwlqeqejxvynewjns.supabase.co
+Tabellen:  klienten, einrichtungen, stationen, profiles, user_roles,
+           verifications, audit_log, messages
+Storage:   verifizierungen, messenger
+ENV:       NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
+           ELEVENLABS_API_KEY (für Build-Time-TTS, optional)
+```
+
+### Push-Pattern (PowerShell)
+
+```powershell
+Set-Location 'C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care\.claude\worktrees\tender-nightingale-f1bb8b'
+git pull --rebase origin main
+if ($?) {
+  Set-Location 'C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care'
+  git fetch origin
+  if ($?) { git checkout main }
+  if ($?) { git pull --ff-only origin main }
+  if ($?) { git merge --no-ff claude/tender-nightingale-f1bb8b -m 'merge: UserMenu + 3M-Dienstplan + Messenger' }
+  if ($?) { git push origin main }
+}
+```
+
+Hostinger Auto-Deploy braucht ~2 Minuten (Supabase-SDK-Install dauert beim ersten Mal länger). Danach `shalem.de/messenger` öffnen, eingeloggt sein, los geht's.
