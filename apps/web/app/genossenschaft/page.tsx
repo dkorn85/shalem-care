@@ -51,6 +51,14 @@ export default async function GenossenschaftPage() {
             Pflichtanteil ist 1 (= {NOMINAL_EURO} €), eine Stimme pro Mitglied — unabhängig von der Anteilshöhe.
             Plattform-Cut 4 % statt 30–50 % bei Honorar-Verleihern; davon 1 % wird quartalsweise an alle Mitglieder anteilig ausgeschüttet.
           </p>
+          <div className="flex flex-wrap gap-2 mt-6">
+            <Link href="/genossenschaft/beitreten" className="btn btn-primary text-[14px]">
+              Mitglied werden →
+            </Link>
+            <Link href="#wie-funktioniert" className="btn text-[14px]">
+              So funktioniert es
+            </Link>
+          </div>
         </header>
 
         {/* Plattform-Bilanz */}

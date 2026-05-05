@@ -137,6 +137,20 @@ export default async function MeineAktePage() {
         </Link>
       </nav>
 
+      <Link
+        href="/klient/notizen"
+        className="surface-hover rounded-2xl p-4 mb-6 flex items-center gap-3 transition-transform hover:-translate-y-0.5"
+        style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.06), transparent)" }}
+      >
+        <span aria-hidden className="text-[24px]">✍️</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Notiztafel</p>
+          <p className="text-[14px] font-medium mt-0.5">Was möchtest du in der nächsten Konferenz besprechen?</p>
+          <p className="text-[12px] text-mute mt-0.5">Wünsche, Fragen, Sorgen — markiere was dein Team sehen soll.</p>
+        </div>
+        <span className="text-mute shrink-0">→</span>
+      </Link>
+
       {/* ─── Balance-Stand ─────────────────────────────────── */}
       {balance && (() => {
         const lvl = levelFromScore(balance.balanceScore);

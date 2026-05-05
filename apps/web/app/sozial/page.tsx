@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
@@ -93,6 +94,18 @@ export default async function SozialPage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <section className="surface rounded-2xl p-5 sm:p-6 mb-4" style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.06), transparent)" }}>
+        <p className="text-[11px] uppercase tracking-wider mb-2 font-medium" style={{ color: "rgb(var(--accent))" }}>MD-Begutachtung · NBA</p>
+        <h3 className="font-display text-[16px] font-semibold tracking-tight2 mb-2">Helga Reinhardt · PG 3 → 4</h3>
+        <p className="text-[12px] text-mute leading-relaxed mb-3">
+          Vorbefunde aus Pflege, Therapie und Arzt sind zusammengetragen. NBA-Module mit aktuellen
+          Beobachtungen vorausgefüllt — voraussichtlich PG 4. Begutachtungstermin in 21 Tagen.
+        </p>
+        <Link href="/sozial/md-begutachtung" className="btn btn-primary text-[12px] inline-flex">
+          Vorbereitung öffnen →
+        </Link>
+      </section>
 
       <section className="surface rounded-2xl p-5 sm:p-6 mb-4" style={{ background: "rgb(var(--mon) / 0.04)" }}>
         <p className="text-[11px] uppercase tracking-wider mb-2 font-medium" style={{ color: "rgb(var(--mon))" }}>Schutzauftrag · § 8a SGB VIII</p>
