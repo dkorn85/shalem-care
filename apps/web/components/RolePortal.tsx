@@ -45,7 +45,7 @@ const ROLES: Role[] = [
   {
     id: "lead",
     href: "/admin",
-    label: "Stationsleitung",
+    label: "Leitung",
     who: "Detektiv Eins",
     tagline: "Ich steuere mein Team mit Fürsorge.",
     portrait: "/portraits/portal-lead.png",

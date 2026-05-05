@@ -41,7 +41,7 @@ const PERSONAS: Persona[] = [
   },
   {
     href: "/admin",
-    label: "Stationsleitung",
+    label: "Leitung",
     who: "Detektiv Eins",
     emoji: "📋",
     color: "var(--vibe-team)",
