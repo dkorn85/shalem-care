@@ -7,6 +7,7 @@ import { seedOnce, CURRENT_LEAD_ID } from "@/lib/seed";
 import { getShiftType, type ShiftType } from "@/lib/fhir";
 import { computeCoordinatorSuggestions } from "@/lib/dispo/actions";
 import { getSlotImportSource } from "@/lib/dispo/store";
+import { aktuelle as aktuellerKiPlan } from "@/lib/dienstplan/plan-history";
 import { eachDayOfInterval, isSameDay, startOfWeek, endOfWeek } from "date-fns";
 
 export default async function DienstplanPage({
@@ -128,6 +129,95 @@ export default async function DienstplanPage({
           </span>
         </div>
       </header>
+
+      {(() => {
+        const kiPlan = aktuellerKiPlan();
+        if (!kiPlan) return null;
+
+        // Schichten in der aktuellen Woche aus dem KI-Plan filtern
+        const ws = weekStart.getTime();
+        const we = weekEnd.getTime();
+        const wocheZuw = kiPlan.ergebnis.zuweisungen.filter((z) => {
+          const t = new Date(z.datumISO).getTime();
+          return t >= ws && t <= we;
+        });
+        // Personen-Counter für Banner
+        const personenInKw = new Set(wocheZuw.map((z) => z.personId)).size;
+
+        return (
+          <section
+            className="mb-5 rounded-2xl p-4 sm:p-5 relative overflow-hidden"
+            style={{
+              background: "linear-gradient(135deg, rgb(var(--thu) / 0.10), rgb(var(--accent) / 0.06))",
+              boxShadow: "inset 0 0 0 1px rgb(var(--thu) / 0.3)",
+            }}
+          >
+            <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full" style={{ background: "rgb(var(--thu))" }} />
+            <div className="ml-2.5 grid sm:grid-cols-12 gap-3 items-baseline">
+              <div className="sm:col-span-8">
+                <div className="flex items-center gap-2 flex-wrap mb-1">
+                  <span className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "rgb(var(--thu))" }}>
+                    ✓ KI-Plan aktiv
+                  </span>
+                  <span className="text-[11px] text-soft">·</span>
+                  <span className="text-[11px] font-mono">
+                    {kiPlan.zeitraum.jahr}-{String(kiPlan.zeitraum.monat).padStart(2, "0")}
+                  </span>
+                  <span className="text-[11px] text-soft">·</span>
+                  <span className="text-[11px]">
+                    {wocheZuw.length} Schichten / {personenInKw} Personen in dieser KW
+                  </span>
+                </div>
+                <p className="text-[13px] leading-snug text-soft italic">"{kiPlan.ergebnis.kommentar.slice(0, 200)}{kiPlan.ergebnis.kommentar.length > 200 ? "…" : ""}"</p>
+                <p className="text-[10px] text-mute mt-1">
+                  Bestätigt {kiPlan.uebernommenAm ? new Date(kiPlan.uebernommenAm).toLocaleString("de-DE", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" }) : "—"}
+                  {" · "}
+                  {kiPlan.ergebnis.zuweisungen.length} Schichten gesamt im Plan
+                </p>
+              </div>
+              <div className="sm:col-span-4 flex justify-end">
+                <Link
+                  href="/admin/dienstplan/ki"
+                  className="text-[12px] px-3 py-1.5 rounded-md font-medium transition-all"
+                  style={{
+                    background: "rgb(var(--thu) / 0.15)",
+                    color: "rgb(var(--thu))",
+                    boxShadow: "inset 0 0 0 1px rgb(var(--thu) / 0.4)",
+                  }}
+                >
+                  → Plan öffnen / bearbeiten
+                </Link>
+              </div>
+            </div>
+
+            {wocheZuw.length > 0 && (
+              <div className="ml-2.5 mt-3 pt-3 border-t border-soft">
+                <p className="text-[10px] uppercase tracking-wider text-soft font-medium mb-1.5">KI-Schichten in KW {iso8601Week(weekStart)}</p>
+                <div className="flex flex-wrap gap-1">
+                  {wocheZuw.slice(0, 40).map((z, i) => (
+                    <span
+                      key={i}
+                      title={`${z.personId} · ${z.startHHMM}–${z.endHHMM}`}
+                      className="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-mono"
+                      style={{
+                        background: "rgb(var(--thu) / 0.15)",
+                        color: "rgb(var(--thu))",
+                        boxShadow: "inset 0 0 0 1px rgb(var(--thu) / 0.3)",
+                      }}
+                    >
+                      {z.datumISO.slice(8)}.{String(new Date(z.datumISO).getMonth() + 1).padStart(2, "0")}
+                      <span className="font-bold">{z.schicht[0].toUpperCase()}</span>
+                    </span>
+                  ))}
+                  {wocheZuw.length > 40 && (
+                    <span className="text-[10px] text-soft italic">+{wocheZuw.length - 40} mehr</span>
+                  )}
+                </div>
+              </div>
+            )}
+          </section>
+        );
+      })()}
 
       <DienstplanEditor
         days={dayKeys}

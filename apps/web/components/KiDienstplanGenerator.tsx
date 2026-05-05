@@ -49,6 +49,21 @@ type PlanErgebnis = {
   model: string;
   kostenEur: number;
   tokens: { input: number; output: number };
+  planId?: string;
+};
+
+type HistoryEintrag = {
+  id: string;
+  erstelltAm: string;
+  zeitraum: { jahr: number; monat: number };
+  nurBeruf: string | null;
+  hinweis: string | null;
+  uebernommen: boolean;
+  uebernommenAm: string | null;
+  zuweisungenAnzahl: number;
+  personenAnzahl: number;
+  kostenEur: number;
+  kommentarKurz: string;
 };
 
 const SCHICHT_FARBE: Record<SchichtTyp, string> = {
@@ -81,12 +96,111 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
   const [loading, setLoading] = useState(false);
   const [ergebnis, setErgebnis] = useState<PlanErgebnis | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [history, setHistory] = useState<HistoryEintrag[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined") return;
     const stored = window.localStorage.getItem(KEY_LS);
     if (stored) setZugangsKey(stored);
   }, []);
+
+  // History initial laden + nach jeder Aktion neu ziehen
+  useEffect(() => {
+    if (zugangsKey) ladeHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [zugangsKey]);
+
+  async function ladeHistory() {
+    if (!zugangsKey) return;
+    setHistoryLoading(true);
+    try {
+      const res = await fetch("/api/ai/dienstplan/history", {
+        headers: { "X-Shalem-Key": zugangsKey },
+      });
+      const data = await res.json();
+      if (res.ok && Array.isArray(data.eintraege)) setHistory(data.eintraege);
+    } catch { /* ignore */ }
+    finally { setHistoryLoading(false); }
+  }
+
+  async function historyAction(id: string, action: string, extra: Record<string, unknown> = {}) {
+    const res = await fetch("/api/ai/dienstplan/history", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "X-Shalem-Key": zugangsKey },
+      body: JSON.stringify({ id, action, ...extra }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+    return data;
+  }
+
+  async function ladePlanById(id: string) {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`/api/ai/dienstplan/history/${id}`, {
+        headers: { "X-Shalem-Key": zugangsKey },
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      setErgebnis({ ...data.ergebnis, planId: data.id });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function bestaetige(id: string) {
+    setError(null);
+    try {
+      await historyAction(id, "uebernehmen");
+      await ladeHistory();
+      // Aktuelles Ergebnis ggf. aktualisieren
+      if (ergebnis?.planId === id) {
+        setErgebnis(ergebnis);  // Re-render, history sagt jetzt "uebernommen"
+      }
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function entkoppele(id: string) {
+    setError(null);
+    try {
+      await historyAction(id, "entkoppeln");
+      await ladeHistory();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function loescheEintrag(id: string) {
+    if (!window.confirm("Diesen Plan wirklich aus der Historie löschen?")) return;
+    setError(null);
+    try {
+      await historyAction(id, "loeschen");
+      if (ergebnis?.planId === id) setErgebnis(null);
+      await ladeHistory();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
+
+  async function entferneZuweisung(planId: string, idxInZuweisungen: number) {
+    if (!ergebnis) return;
+    setError(null);
+    try {
+      await historyAction(planId, "delete-zuweisung", { indexInZuweisungen: idxInZuweisungen });
+      // Lokal aus Anzeige entfernen
+      const neue = [...ergebnis.zuweisungen];
+      neue.splice(idxInZuweisungen, 1);
+      setErgebnis({ ...ergebnis, zuweisungen: neue });
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    }
+  }
 
   async function generieren() {
     setLoading(true);
@@ -112,6 +226,8 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
       setErgebnis(data as PlanErgebnis);
+      // History neu laden, damit die neue Generierung als Eintrag #1 erscheint
+      void ladeHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
@@ -225,6 +341,100 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
         {error && <span className="text-[12px] text-soft italic">{error}</span>}
       </div>
 
+      {history.length > 0 && (
+        <details className="mt-5 surface-mute rounded-lg p-3" open>
+          <summary className="text-[11px] uppercase tracking-wider text-soft font-medium cursor-pointer">
+            Letzte Generierungen ({history.length}{historyLoading ? " · lädt …" : ""})
+          </summary>
+          <ul className="mt-3 space-y-2">
+            {history.map((h) => {
+              const aktiv = ergebnis?.planId === h.id;
+              return (
+                <li
+                  key={h.id}
+                  className="rounded-md p-2.5 transition-all"
+                  style={{
+                    background: h.uebernommen
+                      ? "rgb(var(--thu) / 0.10)"
+                      : aktiv ? "rgb(var(--accent) / 0.08)" : "transparent",
+                    boxShadow: h.uebernommen
+                      ? "inset 0 0 0 1px rgb(var(--thu) / 0.3)"
+                      : aktiv ? "inset 0 0 0 1px rgb(var(--accent) / 0.25)" : "inset 0 0 0 1px rgb(var(--fg-mute) / 0.1)",
+                  }}
+                >
+                  <div className="flex items-baseline justify-between gap-2 flex-wrap mb-1">
+                    <div className="flex items-center gap-1.5 flex-wrap">
+                      <span className="font-mono text-[11px] tabular-nums">
+                        {new Date(h.erstelltAm).toLocaleString("de-DE", {
+                          day: "2-digit", month: "2-digit",
+                          hour: "2-digit", minute: "2-digit",
+                        })}
+                      </span>
+                      <span className="text-[11px] text-soft">·</span>
+                      <span className="text-[11px]">
+                        {h.zeitraum.jahr}-{String(h.zeitraum.monat).padStart(2, "0")} ·
+                        {" "}{h.personenAnzahl} Personen ·
+                        {" "}{h.zuweisungenAnzahl} Schichten
+                      </span>
+                      {h.nurBeruf && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded surface" style={{ color: "rgb(var(--accent))" }}>
+                          {h.nurBeruf}
+                        </span>
+                      )}
+                      {h.uebernommen && (
+                        <span className="text-[10px] px-1.5 py-0.5 rounded font-medium" style={{ background: "rgb(var(--thu) / 0.18)", color: "rgb(var(--thu))" }}>
+                          ✓ aktiv im Dienstplan
+                        </span>
+                      )}
+                    </div>
+                    <span className="text-[10px] text-mute font-mono">
+                      {h.kostenEur.toFixed(4)} €
+                    </span>
+                  </div>
+                  {h.kommentarKurz && (
+                    <p className="text-[12px] text-soft italic leading-snug mb-1.5">"{h.kommentarKurz}"</p>
+                  )}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <button
+                      type="button"
+                      onClick={() => ladePlanById(h.id)}
+                      className="text-[11px] px-2 py-0.5 rounded transition-colors text-mute hover:text-[rgb(var(--accent))]"
+                    >
+                      öffnen
+                    </button>
+                    {!h.uebernommen ? (
+                      <button
+                        type="button"
+                        onClick={() => bestaetige(h.id)}
+                        className="text-[11px] px-2 py-0.5 rounded transition-all"
+                        style={{ color: "rgb(var(--thu))", boxShadow: "inset 0 0 0 1px rgb(var(--thu) / 0.4)" }}
+                      >
+                        ✓ bestätigen
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => entkoppele(h.id)}
+                        className="text-[11px] px-2 py-0.5 rounded transition-colors text-mute hover:text-[rgb(var(--fg))]"
+                      >
+                        entkoppeln
+                      </button>
+                    )}
+                    <button
+                      type="button"
+                      onClick={() => loescheEintrag(h.id)}
+                      className="text-[11px] px-2 py-0.5 rounded text-mute hover:text-[rgb(var(--sat))] transition-colors ml-auto"
+                    >
+                      löschen
+                    </button>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+        </details>
+      )}
+
       {ergebnis && (
         <div className="mt-6 space-y-5">
           {ergebnis.zuweisungen.length === 0 && ergebnis.stundenBilanz.length === 0 && (
@@ -253,11 +463,46 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
           )}
 
           <div className="rounded-lg p-4 surface-mute">
-            <p className="text-[10px] uppercase tracking-wider text-soft mb-1 font-medium">
-              Kommentar · {ergebnis.provider} {ergebnis.model}
-              {" · "}
-              {ergebnis.tokens.input + ergebnis.tokens.output} Tokens · {ergebnis.kostenEur.toFixed(4)} €
-            </p>
+            <div className="flex items-baseline justify-between gap-2 flex-wrap mb-2">
+              <p className="text-[10px] uppercase tracking-wider text-soft font-medium">
+                Kommentar · {ergebnis.provider} {ergebnis.model}
+                {" · "}
+                {ergebnis.tokens.input + ergebnis.tokens.output} Tokens · {ergebnis.kostenEur.toFixed(4)} €
+              </p>
+              {ergebnis.planId && (
+                (() => {
+                  const eintrag = history.find((h) => h.id === ergebnis.planId);
+                  const istUebernommen = eintrag?.uebernommen ?? false;
+                  return istUebernommen ? (
+                    <span
+                      className="text-[11px] px-2.5 py-1 rounded-md font-medium inline-flex items-center gap-1.5"
+                      style={{ background: "rgb(var(--thu) / 0.18)", color: "rgb(var(--thu))" }}
+                    >
+                      ✓ aktiv im Dienstplan
+                      <button
+                        type="button"
+                        onClick={() => entkoppele(ergebnis.planId!)}
+                        className="text-[10px] underline-offset-2 hover:underline opacity-70"
+                      >
+                        entkoppeln
+                      </button>
+                    </span>
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => bestaetige(ergebnis.planId!)}
+                      className="text-[12px] px-3 py-1 rounded-md font-medium transition-all"
+                      style={{
+                        color: "rgb(var(--thu))",
+                        boxShadow: "inset 0 0 0 1px rgb(var(--thu) / 0.5)",
+                      }}
+                    >
+                      ✓ Bestätigen + im Dienstplan anzeigen
+                    </button>
+                  );
+                })()
+              )}
+            </div>
             <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{ergebnis.kommentar}</p>
           </div>
 
@@ -335,7 +580,11 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
               <h3 className="text-[14px] font-bold tracking-tight2 mb-2">
                 Tagesvergabe · {ergebnis.zuweisungen.length} Zuweisungen
               </h3>
-              <ZuweisungsListe zuweisungen={ergebnis.zuweisungen} bilanz={ergebnis.stundenBilanz} />
+              <ZuweisungsListe
+                zuweisungen={ergebnis.zuweisungen}
+                bilanz={ergebnis.stundenBilanz}
+                onDelete={ergebnis.planId ? (idx) => entferneZuweisung(ergebnis.planId!, idx) : undefined}
+              />
             </div>
           )}
         </div>
@@ -362,19 +611,22 @@ function ConstraintBadge({ ok, label }: { ok: boolean; label: string }) {
 function ZuweisungsListe({
   zuweisungen,
   bilanz,
+  onDelete,
 }: {
   zuweisungen: Zuweisung[];
   bilanz: PlanErgebnis["stundenBilanz"];
+  onDelete?: (idxInZuweisungen: number) => void;
 }) {
   const nameMap = new Map(bilanz.map((b) => [b.personId, b.name] as const));
-  const proPerson = new Map<string, Zuweisung[]>();
-  for (const z of zuweisungen) {
+  // Originalindex pro Zuweisung merken — wichtig für Server-side Delete
+  const proPerson = new Map<string, { z: Zuweisung; origIdx: number }[]>();
+  zuweisungen.forEach((z, origIdx) => {
     const arr = proPerson.get(z.personId) ?? [];
-    arr.push(z);
+    arr.push({ z, origIdx });
     proPerson.set(z.personId, arr);
-  }
+  });
   for (const arr of proPerson.values()) {
-    arr.sort((a, b) => a.datumISO.localeCompare(b.datumISO));
+    arr.sort((a, b) => a.z.datumISO.localeCompare(b.z.datumISO));
   }
 
   return (
@@ -383,10 +635,11 @@ function ZuweisungsListe({
         <li key={personId} className="surface-mute rounded-lg p-3">
           <div className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
             <span className="text-[13px] font-medium">{nameMap.get(personId) ?? personId}</span>
-            <span className="text-[11px] text-soft">{zs.length} Schichten · {Math.round(zs.reduce((s, z) => s + dauerVon(z), 0) * 10) / 10} h gesamt</span>
+            <span className="text-[11px] text-soft">{zs.length} Schichten · {Math.round(zs.reduce((s, item) => s + dauerVon(item.z), 0) * 10) / 10} h gesamt</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {zs.map((z, i) => {
+            {zs.map((item) => {
+              const z = item.z;
               const farbe = SCHICHT_FARBE[z.schicht] ?? "var(--accent)";
               const tooltip = [
                 z.bereich,
@@ -395,9 +648,9 @@ function ZuweisungsListe({
               ].filter(Boolean).join(" · ");
               return (
                 <span
-                  key={i}
+                  key={item.origIdx}
                   title={tooltip}
-                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono"
+                  className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono group"
                   style={{
                     background: `rgb(${farbe} / 0.15)`,
                     color: `rgb(${farbe})`,
@@ -406,6 +659,21 @@ function ZuweisungsListe({
                 >
                   <span>{z.datumISO.slice(5)}</span>
                   <span className="font-bold">{SCHICHT_LABEL[z.schicht]}</span>
+                  {onDelete && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (window.confirm(`Schicht ${z.datumISO} (${SCHICHT_LABEL[z.schicht]}) entfernen?`)) {
+                          onDelete(item.origIdx);
+                        }
+                      }}
+                      className="opacity-0 group-hover:opacity-100 transition-opacity ml-0.5 text-[10px] hover:font-bold"
+                      title="Schicht entfernen"
+                      aria-label="Schicht entfernen"
+                    >
+                      ×
+                    </button>
+                  )}
                 </span>
               );
             })}

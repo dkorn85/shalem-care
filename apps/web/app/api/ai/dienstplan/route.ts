@@ -8,6 +8,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { generiereMonatsplan, DEMO_BEDARFSMUSTER } from "@/lib/dienstplan/ki-planer";
 import { PERSONAL_BUDGETS, sollStundenProMonat } from "@/lib/dienstplan/budget";
 import { CASELOADS } from "@/lib/zuordnung/store";
+import { speichern as speichereInHistorie } from "@/lib/dienstplan/plan-history";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
@@ -127,7 +128,13 @@ export async function POST(req: NextRequest) {
         wochenendeFair: true,
       },
     });
-    return NextResponse.json(ergebnis);
+    // History speichern damit die UI den Plan später laden / bestätigen kann
+    const eintrag = speichereInHistorie({
+      ergebnis,
+      hinweis: body.hinweis,
+      nurBeruf: body.nurBeruf,
+    });
+    return NextResponse.json({ ...ergebnis, planId: eintrag.id });
   } catch (err) {
     return NextResponse.json(
       { error: err instanceof Error ? err.message : String(err) },
