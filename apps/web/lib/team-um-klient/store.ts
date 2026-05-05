@@ -11,7 +11,7 @@
 
 export type Berufsfeld =
   | "pflege" | "arzt" | "therapie" | "sozialarbeit" | "heilerziehung"
-  | "ehrenamt" | "hauswirtschaft" | "klient" | "angehoerig";
+  | "ehrenamt" | "hauswirtschaft" | "klient" | "angehoerig" | "lead";
 
 export const BERUFSFELD_LABEL: Record<Berufsfeld, string> = {
   pflege:        "Pflege",
@@ -23,6 +23,7 @@ export const BERUFSFELD_LABEL: Record<Berufsfeld, string> = {
   hauswirtschaft:"Hauswirtschaft",
   klient:        "Klient:in",
   angehoerig:    "Angehörige:r",
+  lead:          "Stationsleitung",
 };
 
 export const BERUFSFELD_FARBE: Record<Berufsfeld, string> = {
@@ -35,6 +36,7 @@ export const BERUFSFELD_FARBE: Record<Berufsfeld, string> = {
   hauswirtschaft:"var(--sun)",
   klient:        "var(--wed)",
   angehoerig:    "var(--vibe-stats)",
+  lead:          "var(--vibe-team)",
 };
 
 export type Begleiter = {
