@@ -34,12 +34,40 @@ const DOCTOR_NAV: NavItem[] = [
   { href: "/arzt/patienten", label: "Pat.", icon: <UserIcon /> },
 ];
 
-export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "doctor" }) {
+const THERAPIE_NAV: NavItem[] = [
+  { href: "/therapie",            label: "Praxis",  icon: <HomeIcon /> },
+  { href: "/therapie/heute",      label: "Heute",   icon: <SparkIcon /> },
+  { href: "/therapie/patienten",  label: "Pat.",     icon: <UserIcon /> },
+];
+
+const SOZIAL_NAV: NavItem[] = [
+  { href: "/sozial",            label: "Heute",       icon: <HomeIcon /> },
+  { href: "/sozial/faelle",     label: "Fälle",        icon: <UserIcon /> },
+  { href: "/sozial/hilfeplan",  label: "Hilfeplan",   icon: <CheckIcon /> },
+];
+
+const ERZIEHUNG_NAV: NavItem[] = [
+  { href: "/erziehung",                label: "Heute",     icon: <HomeIcon /> },
+  { href: "/erziehung/gruppen",        label: "Gruppen",   icon: <UserIcon /> },
+  { href: "/erziehung/lerngeschichten",label: "Geschichten",icon: <CheckIcon /> },
+];
+
+const EHRENAMT_NAV: NavItem[] = [
+  { href: "/ehrenamt",            label: "Heute",       icon: <HomeIcon /> },
+  { href: "/ehrenamt/begleitung", label: "Begleitung",  icon: <UserIcon /> },
+  { href: "/ehrenamt/protokoll",  label: "Protokoll",   icon: <CheckIcon /> },
+];
+
+export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" }) {
   const items =
-    role === "lead"   ? LEAD_NAV   :
-    role === "klient" ? KLIENT_NAV :
-    role === "doctor" ? DOCTOR_NAV :
-                        NURSE_NAV;
+    role === "lead"      ? LEAD_NAV   :
+    role === "klient"    ? KLIENT_NAV :
+    role === "doctor"    ? DOCTOR_NAV :
+    role === "therapie"  ? THERAPIE_NAV :
+    role === "sozial"    ? SOZIAL_NAV :
+    role === "erziehung" ? ERZIEHUNG_NAV :
+    role === "ehrenamt"  ? EHRENAMT_NAV :
+                           NURSE_NAV;
 
   return (
     <nav
