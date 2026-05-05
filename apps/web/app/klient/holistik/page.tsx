@@ -25,7 +25,14 @@ appetitloser Tagesbeginn, Tochter Anna berichtet Stimmungsschwankungen. Lebt sei
 export default function HolistikPage() {
   return (
     <KlientShell user={{ name: KLIENT.name, initials: KLIENT.initials, relation: "self", klientId: KLIENT.id }}>
-      <header className="mb-6">
+      <header className="mb-6 relative overflow-hidden rounded-2xl">
+        <video
+          src="/loops/atmo-fenster.mp4"
+          autoPlay muted loop playsInline
+          aria-hidden
+          className="absolute inset-0 w-full h-full object-cover opacity-12 pointer-events-none"
+        />
+        <div className="relative p-1">
         <Link href="/klient/akte" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
           ← Akte
         </Link>
@@ -39,6 +46,7 @@ export default function HolistikPage() {
           Akte und schlägt drei sanfte Pflege-Aktionen vor — als Ergänzung, nicht als Ersatz für
           ärztliche Versorgung.
         </p>
+        </div>
       </header>
 
       {/* Vier Mini-Symbole als Kapitel-Header */}
