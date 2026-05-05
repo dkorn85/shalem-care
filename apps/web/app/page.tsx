@@ -3,6 +3,7 @@ import Image from "next/image";
 import { Wordmark, Logo } from "@/components/Logo";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { RolePortal } from "@/components/RolePortal";
+import { OnboardingTour } from "@/components/OnboardingTour";
 import { HANDBUCH_KAPITEL, WANDEL_TABELLE, KNEIPP_SAEULEN } from "@/lib/heilkunst/philosophie";
 import { HAUSMITTEL, AETHERISCHE_OELE, ANWENDUNGSTYP_LABEL, ANWENDUNGSTYP_FARBE } from "@/lib/heilkunst/hausmittel";
 import type { Anwendungstyp } from "@/lib/heilkunst/hausmittel";
@@ -72,6 +73,8 @@ export default async function LandingPage() {
           {t("common.openSource")}
         </p>
       </section>
+
+      <OnboardingTour />
 
       <section className="max-w-screen-app mx-auto px-4 sm:px-8 py-16 sm:py-20 border-t border-app-soft">
         <div className="grid sm:grid-cols-3 gap-3">

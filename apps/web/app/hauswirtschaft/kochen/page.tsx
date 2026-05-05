@@ -11,6 +11,7 @@ export default function KochenPage() {
       parentPfad="/hauswirtschaft"
       parentLabel="Hauswirtschaft"
       eyebrow="Hauswirtschaft · Kochen"
+      headerImage="/hauswirtschaft/header-kochen.png"
       titel="Wochenmenü mit Geschmacksgedächtnis"
       subline="Was hat die Klient:in früher gerne gegessen, was geht heute. Diabetes-/Schluck-/Kau-Diäten berücksichtigt. LMHV-Hygiene-Doku."
       bausteine={[

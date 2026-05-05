@@ -4,11 +4,26 @@
 // Anonym-Signin bietet sofortigen Zugang ohne Email — Profil persistiert
 // bis Browser-Cookies gelöscht werden.
 
+import Image from "next/image";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { DEMO_MODI, type DemoModus } from "@/lib/auth/demo-modi";
 import { ROLLEN, type RegistrierRolle } from "@/lib/auth/rollen";
 import { demoAnonymStarten } from "@/lib/auth/demo-actions";
+
+const MODUS_BILD: Record<DemoModus, string> = {
+  real:      "/auth/vertrauen-hoch.png",
+  viewer:    "/demo/modus-viewer.png",
+  superuser: "/demo/modus-superuser.png",
+  tester:    "/demo/modus-tester.png",
+};
+
+const MODUS_LOOP: Record<DemoModus, string> = {
+  real:      "",
+  viewer:    "/loops/demo-modus-viewer.mp4",
+  superuser: "/loops/demo-modus-superuser.mp4",
+  tester:    "/loops/demo-modus-tester.mp4",
+};
 
 export const metadata = {
   title: "Demo-Zugang · Shalem Care",
@@ -103,20 +118,31 @@ export default async function DemoPage({ searchParams }: { searchParams?: Promis
                   <li key={id}>
                     <Link
                       href={`/registrieren/demo?modus=${id}`}
-                      className="surface-hover rounded-xl p-4 block relative overflow-hidden h-full"
+                      className="surface-hover rounded-xl block relative overflow-hidden h-full"
                     >
-                      <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full" style={{ background: `rgb(${m.farbe})` }} />
-                      <div className="ml-2.5">
-                        <p className="font-display text-[15px] font-bold tracking-tight2 mb-1" style={{ color: `rgb(${m.farbe})` }}>{m.label}</p>
-                        <p className="text-[12px] text-mute leading-snug mb-2">{m.beschreibung}</p>
-                        <p className="text-[10px] text-soft leading-snug">{m.detail}</p>
-                        <div className="flex flex-wrap gap-1 mt-2">
-                          <span className="chip text-[9px]" style={{ background: `rgb(${m.farbe} / 0.12)`, color: `rgb(${m.farbe})` }}>
-                            {m.schreibrecht ? "schreiben ✓" : "nur lesen"}
-                          </span>
-                          <span className="chip text-[9px]" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>
-                            {m.sessionDauerMin ? `${m.sessionDauerMin} min Session` : "unbegrenzt"}
-                          </span>
+                      <div className="relative aspect-square">
+                        <Image src={MODUS_BILD[id]} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
+                        <video
+                          src={MODUS_LOOP[id]}
+                          autoPlay muted loop playsInline
+                          className="absolute inset-0 w-full h-full object-cover opacity-0 group-hover:opacity-100 transition-opacity"
+                          aria-hidden
+                        />
+                      </div>
+                      <div className="p-3 relative">
+                        <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${m.farbe})` }} />
+                        <div className="ml-2.5">
+                          <p className="font-display text-[15px] font-bold tracking-tight2 mb-1" style={{ color: `rgb(${m.farbe})` }}>{m.label}</p>
+                          <p className="text-[12px] text-mute leading-snug mb-2">{m.beschreibung}</p>
+                          <p className="text-[10px] text-soft leading-snug">{m.detail}</p>
+                          <div className="flex flex-wrap gap-1 mt-2">
+                            <span className="chip text-[9px]" style={{ background: `rgb(${m.farbe} / 0.12)`, color: `rgb(${m.farbe})` }}>
+                              {m.schreibrecht ? "schreiben ✓" : "nur lesen"}
+                            </span>
+                            <span className="chip text-[9px]" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>
+                              {m.sessionDauerMin ? `${m.sessionDauerMin} min Session` : "unbegrenzt"}
+                            </span>
+                          </div>
                         </div>
                       </div>
                     </Link>
