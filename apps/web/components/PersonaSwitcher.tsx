@@ -122,6 +122,11 @@ const GROUPS: PersonaGroup[] = [
         matches: (p) => p.startsWith("/genossenschaft"),
       },
       {
+        href: "/netz", label: "Netz · Übersicht", who: "Echtzeit-Synapsen",
+        emoji: "🕸", color: "var(--accent)",
+        matches: (p) => p.startsWith("/netz"),
+      },
+      {
         href: "/system", label: "System-Terminal", who: "Mandanten-Übersicht",
         emoji: "⚙", color: "var(--fg-soft)",
         matches: (p) => p.startsWith("/system"),
