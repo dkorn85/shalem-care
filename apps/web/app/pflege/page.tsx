@@ -19,6 +19,7 @@ import { MeineKlienten } from "@/components/MeineKlienten";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { SchichtBriefingClient } from "@/components/SchichtBriefingClient";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { SchichtGruppenchat } from "@/components/SchichtGruppenchat";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
@@ -128,6 +129,14 @@ export default async function PflegeHome() {
       />
 
       <SchichtBriefingClient personId={personId} personName={nurse.name} />
+
+      <div className="mb-6">
+        <SchichtGruppenchat
+          schichtThema={`${station?.name ?? "Pulmo 3B"} · ${new Date().toLocaleDateString("de-DE", { weekday: "long", day: "2-digit", month: "2-digit" })}`}
+          pflegekraft={nurse.name}
+          kompakt
+        />
+      </div>
 
       <HourTarget worked={worked} scheduled={scheduled} target={target} asOf={now} />
 
