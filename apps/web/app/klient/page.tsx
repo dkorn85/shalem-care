@@ -14,6 +14,8 @@ import { listAktiveVerordnungenFor, seedMedikationOnce } from "@/lib/medikation/
 import { findMedikament } from "@/lib/medikation/katalog";
 import { dosierAlsText } from "@/lib/medikation/types";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
+import { naechsteKonferenzFuerKlient, seedKonferenzOnce, KONFERENZTYP_LABEL } from "@/lib/konferenz/store";
+import { BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
@@ -37,6 +39,8 @@ export default async function KlientPage() {
   seedAnfragenOnce();
   seedSalutoOnce();
   seedZieleOnce();
+  seedKonferenzOnce();
+  const konf = naechsteKonferenzFuerKlient(KLIENT_ID);
   const balanceChecks = listChecks(KLIENT_ID, 30);
   const lebensziele = listZiele(KLIENT_ID);
   const people = listPeopleAtStation("st-luk-wohn-a");
@@ -87,6 +91,34 @@ export default async function KlientPage() {
           {klient && <PflegegradIcon pflegegrad={klient.pflegegrad} size={48} withLabel={false} withChip={true} />}
         </div>
       </header>
+
+      {konf && (
+        <section className="surface rounded-2xl p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.06), transparent)" }}>
+          <span aria-hidden className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full" style={{ background: "rgb(var(--accent))" }} />
+          <div className="ml-2.5">
+            <p className="text-[11px] uppercase tracking-wider mb-1.5 font-medium" style={{ color: "rgb(var(--accent))" }}>
+              Nächste Konferenz · {KONFERENZTYP_LABEL[konf.typ]}
+            </p>
+            <h2 className="font-display text-[18px] font-bold tracking-tight2">
+              {new Date(konf.geplantAm).toLocaleString("de-DE", { weekday: "long", day: "numeric", month: "long", hour: "2-digit", minute: "2-digit" })}
+            </h2>
+            <p className="text-[13px] text-mute mt-1.5">
+              {konf.teilnehmende.length} Menschen aus deinem Team sprechen über dich. Du bist eingeladen.
+            </p>
+            <div className="flex flex-wrap gap-1 mt-3">
+              {konf.teilnehmende.filter((t) => t.beruf !== "klient").slice(0, 8).map((t) => (
+                <span key={t.personId} className="chip text-[10px]" style={{ background: `rgb(${BERUFSFELD_FARBE[t.beruf]} / 0.15)`, color: `rgb(${BERUFSFELD_FARBE[t.beruf]})` }}>
+                  {t.name.split(" ")[0]}
+                </span>
+              ))}
+            </div>
+            <div className="flex flex-wrap gap-2 mt-4">
+              <Link href={`/konferenz/${konf.id}`} className="btn btn-primary text-[12px]">Agenda + Pre-Read ansehen →</Link>
+              <Link href="/klient/notizen" className="btn btn-ghost text-[12px]">Was ich besprechen möchte</Link>
+            </div>
+          </div>
+        </section>
+      )}
 
       <section className="surface rounded-2xl p-6 mb-6 relative overflow-hidden">
         <span aria-hidden className="absolute left-0 top-6 bottom-6 w-[3px] rounded-full" style={{ background: "rgb(var(--vibe-team))" }} />
