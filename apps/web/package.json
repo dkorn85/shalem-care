@@ -13,6 +13,8 @@
   "dependencies": {
     "@medplum/core": "^4.0.0",
     "@medplum/fhirtypes": "^4.0.0",
+    "@supabase/ssr": "^0.5.2",
+    "@supabase/supabase-js": "^2.105.3",
     "date-fns": "^3.6.0",
     "next": "^15.1.0",
     "react": "^19.0.0",

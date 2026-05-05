@@ -12,7 +12,8 @@
 - Demo-Mode: `NEXT_PUBLIC_DEMO_MODE=1` aktiviert Banner + Persona-Switcher (Dropdown mit 12 Rollen)
 - 23 echte Bildgebungs-PNGs (Röntgen/CT/MRT/Sono) im Befunde-Cockpit
 - **Supabase-DB live** unter `gpchwlqeqejxvynewjns.supabase.co` (Hostinger → Supabase Frankfurt) — 12 Klient:innen + 3 Einrichtungen + 3 Stationen geseedet, RLS-Policies aktiv. Status-Anzeige `/admin/db-status`.
-- **NEU: Auth-Schema** — `profiles`, `user_roles`, `verifications`-Tabellen mit RLS, Auto-Profile-Erstellung beim Signup. UI unter `/registrieren` + `/registrieren/verifizieren` (12 Rollen, je rollen-spezifische Nachweise). Doku in `docs/AUTH_SETUP.md` für Provider-Konfiguration in Supabase Dashboard.
+- **Auth-Schema** — `profiles`, `user_roles`, `verifications`-Tabellen mit RLS, Auto-Profile-Erstellung beim Signup.
+- **NEU: Auth funktional** — `@supabase/supabase-js` + `@supabase/ssr` integriert. **Google-OAuth ist live** (Client-ID + Secret in Supabase konfiguriert). `/registrieren` → `/registrieren/start?provider=google` → Google-Login → `/auth/callback` (Code-Exchange) → `/registrieren/verifizieren`. Email-Signup als Fallback. Doku `docs/AUTH_SETUP.md`.
 
 ---
 
@@ -160,7 +161,11 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 | ASSETS_BEFUNDE.md (Block 7–11) | ✓ ausgeliefert |
 | ASSETS_IMAGING.md (Block 12) | ✓ 23 Dateien ausgeliefert |
 | ASSETS_LIVEDEMO.md (Block 13–18) | ✓ 25 von 27 ausgeliefert · Block 18 OG-Cards (db-status, inbox, onboarding, heilerziehung, hauswirtschaft) noch ausstehend |
-| AUTH_SETUP.md | NEU · OAuth-Provider-Konfiguration in Supabase Dashboard (Google, Apple, Microsoft, GitHub, Verimi, yes®, gematik) + Storage-Bucket + Phase-2-TODO-Liste |
+| AUTH_SETUP.md | OAuth-Provider-Konfiguration in Supabase Dashboard (Google, Apple, Microsoft, GitHub, Verimi, yes®, gematik) + Storage-Bucket + Phase-2-TODO-Liste |
+| STRATEGIE_LIVE.md | NEU · Reife-Einschätzung pro Domain · 4-Phasen-Roadmap zum Pilot-Live · Konkurrenz-Positionierung · Top-3-Engpass |
+| ASSETS_LIVEDEMO_2.md | NEU · 38 Assets in Block 19–24 (Auth-Story, Demo-Modi, Sub-Routes, Stripe-Treuhand, Compliance, Onboarding-Tour) |
+| AUDIT_DEADLINKS.md | NEU · 13 Befunde aus 76 Routen — 4 echte tote Links jetzt gefixt |
+| TECH_ROADMAP.md | NEU · Auth-Vervollständigung · DB-Migration · Realtime/Push · Compliance — pro Item Aufwand+Blocker |
 | PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
 | ROADMAP_NEXT.md | 14 Inhalts-Themen mit Priorisierung |
 
@@ -184,8 +189,8 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 ### Priorität C · weitere Inhalte
 - [x] ~~**Notfall-Modul** (`/notfall`)~~ — Stub mit Eskalations-Kette (4 Stufen) + SOS-Demo-Knopf + Phase-2-Roadmap (VAPID, Twilio, BLE-Pendant)
 - [x] ~~**Marketing-Page `/warum`**~~ — Differenzierung Honorar-Verleih vs. Genossenschaft, 4-%-Visual, Cross-Profession-Story, CTA Beitritt
+- [x] ~~**Hauswirtschaft + Heilerziehung Sub-Routes**~~ — 6 Sub-Routes (Einkauf/Kochen/Reinigung + Teilhabe/Bildung/Tagesstruktur) als SubRouteStub-Komponente
 - [ ] **i18n vervollständigen** — neue Berufe + Befunde-Akte EN
-- [ ] **Hauswirtschaft + Heilerziehung Sub-Routes**
 
 ### Priorität D · Eye-Candy
 - [ ] **Akte-Atmo-Loops** wirklich einbauen (`atmo-puls/atem/ganzheit.mp4` aus Block 11)
@@ -244,7 +249,11 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 12. **Konferenz Live-Mode** (Notizen auto-save · Agenda-Status · Beschluss-Composer · Live-Protokoll)
 13. **Supabase-DB live** — Schema + 12 Klient:innen + DB-Driver mit Seed-Fallback + `/admin/db-status`
 14. **25 Demo-Assets** ausgeliefert (Block 13–17) + `/warum` Marketing-Page + `/notfall` Stub mit Eskalations-Kette
-15. **Auth-Story komplett angelegt** — Schema (profiles/user_roles/verifications), `/registrieren` mit 8 Provider-Stufen (Mainstream + Verimi/yes®/gematik für Echtheits-Zertifizierung), `/registrieren/verifizieren` mit 12 Rollen + rollen-spezifische Nachweise (Pflege: Berufsurkunde+IK, Arzt: LANR+KV+Approbation, Klient: Pflegekassennr, ...), AUTH_SETUP.md für Provider-Setup
+15. **Auth-Story komplett angelegt** — Schema + UI für 8 Provider + 12 Rollen + Echtheits-Verifikation (AUTH_SETUP.md)
 16. **Klartext-Begleiter** in Anamnese eingebaut (4 Berufs-Header), Inbox-KPI-Tiles bekommen die 4 Watercolor-Icons, Notfall-Puls-Loop läuft hinter dem SOS-Knopf
+17. **Google-Login live** — `@supabase/ssr` integriert, OAuth-Flow funktional via `/registrieren/start` + `/auth/callback`, Email-Signup als Fallback
+18. **Demo-Modi parallel zur echten Auth** — DB-Schema (`demo_mode`-Enum: real/viewer/superuser/tester), `/registrieren/demo` Anonym-Signin, DemoBanner mit Modus-Indikator + Session-Countdown, Middleware mit Tester-Session-Loss
+19. **Strategie + Roadmap-Docs** — STRATEGIE_LIVE.md (Reife-Stufen, 4 Phasen zum Pilot, Top-3-Engpass) · ASSETS_LIVEDEMO_2.md (38 Assets Block 19-24) · AUDIT_DEADLINKS.md · TECH_ROADMAP.md
+20. **Sub-Routes komplettiert** — `/hauswirtschaft/{einkauf,kochen,reinigung}` + `/heilerziehung/{teilhabe,bildung,tagesstruktur}` + `/anmelden` + `/kasse/{eau,krankengeld,hkp}` (alle Dead-Links aus dem Audit gefixt)
 
 Build clean, ready to push. **76 Routen.**

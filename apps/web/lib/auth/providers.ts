@@ -28,7 +28,7 @@ export const AUTH_PROVIDER: AuthProvider[] = [
     beschreibung: "Schnellster Login. Google-Konto erforderlich.",
     farbe: "var(--vibe-team)",
     vertrauen: "basis",
-    vorhanden: "geplant",
+    vorhanden: "live",
   },
   {
     id: "apple",
