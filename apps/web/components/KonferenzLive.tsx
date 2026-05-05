@@ -12,6 +12,7 @@ import {
   beschlussLoeschen,
 } from "@/lib/konferenz/actions";
 import type { Konferenz, AgendaPunkt, Beschluss } from "@/lib/konferenz/store";
+import { KiKlartext } from "./KiKlartext";
 
 const AGENDA_STATUS_LABEL: Record<AgendaPunkt["status"], string> = {
   offen:       "offen",
@@ -155,6 +156,16 @@ function LiveNotizen({ konferenzId, initial }: { konferenzId: string; initial: s
         className="w-full surface-mute rounded-lg p-3 text-[13px] leading-relaxed resize-y focus:outline-none focus:ring-1"
         style={{ ["--tw-ring-color" as string]: "rgb(var(--accent) / 0.4)" }}
       />
+      {text.trim().length >= 40 && (
+        <div className="mt-2">
+          <KiKlartext
+            beruf="konferenz"
+            fachtext={`Live-Notizen einer interdisziplinären Fall-/Hilfeplan-Konferenz:\n\n${text}\n\nBitte fasse zusammen, was die Kernpunkte und welche möglichen Beschlüsse sich abzeichnen.`}
+            label="Notizen verdichten · Beschluss-Vorschläge"
+            kompakt
+          />
+        </div>
+      )}
     </div>
   );
 }
