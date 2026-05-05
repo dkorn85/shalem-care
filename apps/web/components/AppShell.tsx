@@ -9,7 +9,7 @@ import { getLocale } from "@/lib/i18n/server";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
-type Role = "nurse" | "lead" | "doctor";
+type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt";
 
 const NURSE_NAV = [
   { href: "/pflege",          label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
@@ -23,6 +23,35 @@ const DOCTOR_NAV = [
   { href: "/arzt",            label: "Praxis",        vibe: "var(--vibe-team)",     icon: WardIcon },
   { href: "/arzt/anfragen",   label: "Anfragen",      vibe: "var(--vibe-approval)", icon: CheckIcon },
   { href: "/arzt/patienten",  label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
+];
+
+const THERAPIE_NAV = [
+  { href: "/therapie",            label: "Praxis",        vibe: "var(--fri)",           icon: WardIcon },
+  { href: "/therapie/heute",      label: "Heute",          vibe: "var(--vibe-team)",     icon: PlanIcon },
+  { href: "/therapie/patienten",  label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
+  { href: "/therapie/abrechnung", label: "Abrechnung",    vibe: "var(--vibe-stats)",    icon: EuroIcon },
+  { href: "/fortbildung",         label: "Fortbildung",   vibe: "var(--fri)",           icon: BookIcon },
+];
+
+const SOZIAL_NAV = [
+  { href: "/sozial",            label: "Übersicht",      vibe: "var(--tue)",           icon: GridIcon },
+  { href: "/sozial/faelle",     label: "Fälle",           vibe: "var(--vibe-team)",     icon: TeamIcon },
+  { href: "/sozial/hilfeplan",  label: "Hilfeplan",       vibe: "var(--vibe-approval)", icon: CheckIcon },
+  { href: "/sozial/schutz",      label: "Schutzauftrag",   vibe: "var(--mon)",           icon: SparkIcon },
+  { href: "/fortbildung",       label: "Fortbildung",    vibe: "var(--fri)",           icon: BookIcon },
+];
+
+const ERZIEHUNG_NAV = [
+  { href: "/erziehung",                label: "Übersicht",      vibe: "var(--wed)",          icon: GridIcon },
+  { href: "/erziehung/gruppen",        label: "Gruppen",         vibe: "var(--vibe-team)",    icon: TeamIcon },
+  { href: "/erziehung/lerngeschichten",label: "Lerngeschichten", vibe: "var(--vibe-profile)", icon: DokuIcon },
+  { href: "/fortbildung",              label: "Fortbildung",    vibe: "var(--fri)",          icon: BookIcon },
+];
+
+const EHRENAMT_NAV = [
+  { href: "/ehrenamt",            label: "Heute",         vibe: "var(--thu)",          icon: PlanIcon },
+  { href: "/ehrenamt/begleitung", label: "Begleitung",    vibe: "var(--vibe-team)",     icon: TeamIcon },
+  { href: "/ehrenamt/protokoll",  label: "Protokoll",     vibe: "var(--vibe-profile)",  icon: DokuIcon },
 ];
 
 const LEAD_NAV = [
@@ -50,12 +79,21 @@ export async function AppShell({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const nav = role === "lead" ? LEAD_NAV : role === "doctor" ? DOCTOR_NAV : NURSE_NAV;
+  const nav =
+    role === "lead"      ? LEAD_NAV     :
+    role === "doctor"    ? DOCTOR_NAV   :
+    role === "therapie"  ? THERAPIE_NAV :
+    role === "sozial"    ? SOZIAL_NAV   :
+    role === "erziehung" ? ERZIEHUNG_NAV :
+    role === "ehrenamt"  ? EHRENAMT_NAV  :
+                           NURSE_NAV;
   const switchRole = role === "lead"
     ? { href: "/pflege", label: "→ Pflegekraft-Sicht" }
     : role === "doctor"
       ? { href: "/pflege", label: "→ Pflegekraft-Sicht" }
-      : { href: "/admin", label: "→ Träger-Admin" };
+      : role === "nurse"
+        ? { href: "/admin", label: "→ Träger-Admin" }
+        : { href: "/", label: "→ Startseite" };
 
   return (
     <div className="min-h-screen flex">
@@ -120,7 +158,7 @@ export async function AppShell({
         </div>
 
         <div className="border-t border-app-soft px-4 py-3 flex items-center gap-2.5">
-          <PersonAvatar id={user.id ?? "—"} initials={user.initials} size={36} role={role === "doctor" ? "doctor" : role} />
+          <PersonAvatar id={user.id ?? "—"} initials={user.initials} size={36} role={role === "doctor" ? "doctor" : role === "lead" ? "lead" : "nurse"} />
           <div className="min-w-0 flex-1">
             <div className="text-[13px] font-medium truncate">{user.name}</div>
             <div className="text-[11px] text-soft truncate">{user.subtitle}</div>
