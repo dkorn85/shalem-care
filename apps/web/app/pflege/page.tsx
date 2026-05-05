@@ -7,6 +7,7 @@ import { NextShift } from "@/components/NextShift";
 import { HourTarget } from "@/components/HourTarget";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
+import { getActivePersona } from "@/lib/auth/active-user";
 import { getStationOfPerson, getStation, getEinrichtung } from "@/lib/hierarchy/store";
 import { hoursWorkedThisMonth, hoursScheduledThisMonth, monthlyHourTargetFor } from "@/lib/tariff";
 import { getQualificationCode } from "@/lib/fhir";
@@ -24,11 +25,16 @@ export default async function PflegeHome() {
   seedKonferenzOnce();
   seedAktivitaetOnce();
   seedInboxOnce();
+  // Aktive Persona ermitteln (Auth-User · Persona-Cookie · Default)
+  const aktiv = await getActivePersona(CURRENT_USER_ID, "pflege");
+  // demoPersonId existiert immer für Demo-Daten-Lookup; bei realen Auth-Usern
+  // ist sie der Bridge-Wert ans Demo-Personal-Universum
+  const personId = aktiv.demoPersonId ?? CURRENT_USER_ID;
   const konf = naechsteKonferenzFuerKlient("klient-hr");
-  const nurse = (await store.getPerson(CURRENT_USER_ID))!;
+  const nurse = (await store.getPerson(personId))!;
   const pflegeInbox = listInbox("pflege");
   const pflegeInboxKpi = inboxKpi("pflege");
-  const slots = await store.listSlotsForPerson(CURRENT_USER_ID);
+  const slots = await store.listSlotsForPerson(personId);
   const offers = await store.listOffers();
   const allSlots = new Map((await store.listSlots()).map((s) => [s.id!, s]));
   const allPeople = new Map((await store.listPeople()).map((p) => [p.id, p]));
@@ -52,7 +58,7 @@ export default async function PflegeHome() {
     .sort((a, b) => new Date(a.start!).getTime() - new Date(b.start!).getTime());
   const nextSlot = upcoming[0] ?? null;
 
-  const stationId = getStationOfPerson(CURRENT_USER_ID);
+  const stationId = getStationOfPerson(personId);
   const station = stationId ? getStation(stationId) : null;
   const einrichtung = station ? getEinrichtung(station.einrichtungId) : null;
 
@@ -65,12 +71,17 @@ export default async function PflegeHome() {
   const scheduled = hoursScheduledThisMonth(slots);
   const target = monthlyHourTargetFor(nurse.tariffGrade);
 
-  const activeShift = await findActiveShift(CURRENT_USER_ID);
+  const activeShift = await findActiveShift(personId);
 
   return (
     <AppShell
       role="nurse"
-      user={{ id: nurse.id, name: nurse.name, subtitle: `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`, initials: nurse.initials }}
+      user={{
+        id: nurse.id,
+        name: aktiv.quelle === "auth" && aktiv.displayName ? aktiv.displayName : nurse.name,
+        subtitle: aktiv.quelle === "auth" ? `${nurse.tariffGrade.replace("TVOED-P_", "")} · eingeloggt` : `Pflegefachkraft · ${nurse.tariffGrade.replace("TVOED-P_", "")}`,
+        initials: nurse.initials,
+      }}
       station={station?.name ?? "Pulmologie 3B"}
     >
       <header className="mb-6">
@@ -133,7 +144,7 @@ export default async function PflegeHome() {
 
       <CrossProfessionInbox beruf="pflege" items={pflegeInbox} kpi={pflegeInboxKpi} zugewiesenAn={nurse.name} />
 
-      <MeineKlienten personId={CURRENT_USER_ID} beruf="pflege" />
+      <MeineKlienten personId={personId} beruf="pflege" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="pflege" eigenePersonId="person-dr" />}
       <AndereBegleiter eigenerBeruf="pflege" />

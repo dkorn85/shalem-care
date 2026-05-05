@@ -11,12 +11,17 @@ import { STATUS_LABEL, SYMPTOM_LABEL } from "@/lib/krankmeldung/types";
 import { assessBurnoutRisk } from "@/lib/burnout/risk";
 import { BurnoutWarning } from "@/components/BurnoutWarning";
 import { hourlyRateFor } from "@/lib/tariff";
+import { getActivePersona } from "@/lib/auth/active-user";
+import { DEMO_MODI } from "@/lib/auth/demo-modi";
+import { signOut } from "@/lib/auth/actions";
 
 export default async function ProfilPage() {
   seedOnce();
   seedRatingsOnce();
   seedKrankmeldungOnce();
+  const aktiv = await getActivePersona(CURRENT_USER_ID, "pflege");
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
+  const modusInfo = aktiv.demoMode !== "real" ? DEMO_MODI[aktiv.demoMode] : null;
   const stationId = getStationOfPerson(CURRENT_USER_ID);
   const station = stationId ? getStation(stationId) : null;
   const einrichtung = station ? getEinrichtung(station.einrichtungId) : null;
@@ -38,6 +43,50 @@ export default async function ProfilPage() {
         <h1 className="font-display text-[28px] font-bold tracking-tight2">Mein Profil</h1>
         <p className="text-[13px] text-mute mt-1">Stammdaten, Qualifikationen, Reputation aus Klient-Bewertungen.</p>
       </header>
+
+      {/* Auth-Status-Card */}
+      <section className="surface rounded-2xl p-4 mb-6 max-w-5xl"
+        style={modusInfo ? { background: `linear-gradient(135deg, rgb(${modusInfo.farbe} / 0.08), transparent)` } : undefined}
+      >
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <div className="flex-1 min-w-0">
+            <p className="text-[11px] uppercase tracking-wider text-soft font-medium mb-1">
+              Account · {aktiv.quelle === "auth" ? "eingeloggt" : aktiv.quelle === "persona-cookie" ? "Demo-Persona-Switcher" : "anonym (Default-Demo)"}
+            </p>
+            {aktiv.quelle === "auth" ? (
+              <>
+                <p className="text-[14px] font-medium">{aktiv.displayName ?? aktiv.email}</p>
+                {aktiv.email && <p className="text-[11px] text-mute font-mono">{aktiv.email}</p>}
+                {modusInfo && (
+                  <div className="mt-2 flex items-center gap-2 flex-wrap">
+                    <span className="chip text-[10px]" style={{ background: `rgb(${modusInfo.farbe} / 0.15)`, color: `rgb(${modusInfo.farbe})` }}>
+                      {modusInfo.label}
+                    </span>
+                    <span className="text-[11px] text-soft">{modusInfo.beschreibung}</span>
+                  </div>
+                )}
+              </>
+            ) : (
+              <p className="text-[12px] text-mute">
+                Du nutzt gerade die Demo-Daten von <strong className="text-[rgb(var(--fg))]">{nurse.name}</strong>.
+                Für eigenes Konto:{" "}
+                <Link href="/registrieren" className="text-[rgb(var(--accent))] hover:underline">registrieren</Link>
+                {" "}oder{" "}
+                <Link href="/registrieren/demo" className="text-[rgb(var(--accent))] hover:underline">Demo-Account</Link>.
+              </p>
+            )}
+          </div>
+          {aktiv.quelle === "auth" && (
+            <form action={signOut}>
+              <button type="submit" className="text-[12px] px-3 py-1.5 rounded-md transition-colors"
+                style={{ background: "transparent", color: "rgb(var(--fg-mute))", boxShadow: "inset 0 0 0 1px rgb(var(--fg-mute) / 0.3)" }}
+              >
+                Ausloggen
+              </button>
+            </form>
+          )}
+        </div>
+      </section>
 
       <Link
         href="/profil/krankmeldung"

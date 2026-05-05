@@ -10,6 +10,7 @@ import { redirect } from "next/navigation";
 import { DEMO_MODI, type DemoModus } from "@/lib/auth/demo-modi";
 import { ROLLEN, type RegistrierRolle } from "@/lib/auth/rollen";
 import { demoAnonymStarten } from "@/lib/auth/demo-actions";
+import { isNextRedirectError } from "@/lib/auth/redirect-error";
 
 const MODUS_BILD: Record<DemoModus, string> = {
   real:      "/auth/vertrauen-hoch.png",
@@ -51,6 +52,7 @@ export default async function DemoPage({ searchParams }: { searchParams?: Promis
       try {
         await demoAnonymStarten({ modus: modus!, rolle: rolle! });
       } catch (err) {
+        if (isNextRedirectError(err)) throw err;
         const msg = err instanceof Error ? err.message : "Demo-Start fehlgeschlagen.";
         redirect(`/registrieren/demo?error=${encodeURIComponent(msg)}`);
       }

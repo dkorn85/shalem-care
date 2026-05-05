@@ -7,6 +7,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import { startOAuth, signUpWithEmail } from "@/lib/auth/actions";
+import { isNextRedirectError } from "@/lib/auth/redirect-error";
 
 export const dynamic = "force-dynamic";
 
@@ -21,12 +22,14 @@ export default async function StartPage({ searchParams }: { searchParams?: Promi
 
   if (provider && SOCIAL_PROVIDER.includes(provider)) {
     // Server-Action direkt ausführen — leitet weiter zum Provider-OAuth-Endpoint.
+    // Wichtig: redirect() wirft intern NEXT_REDIRECT — das muss ans Framework
+    // durchgereicht werden, NICHT abgefangen. Wir fangen nur echte Fehler.
     try {
       await startOAuth(provider);
       // startOAuth() endet mit redirect() und kehrt nie zurück.
     } catch (err) {
+      if (isNextRedirectError(err)) throw err;
       const msg = err instanceof Error ? err.message : "OAuth-Start fehlgeschlagen.";
-      // Fallback bei nicht konfiguriertem Provider:
       redirect(`/registrieren/start?error=${encodeURIComponent(msg)}`);
     }
   }

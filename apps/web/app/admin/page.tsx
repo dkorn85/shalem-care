@@ -7,6 +7,7 @@ import { getStationOfPerson, getStation, listKlientenAtStation, listPeopleAtStat
 import { computeErloesForEinrichtung, eurShort } from "@/lib/erloes/erloes";
 import { assessBurnoutRisk } from "@/lib/burnout/risk";
 import { hourlyRateFor } from "@/lib/tariff";
+import { getActivePersona } from "@/lib/auth/active-user";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
@@ -18,7 +19,9 @@ export default async function AdminDashboard() {
   seedOnce();
   seedAktivitaetOnce();
   seedInboxOnce();
-  const lead = (await store.getPerson(CURRENT_LEAD_ID))!;
+  const aktiv = await getActivePersona(CURRENT_LEAD_ID, "lead");
+  const leadId = aktiv.demoPersonId ?? CURRENT_LEAD_ID;
+  const lead = (await store.getPerson(leadId))!;
   const leadInbox = listInbox("lead");
   const leadInboxKpi = inboxKpi("lead");
   const offers = await store.listOffers();
@@ -52,7 +55,12 @@ export default async function AdminDashboard() {
   return (
     <AppShell
       role="lead"
-      user={{ id: lead.id, name: lead.name, subtitle: "Stationsleitung", initials: lead.initials }}
+      user={{
+        id: lead.id,
+        name: aktiv.quelle === "auth" && aktiv.displayName ? aktiv.displayName : lead.name,
+        subtitle: aktiv.quelle === "auth" ? "Stationsleitung · eingeloggt" : "Stationsleitung",
+        initials: lead.initials,
+      }}
       station="Pulmologie 3B"
     >
       <header className="mb-8">

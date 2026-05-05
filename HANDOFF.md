@@ -163,7 +163,7 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 | ASSETS_LIVEDEMO.md (Block 13–18) | ✓ 25 von 27 ausgeliefert · Block 18 OG-Cards (db-status, inbox, onboarding, heilerziehung, hauswirtschaft) noch ausstehend |
 | AUTH_SETUP.md | OAuth-Provider-Konfiguration in Supabase Dashboard (Google, Apple, Microsoft, GitHub, Verimi, yes®, gematik) + Storage-Bucket + Phase-2-TODO-Liste |
 | STRATEGIE_LIVE.md | NEU · Reife-Einschätzung pro Domain · 4-Phasen-Roadmap zum Pilot-Live · Konkurrenz-Positionierung · Top-3-Engpass |
-| ASSETS_LIVEDEMO_2.md | ✓ 36 von 38 ausgeliefert (Block 19-24) — fehlend: 19.7 og/anmelden + 22.6 treuhand-fluss-loop |
+| ASSETS_LIVEDEMO_2.md | ✓ 37 von 38 ausgeliefert (Block 19-24) — fehlend: 19.7 og/anmelden |
 | AUDIT_DEADLINKS.md | NEU · 13 Befunde aus 76 Routen — 4 echte tote Links jetzt gefixt |
 | TECH_ROADMAP.md | NEU · Auth-Vervollständigung · DB-Migration · Realtime/Push · Compliance — pro Item Aufwand+Blocker |
 | PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
@@ -259,5 +259,7 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 22. **`/treuhand`** — Stripe-Connect-Modul-Stub mit Drei-Schritt-Geld-Fluss (Eingang/Sperrfrist/Auszahlung), 4-%-Verteilungs-Diagramm, Phase-2-Implementierungs-Reihenfolge
 23. **`/compliance`** — DSGVO + BSI + Audit-Log-Story mit 11 Punkten nach Status sortiert (umgesetzt/in_arbeit/geplant/blocker), Audit-Log-3-Zustände-Erklärung
 24. **`OnboardingTour`-Komponente auf Startseite** — 5 vertikale 12-s-Loops zeigen typische Plattform-Momente (Klient-Self-Booker · Pflege-Schichtplan · Konferenz · Beitritt · Notfall)
+25. **Treuhand-Fluss-Loop** läuft als sanfter Hintergrund auf `/treuhand` mit Caption-Overlay — macht den Geld-Fluss visuell lebendig
+26. **Auth-aware Cockpits angefangen** — `lib/auth/active-user.ts` mit `getActivePersona()` (Auth · Persona-Cookie · Default), `requireWriteAccess()`-Guard. **Pflege + Admin** lesen jetzt Auth wenn vorhanden, zeigen den eingeloggten Display-Namen + "eingeloggt"-Subtitle. `/profil` hat eine Auth-Status-Card mit Modus-Indikator + Logout-Button.
 
 Build clean, ready to push. **76 Routen.**
