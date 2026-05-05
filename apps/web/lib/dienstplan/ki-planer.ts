@@ -72,6 +72,7 @@ export type KiPlanErgebnis = {
     befunde: string[];             // freie Hinweise ("Dennis hat 2× Wochenende")
   };
   kommentar: string;                // Lana-Stil-Erklärung des Plans (3-5 Sätze)
+  rawOutput?: string;               // wenn Parse fehlschlug: Modell-Antwort (gekürzt) für Debug
   provider: string;
   model: string;
   kostenEur: number;
@@ -86,7 +87,9 @@ Du planst einen kompletten Monat. Deine Aufgabe ist:
 - Vorlieben der Mitarbeitenden zu berücksichtigen wenn der Bedarf das erlaubt
 - Bedarfsmuster lückenlos abzudecken
 
-Antworte AUSSCHLIESSLICH als JSON nach diesem Schema (kein Markdown, kein Fließtext daneben):
+Dein erstes Zeichen MUSS '{' sein, dein letztes MUSS '}' sein.
+Keine Begrüßung davor, keine Erklärung dahinter, keine \`\`\`json-Fences.
+Antworte AUSSCHLIESSLICH als JSON nach diesem Schema:
 {
   "zuweisungen": [
     {
@@ -172,12 +175,22 @@ export async function generiereMonatsplan(eingabe: KiPlanerEingabe): Promise<KiP
 
   const parsed = parsePlan(result.text);
 
+  // Wenn weder Zuweisungen noch Bilanz extrahiert wurden, ist Parse fehlgeschlagen.
+  // Server-Log + Raw-Text in Kommentar damit man via DevTools die Modell-Antwort sieht.
+  if (parsed.zuweisungen.length === 0 && parsed.stundenBilanz.length === 0) {
+    const preview = result.text.slice(0, 500);
+    console.error("[ki-planer] Parse fehlgeschlagen. Modell-Output (erste 500 Zeichen):", preview);
+  }
+
   return {
     zeitraum: { jahr: eingabe.jahr, monat: eingabe.monat },
     zuweisungen: parsed.zuweisungen,
     stundenBilanz: parsed.stundenBilanz,
     constraintsCheck: parsed.constraintsCheck,
     kommentar: parsed.kommentar,
+    rawOutput: parsed.zuweisungen.length === 0 && parsed.stundenBilanz.length === 0
+      ? result.text.slice(0, 1500)
+      : undefined,
     provider: result.provider,
     model: result.model,
     kostenEur: result.costEur,
@@ -191,9 +204,15 @@ function parsePlan(raw: string): {
   constraintsCheck: KiPlanErgebnis["constraintsCheck"];
   kommentar: string;
 } {
-  let cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
+  // 1) Markdown-Fences entfernen
+  let cleaned = raw.trim()
+    .replace(/^```(?:json)?\s*/i, "")
+    .replace(/```\s*$/, "");
 
-  // Best-effort: bei abgeschnittenem JSON versuchen, eine valide Form daraus zu machen.
+  // 2) Falls Modell-Prosa davor/danach steht: erstes balanciertes { ... } finden
+  cleaned = extractJsonBlock(cleaned) ?? cleaned;
+
+  // 3) Direkt parsen, sonst repair-Versuch
   let obj: Record<string, unknown> = {};
   try {
     obj = JSON.parse(cleaned) as Record<string, unknown>;
@@ -224,6 +243,32 @@ function parsePlan(raw: string): {
     },
     kommentar: typeof obj.kommentar === "string" ? obj.kommentar : extractKommentar(cleaned),
   };
+}
+
+/**
+ * Findet den ersten balancierten `{...}`-Block in einem Text. Hilft, wenn
+ * das Modell Prosa vor/nach dem JSON ausgibt ("Hier ist der Plan: { ... }").
+ */
+function extractJsonBlock(text: string): string | null {
+  const start = text.indexOf("{");
+  if (start === -1) return null;
+  let depth = 0;
+  let inString = false;
+  let escaped = false;
+  for (let i = start; i < text.length; i++) {
+    const c = text[i];
+    if (escaped) { escaped = false; continue; }
+    if (c === "\\") { escaped = true; continue; }
+    if (c === '"') { inString = !inString; continue; }
+    if (inString) continue;
+    if (c === "{") depth++;
+    else if (c === "}") {
+      depth--;
+      if (depth === 0) return text.slice(start, i + 1);
+    }
+  }
+  // Nicht balanciert → Rest ab erstem { zurückgeben (repair übernimmt)
+  return text.slice(start);
 }
 
 /**

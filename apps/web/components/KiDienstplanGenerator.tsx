@@ -35,6 +35,7 @@ type PlanErgebnis = {
     befunde: string[];
   };
   kommentar: string;
+  rawOutput?: string;
   provider: string;
   model: string;
   kostenEur: number;
@@ -223,14 +224,22 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
               style={{ background: "rgb(var(--sat) / 0.1)", boxShadow: "inset 0 0 0 1px rgb(var(--sat) / 0.3)" }}
             >
               <p className="text-[12px] font-medium" style={{ color: "rgb(var(--sat))" }}>
-                ⚠ Plan kam leer zurück
+                ⚠ Plan kam leer zurück — Modell-Antwort konnte nicht geparst werden
               </p>
               <p className="text-[12px] text-soft mt-1 leading-relaxed">
-                Vermutlich Token-Limit überschritten oder JSON-Antwort abgebrochen. Probier mit
-                weniger Personen (Filter "Nur Beruf") oder kürzerem Hinweis nochmal. {ergebnis.kommentar && (
-                  <span className="block mt-2 italic">"{ergebnis.kommentar}"</span>
-                )}
+                {ergebnis.kommentar && <span className="block mb-2 italic">"{ergebnis.kommentar}"</span>}
+                Probier es nochmal · Filter "Nur Beruf" reduziert die Komplexität.
               </p>
+              {ergebnis.rawOutput && (
+                <details className="mt-3">
+                  <summary className="text-[11px] uppercase tracking-wider text-soft font-medium cursor-pointer">
+                    Modell-Rohantwort (erste 1500 Zeichen) anzeigen
+                  </summary>
+                  <pre className="text-[11px] font-mono mt-2 p-2 rounded surface-mute overflow-x-auto whitespace-pre-wrap leading-relaxed">
+                    {ergebnis.rawOutput}
+                  </pre>
+                </details>
+              )}
             </div>
           )}
 
