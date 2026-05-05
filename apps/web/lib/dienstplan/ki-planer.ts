@@ -50,9 +50,9 @@ export type KiPlanZuweisung = {
   schicht: SchichtTyp;
   startHHMM: string;
   endHHMM: string;
-  dauerH: number;
-  bereich: string;
-  begruendung?: string;
+  dauerH?: number;                 // optional · UI berechnet aus start/end wenn fehlt
+  bereich?: string;                // optional · UI zeigt nur Zeit wenn fehlt
+  begruendung?: string;            // optional · vom Modell weggelassen für kompakteres JSON
 };
 
 export type KiPlanErgebnis = {
@@ -89,39 +89,36 @@ Du planst einen kompletten Monat. Deine Aufgabe ist:
 
 Dein erstes Zeichen MUSS '{' sein, dein letztes MUSS '}' sein.
 Keine Begrüßung davor, keine Erklärung dahinter, keine \`\`\`json-Fences.
-Antworte AUSSCHLIESSLICH als JSON nach diesem Schema:
+Antworte AUSSCHLIESSLICH als JSON nach diesem Schema (Reihenfolge der Felder beachten):
 {
+  "kommentar": "string · 3-5 Sätze in Lana-Stil",
+  "constraintsCheck": {
+    "arbeitszeitOk": true,
+    "ruhezeitOk": true,
+    "wochenendeFair": true,
+    "befunde": ["string"]
+  },
+  "stundenBilanz": [
+    {"personId": "string", "name": "string", "soll": 165, "geplant": 165, "saldo": 0}
+  ],
   "zuweisungen": [
     {
       "personId": "string",
       "datumISO": "YYYY-MM-DD",
-      "schicht": "frueh|spaet|nacht|tag|geteilter_dienst",
-      "startHHMM": "HH:MM",
-      "endHHMM": "HH:MM",
-      "dauerH": number,
-      "bereich": "string",
-      "begruendung": "kurz · optional"
+      "schicht": "frueh",
+      "startHHMM": "06:00",
+      "endHHMM": "14:00"
     }
-  ],
-  "stundenBilanz": [
-    {"personId": "string", "name": "string", "soll": number, "geplant": number, "saldo": number}
-  ],
-  "constraintsCheck": {
-    "arbeitszeitOk": true|false,
-    "ruhezeitOk": true|false,
-    "wochenendeFair": true|false,
-    "befunde": ["string"]
-  },
-  "kommentar": "string · 3-5 Sätze in Lana-Stil"
+  ]
 }
 
 Wichtig:
-- Plane GENAU 5 aufeinanderfolgende Tage ab dem 1. des Monats (Mo-Fr eines Beispiel-Tages).
-  Das ist ein Rotations-Beispiel — die Plattform setzt das Muster fort.
+- Plane GENAU 5 Tage ab dem 1. des Monats. Rotations-Beispiel, Plattform setzt fort.
 - Stundenbilanz auf den ganzen Monat hochgerechnet (~4.3 Wochen).
-- Maximal 5-7 Schichten pro Person in den 5 Tagen.
-- Lieber ehrlich zugeben dass eine Constraint nicht erfüllt ist, als zu schummeln.
-- Halte den JSON-Output kompakt — kurze Begründungen (max 8 Wörter pro Schicht).`;
+- Schicht-Werte: "frueh" | "spaet" | "nacht" | "tag" | "geteilter_dienst".
+- Zuweisungen NUR mit den 5 Feldern oben — KEINE dauerH, KEINE bereich, KEINE begruendung.
+- Reihenfolge im JSON ist Pflicht: zuerst kommentar+check+bilanz, ZULETZT zuweisungen.
+  So bleibt bei einem Token-Limit-Cut die Bilanz immer komplett.`;
 
 function buildUserPrompt(eingabe: KiPlanerEingabe): string {
   const c = eingabe.constraints ?? {};
@@ -278,16 +275,24 @@ function extractJsonBlock(text: string): string | null {
  */
 function repairTruncatedJson(raw: string): Record<string, unknown> {
   let s = raw;
-  // Letzten unvollständigen Eintrag abschneiden bis zum letzten kompletten "}"
+  // Letzten unvollständigen Eintrag abschneiden — bis zum letzten echten "}"
+  // Trailing-Komma nach dem letzten Object entfernen, sonst bleibt das stehen
+  // wenn das Modell mitten im Array abgebrochen wurde.
   const lastClose = s.lastIndexOf("}");
   if (lastClose > 0) s = s.slice(0, lastClose + 1);
-  // Offene Klammern automatisch schließen
+  s = s.replace(/,(\s*)$/, "$1");
+
+  // Offene Klammern zählen (String-Inhalte ignorieren — vereinfacht via match)
   const open = (s.match(/\{/g) ?? []).length;
   const close = (s.match(/\}/g) ?? []).length;
-  for (let i = 0; i < open - close; i++) s += "}";
   const openA = (s.match(/\[/g) ?? []).length;
   const closeA = (s.match(/\]/g) ?? []).length;
+
+  // WICHTIG: erst Arrays schließen (innen), dann Objekte (außen).
+  // Falsche Reihenfolge → "}]" statt "]}" → bleibt invalid.
   for (let i = 0; i < openA - closeA; i++) s += "]";
+  for (let i = 0; i < open - close; i++) s += "}";
+
   try {
     return JSON.parse(s) as Record<string, unknown>;
   } catch {
