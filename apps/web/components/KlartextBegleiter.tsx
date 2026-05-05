@@ -40,13 +40,13 @@ export function KlartextBegleiter({ beruf }: { beruf: string }) {
   if (!exists) return null;
 
   return (
-    <section className="relative w-full h-20 sm:h-24 rounded-xl overflow-hidden mb-4 surface">
-      <Image src={bildPfad} alt="" fill sizes="(max-width: 1024px) 100vw, 80vw" className="object-cover" />
-      <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[rgb(var(--bg-elev)/0.92)] via-[rgb(var(--bg-elev)/0.6)] to-transparent" />
-      <div className="absolute inset-0 flex items-center px-4 sm:px-5">
+    <section className="relative w-full aspect-[16/5] sm:aspect-[16/4] rounded-2xl overflow-hidden mb-4 surface group">
+      <Image src={bildPfad} alt="" fill sizes="(max-width: 1024px) 100vw, 80vw" className="object-cover transition-transform duration-700 group-hover:scale-[1.02]" />
+      <div aria-hidden className="absolute inset-0 bg-gradient-to-r from-[rgb(var(--bg-elev)/0.92)] via-[rgb(var(--bg-elev)/0.55)] to-transparent" />
+      <div className="absolute inset-0 flex items-center px-5 sm:px-7">
         <div className="max-w-prose">
-          <p className="text-[10px] uppercase tracking-wider text-soft font-medium mb-0.5">Klartext-Begleiter</p>
-          <p className="text-[12px] sm:text-[13px] leading-snug font-medium">{text}</p>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-medium mb-1">Klartext-Begleiter</p>
+          <p className="text-[13px] sm:text-[15px] leading-relaxed font-medium">{text}</p>
         </div>
       </div>
     </section>
