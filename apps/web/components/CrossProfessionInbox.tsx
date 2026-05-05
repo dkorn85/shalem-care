@@ -92,10 +92,10 @@ export function CrossProfessionInbox({
       </header>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-3">
-        <KpiTile label="offen"        value={kpi.offen}         farbe="var(--mon)" alarm={kpi.akut > 0} />
-        <KpiTile label="in Arbeit"    value={kpi.inBearbeitung} farbe="var(--vibe-stats)" />
-        <KpiTile label="heute fertig" value={kpi.erledigtHeute} farbe="var(--thu)" />
-        <KpiTile label="akut"         value={kpi.akut}          farbe="var(--vibe-approval)" alarm={kpi.akut > 0} />
+        <KpiTile label="offen"        value={kpi.offen}         farbe="var(--mon)"           icon="/inbox/icon-uebernehmen.png" alarm={kpi.akut > 0} />
+        <KpiTile label="in Arbeit"    value={kpi.inBearbeitung} farbe="var(--vibe-stats)"    icon="/inbox/icon-delegieren.png" />
+        <KpiTile label="heute fertig" value={kpi.erledigtHeute} farbe="var(--thu)"           icon="/inbox/icon-erledigt.png" />
+        <KpiTile label="akut"         value={kpi.akut}          farbe="var(--vibe-approval)" icon="/inbox/icon-akut.png" alarm={kpi.akut > 0} />
       </div>
 
       {sichtbar.length === 0 ? (
@@ -207,10 +207,14 @@ export function CrossProfessionInbox({
   );
 }
 
-function KpiTile({ label, value, farbe, alarm }: { label: string; value: number; farbe: string; alarm?: boolean }) {
+function KpiTile({ label, value, farbe, icon, alarm }: { label: string; value: number; farbe: string; icon?: string; alarm?: boolean }) {
   return (
     <div className="surface rounded-xl p-2.5 relative overflow-hidden" style={alarm ? { boxShadow: `inset 0 0 0 1px rgb(${farbe} / 0.4)` } : undefined}>
       <span aria-hidden className="absolute left-0 top-2 bottom-2 w-[3px] rounded-full" style={{ background: `rgb(${farbe})` }} />
+      {icon && (
+        // eslint-disable-next-line @next/next/no-img-element
+        <img src={icon} alt="" aria-hidden className="absolute right-1.5 top-1.5 w-7 h-7 opacity-60 pointer-events-none" />
+      )}
       <div className="ml-2.5">
         <div className="text-[10px] uppercase tracking-wider text-soft font-medium">{label}</div>
         <div className="font-display font-bold text-[20px] mt-0.5 leading-none" style={{ color: `rgb(${farbe})` }}>
