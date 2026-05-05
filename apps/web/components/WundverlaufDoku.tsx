@@ -3,6 +3,7 @@
 // Tendenz-Indikator pro Eintrag.
 
 import type { Wunde, WundbeobachtungEintrag } from "@/lib/wunde/types";
+import { KiKlartext } from "./KiKlartext";
 import { WUNDLOK_LABEL, WUNDART_LABEL, KAT_LABEL, EXSUDAT_LABEL, VERBAND_LABEL } from "@/lib/wunde/types";
 
 const STATUS_FARBE: Record<Wunde["status"], string> = {
@@ -47,6 +48,26 @@ export function WundverlaufDoku({ wunde, eintraege }: { wunde: Wunde; eintraege:
           {wunde.status}
         </span>
       </header>
+
+      {(() => {
+        const aktuell = chrono[chrono.length - 1];
+        const fachtext = [
+          `Wunde: ${WUNDART_LABEL[wunde.art]} · ${WUNDLOK_LABEL[wunde.lokalisation]}`,
+          wunde.dekubitusKategorie ? `Kategorie: ${KAT_LABEL[wunde.dekubitusKategorie]}` : null,
+          `Status: ${wunde.status}`,
+          flaechen.length >= 2
+            ? `Verlauf der Wundfläche: ${flaechen[0].toFixed(1)} cm² → ${flaechen[flaechen.length - 1].toFixed(1)} cm² über ${flaechen.length} Beobachtungen.`
+            : null,
+          aktuell?.freitext ? `Letzte Beobachtung: ${aktuell.freitext}` : null,
+          aktuell?.tendenz ? `Tendenz: ${aktuell.tendenz}` : null,
+          aktuell?.schmerzNRS !== undefined ? `Schmerz NRS ${aktuell.schmerzNRS}/10` : null,
+        ].filter(Boolean).join("\n");
+        return (
+          <div className="mb-4">
+            <KiKlartext beruf="pflege" fachtext={fachtext} label="Wunde in einfacher Sprache erklären" kompakt />
+          </div>
+        );
+      })()}
 
       {/* Verlaufs-Sparkline */}
       {flaechen.length >= 2 && (

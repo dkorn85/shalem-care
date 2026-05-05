@@ -11,6 +11,7 @@ import { seedOnce } from "@/lib/seed";
 import { getKlient } from "@/lib/hierarchy/store";
 import { getBefundeFor, seedBefundOnce } from "@/lib/befund/store";
 import { deutungFuerSchaden, deutungenFuerLabor } from "@/lib/tibetisch/lehre";
+import { KiKlartext } from "@/components/KiKlartext";
 
 // Klient:innen mit ausgefüllten Befunden — Selector im Header
 const KLIENTEN_MIT_BEFUNDEN = [
@@ -118,6 +119,15 @@ export default async function BefundePage({ searchParams }: { searchParams?: Pro
               <div className="rounded-lg p-4 surface-mute text-[13px] leading-relaxed">
                 <p className="text-[11px] uppercase tracking-wider text-soft mb-1.5 font-medium">Befundbericht</p>
                 {w.befundtext}
+                <div className="mt-3">
+                  <KiKlartext
+                    beruf="arzt"
+                    fachtext={`Wirbelsäulen-Befund (${w.datum ?? "aktuell"}):\n${w.befundtext}`}
+                    klientHinweis={`${klient.name}`}
+                    label="In einfacher Sprache erklären"
+                    kompakt
+                  />
+                </div>
                 {w.haltungsanalyse && (
                   <ul className="mt-3 grid sm:grid-cols-2 gap-x-6 gap-y-1 text-[12px]">
                     {w.haltungsanalyse.kyphosewinkelGrad !== undefined && (

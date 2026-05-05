@@ -9,6 +9,7 @@ import { join } from "node:path";
 import Image from "next/image";
 import type { ImagingBefund, ImagingModalitaet, ImagingProjektion } from "@/lib/befund/types";
 import { MOD_LABEL, PROJEKTION_LABEL } from "@/lib/befund/types";
+import { KiKlartext } from "./KiKlartext";
 
 // Hilfsfunktion: prüft beim Server-Render ob das echte Bild unter
 // public/<bildUrl> existiert. Wenn ja, zeigen wir es. Wenn nein, fallback
@@ -76,6 +77,15 @@ export function ImagingGallery({ befund }: { befund: ImagingBefund }) {
       <div className="rounded-lg p-3 surface-mute">
         <p className="text-[11px] uppercase tracking-wider text-soft mb-1 font-medium">Befundtext</p>
         <p className="text-[13px] leading-relaxed">{befund.befundtext}</p>
+      </div>
+
+      <div className="mt-3">
+        <KiKlartext
+          beruf="arzt"
+          fachtext={`${MOD_LABEL[befund.modalitaet]} ${befund.region} (${befund.datum})${befund.diagnose ? ` · ICD ${befund.diagnose}` : ""}\n\n${befund.befundtext}`}
+          label="In einfacher Sprache erklären"
+          kompakt
+        />
       </div>
 
       {befund.dicomStudyUid && (
