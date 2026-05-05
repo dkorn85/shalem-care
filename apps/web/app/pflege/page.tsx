@@ -11,9 +11,14 @@ import { getStationOfPerson, getStation, getEinrichtung } from "@/lib/hierarchy/
 import { hoursWorkedThisMonth, hoursScheduledThisMonth, monthlyHourTargetFor } from "@/lib/tariff";
 import { getQualificationCode } from "@/lib/fhir";
 import { findActiveShift } from "@/lib/dienst/active-shift";
+import { KonferenzCard } from "@/components/KonferenzCard";
+import { AndereBegleiter } from "@/components/AndereBegleiter";
+import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 
 export default async function PflegeHome() {
   seedOnce();
+  seedKonferenzOnce();
+  const konf = naechsteKonferenzFuerKlient("klient-hr");
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
   const slots = await store.listSlotsForPerson(CURRENT_USER_ID);
   const offers = await store.listOffers();
@@ -117,6 +122,9 @@ export default async function PflegeHome() {
       </div>
 
       <SwapMarketplace offers={offers} slotsById={allSlots} peopleById={allPeople} />
+
+      {konf && <KonferenzCard konferenz={konf} eigenerBeruf="pflege" eigenePersonId="person-dr" />}
+      <AndereBegleiter eigenerBeruf="pflege" />
     </AppShell>
   );
 }

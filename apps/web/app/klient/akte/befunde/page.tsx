@@ -12,7 +12,17 @@ import { getKlient } from "@/lib/hierarchy/store";
 import { getBefundeFor, seedBefundOnce } from "@/lib/befund/store";
 import { deutungFuerSchaden, deutungenFuerLabor } from "@/lib/tibetisch/lehre";
 
-const KLIENT_ID = "klient-hr";
+// Klient:innen mit ausgefüllten Befunden — Selector im Header
+const KLIENTEN_MIT_BEFUNDEN = [
+  { id: "klient-hr", kurz: "Helga R.",      detail: "78 J. · LWS L4/L5 · Sakraldekubitus heilend",        farbe: "var(--wed)" },
+  { id: "klient-wb", kurz: "Walter B.",      detail: "84 J. · COPD · Osteoporose T12-Sinterungsfraktur",    farbe: "var(--mon)" },
+  { id: "klient-eg", kurz: "Erika G.",       detail: "81 J. · Z.n. Mediainfarkt · vaskuläre Demenz",       farbe: "var(--vibe-team)" },
+  { id: "klient-rk", kurz: "Rüdiger K.",     detail: "67 J. · Hemiparese li. · HWS-Spondylolisthese C5/C6",  farbe: "var(--sat)" },
+  { id: "klient-im", kurz: "Inge M.",         detail: "59 J. · Bandscheibenvorfall L5/S1 · KGG-Therapie",   farbe: "var(--fri)" },
+  { id: "klient-fl", kurz: "Friedrich L.",   detail: "62 J. · Z.n. Mediainfarkt · Wiedereingliederung",    farbe: "var(--thu)" },
+];
+
+type SearchParams = { klient?: string };
 
 export const metadata = {
   title: "Befunde · Meine Akte",
@@ -25,14 +35,19 @@ export const metadata = {
   },
 };
 
-export default async function BefundePage() {
+export default async function BefundePage({ searchParams }: { searchParams?: Promise<SearchParams> }) {
   seedOnce();
   seedBefundOnce();
 
-  const klient = getKlient(KLIENT_ID);
+  const params = (await searchParams) ?? {};
+  const klientId = params.klient && KLIENTEN_MIT_BEFUNDEN.some((k) => k.id === params.klient)
+    ? params.klient
+    : "klient-hr";
+
+  const klient = getKlient(klientId);
   if (!klient) notFound();
 
-  const befunde = getBefundeFor(KLIENT_ID);
+  const befunde = getBefundeFor(klientId);
 
   return (
     <KlientShell user={{ name: klient.name, initials: klient.initials, relation: "self", klientId: klient.id }}>
@@ -60,6 +75,30 @@ export default async function BefundePage() {
           </div>
         </div>
       </header>
+
+      {/* Klient:innen-Selector */}
+      <nav className="surface rounded-2xl p-3 mb-6 overflow-x-auto">
+        <div className="flex gap-1.5 min-w-max">
+          {KLIENTEN_MIT_BEFUNDEN.map((k) => {
+            const aktiv = k.id === klientId;
+            return (
+              <Link
+                key={k.id}
+                href={`/klient/akte/befunde?klient=${k.id}`}
+                className="rounded-lg px-3 py-2 text-[12px] font-medium transition-colors shrink-0"
+                style={{
+                  background: aktiv ? `rgb(${k.farbe} / 0.15)` : "transparent",
+                  color: aktiv ? `rgb(${k.farbe})` : "rgb(var(--fg-mute))",
+                  border: aktiv ? `1px solid rgb(${k.farbe} / 0.3)` : "1px solid transparent",
+                }}
+              >
+                <div className="font-semibold">{k.kurz}</div>
+                <div className="text-[10px] opacity-80 mt-0.5">{k.detail}</div>
+              </Link>
+            );
+          })}
+        </div>
+      </nav>
 
       {/* ─── Schnell-Überblick ─── */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-8">
