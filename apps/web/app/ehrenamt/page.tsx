@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -43,23 +44,19 @@ export default async function EhrenamtPage() {
       user={userPropsAus(aktiv, { id: "person-ehrenamt-001", name: "Rita Schöndorf", subtitle: "Ehrenamtliche Begleitung · 3 Klient:innen", initials: "RS" })}
       station="Hospiz-Verein Berlin"
     >
-      <header className="mb-6">
-        <div className="grid lg:grid-cols-12 gap-6 items-end">
-          <div className="lg:col-span-7">
-            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Ehrenamtliche Begleitung</p>
-            <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-              Servus, <span className="rainbow-text">Rita</span>.
-            </h1>
-            <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
-              {BEGLEITUNG.length} Klient:innen begleitest du regelmäßig. Diese Woche{" "}
-              {AUFWANDS_BUDGET.geleistetStunden} h geleistet · {AUFWANDS_BUDGET.paushaleEuro} € Aufwandsentschädigung steht zur Auszahlung.
-            </p>
+      <RolePastelHeader
+        rolle="ehrenamt"
+        eyebrow="Ehrenamtliche Begleitung"
+        titel="Servus, Rita."
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/anamnese/header-ehrenamt.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
           </div>
-          <div className="lg:col-span-5 relative aspect-[4/3] rounded-2xl overflow-hidden surface">
-            <Image src="/anamnese/header-ehrenamt.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" priority />
-          </div>
-        </div>
-      </header>
+        }
+      >
+        {BEGLEITUNG.length} Klient:innen begleitest du regelmäßig. Diese Woche{" "}
+        {AUFWANDS_BUDGET.geleistetStunden} h geleistet · {AUFWANDS_BUDGET.paushaleEuro} € Aufwandsentschädigung steht zur Auszahlung.
+      </RolePastelHeader>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Begleitungen"   value={BEGLEITUNG.length} farbe="var(--thu)" />

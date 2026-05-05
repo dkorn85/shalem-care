@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { KlientShell } from "@/components/KlientShell";
 import { PflegegradIcon } from "@/components/PflegegradIcon";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { PersonAvatar } from "@/components/Avatar";
 import { VerordnungsAnfrageForm } from "@/components/VerordnungsAnfrageForm";
 import { BalanceCheckIn } from "@/components/BalanceCheckIn";
@@ -85,16 +86,21 @@ export default async function KlientPage() {
         klientId: KLIENT_ID,
       }}
     >
-      <header className="mb-8 anim-slideUp">
-        <p className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Heute, {format(today, "EEEE d. MMMM", { locale: de })}</p>
-        <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05] text-balance">
-          Guten Tag,<br /><span className="rainbow-text">Frau Reinhardt</span>.
-        </h1>
-        <div className="flex items-center gap-4 mt-4 flex-wrap">
-          <p className="text-[14px] text-mute">{wohnbereich}</p>
-          {klient && <PflegegradIcon pflegegrad={klient.pflegegrad} size={48} withLabel={false} withChip={true} />}
-        </div>
-      </header>
+      <RolePastelHeader
+        rolle="klient"
+        eyebrow={`Heute, ${format(today, "EEEE d. MMMM", { locale: de })}`}
+        titel="Guten Tag, Frau Reinhardt."
+        loopSrc="/loops/akte-puls.mp4"
+        rightSlot={
+          klient && (
+            <div className="flex flex-col items-end gap-2">
+              <PflegegradIcon pflegegrad={klient.pflegegrad} size={48} withLabel={false} withChip={true} />
+              <p className="text-[12px] text-mute">{wohnbereich}</p>
+            </div>
+          )
+        }
+      />
+
 
       {konf && (
         <section className="surface rounded-2xl p-5 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.06), transparent)" }}>

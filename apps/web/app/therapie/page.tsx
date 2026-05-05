@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -47,22 +48,19 @@ export default async function TherapiePage() {
       user={userPropsAus(aktiv, { id: "person-therapeut-001", name: "Sebastian Rauer", subtitle: "Physio · Manuelle Therapie · ZVK", initials: "SR" })}
       station="Praxis Steglitz"
     >
-      <header className="mb-6">
-        <div className="grid lg:grid-cols-12 gap-6 items-end">
-          <div className="lg:col-span-7">
-            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Therapie · Heilmittelerbringer</p>
-            <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-              Servus, <span className="rainbow-text">Sebastian</span>.
-            </h1>
-            <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
-              {HEUTE.length} Termine heute · {heuteStunden.toFixed(1)} h Therapiezeit · {VERORDNUNGEN_OFFEN.length} neue Verordnungen warten auf Erstgespräch.
-            </p>
+      <RolePastelHeader
+        rolle="therapie"
+        eyebrow="Therapie · Heilmittelerbringer"
+        titel="Servus, Sebastian."
+        loopSrc="/loops/atmo-wasser.mp4"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/anamnese/header-therapie.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
           </div>
-          <div className="lg:col-span-5 relative aspect-[4/3] rounded-2xl overflow-hidden surface">
-            <Image src="/anamnese/header-therapie.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" priority />
-          </div>
-        </div>
-      </header>
+        }
+      >
+        {HEUTE.length} Termine heute · {heuteStunden.toFixed(1)} h Therapiezeit · {VERORDNUNGEN_OFFEN.length} neue Verordnungen warten auf Erstgespräch.
+      </RolePastelHeader>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Termine heute"  value={HEUTE.length}      farbe="var(--fri)" />

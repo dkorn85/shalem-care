@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { store } from "@/lib/swap-store";
 import { seedOnce } from "@/lib/seed";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
@@ -51,16 +52,14 @@ export default async function ArztPraxisPage() {
       }}
       station={arzt.arztPraxis ?? "Praxis"}
     >
-      <header className="mb-6 anim-slideUp">
-        <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">{arzt.fachrichtung}</p>
-        <h1 className="font-display text-[32px] font-bold tracking-tight2">
-          Guten Tag, <span className="rainbow-text">{arzt.name.split(" ").pop()}</span>.
-        </h1>
-        <p className="text-[13px] text-mute mt-2 max-w-prose">
-          Verordnungs-Anfragen aus Pflege und Klient:innen — hier zentral, nach Dringlichkeit sortiert.
-          eRezept-Code wird direkt mit Ausstellung erzeugt; in Phase 2 läuft das über die TI / gematik.
-        </p>
-      </header>
+      <RolePastelHeader
+        rolle="arzt"
+        eyebrow={arzt.fachrichtung}
+        titel={`Guten Tag, ${arzt.name.split(" ").pop()}.`}
+      >
+        Verordnungs-Anfragen aus Pflege und Klient:innen — hier zentral, nach Dringlichkeit sortiert.
+        eRezept-Code wird direkt mit Ausstellung erzeugt; in Phase 2 läuft das über die TI / gematik.
+      </RolePastelHeader>
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Tile label="Offene Anfragen"  value={offene.length} color="var(--fri)" />
