@@ -1,15 +1,18 @@
 // Live-TTS-Endpoint · POST { text, voice } → audio/mpeg-Stream.
 //
-// Cache-Strategie: identische Texte landen unter `public/sounds/live-<hash>.mp3`
-// damit wiederholte Klicks auf "Lana lesen lassen" keine API-Kosten erzeugen.
-// Der Cache liegt im Public-Folder, also liest jeder folgende Request das
-// statische File über den CDN-Pfad (Browser-Cache + Hostinger-Static-Cache).
+// Antwortet IMMER mit dem MP3-Stream direkt (Content-Type audio/mpeg).
+// Kein Filesystem-Cache: in Next.js Standalone-Mode (Hostinger) werden
+// File-Writes nach `public/` zur Laufzeit nicht zuverlässig ausgeliefert,
+// das Build-Snapshot des public-Ordners ist eingefroren.
+//
+// Browser-Cache läuft über die Cache-Control-Header (1 h private). Identische
+// Texte werden im Browser via Memory-Cache aufgelöst, wenn der Aufrufer
+// dieselbe URL erneut nutzt — was wir aber nicht tun, weil POST. Daher:
+// Phase 2: Edge-Cache via Hash-Param + GET-Endpoint, oder Supabase Storage.
 //
 // ENV: ELEVENLABS_API_KEY (server-only).
 
 import { NextRequest, NextResponse } from "next/server";
-import { promises as fs } from "fs";
-import path from "path";
 import { generateTts, isElevenLabsConfigured, ElevenLabsError } from "@/lib/audio/tts";
 import { VOICES } from "@/lib/audio/voices";
 
@@ -17,12 +20,10 @@ export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
 const MAX_TEXT = 1500;
-const CACHE_DIR = "live-klartext";
 
 type TtsRequest = {
   text: string;
   voice?: "lana" | "dennis";
-  cache?: boolean;
 };
 
 export async function POST(req: NextRequest) {
@@ -55,20 +56,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: `voice "${voiceKey}" unbekannt.` }, { status: 400 });
   }
 
-  const cacheEnabled = body.cache !== false;
-  const hash = simpleHash(`${voice.id}::${text}`);
-  const cacheRel = `/sounds/${CACHE_DIR}/${hash}.mp3`;
-
-  if (cacheEnabled) {
-    const cacheAbs = path.join(process.cwd(), "public", cacheRel);
-    try {
-      await fs.access(cacheAbs);
-      return NextResponse.json({ url: cacheRel, cached: true, voice: voiceKey });
-    } catch {
-      // miss → weiter zu Generierung
-    }
-  }
-
   let audio: ArrayBuffer;
   try {
     audio = await generateTts(voice.id, text);
@@ -80,33 +67,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  if (cacheEnabled) {
-    try {
-      const cacheAbs = path.join(process.cwd(), "public", cacheRel);
-      await fs.mkdir(path.dirname(cacheAbs), { recursive: true });
-      await fs.writeFile(cacheAbs, Buffer.from(audio));
-      return NextResponse.json({ url: cacheRel, cached: false, voice: voiceKey });
-    } catch (err) {
-      // Cache-Schreibfehler ist nicht kritisch — wir liefern den Stream direkt
-      console.warn("[tts] Cache-Write fehlgeschlagen", err);
-    }
-  }
-
   return new NextResponse(Buffer.from(audio), {
     status: 200,
     headers: {
       "Content-Type": "audio/mpeg",
-      "Cache-Control": "private, max-age=60",
+      "Cache-Control": "private, max-age=3600",
       "X-TTS-Voice": voiceKey,
     },
   });
-}
-
-function simpleHash(input: string): string {
-  let h = 0;
-  for (let i = 0; i < input.length; i++) {
-    h = (h << 5) - h + input.charCodeAt(i);
-    h |= 0;
-  }
-  return Math.abs(h).toString(36);
 }
