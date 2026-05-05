@@ -52,6 +52,21 @@ type PlanErgebnis = {
   planId?: string;
 };
 
+type GruppeStatus = {
+  beruf: string;
+  personenAnzahl: number;
+  ok: boolean;
+  fehler?: string;
+  dauerMs: number;
+};
+
+type MultiPlanErgebnis = PlanErgebnis & {
+  gruppen?: GruppeStatus[];
+  dauerMs?: number;
+  erfolgreich?: number;
+  gesamtPersonen?: number;
+};
+
 type HistoryEintrag = {
   id: string;
   erstelltAm: string;
@@ -94,7 +109,8 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
   const [nurBeruf, setNurBeruf] = useState<string>("");
   const [zugangsKey, setZugangsKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
-  const [ergebnis, setErgebnis] = useState<PlanErgebnis | null>(null);
+  const [ergebnis, setErgebnis] = useState<MultiPlanErgebnis | null>(null);
+  const [ganzLoading, setGanzLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [history, setHistory] = useState<HistoryEintrag[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
@@ -225,13 +241,43 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
-      setErgebnis(data as PlanErgebnis);
+      setErgebnis(data as MultiPlanErgebnis);
       // History neu laden, damit die neue Generierung als Eintrag #1 erscheint
       void ladeHistory();
     } catch (err) {
       setError(err instanceof Error ? err.message : String(err));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function generiereGanz() {
+    setGanzLoading(true);
+    setError(null);
+    try {
+      if (typeof window !== "undefined" && zugangsKey) {
+        window.localStorage.setItem(KEY_LS, zugangsKey);
+      }
+      const res = await fetch("/api/ai/dienstplan/ganz", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shalem-Key": zugangsKey,
+        },
+        body: JSON.stringify({
+          jahr,
+          monat,
+          hinweis: hinweis.trim() || undefined,
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error ?? `HTTP ${res.status}`);
+      setErgebnis(data as MultiPlanErgebnis);
+      void ladeHistory();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : String(err));
+    } finally {
+      setGanzLoading(false);
     }
   }
 
@@ -327,7 +373,7 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
         <button
           type="button"
           onClick={generieren}
-          disabled={loading}
+          disabled={loading || ganzLoading}
           className="px-4 py-2 rounded-md text-[13px] font-medium transition-all"
           style={{
             background: "rgb(var(--accent) / 0.18)",
@@ -336,10 +382,30 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
             opacity: loading ? 0.6 : 1,
           }}
         >
-          {loading ? "Plan wird gerechnet …" : "✦ KI-Plan generieren"}
+          {loading ? "Plan wird gerechnet …" : "✦ KI-Plan · gefilterte Auswahl (max 8)"}
+        </button>
+        <button
+          type="button"
+          onClick={generiereGanz}
+          disabled={loading || ganzLoading}
+          className="px-4 py-2 rounded-md text-[13px] font-medium transition-all"
+          style={{
+            background: "rgb(var(--thu) / 0.15)",
+            color: "rgb(var(--thu))",
+            boxShadow: "inset 0 0 0 1px rgb(var(--thu) / 0.45)",
+            opacity: ganzLoading ? 0.6 : 1,
+          }}
+        >
+          {ganzLoading ? "Belegschaft wird verteilt …" : "✦ Ganze Belegschaft · alle Berufe parallel"}
         </button>
         {error && <span className="text-[12px] text-soft italic">{error}</span>}
       </div>
+      {ganzLoading && (
+        <p className="text-[11px] text-mute italic mt-2">
+          Multi-Call läuft: pro Berufsgruppe wird ein eigener Sonnet-Aufruf gestartet (parallel).
+          Wallclock typisch 30-50 s — Geduld bitte, der Browser-Tab darf offen bleiben.
+        </p>
+      )}
 
       {history.length > 0 && (
         <details className="mt-5 surface-mute rounded-lg p-3" open>
@@ -505,6 +571,41 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
             </div>
             <p className="text-[13px] leading-relaxed whitespace-pre-wrap">{ergebnis.kommentar}</p>
           </div>
+
+          {/* Multi-Call · Pro-Beruf-Status (nur bei /ganz) */}
+          {ergebnis.gruppen && ergebnis.gruppen.length > 0 && (
+            <div className="rounded-lg p-4 surface-mute">
+              <div className="flex items-baseline justify-between gap-2 flex-wrap mb-2">
+                <p className="text-[10px] uppercase tracking-wider text-soft font-medium">
+                  Multi-Call · {ergebnis.erfolgreich}/{ergebnis.gruppen.length} Berufe ok ·
+                  {" "}{ergebnis.gesamtPersonen} Personen ·
+                  {" "}{ergebnis.dauerMs ? Math.round(ergebnis.dauerMs / 100) / 10 : "—"} s wallclock
+                </p>
+              </div>
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-2">
+                {ergebnis.gruppen.map((g) => (
+                  <div
+                    key={g.beruf}
+                    className="rounded-md p-2 text-[12px]"
+                    style={{
+                      background: g.ok ? "rgb(var(--thu) / 0.10)" : "rgb(var(--sat) / 0.10)",
+                      boxShadow: `inset 0 0 0 1px rgb(var(--${g.ok ? "thu" : "sat"}) / 0.3)`,
+                    }}
+                  >
+                    <div className="flex items-baseline justify-between gap-1">
+                      <span className="font-medium">{g.beruf}</span>
+                      <span className="text-[10px] font-mono text-mute">
+                        {Math.round(g.dauerMs / 100) / 10}s
+                      </span>
+                    </div>
+                    <p className="text-[10px] text-soft mt-0.5">
+                      {g.ok ? `✓ ${g.personenAnzahl} Personen geplant` : `⚠ ${g.fehler?.slice(0, 80) ?? "Fehler"}`}
+                    </p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           {/* Constraint-Check */}
           <div className="grid sm:grid-cols-3 gap-2">
