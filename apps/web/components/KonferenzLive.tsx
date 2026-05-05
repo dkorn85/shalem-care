@@ -64,7 +64,14 @@ export function KonferenzLiveControl({ konferenz }: { konferenz: Konferenz }) {
             <button
               type="button"
               disabled={pending}
-              onClick={() => start(() => konferenzStarten({ id: konferenz.id }))}
+              onClick={() => {
+                // Konferenz-Start-Sound (Dennis-Stimme) wenn nicht stumm
+                if (typeof window !== "undefined" && localStorage.getItem("shalem-audio-mute") !== "1") {
+                  const audio = new Audio("/sounds/konferenz-start-dennis.mp3");
+                  audio.play().catch(() => {/* autoplay-policy */});
+                }
+                start(() => konferenzStarten({ id: konferenz.id }));
+              }}
               className="text-[12px] px-3 py-1 rounded-md transition-colors disabled:opacity-50"
               style={{ background: "rgb(var(--mon) / 0.15)", color: "rgb(var(--mon))" }}
             >

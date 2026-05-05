@@ -268,5 +268,6 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 28. **Treuhand refactored** — Hero auf full-bleed `tall`-Variante mit Treuhand-Loop als hover-Overlay, Drei-Schritt auf `AssetCard` mit echten Bild-Größen statt gequetschten 4:3-Tiles, Ausschüttungs-Diagramm via `MediaSplit` mit Akzent-Glow. SmoothReveal-Cascade beim Scrollen.
 29. **OnboardingTour Smooth-Reveal** — vertikale Loops blenden mit 80ms-Versatz beim Scrollen ein statt alle gleichzeitig. Hover-Glow als 2px-Akzent unter jeder Karte.
 30. **KlartextBegleiter höher** — von 80px-Strip auf 16:5-aspect-Ratio (Audit-Befund: 1600×600-Komposition wurde gequetscht).
+31. **Audio-Layer Phase B aktiv** — Voice-IDs für Dennis (`wcqN36SUOZ0EhToc2OIu`) + Lana (`ZgahlWh5FVSG7MFjZwPE`) in `lib/audio/voices.ts` mit Kontext-Mapping (klartext_pflege/notruf_bestaetigt/konferenz_start/...). Server-side TTS-Wrapper `lib/audio/tts.ts` für ElevenLabs API mit Caching-Pattern. **3 echte Audio-Files** generiert: `notruf-bestaetigt-lana.mp3` (SOS-Bestätigung "Wir sind unterwegs."), `konferenz-start-dennis.mp3`, `willkommen-lana.mp3`. `SosButton`-Component spielt Audio + animiert 3-Stage-Bestätigungsliste. AudioMuteToggle in `/profil` (default: an). Audio respektiert global-Mute via localStorage `shalem-audio-mute`.
 
 Build clean, ready to push. **76 Routen.**
