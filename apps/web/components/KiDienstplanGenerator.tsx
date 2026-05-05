@@ -175,6 +175,23 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
 
       {ergebnis && (
         <div className="mt-6 space-y-5">
+          {ergebnis.zuweisungen.length === 0 && ergebnis.stundenBilanz.length === 0 && (
+            <div
+              className="rounded-lg p-4"
+              style={{ background: "rgb(var(--sat) / 0.1)", boxShadow: "inset 0 0 0 1px rgb(var(--sat) / 0.3)" }}
+            >
+              <p className="text-[12px] font-medium" style={{ color: "rgb(var(--sat))" }}>
+                ⚠ Plan kam leer zurück
+              </p>
+              <p className="text-[12px] text-soft mt-1 leading-relaxed">
+                Vermutlich Token-Limit überschritten oder JSON-Antwort abgebrochen. Probier mit
+                weniger Personen (Filter "Nur Beruf") oder kürzerem Hinweis nochmal. {ergebnis.kommentar && (
+                  <span className="block mt-2 italic">"{ergebnis.kommentar}"</span>
+                )}
+              </p>
+            </div>
+          )}
+
           <div className="rounded-lg p-4 surface-mute">
             <p className="text-[10px] uppercase tracking-wider text-soft mb-1 font-medium">
               Kommentar · {ergebnis.provider} {ergebnis.model}

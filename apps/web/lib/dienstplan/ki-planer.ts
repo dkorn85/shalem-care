@@ -112,7 +112,14 @@ Antworte AUSSCHLIESSLICH als JSON nach diesem Schema (kein Markdown, kein Fließ
   "kommentar": "string · 3-5 Sätze in Lana-Stil"
 }
 
-Wichtig: Halte den Plan plausibel. Lieber wenige Tage exemplarisch (wenn der Monat zu groß für eine Antwort wird, plane die ersten 14 Tage exemplarisch und schreibe das in den Kommentar). Lieber ehrlich zugeben, dass eine Constraint nicht erfüllt ist, als heimlich zu schummeln.`;
+Wichtig:
+- Plane GENAU die ersten 7 Tage des Monats konkret (Tag für Tag, Person für Person).
+  Das ist ein Rotations-Beispiel — die Plattform setzt das Muster für den Rest fort.
+- Stundenbilanz hochrechnen auf den ganzen Monat (also Wochen-Stunden × Wochenfaktor),
+  nicht nur auf die 7 Tage.
+- Lieber ehrlich zugeben, dass eine Constraint nicht erfüllt ist, als heimlich zu schummeln.
+- Bei zu vielen Personen: wähle 8-10 Personen exemplarisch und nenne die anderen in der
+  Bilanz mit Soll=geplant=Saldo=0 + Kommentar "im Folgemonat priorisieren".`;
 
 function buildUserPrompt(eingabe: KiPlanerEingabe): string {
   const c = eingabe.constraints ?? {};
@@ -153,7 +160,7 @@ export async function generiereMonatsplan(eingabe: KiPlanerEingabe): Promise<KiP
 
   const result = await provider.generate(messages, {
     temperature: 0.2,
-    maxTokens: 4000,
+    maxTokens: 8000,
     jsonMode: true,
   });
 
@@ -178,13 +185,28 @@ function parsePlan(raw: string): {
   constraintsCheck: KiPlanErgebnis["constraintsCheck"];
   kommentar: string;
 } {
-  const cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
-  let obj: Record<string, unknown> = {};
-  try { obj = JSON.parse(cleaned) as Record<string, unknown>; } catch { /* fallthrough */ }
+  let cleaned = raw.trim().replace(/^```(?:json)?\s*/i, "").replace(/```\s*$/, "");
 
-  const zuw = Array.isArray(obj.zuweisungen) ? obj.zuweisungen as KiPlanZuweisung[] : [];
-  const bil = Array.isArray(obj.stundenBilanz) ? obj.stundenBilanz as KiPlanErgebnis["stundenBilanz"] : [];
+  // Best-effort: bei abgeschnittenem JSON versuchen, eine valide Form daraus zu machen.
+  let obj: Record<string, unknown> = {};
+  try {
+    obj = JSON.parse(cleaned) as Record<string, unknown>;
+  } catch {
+    obj = repairTruncatedJson(cleaned);
+  }
+
+  const zuw = (Array.isArray(obj.zuweisungen) ? obj.zuweisungen : [])
+    .filter((z): z is KiPlanZuweisung =>
+      !!z &&
+      typeof (z as KiPlanZuweisung).personId === "string" &&
+      typeof (z as KiPlanZuweisung).datumISO === "string",
+    );
+  const bil = (Array.isArray(obj.stundenBilanz) ? obj.stundenBilanz : [])
+    .filter((b): b is KiPlanErgebnis["stundenBilanz"][number] =>
+      !!b && typeof (b as { personId?: unknown }).personId === "string",
+    );
   const cc = (obj.constraintsCheck ?? {}) as KiPlanErgebnis["constraintsCheck"];
+
   return {
     zuweisungen: zuw,
     stundenBilanz: bil,
@@ -194,8 +216,38 @@ function parsePlan(raw: string): {
       wochenendeFair: cc.wochenendeFair ?? false,
       befunde: Array.isArray(cc.befunde) ? cc.befunde : [],
     },
-    kommentar: typeof obj.kommentar === "string" ? obj.kommentar : "",
+    kommentar: typeof obj.kommentar === "string" ? obj.kommentar : extractKommentar(cleaned),
   };
+}
+
+/**
+ * Repair-Versuch für abgeschnittene JSON-Antworten. Schließt offene Arrays
+ * + Objekte und versucht erneut zu parsen. Liefert leeres Object wenn nichts
+ * zu retten ist.
+ */
+function repairTruncatedJson(raw: string): Record<string, unknown> {
+  let s = raw;
+  // Letzten unvollständigen Eintrag abschneiden bis zum letzten kompletten "}"
+  const lastClose = s.lastIndexOf("}");
+  if (lastClose > 0) s = s.slice(0, lastClose + 1);
+  // Offene Klammern automatisch schließen
+  const open = (s.match(/\{/g) ?? []).length;
+  const close = (s.match(/\}/g) ?? []).length;
+  for (let i = 0; i < open - close; i++) s += "}";
+  const openA = (s.match(/\[/g) ?? []).length;
+  const closeA = (s.match(/\]/g) ?? []).length;
+  for (let i = 0; i < openA - closeA; i++) s += "]";
+  try {
+    return JSON.parse(s) as Record<string, unknown>;
+  } catch {
+    return {};
+  }
+}
+
+function extractKommentar(raw: string): string {
+  // Quick-Regex-Extraktion falls Parser komplett fehlschlägt
+  const m = raw.match(/"kommentar"\s*:\s*"([^"]+)"/);
+  return m?.[1] ?? "Plan konnte nicht vollständig generiert werden — bitte Modell-Output prüfen.";
 }
 
 /**
