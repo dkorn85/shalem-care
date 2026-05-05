@@ -11,6 +11,7 @@
 - Repo: <https://github.com/dkorn85/shalem-care>
 - Demo-Mode: `NEXT_PUBLIC_DEMO_MODE=1` aktiviert Banner + Persona-Switcher (Dropdown mit 12 Rollen)
 - 23 echte Bildgebungs-PNGs (Röntgen/CT/MRT/Sono) im Befunde-Cockpit
+- **NEU: Supabase-DB live** unter `gpchwlqeqejxvynewjns.supabase.co` (Hostinger → Supabase Frankfurt) — 12 Klient:innen + 3 Einrichtungen + 3 Stationen geseedet, RLS-Policies aktiv (anon liest, service_role schreibt). Status-Anzeige `/admin/db-status`.
 
 ---
 
@@ -134,6 +135,8 @@ lib/zuordnung/store.ts              Person→Klient:innen-Caseloads
 lib/nba/module.ts                   NBA Pflegegrad-Begutachtung
 lib/aktivitaet/feed.ts              Event-Stream zwischen Berufen
 lib/inbox/{store,actions}.ts        Cross-Profession-Inbox aus dem Feed
+lib/db/supabase.ts                  REST-Client (PostgREST, fetch-basiert, no SDK)
+lib/klient/db-driver.ts             DB-first Klient-Loader mit Seed-Fallback
 ```
 
 ### UI-Komponenten
@@ -169,9 +172,10 @@ BerufCockpitCard · CrossProfessionInbox · KonferenzLive
 - [ ] **Klartext-Wrapper Spread** — auf Befunde + Wundverlauf + Anamnese-Antworten
 
 ### Priorität B · Phase-2-Vorbereitung
+- [x] ~~**Supabase-DB Klient:innen**~~ — Schema (einrichtungen/stationen/klienten) + RLS + 12 Klient:innen seeded · DB-Driver mit Seed-Fallback · `/admin/db-status` zeigt Quelle live
+- [ ] **Supabase weiter ausrollen** — Personen/Slots/Verordnungen/Wunddoku in DB migrieren (Driver-Pattern wie bei klienten)
 - [ ] **Stripe Connect Treuhand-Modul** (lib/treuhand/store.ts)
 - [ ] **Push-Notifications** (Web-Push VAPID, Service-Worker)
-- [ ] **Medplum-Driver komplett** für alle Stores (Driver-Pattern bereits in swap-store)
 - [ ] **gematik-TI-Konnektor-Stub** für eAU + eRezept
 
 ### Priorität C · weitere Inhalte
@@ -235,5 +239,6 @@ Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn 
 10. **`/netz` Echtzeit-Komplettübersicht als neuronales Netzwerk**
 11. **Cross-Profession-Inbox in 5 Cockpits** (Übernehmen/Erledigt/Delegieren · KPI · Status-Filter)
 12. **Konferenz Live-Mode** (Notizen auto-save · Agenda-Status · Beschluss-Composer · Live-Protokoll)
+13. **Supabase-DB live** — Schema + 12 Klient:innen + DB-Driver mit Seed-Fallback + `/admin/db-status`
 
 Build clean, ready to push. **76 Routen.**
