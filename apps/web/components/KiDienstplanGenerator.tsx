@@ -19,10 +19,19 @@ type Zuweisung = {
   schicht: SchichtTyp;
   startHHMM: string;
   endHHMM: string;
-  dauerH: number;
-  bereich: string;
+  dauerH?: number;
+  bereich?: string;
   begruendung?: string;
 };
+
+function dauerVon(z: Zuweisung): number {
+  if (typeof z.dauerH === "number") return z.dauerH;
+  const [sh, sm] = (z.startHHMM ?? "00:00").split(":").map(Number);
+  const [eh, em] = (z.endHHMM ?? "00:00").split(":").map(Number);
+  let mins = (eh * 60 + em) - (sh * 60 + sm);
+  if (mins <= 0) mins += 24 * 60;  // Nachtschicht über Mitternacht
+  return Math.round((mins / 60) * 10) / 10;
+}
 
 type PlanErgebnis = {
   zeitraum: { jahr: number; monat: number };
@@ -374,15 +383,20 @@ function ZuweisungsListe({
         <li key={personId} className="surface-mute rounded-lg p-3">
           <div className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
             <span className="text-[13px] font-medium">{nameMap.get(personId) ?? personId}</span>
-            <span className="text-[11px] text-soft">{zs.length} Schichten · {zs.reduce((s, z) => s + z.dauerH, 0)} h gesamt</span>
+            <span className="text-[11px] text-soft">{zs.length} Schichten · {Math.round(zs.reduce((s, z) => s + dauerVon(z), 0) * 10) / 10} h gesamt</span>
           </div>
           <div className="flex flex-wrap gap-1.5">
             {zs.map((z, i) => {
               const farbe = SCHICHT_FARBE[z.schicht] ?? "var(--accent)";
+              const tooltip = [
+                z.bereich,
+                `${z.startHHMM}–${z.endHHMM}`,
+                z.begruendung,
+              ].filter(Boolean).join(" · ");
               return (
                 <span
                   key={i}
-                  title={`${z.bereich} · ${z.startHHMM}–${z.endHHMM}${z.begruendung ? ` · ${z.begruendung}` : ""}`}
+                  title={tooltip}
                   className="inline-flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-mono"
                   style={{
                     background: `rgb(${farbe} / 0.15)`,
