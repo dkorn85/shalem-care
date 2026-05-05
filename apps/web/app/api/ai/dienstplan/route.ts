@@ -11,6 +11,14 @@ import { CASELOADS } from "@/lib/zuordnung/store";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
+// Sonnet kann bei vollem Personenkreis (~16) lange brauchen — explizit 60 s erlauben.
+// Hostinger-Proxy bricht ab dieser Marke trotzdem ab; wir kappen den Scope server-seitig
+// (siehe MAX_PERSONS unten), damit der Aufruf typisch unter 30-40 s fertig ist.
+export const maxDuration = 60;
+
+// Server-seitiges Cap: nie mehr als so viele Personen an Claude schicken,
+// sonst sprengt der JSON-Output das Gateway-Timeout.
+const MAX_PERSONS = 8;
 
 const RATE_LIMIT = { max: 10, windowMs: 10 * 60_000 };
 const buckets = new Map<string, { count: number; resetAt: number }>();
@@ -98,7 +106,8 @@ export async function POST(req: NextRequest) {
         sollStunden: sollStundenProMonat(pb.personId),
         praeferenz: cl?.zustaendigkeitsbereich,
       };
-    });
+    })
+    .slice(0, MAX_PERSONS);
 
   const bedarf = body.nurBeruf
     ? DEMO_BEDARFSMUSTER.filter((b) => b.beruf === body.nurBeruf)
