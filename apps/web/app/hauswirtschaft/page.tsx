@@ -1,5 +1,6 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
@@ -38,22 +39,19 @@ export default async function HauswirtschaftPage() {
   const aktiv = await getActivePersona("hwf-001", "hauswirtschaft");
   return (
     <AppShell role="hauswirtschaft" user={userPropsAus(aktiv, { id: "hwf-001", name: "Helmut Brandt", subtitle: "Hauswirtschaftsleitung · staatl. anerkannt", initials: "HB" })} station="Pulmologie 3B">
-      <header className="mb-6">
-        <div className="grid lg:grid-cols-12 gap-6 items-end">
-          <div className="lg:col-span-7">
-            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Hauswirtschaft · Versorgung + Hygiene</p>
-            <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-              Servus, <span className="rainbow-text">Helmut</span>.
-            </h1>
-            <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
-              {SPEISEPLAN_HEUTE.length} Mahlzeiten heute · {ROUTEN.length} Touren geplant · {HACCP_HEUTE.length} Hygiene-Checks dokumentiert.
-            </p>
+      <RolePastelHeader
+        rolle="hauswirtschaft"
+        eyebrow="Hauswirtschaft · Versorgung + Hygiene"
+        titel="Servus, Helmut."
+        loopSrc="/loops/texture-tee.mp4"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/anamnese/header-hauswirt.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
           </div>
-          <div className="lg:col-span-5 relative aspect-[4/3] rounded-2xl overflow-hidden surface">
-            <Image src="/anamnese/header-hauswirt.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" priority />
-          </div>
-        </div>
-      </header>
+        }
+      >
+        {SPEISEPLAN_HEUTE.length} Mahlzeiten heute · {ROUTEN.length} Touren geplant · {HACCP_HEUTE.length} Hygiene-Checks dokumentiert.
+      </RolePastelHeader>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Mahlzeiten"      value={SPEISEPLAN_HEUTE.length}   farbe="var(--sun)" />

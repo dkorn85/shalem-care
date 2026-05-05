@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -47,22 +48,18 @@ export default async function SozialPage() {
       user={userPropsAus(aktiv, { id: "person-sozial-001", name: "Mira Wagner", subtitle: "Sozialarbeiterin BA · DGCC-Case-Managerin", initials: "MW" })}
       station="ASD Pankow"
     >
-      <header className="mb-6">
-        <div className="grid lg:grid-cols-12 gap-6 items-end">
-          <div className="lg:col-span-7">
-            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Soziale Arbeit · Fallübersicht</p>
-            <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-              Servus, <span className="rainbow-text">Mira</span>.
-            </h1>
-            <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
-              {FAELLE.length} aktive Fälle · {akut} mit hoher Priorität · {HILFEPLAN_REVIEWS.length} Hilfeplan-Reviews stehen an.
-            </p>
+      <RolePastelHeader
+        rolle="sozialarbeit"
+        eyebrow="Soziale Arbeit · Fallübersicht"
+        titel="Servus, Mira."
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/anamnese/header-sozial.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
           </div>
-          <div className="lg:col-span-5 relative aspect-[4/3] rounded-2xl overflow-hidden surface">
-            <Image src="/anamnese/header-sozial.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" priority />
-          </div>
-        </div>
-      </header>
+        }
+      >
+        {FAELLE.length} aktive Fälle · {akut} mit hoher Priorität · {HILFEPLAN_REVIEWS.length} Hilfeplan-Reviews stehen an.
+      </RolePastelHeader>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Aktive Fälle"  value={FAELLE.length} farbe="var(--tue)" />

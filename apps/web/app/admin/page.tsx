@@ -1,4 +1,5 @@
 import { AppShell } from "@/components/AppShell";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { StatsRow } from "@/components/StatsRow";
 import { store } from "@/lib/swap-store";
 import { seedOnce, CURRENT_LEAD_ID } from "@/lib/seed";
@@ -63,12 +64,14 @@ export default async function AdminDashboard() {
       }}
       station="Pulmologie 3B"
     >
-      <header className="mb-8">
-        <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-          Hallo, <span className="rainbow-text">{lead.name.split(" ")[0]}</span>.
-        </h1>
-        <p className="text-[14px] text-mute mt-2">Pulmologie 3B · KW 19 · {people.length} Pflegekräfte im Plan</p>
-      </header>
+      <RolePastelHeader
+        rolle="lead"
+        eyebrow="Stationsleitung · Cockpit"
+        titel={`Hallo, ${lead.name.split(" ")[0]}.`}
+        loopSrc="/loops/09_loop_corridor_morning_16x9.mp4"
+      >
+        Pulmologie 3B · KW 19 · {people.length} Pflegekräfte im Plan
+      </RolePastelHeader>
 
       <div className="mb-8">
         <StatsRow

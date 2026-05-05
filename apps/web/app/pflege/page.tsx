@@ -18,6 +18,7 @@ import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { MeineKlienten } from "@/components/MeineKlienten";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { SchichtBriefingClient } from "@/components/SchichtBriefingClient";
+import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
@@ -87,14 +88,14 @@ export default async function PflegeHome() {
       }}
       station={station?.name ?? "Pulmologie 3B"}
     >
-      <header className="mb-6">
-        <h1 className="font-display text-[36px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-          Servus, <span className="rainbow-text">{nurse.name.split(" ")[0]}</span>.
-        </h1>
-        <p className="text-[14px] text-mute mt-2">
-          KW 19 · 4.–10. Mai 2026 · {Math.round(totalHours)} Stunden, davon {nightCount} {nightCount === 1 ? "Nachtschicht" : "Nachtschichten"}.
-        </p>
-      </header>
+      <RolePastelHeader
+        rolle="pflege"
+        eyebrow="Pflege-Cockpit"
+        titel={`Servus, ${nurse.name.split(" ")[0]}.`}
+        loopSrc="/loops/atmo-haende.mp4"
+      >
+        KW 19 · 4.–10. Mai 2026 · {Math.round(totalHours)} Stunden, davon {nightCount} {nightCount === 1 ? "Nachtschicht" : "Nachtschichten"}.
+      </RolePastelHeader>
 
       {activeShift && (
         <Link
