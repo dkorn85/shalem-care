@@ -37,20 +37,25 @@ import { DeepSeekProvider } from "./deepseek";
 import { AnthropicProvider } from "./anthropic";
 import { MockProvider } from "./mock";
 
-export function getAIProvider(): AIProvider {
+export type ProviderOverride = {
+  /** Konkretes Modell pro Aufruf — z.B. "claude-sonnet-4-6" für komplexe Tasks. */
+  modelOverride?: string;
+};
+
+export function getAIProvider(opts: ProviderOverride = {}): AIProvider {
   const provider = (process.env.SHALEM_AI_PROVIDER ?? "auto").toLowerCase();
 
   if (provider === "anthropic" || (provider === "auto" && process.env.ANTHROPIC_API_KEY)) {
     return new AnthropicProvider({
       apiKey: process.env.ANTHROPIC_API_KEY!,
-      model: process.env.SHALEM_AI_MODEL ?? "claude-haiku-4-5-20251001",
+      model: opts.modelOverride ?? process.env.SHALEM_AI_MODEL ?? "claude-haiku-4-5-20251001",
     });
   }
 
   if (provider === "deepseek" || (provider === "auto" && process.env.DEEPSEEK_API_KEY)) {
     return new DeepSeekProvider({
       apiKey: process.env.DEEPSEEK_API_KEY!,
-      model: process.env.SHALEM_AI_MODEL ?? "deepseek-chat",
+      model: opts.modelOverride ?? process.env.SHALEM_AI_MODEL ?? "deepseek-chat",
     });
   }
 

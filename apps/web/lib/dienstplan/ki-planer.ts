@@ -152,7 +152,12 @@ function buildUserPrompt(eingabe: KiPlanerEingabe): string {
 }
 
 export async function generiereMonatsplan(eingabe: KiPlanerEingabe): Promise<KiPlanErgebnis> {
-  const provider = getAIProvider();
+  // Sonnet 4.6 als Default für Dienstplan — Haiku produziert bei dieser
+  // JSON-Komplexität (16 Personen × 7 Tage Beispiel-Rotation) zu oft
+  // gekürztes oder schlecht strukturiertes JSON. Override per ENV möglich.
+  const modelOverride =
+    process.env.SHALEM_DIENSTPLAN_MODEL ?? "claude-sonnet-4-6";
+  const provider = getAIProvider({ modelOverride });
   const messages: AIMessage[] = [
     { role: "system", content: SYSTEM_PROMPT },
     { role: "user", content: buildUserPrompt(eingabe) },
@@ -160,7 +165,7 @@ export async function generiereMonatsplan(eingabe: KiPlanerEingabe): Promise<KiP
 
   const result = await provider.generate(messages, {
     temperature: 0.2,
-    maxTokens: 8000,
+    maxTokens: 16000,
     jsonMode: true,
   });
 

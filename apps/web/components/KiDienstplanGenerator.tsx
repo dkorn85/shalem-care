@@ -4,8 +4,12 @@
 // rendert das Ergebnis als Bilanz-Tabelle + Tagesvergabe-Chip-Zeile.
 //
 // Demo-Charakter: zeigt JSON-Tokens, Kosten, Begründung, Constraint-Check.
+// Schickt einen Zugangs-Key im X-Shalem-Key-Header (Default 31337,
+// gemerkt in localStorage damit der User es nur einmal eingibt).
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
+const KEY_LS = "shalem-dienstplan-key";
 
 type SchichtTyp = "frueh" | "spaet" | "nacht" | "tag" | "geteilter_dienst";
 
@@ -63,17 +67,31 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
   const [monat, setMonat] = useState(defaultMonat);
   const [hinweis, setHinweis] = useState("");
   const [nurBeruf, setNurBeruf] = useState<string>("");
+  const [zugangsKey, setZugangsKey] = useState<string>("");
   const [loading, setLoading] = useState(false);
   const [ergebnis, setErgebnis] = useState<PlanErgebnis | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const stored = window.localStorage.getItem(KEY_LS);
+    if (stored) setZugangsKey(stored);
+  }, []);
 
   async function generieren() {
     setLoading(true);
     setError(null);
     try {
+      // Key persistieren wenn der Aufruf gleich gleich klappt
+      if (typeof window !== "undefined" && zugangsKey) {
+        window.localStorage.setItem(KEY_LS, zugangsKey);
+      }
       const res = await fetch("/api/ai/dienstplan", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "X-Shalem-Key": zugangsKey,
+        },
         body: JSON.stringify({
           jahr,
           monat,
@@ -153,6 +171,24 @@ export function KiDienstplanGenerator({ defaultJahr, defaultMonat }: Props) {
           rows={2}
           className="w-full surface-mute rounded-md px-3 py-2 text-[13px] leading-relaxed resize-y"
         />
+      </label>
+
+      <label className="block mb-4">
+        <span className="text-[10px] uppercase tracking-wider text-soft font-medium block mb-1">
+          Zugangs-Key
+        </span>
+        <input
+          type="password"
+          value={zugangsKey}
+          onChange={(e) => setZugangsKey(e.target.value)}
+          placeholder="erforderlich · einmal eingeben, wird im Browser gespeichert"
+          className="w-full sm:max-w-xs surface-mute rounded-md px-3 py-2 text-[13px] font-mono"
+          autoComplete="off"
+        />
+        <span className="text-[10px] text-mute italic block mt-1">
+          Verhindert Anthropic-Budget-Verbrennung durch zufällige Demo-Besucher:innen.
+          Default in der ENV: <code className="font-mono">SHALEM_DIENSTPLAN_KEY</code>.
+        </span>
       </label>
 
       <div className="flex items-center gap-3 flex-wrap">
