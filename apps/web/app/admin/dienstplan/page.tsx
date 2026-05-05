@@ -116,6 +116,13 @@ export default async function DienstplanPage({
           >
             🧠 KI-Koordinator ({totalFree} frei · {totalSuggested} mit Vorschlag)
           </Link>
+          <Link
+            href="/admin/dienstplan/ki"
+            className="btn text-[13px]"
+            style={{ boxShadow: "inset 0 0 0 1px rgb(var(--accent) / 0.4)", color: "rgb(var(--accent))" }}
+          >
+            ✦ KI-Monatsplan
+          </Link>
           <span className="text-[11px] text-soft">
             KW {iso8601Week(weekStart)} · {weekStart.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })} – {weekEnd.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}
           </span>
