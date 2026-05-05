@@ -29,7 +29,7 @@ const ROLES: Role[] = [
     who: "Dennis Reuter",
     tagline: "Meine Zeit, mein Balance-Akt.",
     portrait: "/portraits/portal-pflege.png",
-    loop: "/loops/portal-pflege.webm",
+    loop: "/loops/portal-pflege.mp4",
     color: "var(--mon)",
   },
   {
@@ -39,7 +39,7 @@ const ROLES: Role[] = [
     who: "Helga Reinhardt",
     tagline: "Volle Transparenz, einfache Sprache.",
     portrait: "/portraits/portal-klient.png",
-    loop: "/loops/portal-klient.webm",
+    loop: "/loops/portal-klient.mp4",
     color: "var(--wed)",
   },
   {
@@ -49,7 +49,7 @@ const ROLES: Role[] = [
     who: "Detektiv Eins",
     tagline: "Ich steuere mein Team mit Fürsorge.",
     portrait: "/portraits/portal-lead.png",
-    loop: "/loops/portal-lead.webm",
+    loop: "/loops/portal-lead.mp4",
     color: "var(--vibe-team)",
   },
   {
@@ -59,7 +59,7 @@ const ROLES: Role[] = [
     who: "Dr. Susanne Hartmann",
     tagline: "Meine ganze Praxis im Blick.",
     portrait: "/portraits/portal-arzt.png",
-    loop: "/loops/portal-arzt.webm",
+    loop: "/loops/portal-arzt.mp4",
     color: "var(--vibe-profile)",
   },
 ];
