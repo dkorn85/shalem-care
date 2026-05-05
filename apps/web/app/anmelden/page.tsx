@@ -3,7 +3,8 @@
 
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { startOAuth, signUpWithEmail } from "@/lib/auth/actions";
+import { startOAuth } from "@/lib/auth/actions";
+import { isNextRedirectError } from "@/lib/auth/redirect-error";
 
 export const metadata = {
   title: "Anmelden · Shalem Care",
@@ -22,6 +23,7 @@ export default async function AnmeldenPage({ searchParams }: { searchParams?: Pr
     try {
       await startOAuth(params.provider);
     } catch (err) {
+      if (isNextRedirectError(err)) throw err;
       const msg = err instanceof Error ? err.message : "OAuth-Start fehlgeschlagen.";
       redirect(`/anmelden?error=${encodeURIComponent(msg)}`);
     }
