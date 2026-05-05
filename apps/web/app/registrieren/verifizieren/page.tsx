@@ -1,24 +1,28 @@
 // /registrieren/verifizieren — rollen-spezifische Echtheits-Prüfung.
 //
 // Nach dem OAuth-Signup landet die Person hier, wählt ihre Rolle, sieht
-// welche Nachweise nötig sind und reicht sie ein. In Phase 1 (jetzt)
-// ist die Prüfung gemockt — Status springt nach 3 Tagen automatisch
-// auf "verifiziert". Phase 2: Admin-Pruefung über Edge Function +
-// echtes Datei-Upload via Supabase Storage.
+// welche Nachweise nötig sind und lädt sie hoch. Files landen im privaten
+// Supabase-Storage-Bucket "verifizierungen", Metadaten in der
+// `verifications`-Tabelle mit Status "eingereicht". Pruefung danach
+// durch Service-Role-Personen über /admin/verifikationen.
 
 import Link from "next/link";
 import { ROLLEN, type RegistrierRolle, type VerifikationsFeld } from "@/lib/auth/rollen";
+import { verifikationFormAction } from "@/lib/auth/verification-upload";
+import { getCurrentUser } from "@/lib/auth/client";
 
 export const metadata = {
   title: "Echtheits-Prüfung · Shalem Care",
   description: "Wähle deine Rolle und reiche die nötigen Nachweise ein.",
 };
 
-type SearchParams = { rolle?: RegistrierRolle };
+type SearchParams = { rolle?: RegistrierRolle; error?: string };
 
 export default async function VerifizierenPage({ searchParams }: { searchParams?: Promise<SearchParams> }) {
   const params = (await searchParams) ?? {};
   const aktiveRolle = params.rolle && ROLLEN[params.rolle] ? params.rolle : null;
+  const errorMsg = params.error;
+  const user = await getCurrentUser();
 
   return (
     <main className="min-h-screen bg-app">
@@ -31,16 +35,33 @@ export default async function VerifizierenPage({ searchParams }: { searchParams?
           </h1>
           <p className="text-[13px] text-mute mt-2 max-w-prose leading-relaxed">
             {aktiveRolle ? (
-              <>{ROLLEN[aktiveRolle].beschreibung} Wir brauchen die folgenden Nachweise — die werden verschlüsselt gespeichert und nur der Prüfung gezeigt.</>
+              <>{ROLLEN[aktiveRolle].beschreibung} Wir brauchen die folgenden Nachweise — die werden verschlüsselt im privaten Storage abgelegt und nur der Prüfungs-Stelle gezeigt.</>
             ) : (
               <>Je nach Rolle ist die Echtheits-Prüfung anders. Pflegekräfte zeigen Examensurkunde + IK, Ärzt:innen LANR + Approbation, Klient:innen brauchen nur ihre Pflegekassen-Nummer (optional).</>
             )}
           </p>
         </header>
 
+        {!user && (
+          <section className="surface rounded-xl p-4" style={{ background: "rgb(var(--mon) / 0.06)" }}>
+            <p className="text-[11px] uppercase tracking-wider mb-1 font-medium" style={{ color: "rgb(var(--mon))" }}>Nicht eingeloggt</p>
+            <p className="text-[13px] leading-relaxed">
+              Du musst erst einen <Link href="/registrieren" className="underline">Account anlegen</Link> oder
+              dich <Link href="/anmelden" className="underline">anmelden</Link>, bevor du Nachweise einreichen kannst.
+            </p>
+          </section>
+        )}
+
+        {errorMsg && (
+          <section className="surface rounded-xl p-4" style={{ background: "rgb(var(--mon) / 0.06)" }}>
+            <p className="text-[11px] uppercase tracking-wider mb-1 font-medium" style={{ color: "rgb(var(--mon))" }}>Fehler</p>
+            <p className="text-[13px] leading-relaxed">{errorMsg}</p>
+          </section>
+        )}
+
         {!aktiveRolle && <RollenAuswahl />}
 
-        {aktiveRolle && <VerifikationsFormular rolle={aktiveRolle} />}
+        {aktiveRolle && <VerifikationsFormular rolle={aktiveRolle} kannEinreichen={!!user} />}
 
         <footer className="text-center text-[11px] text-soft pt-4">
           <Link href="/" className="hover:text-[rgb(var(--fg))]">← Startseite</Link>
@@ -89,24 +110,25 @@ function RollenAuswahl() {
   );
 }
 
-function VerifikationsFormular({ rolle }: { rolle: RegistrierRolle }) {
+function VerifikationsFormular({ rolle, kannEinreichen }: { rolle: RegistrierRolle; kannEinreichen: boolean }) {
   const r = ROLLEN[rolle];
   return (
-    <form action="/registrieren/verifizieren/eingereicht" method="get" className="space-y-5">
+    <form action={verifikationFormAction} encType="multipart/form-data" className="space-y-5">
       <input type="hidden" name="rolle" value={rolle} />
       {r.verifikation.map((feld) => (
         <FeldEingabe key={feld.key} feld={feld} />
       ))}
       <div className="surface rounded-xl p-4" style={{ background: "rgb(var(--accent) / 0.04)" }}>
-        <p className="text-[11px] uppercase tracking-wider mb-1 font-medium" style={{ color: "rgb(var(--accent))" }}>Datenschutz</p>
+        <p className="text-[11px] uppercase tracking-wider mb-1 font-medium" style={{ color: "rgb(var(--accent))" }}>Datenschutz · DSGVO Art. 32 + 17</p>
         <p className="text-[12px] text-mute leading-relaxed">
           Hochgeladene Urkunden werden in einem privaten Supabase-Storage-Bucket abgelegt
-          (verschlüsselt, RLS-geschützt). Nur die Prüfungs-Stelle sieht sie. Nach erfolgreicher
-          Verifikation kannst du Daten oder Konto jederzeit löschen — DSGVO Art. 17.
+          (verschlüsselt at-rest in Frankfurt, RLS-geschützt — niemand außer dir und der
+          Prüfungs-Stelle sieht sie). Nach erfolgreicher Verifikation kannst du Daten oder
+          Konto jederzeit löschen.
         </p>
       </div>
       <div className="flex gap-3 flex-wrap">
-        <button type="submit" className="btn btn-primary text-[13px]">
+        <button type="submit" disabled={!kannEinreichen} className="btn btn-primary text-[13px] disabled:opacity-50">
           Zur Prüfung einreichen →
         </button>
         <Link href="/registrieren/verifizieren" className="btn text-[13px]">
@@ -114,10 +136,10 @@ function VerifikationsFormular({ rolle }: { rolle: RegistrierRolle }) {
         </Link>
       </div>
       <p className="text-[11px] text-soft leading-relaxed">
-        <strong>Demo-Hinweis:</strong> Diese Phase-1-Version speichert <em>noch nichts</em>.
-        Phase 2 schließt den Loop: Datei-Upload via Supabase Storage, Status-Tracking in
-        der <code className="font-mono text-[11px]">verifications</code>-Tabelle, Prüfung
-        durch eine berechtigte Person.
+        <strong>Status-Lifecycle:</strong> nach Submit landet deine Anfrage als <code className="font-mono text-[11px]">eingereicht</code> in der
+        Datenbank. Eine berechtigte Prüfungs-Stelle (Stationsleitung oder Beruf-Verband) sieht sie auf
+        <code className="font-mono text-[11px]"> /admin/verifikationen</code> und setzt den Status auf <em>verifiziert</em> oder <em>abgelehnt</em>. Du bekommst
+        eine Email-Benachrichtigung sobald geprüft.
       </p>
     </form>
   );
