@@ -5,6 +5,9 @@ import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufC
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { MeineKlienten } from "@/components/MeineKlienten";
+import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
+import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
+import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce } from "@/lib/konferenz/store";
 import { seedOnce } from "@/lib/seed";
 
@@ -29,7 +32,11 @@ export const metadata = {
 export default async function SozialPage() {
   seedOnce();
   seedKonferenzOnce();
+  seedAktivitaetOnce();
+  seedInboxOnce();
   const konf = naechsteKonferenzFuerKlient("klient-hr");
+  const sozialInbox = listInbox("sozialarbeit");
+  const sozialInboxKpi = inboxKpi("sozialarbeit");
   const akut = FAELLE.filter((f) => f.prio === 3).length;
   const chronisch = FAELLE.filter((f) => f.prio <= 2).length;
   return (
@@ -61,6 +68,8 @@ export default async function SozialPage() {
         <CockpitKpi label="Stabilisiert"  value={chronisch}     farbe="var(--thu)" />
         <CockpitKpi label="Reviews fällig" value={HILFEPLAN_REVIEWS.length} hint="≤ 14 Tage" farbe="var(--vibe-approval)" />
       </div>
+
+      <CrossProfessionInbox beruf="sozialarbeit" items={sozialInbox} kpi={sozialInboxKpi} zugewiesenAn="Mira Wagner" />
 
       <CockpitSection eyebrow="Fälle" title="Meine Fallliste" count={FAELLE.length}>
         <ul className="space-y-2">

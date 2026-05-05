@@ -1,215 +1,202 @@
 # Shalem Care · Session-Handoff
 
-Stand: 2026-05-05 · für die nächste Session.
+**Stand:** 2026-05-05 · für die nächste Session
+**Branch:** `claude/tender-nightingale-f1bb8b` · 76 Routen · `tsc --noEmit` exit 0 · `next build` exit 0
+
+---
 
 ## Was läuft live
 
 - Demo-Domain: **shalem.de** (Hostinger Node.js, Auto-Deploy via GitHub-Push)
 - Repo: <https://github.com/dkorn85/shalem-care>
-- Build: `tsc --noEmit` exit 0 · `next build` exit 0 · ~45 Routen
-- Demo-Mode: `NEXT_PUBLIC_DEMO_MODE=1` aktiviert Banner + Persona-Switcher
+- Demo-Mode: `NEXT_PUBLIC_DEMO_MODE=1` aktiviert Banner + Persona-Switcher (Dropdown mit 12 Rollen)
+- 23 echte Bildgebungs-PNGs (Röntgen/CT/MRT/Sono) im Befunde-Cockpit
 
 ---
 
-## Vier Rollen, vier Zuhause-Räume
+## Stand der Plattform · Demo-komplett
 
-Jede Rolle hat eine eigene Shell, eigenen Persona-Avatar, eigene Navigation,
-eigene Cockpits. Die Branchen-Konkurrenz (Vivendi, MediFox, medatixx, CGM,
-ePA) ist als Quintessenz integriert — jeweils umgeframed durch das
-Salutogenese-/Balance-Prinzip.
+### Rollen + Cockpits (12)
 
-### 🩺 Pflegekraft — „Meine Zeit, mein Balance-Akt"
-**Routen:** `/`, `/dienst`, `/dienst/[klientId]`, `/profil`, `/profil/krankmeldung`, `/tausch`, `/tausch/anbieten`
+| Rolle | Persona | Route | Sub-Routes |
+|---|---|---|---|
+| 🩺 Pflege | Dennis Reuter (P7) | `/pflege` | `/dienst`, `/tausch`, `/profil`, `/profil/krankmeldung` |
+| 👩‍⚕️ Arzt | Dr. Susanne Hartmann | `/arzt` | `/anfragen`, `/anfragen/[id]`, `/patienten`, `/patient/[id]` |
+| 🤲 Therapie | Sebastian Rauer (Physio/MLD) | `/therapie` | `/heute`, `/patienten`, `/abrechnung` |
+| 📋 Sozialarbeit | Mira Wagner (DGCC-CM) | `/sozial` | `/faelle`, `/hilfeplan`, `/schutz`, `/md-begutachtung` |
+| 🌻 Erziehung | Yvonne Berger | `/erziehung` | `/gruppen`, `/lerngeschichten` |
+| 🤝 Ehrenamt | Rita Schöndorf (Hospiz) | `/ehrenamt` | `/begleitung`, `/protokoll` |
+| 🌱 Heilerziehung | Anika Stein (BTHG) | `/heilerziehung` | — |
+| 🍲 Hauswirtschaft | Helmut Brandt (LMHV) | `/hauswirtschaft` | — |
+| 🗂 Stationsleitung | Detektiv Eins (P9) | `/admin` | `/dienstplan`, `/disposition`, `/team`, `/team/[id]`, `/erloes`, `/zahlungen`, `/auswertung`, `/aktivitaet`, `/dokumentation`, `/genehmigungen` |
+| 💶 Krankenkasse | Sandra Lehmann (AOK) | `/kasse` | `/abrechnung`, `/vorgang/[id]` |
+| 🌿 Klient:in | Helga Reinhardt (PG 3, 78 J.) | `/klient` | `/akte`, `/akte/befunde`, `/akte/wunde`, `/akte/anamnese`, `/akte/behandlung`, `/begleiter`, `/notizen`, `/buchen`, `/anfrage`, `/bewertung` |
+| 🏛 Genossenschaft | öffentliche Sicht | `/genossenschaft` | `/beitreten` |
 
-**Quintessenz aus Vivendi/MediFox/Senso integriert:**
-- SIS-Strukturmodell mit 6 Themenfeldern, Risikomarkern, Berichteblatt
-- Komplette Medikamentenliste mit BtM/PRISCUS, Vergabe pro Tageszeit
-- Bilanzierung (Trink/Ess/Vitalwerte) mit Tages-Soll-Anzeige
-- Wundverlauf mit Verbandwechsel-Doku
+### Cross-Profession-Layer
 
-**Was wir hinzugefügt haben (umgeframed):**
-- Burnout-Radar mit Auto-Vergütungserhöhung wenn keine Vertretung gefunden wird
-- Schicht-Chat mit KI-Coach + Doku-Stream
-- Krankmeldung mit Tele-AU-Stub + Auto-Vertretungs-Bonus 15-30 %
-- KI-Schichtbriefing über alle Klienten der Station
-- Therapie-Vorschläge mit Cochrane/AWMF/DNQP-Quellen + Komplementärmedizin (Kneipp, Aromatherapie, TCM, TIM)
+- **`/netz`** — Komplettübersicht als neuronales Netz mit Echtzeit-Synapsen, Pulse-Animation auf aktiven Edges, Live-Aktivitätsfeed (auto-refresh 30 s)
+- **`/konferenz/[id]`** — interdisziplinäre Fall-/Hilfeplan-Konferenz mit Pre-Reads pro Beruf
+- **`/klient/begleiter`** — Klient sieht alle 8 Begleiter:innen + Konferenz-Slot
+- **`AndereBegleiter`** + **`MeineKlienten`** Komponenten in 4–5 Cockpits eingebaut
+- **NEU: `CrossProfessionInbox`** — pro Beruf abarbeitbare Inbox aus Aktivitäts-Feed-Events mit `zielBeruf`. Status: offen / in Arbeit / erledigt. Quick-Actions: Übernehmen · Erledigt · Delegieren an anderen Beruf. Eingebaut in `/arzt`, `/pflege`, `/therapie`, `/sozial`, `/admin`. KPI-Tiles oben (offen, in Arbeit, heute fertig, akut).
 
-### 🌿 Klient:in — „Volle Transparenz, einfache Sprache"
-**Routen:** `/klient`, `/klient/akte` (★ neu), `/klient/anfrage`, `/klient/bewertung`
+---
 
-**Quintessenz aus ePA, Vivy, Doctolib:**
-- Komplette Akteneinsicht: alle Doku-Einträge, Diagnosen, Verordnungen
-- Medikamentenplan mit Wirkungs-Erklärungen
-- Termine, Anfragen, Wundverlauf
-- Bewertungen anonym
+## Datenmodell · 20 Klient:innen über 7 Stationen
 
-**Was wir hinzugefügt haben:**
-- **Klartext-Komponente** (`<Klartext>`): Fachbegriffe sind unterstrichen,
-  Klick zeigt Erklärung im Tooltip — `lib/klartext/glossar.ts` mit ~45 Einträgen
-  (Diagnosen, Wirkstoffe, Untersuchungen, Skalen, Doku-Begriffe).
-- **Salutogenese-Balance-Check**: Antonovsky-Kohärenzgefühl + SHALEM-Elemente,
-  mit Verlaufs-Sparkline und Gibt-Kraft / Zehrt-Kraft-Eingabe.
-- **Lebensziele**: Klient formuliert in eigenen Worten („Ich möchte bis zum
-  Garten laufen können"), Pflege passt Maßnahmen an die Ziele an, nicht umgekehrt.
-- **Verordnungs-Anfragen direkt vom Klient an den Arzt**: 8 Kategorien
-  (Medikament, Heilmittel, HKP, Hilfsmittel, Psychotherapie, Überweisung, AU).
-- **Risiko-Erklärungen in Klartext**: jeder Risikomarker wird in Alltagssprache
-  übersetzt („Sturzgefahr → wir achten auf Schuhwerk und üben Bewegung gemeinsam").
+| Pflegeheim | Klient:innen | PG |
+|---|---|---|
+| St. Lukas Bochum WB-A | Helga · Wilhelm · Elfriede · Otto · Gertrud | 3/4/5/4/5 |
+| St. Lukas Bochum WB-B | Peter · Alma | 3/4 |
+| Prenzl-Berg Berlin | Reinhardt · Ingrid · Volker · Margot | 2/3/3/4 |
+| Augsburg ambulant | Friedrich · Maria · Hannelore · Rolf | 2/4/3/2 |
+| München-Nord Geri | Konrad · Edith · Josef | 4/4/5 |
+| Charité Pädiatrie | Jonas (10 J.) | 3 |
+| Klinikum Essen | Bertha | 3 |
 
-### 📋 Stationsleitung — „Ich steuere mein Team mit Fürsorge"
-**Routen:** `/admin`, `/admin/dienstplan`, `/admin/dienstplan/import`, `/admin/dienstplan/koordinator`, `/admin/dokumentation`, `/admin/erloes`, `/admin/disposition`, `/admin/genehmigungen`, `/admin/team`, `/admin/zahlungen`, `/admin/auswertung`, `/admin/aktivitaet`
+### Care-Team-Zuordnung (`lib/zuordnung/store.ts`)
 
-**Quintessenz aus Vivendi PEP, Hera Cloud, aidminutes:**
-- Editierbarer Dienstplan mit Klick-zum-Anlegen/Tausch/Löschen
-- KI-Disposition mit erklärbaren Match-Scores
-- Stations-Wirtschaftlichkeit (Erlös/Personalkosten/Deckungsbeitrag)
-- ArbZG-Validierung im Hintergrund
-- Genehmigungs-Workflow
+16 Caseloads über 8 Berufsgruppen — jede Persona hat einen klaren `klientIds[]` und `zustaendigkeitsbereich`.
 
-**Was wir hinzugefügt haben:**
-- **Träger-Roster-Import**: Krankenhäuser laden CSV/JSON ihrer freien Schichten,
-  werden über genossenschaftlichen Pool besetzt.
-- **Cross-Einrichtungs-KI-Koordinator**: alle freien Slots mit Top-3-Vorschlägen
-  + harten Constraints (ArbZG, Qualifikation), Greedy-Konfliktlösung.
-- **Compliance-Cockpit**: Burnout-kritische Mitarbeiter werden auf Admin-Home
-  prominent angezeigt — Fürsorge wird sichtbar.
-- **Erlös pro Kostenträger**: SGB XI/V/IX/VIII/XII + KiBiZ getrennt aufgeschlüsselt.
+---
 
-### 👩‍⚕️ Arzt:Ärztin — „Meine ganze Praxis im Blick"
-**Routen:** `/arzt`, `/arzt/anfragen`, `/arzt/anfragen/[id]`, `/arzt/patienten`, `/arzt/patient/[id]`
+## Fachliche Tiefe (was an Logik drin ist)
 
-**Quintessenz aus medatixx, CGM, T2med, x.isynet:**
-- Praxis-Cockpit mit Quartals-Schein-Stand + Abrechnungs-KPI
-- Tagesplan mit Patient-Slots, Video-Terminen
-- ICD-10-GM-Schnellsuche (~40 häufigste Codes)
-- Karteikarte je Patient mit Verordnungs-Historie
-- eRezept-Code-Generierung
+- **NBA-Modul** vollständig (`lib/nba/module.ts`) — 27 Items × 6 Module × BMG-Gewichtung. Helga 53.7 Pkt → PG 4
+- **Wundverlauf** mit DNQP-Standard, EPUAP-Klassifikation. Sakraldekubitus 12.6 → 2.8 cm² in Heilung
+- **AU-Kaskade** Phase 1 (§ 3 EFZG · § 44 SGB V · § 145 SGB III · BEM-Trigger)
+- **Tibetische Medizin** mit 3 Säften (rLung/Tripa/Beken) + 10 Schulmed↔Tibet-Mappings
+- **Anamnese-Schemas** für alle 8 Berufsgruppen (SIS, ICF, BTHG, KitaG-konform)
+- **Genossenschaft** mit 11 Mitgliedern, 87 Anteilen, 8.700 € Einlage, simulierter Q1-Ausschüttung
+- **Self-Booker** PG ≥ 2 mit transparenten Marktpreisen + 84 % Pflegekraft-Anteil
+- **Konferenz-Modul** mit 6 Typen, Pre-Reads, Agenda, Beschluss-Tracking
 
-**Was wir hinzugefügt haben:**
-- **Verordnungs-Anfragen-Inbox**: Pflege + Klient stellen direkt Anfrage,
-  Arzt entscheidet mit klinischem Kontext (Risiken, Verordnungen, Doku) —
-  Verordnung fließt automatisch in die Klientenakte.
-- **Klinischer Kontext sichtbar bei jeder Anfrage**: aktive Risiken, letzte
-  Doku-Einträge, aktive Verordnungen, BtM/PRISCUS-Marker.
+### Bildgebung-Assets (23 PNGs)
 
-### 💶 Krankenkasse — „Eingangskorb statt Aktenstapel"
-**Routen:** `/kasse`, `/kasse/vorgang/[id]`, `/kasse/abrechnung`
+Alle unter `apps/web/public/befunde/demo/`:
+- Wirbelsäule: LWS · BWS · HWS in lateral/AP/sagittal/axial
+- Schädel: CT axial/coronar · MRT axial/sagittal/coronar
+- Thorax: AP + lateral
+- Knie: MRT sag + cor
+- Carotiden: Sono links + rechts
 
-**Quintessenz aus GKV-Verwaltungs-Software (TKK Online, AOK Plus, ProKlin):**
-- Eingangskorb mit Status-Filter (eingegangen / in Prüfung / Rückfrage / genehmigt / abgelehnt)
-- Vorgangs-Detail mit 4-Klick-Entscheidung
-- Datenträgeraustausch (DTA) als CSV nach SGB XI Anlage 5 / SGB V § 302
-- IK-Nummern + Versicherungsnummern (Demo)
+ImagingGallery zeigt sie automatisch via `existsSync` — Fallback SVG-Anatomie wenn Datei fehlt.
+
+---
+
+## Geld-Kalkulation
+
+**TVöD-P 2026** (lib/tariff.ts): P7 22,50 € · P8 24,10 € · P9 26,30 € · P10 28,70 €
+
+**Plattform-Cut Genossenschaft:** 4 % statt 30–50 % bei Honorar-Verleihern. Davon 2 % Betrieb · 1 % Rücklage · 1 % Quartals-Ausschüttung.
+
+**Self-Booker-Anteile:** Pflegekraft 82–86 % · Plattform 4 % · Pflegekassen-Direktabrechnung über DTA SGB XI Anlage 5.
+
+**`/admin/team`** zeigt für alle Pflegekräfte: Stundensatz · Wochenstunden · Std/Mo · Brutto/Mo · Caseload · ArbZG-Status, plus Summary-KPI-Bar.
+
+---
+
+## Echtzeit-Layer
+
+**`lib/aktivitaet/feed.ts`** — 16 Event-Typen, 28 Demo-Events seeded über 24 h.
+
+**`/netz`** rendert das Genossenschafts-Netz als animiertes SVG:
+- 9 Knoten (8 Berufe + Klient zentral, Lead unten)
+- 16 Basis-Edges
+- Pulse-Animation auf aktiven Edges (Events letzte 5 Min)
+- Aktivitäts-Feed daneben mit Live-Stream
+- Caseload-Matrix
+- 12-Cockpit-Schnellzugang
 
 ---
 
 ## Architektur-Map
 
-### Server-State (alles in-memory, Phase 2 → FHIR/Medplum)
+### Stores
+
 ```
-lib/swap-store-memory.ts    Slots, Personen, Tausch-Offers
-lib/doku/doku-store.ts       SIS-Doku-Einträge
-lib/medikation/store.ts      Verordnungen + Vergaben
-lib/abrechnung/store.ts      Erbrachte Leistungsmodule
-lib/krankmeldung/store.ts    Krankmeldungen + Arzttermine
-lib/verordnung/store.ts      Anfragen Pflege/Klient → Arzt
-lib/dispo/store.ts           Roster-Imports + Audit-Log
-lib/kostentraeger/store.ts   Kassen-Vorgänge
-lib/salutogenese/store.ts    Balance-Checks
-lib/selbstbestimmung/store.ts Lebensziele + Wunschpflegekraft
-lib/bilanz/store.ts          Tagesbilanz Trink/Ess/Vitalwerte
-lib/chat/store.ts            Schicht-Chat-Nachrichten
+lib/au-cascade/phases.ts            AU→KG→ALG-Phasen (rein funktional)
+lib/bem/store.ts                    § 167 II SGB IX Workflow
+lib/wiedereingliederung/store.ts    § 74 SGB V Hamburger Modell
+lib/agentur/arbeit-api.ts           ALG 1 + Nahtlosigkeit + DRV-Reha-Stub
+lib/fortbildung/{katalog,store}.ts  25 Module über 8 Berufsgruppen
+lib/befund/{types,store}.ts         Imaging/Labor/Gangbild/Wirbelsäule
+lib/tibetisch/lehre.ts              Sowa-Rigpa-Lehre + Deutungs-Katalog
+lib/anamnese/schemas.ts             8 Berufs-Schemas
+lib/wunde/{types,store}.ts          DNQP-konforme Wunddoku
+lib/genossenschaft/store.ts         Anteile + Mitglieder + Plattform-Bilanz
+lib/selfbooker/store.ts             Self-Buchung mit transparenten Marktpreisen
+lib/team-um-klient/store.ts         CareTeam-Map (Helga-Universum)
+lib/konferenz/store.ts              Fallkonferenz mit Pre-Reads + Agenda
+lib/zuordnung/store.ts              Person→Klient:innen-Caseloads
+lib/nba/module.ts                   NBA Pflegegrad-Begutachtung
+lib/aktivitaet/feed.ts              Event-Stream zwischen Berufen
+lib/inbox/{store,actions}.ts        Cross-Profession-Inbox aus dem Feed
 ```
 
-### KI-Layer
+### UI-Komponenten
+
 ```
-lib/ai/provider.ts           Provider-Abstraktion (DeepSeek + Mock)
-lib/ai/doku-ai.ts            SIS-strukturierte Doku-Vorschläge
-lib/ai/schichtbriefing.ts    Stations-Briefing für Schicht-Start
-lib/ai/therapie-vorschlaege.ts Individualisierung von Standards
-lib/ai/chat-coach.ts         Schicht-Chat-Suggestions
+RolePortal · PersonaSwitcher · SpineDiagram · LabTable · ImagingGallery
+GaitAnalysis · DualeDeutung · AnamneseFormular · WundverlaufDoku
+AUKaskade · BemCard · WiedereingliederungCard · KonferenzCard
+AndereBegleiter · MeineKlienten · Berufsnetz · AktivitaetsFeed
+BerufCockpitCard · CrossProfessionInbox
 ```
 
-### Wissensbasis
-```
-lib/therapie/studien.ts      9 evidenzbasierte Briefs mit Cochrane/AWMF/DNQP-Quellen
-lib/therapie/alternativ.ts   16 komplementäre Methoden (Kneipp, TCM, TIM, Aromatherapie)
-lib/heilkunst/hausmittel.ts  25 Hausmittel-Anwendungen aus Hausmittelrunde 3.0
-lib/heilkunst/philosophie.ts 13 Kapitel des Pflege-Handbuchs (Salutogenese, Mind-Body)
-lib/medikation/katalog.ts    ~35 deutsche Wirkstoffe mit ATC, PZN, BtM, PRISCUS
-lib/abrechnung/module.ts     ~35 Leistungsmodule über 10 Kostenträger
-lib/klartext/glossar.ts      ~45 medizinische Begriffe in Alltagssprache
-lib/arzt/icd10.ts            ~40 häufigste ICD-10-Codes (Hausarzt + Geriatrie)
-```
+---
 
-### Domain-Logic-Engines
-```
-lib/match/                   Kandidat-Slot-Matching mit erklärbaren Scores
-lib/dispo/coordinator.ts     Multi-Slot-Disposition mit Greedy-Konfliktlösung
-lib/burnout/risk.ts          Risiko-Score 0-100 mit Trigger-Liste + Auto-Bonus
-lib/krankmeldung/auto-replacement.ts Vertretungs-Bonus 15-45 % je Schicht
-lib/erloes/erloes.ts         Pflegegrad-Pauschale + Modul-Erlöse pro Kostenträger
-lib/kostentraeger/dta.ts     DTA-CSV-Export (SGB-konform)
-lib/dispo/parser.ts          CSV/JSON-Parser für Träger-Roster (DE/EN-tolerant)
-```
+## Asset-Briefe (in `docs/`)
 
-### UI-Shells
-```
-components/AppShell.tsx      Pflege/Lead/Arzt (sidebar + bottom-nav, mit Persona-Switcher)
-components/KlientShell.tsx   Klient (eigener Header mit Avatar + Klient-Bezug)
-components/KasseShell.tsx    Kostenträger (Tabs für Eingangskorb / Abrechnung)
-```
-
-### Avatare & Branding
-```
-public/klienten/  klient-{hr,wb,eg,rk,im,fl,mc,ko}.png  Greenscreen-keyed
-public/people/    person-{dr,ls,as-005,arzt-001,arzt-002,tg-lead}.png
-public/og/        arzt.png · dienst.png · erloes.png · krankmeldung.png
-public/loops/     loop-persona-{pflegekraft,klient,arzt}.mp4
-public/icon-maskable.png  PWA-Icon
-```
+| Brief | Status |
+|---|---|
+| ASSETS_FLOWSTATE.md (Block 1–6) | ✓ ausgeliefert |
+| ASSETS_BEFUNDE.md (Block 7–11) | ✓ ausgeliefert |
+| ASSETS_IMAGING.md (Block 12) | ✓ 23 Dateien ausgeliefert |
+| PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
+| ROADMAP_NEXT.md | 14 Inhalts-Themen mit Priorisierung |
 
 ---
 
 ## Was als nächstes ansteht
 
-### Priorität A · Demo-Schliff
-- [ ] **Dispo-Disposition-Page** (`/admin/disposition`) mit dem Coordinator wiederbeleben — der nutzt noch die alte runMatchEngine-Pfade
-- [ ] **Wundverlauf mit Foto-Doku** — bisher nur in der SIS-Doku als Text
-- [ ] **Lead-Burnout-Detail-Drilldown**: Klick auf kritischen Mitarbeiter → seine Schicht-Historie
-- [ ] **Klartext überall**: `<Klartext>`-Wrapper in mehr Doku-Texten verwenden (aktuell nur Klient-Akte)
+### Priorität A · Demo-Story-Tiefe
+- [ ] **Konferenz live-mode** — während der Konferenz Beschlüsse erfassen, Notizen live mitschreiben
+- [x] ~~**Cross-Profession-Inbox**~~ — eingebaut in 5 Cockpits (Arzt, Pflege, Therapie, Sozial, Lead) mit Übernehmen/Erledigt/Delegieren-Aktionen
+- [ ] **Demo-Tour-Update** — Lead-Loop fehlt noch (`loop-persona-lead.mp4`)
+- [ ] **Klartext-Wrapper Spread** — auf Befunde + Wundverlauf + Anamnese-Antworten
 
-### Priorität B · Genossenschafts-Logik
-- [ ] **Genossenschaftsanteile-Page** (`/genossenschaft`): pro Person sichtbar wie viel Anteil sie hat, Auszahlungs-Historie
-- [ ] **Plattform-Ausschüttung**: 4 % Plattform-Cut → wie wird er auf die Mitglieder verteilt?
-- [ ] **Self-Booker-Workflow**: PG ≥ 2 Klient bucht direkt aus dem Pool, Marktpreise transparent
+### Priorität B · Phase-2-Vorbereitung
+- [ ] **Stripe Connect Treuhand-Modul** (lib/treuhand/store.ts)
+- [ ] **Push-Notifications** (Web-Push VAPID, Service-Worker)
+- [ ] **Medplum-Driver komplett** für alle Stores (Driver-Pattern bereits in swap-store)
+- [ ] **gematik-TI-Konnektor-Stub** für eAU + eRezept
 
-### Priorität C · echte Schnittstellen (Phase 2)
-- [ ] **gematik TI-Konnektor**: eAU + eRezept echt versenden
-- [ ] **Medplum-Driver**: SHALEM_STORE=medplum mit echtem FHIR-Backend
-- [ ] **Stripe Connect**: Auszahlungen an Genossenschaftsmitglieder
-- [ ] **Keycloak-Auth**: HBA/eGK-fähig, Mandanten-Trennung
-- [ ] **Push-Notifications**: Web-Push für aktive Schicht / Vertretungs-Anfrage
+### Priorität C · weitere Inhalte
+- [ ] **Notfall-Modul** (`/notfall`) — Klient-Notruf-Knopf + Eskalations-Kette
+- [ ] **i18n vervollständigen** — neue Berufe + Befunde-Akte EN
+- [ ] **Marketing-Page `/warum`** — Differenzierung zu Honorar-Verleihern
+- [ ] **Hauswirtschaft + Heilerziehung Sub-Routes**
 
-### Priorität D · weitere Berufe
-- [ ] **Therapeut-Eigenshell** (Heilmittelerbringer): Verordnungs-Annahme, Behandlungsplan, Heilmittelposition-Abrechnung
-- [ ] **Sozialarbeit-Eigenshell** mit Hilfeplan SGB VIII / SGB IX
-- [ ] **Erziehung/Kita-Sicht** mit Bildungs- und Lerngeschichten
-- [ ] **Ehrenamt-Sicht**: Aufwandsentschädigung, Begleitprotokoll
+### Priorität D · Eye-Candy
+- [ ] **Akte-Atmo-Loops** wirklich einbauen (`atmo-puls/atem/ganzheit.mp4` aus Block 11)
+- [ ] **Tibetisch-Inline-Illustrationen** auf Befunde-Page
 
 ---
 
-## Bekannte Limitierungen
+## Reset-Anleitung
 
-1. **In-Memory-State**: Bei Server-Neustart sind alle Demo-Daten weg. Seeds laufen automatisch wieder, aber User-Eingaben (neue Doku, neue Verordnungen, neue Balance-Checks) gehen verloren.
+```powershell
+Set-Location 'C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care'
+git pull
+Set-Location 'apps/web'
+npm install --include=dev
+npm run build      # → apps/web/.next/standalone/apps/web/server.js
+npm start          # localhost:3000
+```
 
-2. **Mock-KI-Provider**: Ohne `DEEPSEEK_API_KEY` läuft alles im Mock-Modus mit deterministischen Antworten. Funktional, aber nicht beeindruckend.
-
-3. **Avatar-Set unvollständig**: Nur 8 Klient + 6 Person-Avatare. Alle anderen Personen fallen auf Initialen-Bubbles. Asset-Brief in `docs/ASSETS_NEEDED.md`.
-
-4. **Demo-Tour**: 3 Persona-Loop-Videos sichtbar, Lead fehlt noch.
-
-5. **i18n teil-übersetzt**: Kernflächen DE/EN, viele Detail-Strings nur DE.
+Hostinger zieht bei `git push origin main` automatisch den neuen Stand.
 
 ---
 
@@ -217,35 +204,34 @@ public/icon-maskable.png  PWA-Icon
 
 | Rolle | Login | Name | Persona-ID |
 |---|---|---|---|
-| Pflegekraft | `/` | Dennis Reuter | `person-dr` |
-| Klient:in | `/klient` | Helga Reinhardt (PG 3, Demenz mittel) | `klient-hr` |
-| Stationsleitung | `/admin` | Detektiv Eins | `person-de1` |
+| Pflegekraft | `/pflege` | Dennis Reuter | `person-dr` |
 | Arzt | `/arzt` | Dr. Susanne Hartmann | `person-arzt-001` |
+| Therapie | `/therapie` | Sebastian Rauer | `person-therapeut-001` |
+| Sozialarbeit | `/sozial` | Mira Wagner | `person-sozial-001` |
+| Erziehung | `/erziehung` | Yvonne Berger | `erzieher-001` |
+| Ehrenamt | `/ehrenamt` | Rita Schöndorf | `person-ehrenamt-001` |
+| Heilerziehung | `/heilerziehung` | Anika Stein | `person-as-005` |
+| Hauswirtschaft | `/hauswirtschaft` | Helmut Brandt | `hwf-001` |
+| Stationsleitung | `/admin` | Detektiv Eins | `person-de1` |
 | Krankenkasse | `/kasse` | Sandra Lehmann (AOK Nordost, IK 100000031) | — |
+| Klient:in | `/klient` | Helga Reinhardt (PG 3) | `klient-hr` |
 
-Wechsel zwischen Rollen während Live-Demo: **Persona-Switcher** im Header (sichtbar wenn `NEXT_PUBLIC_DEMO_MODE=1`).
-
----
-
-## Reset-Anleitung
-
-```bash
-cd C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care
-git pull
-npm run build      # ergibt apps/web/.next/standalone/apps/web/server.js
-npm start          # localhost:3000
-```
-
-Hostinger zieht bei `git push` automatisch den neuen Stand.
+Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn `NEXT_PUBLIC_DEMO_MODE=1`).
 
 ---
 
-## Diese Session in 5 Punkten
+## Diese Session-Schichten (chronologisch)
 
-1. Avatare bekamen Greenscreen-Keying (~440k Pixel transparent pro Bild) — sehen jetzt clean ohne weiße/grüne Hintergründe aus.
-2. Kostenträger-Portal `/kasse` mit Eingangskorb, Vorgangs-Entscheidung, DTA-Export — komplett eigene Träger-Sicht.
-3. Klient-Akte `/klient/akte` mit voller Transparenz und `<Klartext>`-Komponente: Fachbegriffe sind unterstrichen und per Klick erklärt — `lib/klartext/glossar.ts` mit ~45 Einträgen.
-4. Berufs-Cockpits in der Quintessenz der jeweiligen Branchen-Software: Pflege bekommt Bilanzierung (Vivendi/MediFox), Arzt bekommt Praxis-Cockpit mit Quartal-KPI + ICD-10-Suche (medatixx/CGM), Lead bekommt Wirtschaftlichkeits- und Compliance-Cockpit (Vivendi PEP).
-5. Salutogenese-Balance-Check und Patient-Selbstbestimmungs-Lebensziele wurden in Pflege- und Klient-Sicht beidseitig integriert — der Klient setzt eigene Worte, die Pflegekraft hört zu und passt Maßnahmen an.
+1. RolePortal-Welcome-Page mit dynamischer Rollenwahl
+2. AU-Kaskade + BEM + Wiedereingliederung + Fortbildung-Modul
+3. Bildgebung-Akte mit Tibetisch-Deutung
+4. 4 Berufs-Cockpits (Therapie/Sozial/Erziehung/Ehrenamt) + 10 Sub-Routes
+5. Konferenz-Modul + Hauswirtschaft + Heilerziehung Cockpits
+6. MD-Begutachtungs-Workflow (NBA) + Klient-Notiztafel + Beitritts-Wizard
+7. 5 weitere Klient:innen mit voller Bildgebung + anatomische SVG
+8. 23 echte Imaging-PNGs aus Asset-Pipeline
+9. **20 Klient:innen-Roster + Care-Team-Mapping + MeineKlienten**
+10. **`/netz` Echtzeit-Komplettübersicht als neuronales Netzwerk**
+11. **Cross-Profession-Inbox in 5 Cockpits** (Übernehmen/Erledigt/Delegieren · KPI · Status-Filter)
 
-Build clean, ready to push.
+Build clean, ready to push. **76 Routen.**
