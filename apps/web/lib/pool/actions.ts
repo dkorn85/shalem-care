@@ -1,7 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { bewerbeAuf, type PoolBewerbung } from "./store";
+import { bewerbeAuf, setBewerbungStatus, type PoolBewerbung } from "./store";
 
 type R<T = unknown> = ({ ok: true } & (unknown extends T ? unknown : T)) | { ok: false; error: string };
 
@@ -18,5 +18,16 @@ export async function bewerbe(
   const b = bewerbeAuf(personId, personName, stelleId, motivationClean);
   if (!b) return { ok: false, error: "Stelle nicht offen oder nicht gefunden." };
   revalidatePath("/genossenschaft/pool");
+  return { ok: true, bewerbung: b };
+}
+
+export async function setzeBewerbungStatus(
+  bewerbungId: string,
+  status: PoolBewerbung["status"],
+): Promise<R<{ bewerbung: PoolBewerbung }>> {
+  const b = setBewerbungStatus(bewerbungId, status);
+  if (!b) return { ok: false, error: "Bewerbung nicht gefunden." };
+  revalidatePath("/genossenschaft/pool");
+  revalidatePath("/admin");
   return { ok: true, bewerbung: b };
 }

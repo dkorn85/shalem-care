@@ -19,7 +19,7 @@ import { BulletList } from "@/components/BulletList";
 import { RainbowText } from "@/components/Rainbow";
 import { PoolBewerbungForm } from "@/components/PoolBewerbungForm";
 import {
-  listStellen, listBedarfe, poolKpis, seedPoolOnce,
+  listStellen, listBedarfe, poolKpis, seedPoolOnce, findeBewerbung,
   type StellenTyp,
 } from "@/lib/pool/store";
 import { CURRENT_USER_ID, seedOnce } from "@/lib/seed";
@@ -158,6 +158,7 @@ export default async function PoolPage() {
                         personName={nurse?.name ?? "Demo"}
                         stelleId={s.id}
                         stelleTitel={s.titel}
+                        bestehende={findeBewerbung(nurse?.id ?? "demo", s.id)}
                       />
                     </div>
                   </div>
