@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
@@ -33,6 +34,12 @@ export default function BegleitungPage() {
         eyebrow="Würde-Begleitung · Berührung in den letzten Lebensphasen"
         titel="Servus, Marlene."
         loopSrc="/loops/atmo-haende.mp4"
+        patternSrc="/patterns/lavender-still.png"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/akte/header-begleitung.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
+          </div>
+        }
       >
         {BEGLEITUNGEN.length} aktive Begleitungen · {ANGEFRAGT.length} Anfragen offen.
         Jeder Auftrag mit dokumentierter Einwilligung der Klient:in oder gesetzlichen Betreuung.

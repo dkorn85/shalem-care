@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
@@ -5,6 +6,11 @@ import { RolePastelHeader } from "@/components/RolePastelHeader";
 export const metadata = {
   title: "Apotheke · Bestellung + Verwaltung",
   description: "Cockpit für angeschlossene Apotheken — eRezept-Eingang, Bestellungen, Wareneingang, Lieferstatus.",
+  openGraph: {
+    title: "Apotheke · Shalem Care",
+    description: "eRezept-Eingang via TI · Bestellungen · Lager-Mindestbestand-Alarm.",
+    images: [{ url: "/og/apotheke.png", width: 1200, height: 630, alt: "Shalem Apotheke" }],
+  },
 };
 
 const E_REZEPTE_OFFEN = [
@@ -48,6 +54,12 @@ export default function ApothekePage() {
         eyebrow="Apotheke · Versorgung Pflegeheime + ambulante Touren"
         titel="Servus, Lukas."
         loopSrc="/loops/texture-licht.mp4"
+        patternSrc="/patterns/amber-glass.png"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/akte/header-apotheke.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
+          </div>
+        }
       >
         {E_REZEPTE_OFFEN.length} eRezepte heute · {BESTELLUNGEN.filter((b) => b.status !== "geliefert").length} offene Bestellungen · {LAGER_TIEF.length} Artikel unter Mindestbestand.
       </RolePastelHeader>

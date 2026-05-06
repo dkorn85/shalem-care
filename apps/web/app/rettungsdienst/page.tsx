@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
@@ -47,7 +48,13 @@ export default function RettungsdienstPage() {
         rolle="rettungsdienst"
         eyebrow="Rettungsdienst · Disposition + Einsatz-Cockpit"
         titel="Servus, Sven."
-        loopSrc="/loops/notfall-puls.mp4"
+        loopSrc="/loops/atmo-rettung.mp4"
+        patternSrc="/patterns/dawn-mist.png"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/akte/header-rettung.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
+          </div>
+        }
       >
         {EINSAETZE_HEUTE.length} Einsätze heute · {FAHRZEUGE.filter((f) => f.status === "im_einsatz" || f.status === "ankunft_klinik").length}/{FAHRZEUGE.length} Fahrzeuge im Einsatz · {ANFORDERUNGEN_OFFEN.length} Anforderungen offen.
       </RolePastelHeader>
