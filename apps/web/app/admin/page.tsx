@@ -12,6 +12,7 @@ import { getActivePersona } from "@/lib/auth/active-user";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
+import { listOffeneClaims, topfKpis, seedSolidarTopfOnce } from "@/lib/solidartopf/store";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
@@ -20,6 +21,9 @@ export default async function AdminDashboard() {
   seedOnce();
   seedAktivitaetOnce();
   seedInboxOnce();
+  seedSolidarTopfOnce();
+  const offeneClaims = listOffeneClaims();
+  const solidarKpi = topfKpis();
   const aktiv = await getActivePersona(CURRENT_LEAD_ID, "lead");
   const leadId = aktiv.demoPersonId ?? CURRENT_LEAD_ID;
   const lead = (await store.getPerson(leadId))!;
@@ -85,6 +89,29 @@ export default async function AdminDashboard() {
       </div>
 
       <CrossProfessionInbox beruf="lead" items={leadInbox} kpi={leadInboxKpi} zugewiesenAn={lead.name} />
+
+      {/* Solidar-Topf · offene Claims warten auf Approval */}
+      {(offeneClaims.length > 0 || solidarKpi.saldoEuro > 0) && (
+        <Link
+          href="/genossenschaft/solidartopf"
+          className="surface-hover rounded-2xl p-4 mb-6 flex items-center gap-4 anim-slideUp"
+          style={{ background: "linear-gradient(135deg, rgb(var(--thu) / 0.06), transparent)" }}
+        >
+          <span aria-hidden className="text-[28px]">🤝</span>
+          <div className="flex-1 min-w-0">
+            <p className="text-[12px] uppercase tracking-wider text-soft font-medium">Solidar-Topf · Krankheits-Schutz</p>
+            <p className="text-[14px] font-medium mt-0.5">
+              {offeneClaims.length > 0
+                ? `${offeneClaims.length} Claim${offeneClaims.length === 1 ? "" : "s"} wartet auf deine Prüfung · Topf-Saldo ${Math.round(solidarKpi.saldoEuro).toLocaleString("de-DE")} €`
+                : `Topf-Saldo ${Math.round(solidarKpi.saldoEuro).toLocaleString("de-DE")} € · Reserve-Quote ${Math.round(solidarKpi.reserveQuote * 100)} %`}
+            </p>
+            <p className="text-[12px] text-mute mt-0.5">
+              Mitglieder werden bei Krankheit getragen — Tag 1-6 voll, Tag 7-42 zu 70 %.
+            </p>
+          </div>
+          <span className="text-mute shrink-0">→</span>
+        </Link>
+      )}
 
       {/* Plattform-Admin-Schnellzugriff (nur sichtbar wenn Auth-User) */}
       {aktiv.quelle === "auth" && (
