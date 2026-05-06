@@ -53,6 +53,7 @@ const SOZIAL_NAV = [
 
 const ERZIEHUNG_NAV = [
   { href: "/erziehung",                label: "Übersicht",      vibe: "var(--wed)",          icon: GridIcon },
+  { href: "/erziehung/diktat",         label: "Lerngeschichte-Diktat", vibe: "var(--wed)",   icon: SparkIcon },
   { href: "/erziehung/gruppen",        label: "Gruppen",         vibe: "var(--vibe-team)",    icon: TeamIcon },
   { href: "/erziehung/lerngeschichten",label: "Lerngeschichten", vibe: "var(--vibe-profile)", icon: DokuIcon },
   { href: "/fortbildung",              label: "Fortbildung",    vibe: "var(--fri)",          icon: BookIcon },
@@ -60,6 +61,7 @@ const ERZIEHUNG_NAV = [
 
 const EHRENAMT_NAV = [
   { href: "/ehrenamt",            label: "Heute",         vibe: "var(--thu)",          icon: PlanIcon },
+  { href: "/ehrenamt/diktat",     label: "Begleit-Diktat", vibe: "var(--thu)",          icon: SparkIcon },
   { href: "/ehrenamt/dienstplan", label: "Dienstplan",    vibe: "var(--vibe-plan)",    icon: PlanIcon },
   { href: "/ehrenamt/begleitung", label: "Begleitung",    vibe: "var(--vibe-team)",     icon: TeamIcon },
   { href: "/ehrenamt/protokoll",  label: "Protokoll",     vibe: "var(--vibe-profile)",  icon: DokuIcon },
@@ -67,12 +69,14 @@ const EHRENAMT_NAV = [
 
 const HAUSWIRT_NAV = [
   { href: "/hauswirtschaft",            label: "Übersicht",    vibe: "var(--sun)",          icon: GridIcon },
+  { href: "/hauswirtschaft/diktat",     label: "Doku-Diktat",  vibe: "var(--sun)",          icon: SparkIcon },
   { href: "/hauswirtschaft/dienstplan", label: "Dienstplan",   vibe: "var(--vibe-plan)",    icon: PlanIcon },
   { href: "/fortbildung",               label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
 ];
 
 const HEILERZ_NAV = [
   { href: "/heilerziehung",            label: "Übersicht",    vibe: "var(--sat)",          icon: GridIcon },
+  { href: "/heilerziehung/diktat",     label: "Teilhabe-Diktat", vibe: "var(--sat)",       icon: SparkIcon },
   { href: "/heilerziehung/dienstplan", label: "Dienstplan",   vibe: "var(--vibe-plan)",    icon: PlanIcon },
   { href: "/fortbildung",              label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
 ];
