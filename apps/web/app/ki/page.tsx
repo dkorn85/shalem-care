@@ -7,6 +7,7 @@
 import Link from "next/link";
 import { KiKlartext } from "@/components/KiKlartext";
 import { KiBerufsBruecke } from "@/components/KiBerufsBruecke";
+import { LanaCallDemo } from "@/components/LanaCallDemo";
 import { SectionHeader } from "@/components/SectionHeader";
 import { HeroBanner } from "@/components/HeroBanner";
 import { RainbowText } from "@/components/Rainbow";
@@ -89,6 +90,9 @@ export default function KiShowcasePage() {
           fachtext={DEMO_KONFERENZ}
           beschreibung="Eine Hilfeplan-Konferenz hat fünf Profis am Tisch und eine Angehörige. Die Notizen sind dicht. Dennis fasst zusammen — ruhig, klar, ohne etwas zu beschönigen."
         />
+
+        {/* Lana-im-Anruf-Demo · Sprint-3 Wow-Effekt */}
+        <LanaCallDemo klientName="Helga" />
 
         {/* KI-Bruecke · Beruf zu Beruf */}
         <article className="surface rounded-2xl p-6 sm:p-8" style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.04), transparent)" }}>

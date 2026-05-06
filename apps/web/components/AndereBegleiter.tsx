@@ -56,8 +56,8 @@ export function AndereBegleiter({
                       {BERUFSFELD_LABEL[b.beruf]}
                     </span>
                   </div>
-                  <p className="text-[10px] text-mute truncate">{b.rolle}</p>
-                  <p className="text-[10px] text-soft mt-0.5">{b.rhythmus}</p>
+                  <p className="text-[11px] truncate" style={{ color: "rgb(var(--fg-mute))" }}>{b.rolle}</p>
+                  <p className="text-[11px] mt-0.5" style={{ color: "rgb(var(--fg-mute))" }}>{b.rhythmus}</p>
                 </div>
               </div>
             </Link>
