@@ -35,12 +35,14 @@ type Ziel = {
 
 type Sektion = {
   label: string;
+  farbe: string;          // Sektion-Leitfarbe — färbt Header-Strich + Label auch eingeklappt
   ziele: Ziel[];
 };
 
 const SEKTIONEN: Sektion[] = [
   {
     label: "Empfänger:in",
+    farbe: "var(--wed)",
     ziele: [
       { id: "klient", label: "Klient:in · Helga", href: "/klient", farbe: "var(--wed)", switchRolle: "klient", matches: (p) => p === "/klient" || (p.startsWith("/klient/") && !p.startsWith("/klient-")) },
       { id: "angehoerig", label: "Angehörige:r", href: "/klient/dienstplan", farbe: "var(--vibe-stats)", switchRolle: "angehoerig", matches: (p) => p.startsWith("/klient/dienstplan") },
@@ -48,6 +50,7 @@ const SEKTIONEN: Sektion[] = [
   },
   {
     label: "Pflege-Versorgung",
+    farbe: "var(--mon)",
     ziele: [
       { id: "pflege", label: "Pflegekraft", href: "/pflege", farbe: "var(--mon)", switchRolle: "pflege", matches: (p) => p === "/pflege" || p.startsWith("/pflege/") || p.startsWith("/dienst") || p.startsWith("/tausch") },
       { id: "lead", label: "Stationsleitung", href: "/admin", farbe: "var(--vibe-team)", switchRolle: "lead", matches: (p) => p.startsWith("/admin") },
@@ -63,6 +66,7 @@ const SEKTIONEN: Sektion[] = [
   },
   {
     label: "Gesundheits-Partner",
+    farbe: "rgb(70 160 130)",
     ziele: [
       { id: "apotheke", label: "Apotheke", href: "/apotheke", farbe: "rgb(70 160 130)", matches: (p) => p.startsWith("/apotheke") },
       { id: "medizintechnik", label: "Medizintechnik", href: "/medizintechnik", farbe: "rgb(110 130 180)", matches: (p) => p.startsWith("/medizintechnik") },
@@ -73,6 +77,7 @@ const SEKTIONEN: Sektion[] = [
   },
   {
     label: "Genossenschaft",
+    farbe: "var(--sun)",
     ziele: [
       { id: "genossenschaft", label: "Genossenschaft", href: "/genossenschaft", farbe: "var(--sun)", matches: (p) => p === "/genossenschaft" },
       { id: "pool", label: "Pool · Arbeitsamt-Ersatz", href: "/genossenschaft/pool", farbe: "var(--vibe-team)", matches: (p) => p.startsWith("/genossenschaft/pool") },
@@ -83,6 +88,7 @@ const SEKTIONEN: Sektion[] = [
   },
   {
     label: "Plattform-Sichten",
+    farbe: "var(--accent)",
     ziele: [
       { id: "netz", label: "Netz · Übersicht", href: "/netz", farbe: "var(--accent)", matches: (p) => p.startsWith("/netz") },
       { id: "livemap", label: "Live-Map · 24 h", href: "/livemap", farbe: "var(--accent)", matches: (p) => p.startsWith("/livemap") },
@@ -92,6 +98,7 @@ const SEKTIONEN: Sektion[] = [
   },
   {
     label: "Werkzeuge",
+    farbe: "var(--fri)",
     ziele: [
       { id: "ki", label: "KI · Klartext + Berufs-Brücke", href: "/ki", farbe: "var(--accent)", matches: (p) => p === "/ki" },
       { id: "fortbildung", label: "Fortbildung", href: "/fortbildung", farbe: "var(--vibe-stats)", matches: (p) => p.startsWith("/fortbildung") },
@@ -267,26 +274,78 @@ export function UserMenu({
             {SEKTIONEN.map((sek) => {
               const istOffen = offeneSektionen.has(sek.label);
               const aktivCount = sek.ziele.filter((z) => z.matches(pathname)).length;
+              const sekFarbe = sek.farbe.startsWith("rgb") ? sek.farbe : `rgb(${sek.farbe})`;
+              const sekFarbeBg = sek.farbe.startsWith("rgb")
+                ? sek.farbe.replace(")", " / 0.06)")
+                : `rgb(${sek.farbe} / 0.06)`;
               return (
-                <div key={sek.label} className="border-t border-app-soft">
+                <div key={sek.label} className="border-t border-app-soft relative">
+                  <span
+                    aria-hidden
+                    className="absolute left-0 top-0 bottom-0 w-[3px] transition-opacity duration-300"
+                    style={{ background: sekFarbe, opacity: istOffen ? 1 : 0.5 }}
+                  />
                   <button
                     type="button"
                     onClick={() => toggleSektion(sek.label)}
                     aria-expanded={istOffen}
                     aria-controls={`menu-sek-${sek.label}`}
-                    className="w-full px-3 py-2 flex items-center justify-between gap-2 hover:bg-[rgb(var(--bg-mute))] transition-colors"
+                    className="w-full pl-4 pr-3 py-2 flex items-center justify-between gap-2 transition-colors"
+                    style={{ background: istOffen ? sekFarbeBg : "transparent" }}
                   >
-                    <span className="flex items-baseline gap-2 min-w-0">
-                      <span className="text-[10px] uppercase tracking-wider font-mono" style={{ color: aktivCount > 0 ? "rgb(var(--accent))" : "rgb(var(--fg-mute))" }}>{sek.label}</span>
-                      <span className="text-[10px]" style={{ color: "rgb(var(--fg-mute))" }}>· {sek.ziele.length}</span>
+                    <span className="flex items-baseline gap-2 min-w-0 flex-1">
+                      <span
+                        className="text-[10px] uppercase tracking-wider font-mono font-semibold"
+                        style={{ color: sekFarbe, opacity: istOffen ? 1 : 0.85 }}
+                      >
+                        {sek.label}
+                      </span>
+                      <span
+                        className="text-[10px] font-mono shrink-0"
+                        style={{ color: sekFarbe, opacity: 0.5 }}
+                      >
+                        {sek.ziele.length}
+                      </span>
                       {aktivCount > 0 && (
-                        <span aria-hidden className="w-1.5 h-1.5 rounded-full" style={{ background: "rgb(var(--accent))" }} />
+                        <span
+                          aria-hidden
+                          className="text-[9px] px-1.5 rounded-full font-mono"
+                          style={{ background: sekFarbe, color: "white" }}
+                        >
+                          {aktivCount} aktiv
+                        </span>
+                      )}
+                      {/* Children-Farb-Vorschau · nur wenn collapsed */}
+                      {!istOffen && (
+                        <span aria-hidden className="flex items-center gap-[3px] ml-auto pr-1">
+                          {sek.ziele.slice(0, 8).map((z, i) => {
+                            const f = z.farbe.startsWith("rgb") ? z.farbe : `rgb(${z.farbe})`;
+                            const aktiv = z.matches(pathname);
+                            return (
+                              <span
+                                key={i}
+                                className="rounded-full transition-all"
+                                style={{
+                                  background: f,
+                                  width: aktiv ? 6 : 4,
+                                  height: aktiv ? 6 : 4,
+                                  opacity: aktiv ? 1 : 0.65,
+                                }}
+                              />
+                            );
+                          })}
+                          {sek.ziele.length > 8 && (
+                            <span className="text-[8px] font-mono" style={{ color: sekFarbe, opacity: 0.5 }}>
+                              +{sek.ziele.length - 8}
+                            </span>
+                          )}
+                        </span>
                       )}
                     </span>
                     <span
                       aria-hidden
-                      className="text-[10px] inline-block transition-transform duration-300"
-                      style={{ color: "rgb(var(--fg-mute))", transform: istOffen ? "rotate(0deg)" : "rotate(-90deg)" }}
+                      className="text-[10px] inline-block transition-transform duration-300 shrink-0"
+                      style={{ color: sekFarbe, opacity: 0.7, transform: istOffen ? "rotate(0deg)" : "rotate(-90deg)" }}
                     >
                       ▾
                     </span>

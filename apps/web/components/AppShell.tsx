@@ -20,14 +20,16 @@ const NURSE_NAV = [
 ];
 
 const DOCTOR_NAV = [
-  { href: "/arzt",            label: "Praxis",        vibe: "var(--vibe-team)",     icon: WardIcon },
-  { href: "/arzt/anfragen",   label: "Anfragen",      vibe: "var(--vibe-approval)", icon: CheckIcon },
-  { href: "/arzt/patienten",  label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
+  { href: "/arzt",              label: "Praxis",        vibe: "var(--vibe-team)",     icon: WardIcon },
+  { href: "/arzt/dienstplan",   label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
+  { href: "/arzt/anfragen",     label: "Anfragen",      vibe: "var(--vibe-approval)", icon: CheckIcon },
+  { href: "/arzt/patienten",    label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
 ];
 
 const THERAPIE_NAV = [
   { href: "/therapie",            label: "Praxis",        vibe: "var(--fri)",           icon: WardIcon },
   { href: "/therapie/heute",      label: "Heute",          vibe: "var(--vibe-team)",     icon: PlanIcon },
+  { href: "/therapie/dienstplan", label: "Dienstplan",     vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/therapie/patienten",  label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
   { href: "/therapie/abrechnung", label: "Abrechnung",    vibe: "var(--vibe-stats)",    icon: EuroIcon },
   { href: "/fortbildung",         label: "Fortbildung",   vibe: "var(--fri)",           icon: BookIcon },
@@ -35,6 +37,7 @@ const THERAPIE_NAV = [
 
 const SOZIAL_NAV = [
   { href: "/sozial",            label: "Übersicht",      vibe: "var(--tue)",           icon: GridIcon },
+  { href: "/sozial/dienstplan", label: "Dienstplan",     vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/sozial/faelle",     label: "Fälle",           vibe: "var(--vibe-team)",     icon: TeamIcon },
   { href: "/sozial/hilfeplan",  label: "Hilfeplan",       vibe: "var(--vibe-approval)", icon: CheckIcon },
   { href: "/sozial/schutz",      label: "Schutzauftrag",   vibe: "var(--mon)",           icon: SparkIcon },
@@ -50,18 +53,21 @@ const ERZIEHUNG_NAV = [
 
 const EHRENAMT_NAV = [
   { href: "/ehrenamt",            label: "Heute",         vibe: "var(--thu)",          icon: PlanIcon },
+  { href: "/ehrenamt/dienstplan", label: "Dienstplan",    vibe: "var(--vibe-plan)",    icon: PlanIcon },
   { href: "/ehrenamt/begleitung", label: "Begleitung",    vibe: "var(--vibe-team)",     icon: TeamIcon },
   { href: "/ehrenamt/protokoll",  label: "Protokoll",     vibe: "var(--vibe-profile)",  icon: DokuIcon },
 ];
 
 const HAUSWIRT_NAV = [
-  { href: "/hauswirtschaft",          label: "Übersicht",    vibe: "var(--sun)",          icon: GridIcon },
-  { href: "/fortbildung",             label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
+  { href: "/hauswirtschaft",            label: "Übersicht",    vibe: "var(--sun)",          icon: GridIcon },
+  { href: "/hauswirtschaft/dienstplan", label: "Dienstplan",   vibe: "var(--vibe-plan)",    icon: PlanIcon },
+  { href: "/fortbildung",               label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
 ];
 
 const HEILERZ_NAV = [
-  { href: "/heilerziehung",           label: "Übersicht",    vibe: "var(--sat)",          icon: GridIcon },
-  { href: "/fortbildung",             label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
+  { href: "/heilerziehung",            label: "Übersicht",    vibe: "var(--sat)",          icon: GridIcon },
+  { href: "/heilerziehung/dienstplan", label: "Dienstplan",   vibe: "var(--vibe-plan)",    icon: PlanIcon },
+  { href: "/fortbildung",              label: "Fortbildung",  vibe: "var(--fri)",          icon: BookIcon },
 ];
 
 const LEAD_NAV = [
