@@ -3,7 +3,7 @@ import { Wordmark, Logo } from "./Logo";
 import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { PersonaSwitcher } from "./PersonaSwitcher";
+// PersonaSwitcher-Import entfernt — Konsolidierung im HauptMenu (siehe UserMenu.tsx)
 import { PersonAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
 
@@ -115,11 +115,8 @@ export async function AppShell({
             <Wordmark />
           </Link>
           <p className="text-[12px] text-soft mt-1.5 ml-9">{station}</p>
-          {DEMO_MODE && (
-            <div className="mt-3">
-              <PersonaSwitcher demoMode={DEMO_MODE} />
-            </div>
-          )}
+          {/* PersonaSwitcher entfernt — Rollen-Wechsel laeuft jetzt zentral
+              ueber das HauptMenu (UserMenu) im globalen Layout, top-right */}
         </div>
 
         <div className="h-px mx-5 my-2 bg-[rgb(var(--border-soft))]" />
@@ -186,11 +183,7 @@ export async function AppShell({
             <LocaleSwitcher current={locale} />
             <Link href={switchRole.href} className="text-[12px] text-soft">{switchRole.label}</Link>
           </div>
-          {DEMO_MODE && (
-            <div className="basis-full -mx-1 mt-2 overflow-x-auto">
-              <PersonaSwitcher demoMode={DEMO_MODE} />
-            </div>
-          )}
+          {/* Mobile Persona-Switcher entfernt — HauptMenu top-right deckt es ab */}
         </header>
 
         <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-24 lg:pb-10">

@@ -3,7 +3,7 @@ import { Wordmark } from "./Logo";
 import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { PersonaSwitcher } from "./PersonaSwitcher";
+// PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
 import { KlientAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
 
@@ -43,7 +43,6 @@ export async function KlientShell({
             </span>
           </div>
           <div className="flex items-center gap-3 flex-wrap">
-            {DEMO_MODE && <PersonaSwitcher demoMode={DEMO_MODE} />}
             <LocaleSwitcher current={locale} />
             <div className="text-right hidden sm:block">
               <div className="text-[13px] font-medium">{user.name}</div>
