@@ -11,7 +11,7 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
-import { MessengerShell } from "@/components/MessengerShell";
+import { MessengerLive } from "@/components/MessengerLive";
 import { isAuthConfigured, getCurrentUser, serverClient } from "@/lib/auth/client";
 import { HELGA_UMFELD } from "@/lib/team-um-klient/store";
 import type { Message } from "@/lib/messenger/store";
@@ -23,7 +23,6 @@ import {
   listPresence,
 } from "@/lib/messenger/channels";
 import { MessengerForm } from "./form";
-import { MessageItem } from "./message-item";
 
 export const metadata = { title: "Messenger · Discord-Layer · Shalem Care" };
 export const dynamic = "force-dynamic";
@@ -91,29 +90,23 @@ export default async function MessengerPage({ searchParams }: { searchParams?: P
         </section>
       )}
 
-      <MessengerShell
+      <MessengerLive
         channelsProKategorie={channels}
         aktiverChannel={aktiverChannel}
-        presence={presence}
+        initialMessages={messages}
+        initialPresenceMock={presence}
         serverMembers={serverMembers}
         composer={composerNode}
-      >
-        {/* Channel-Welcome */}
-        {aktiverChannel && messages.length === 0 && (
-          <ChannelWelcome channelName={aktiverChannel.name} kategorie={aktiverChannel.kategorie} beschreibung={aktiverChannel.beschreibung} />
-        )}
+        user={{
+          id: user.id,
+          displayName: user.email ?? "User",
+          rolle: user.user_metadata?.rolle ?? "Mitglied",
+        }}
+      />
 
-        {error && (
-          <p className="text-[12px] text-mute italic">DB-Fehler: {error.message}</p>
-        )}
-
-        {/* Messages chronologisch */}
-        <ul className="space-y-2">
-          {messages.map((m) => (
-            <MessageItem key={m.id} m={m} aktiverUserId={user.id} />
-          ))}
-        </ul>
-      </MessengerShell>
+      {error && (
+        <p className="text-[12px] text-mute italic mt-3 px-4">DB-Fehler: {error.message}</p>
+      )}
 
       {/* Phase-2-Pfad-Erklärung unter dem Layout */}
       <Phase2Pfad />
@@ -121,64 +114,62 @@ export default async function MessengerPage({ searchParams }: { searchParams?: P
   );
 }
 
-function ChannelWelcome({ channelName, kategorie, beschreibung }: { channelName: string; kategorie: string; beschreibung?: string }) {
-  return (
-    <section className="text-center py-12 px-4">
-      <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">{kategorie}</p>
-      <h2 className="font-display text-[28px] font-bold tracking-tight2 mb-2">
-        Willkommen in <span className="rainbow-text">#{channelName}</span>
-      </h2>
-      {beschreibung && <p className="text-[13px] text-mute max-w-md mx-auto">{beschreibung}</p>}
-      <p className="text-[11px] text-soft italic mt-4">
-        Noch keine Nachrichten · sei die erste Person, die postet.
-      </p>
-    </section>
-  );
-}
-
 function Phase2Pfad() {
   return (
     <section className="mt-6 mx-auto max-w-screen-app surface rounded-2xl p-4">
-      <header className="mb-2">
-        <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Phase 2 · drei Pfade</p>
-        <h2 className="font-display text-[16px] font-semibold mt-0.5">Wie der Messenger als nächstes wächst</h2>
+      <header className="mb-2 flex items-baseline justify-between gap-2 flex-wrap">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Phase 2 · 3 Pfade</p>
+          <h2 className="font-display text-[16px] font-semibold mt-0.5">Pfad B ist live</h2>
+        </div>
+        <span
+          className="text-[10px] uppercase tracking-wider font-mono px-2 py-0.5 rounded animate-pulse"
+          style={{ background: "rgb(var(--vibe-approval) / 0.15)", color: "rgb(var(--vibe-approval))" }}
+        >
+          ● realtime aktiv
+        </span>
       </header>
       <div className="grid sm:grid-cols-3 gap-3">
         <Pfad
           letter="A"
           titel="Matrix-Protokoll"
           farbe="var(--vibe-approval)"
+          status="geplant"
           eigenschaften={["End-to-End-verschlüsselt pro Channel", "Federation · keine Single-Source", "DSGVO-Gold-Standard", "Eigener Homeserver auf Hostinger"]}
           aufwand="6–9 Monate"
-          eignet="Sobald Patient-/Klient-Daten massiv durch den Messenger laufen — Compliance-Pflicht."
+          eignet="Ab vollem Klient-Daten-Volumen · Compliance-Pflicht für TI-Messenger-Anbindung Dezember 2026."
         />
         <Pfad
           letter="B"
           titel="Supabase Realtime"
           farbe="var(--accent)"
-          eigenschaften={["Pragmatischer Mittelweg", "RLS pro CareTeam · Postgres-Channels", "Latenz < 1 s · Presence inklusive", "Deutsche Region (eu-central-1)"]}
-          aufwand="1–2 Monate"
-          eignet="Pilot-Phase mit Pflegepartner. Reicht für 90 % der Discord-Use-Cases · spätere Migration zu Matrix möglich."
+          status="aktiv"
+          eigenschaften={["postgres_changes auf messages + reactions", "presence-channel · live online-State", "broadcast-channel · typing-Indikator", "RLS pro Tabelle · region eu-central-1"]}
+          aufwand="implementiert"
+          eignet="Pilot-Phase live · sobald jemand schreibt, erscheint die Nachricht ohne Reload bei allen anderen."
           empfohlen
         />
         <Pfad
           letter="C"
           titel="Stream Chat / Sendbird"
           farbe="var(--fri)"
+          status="ungenutzt"
           eigenschaften={["Gehostete SaaS · ready in 2 Wochen", "Stream EU-Region → DSGVO-konform", "Threads, Reactions, Voice fertig", "Lock-in zum Anbieter"]}
           aufwand="2–4 Wochen"
-          eignet="Demo + Investor-Pitch · schnell sichtbares Discord-Niveau ohne Eigenbau."
+          eignet="Wir gehen Pfad B — keine 3rd-party-Lock-in nötig."
         />
       </div>
       <p className="text-[11px] text-soft italic mt-3 leading-relaxed">
-        Heute: Phase-1-Demo-Layer mit existierender messages-Tabelle + Channel-Routing.
-        Empfohlener Weg: <strong>B Supabase Realtime</strong> für Pilot-Pflegepartner, dann <strong>A Matrix</strong> ab vollem Klient-Daten-Volumen.
+        Was jetzt live ist: <strong>postgres_changes</strong> auf messages + reactions ·
+        <strong>presence</strong> mit echtem online-State · <strong>broadcast</strong> für Typing-Indikator ·
+        <strong>RPC reactions_for_messages</strong> für Aggregation. Nächster Schritt:
+        Care-Team-RLS pro Klient-Channel + parent_id-Thread-Replies.
       </p>
     </section>
   );
 }
 
-function Pfad({ letter, titel, farbe, eigenschaften, aufwand, eignet, empfohlen }: { letter: string; titel: string; farbe: string; eigenschaften: string[]; aufwand: string; eignet: string; empfohlen?: boolean }) {
+function Pfad({ letter, titel, farbe, status, eigenschaften, aufwand, eignet, empfohlen }: { letter: string; titel: string; farbe: string; status?: "aktiv" | "geplant" | "ungenutzt"; eigenschaften: string[]; aufwand: string; eignet: string; empfohlen?: boolean }) {
   return (
     <article
       className="rounded-xl p-3 transition-transform hover:scale-[1.01]"
@@ -194,10 +185,17 @@ function Pfad({ letter, titel, farbe, eigenschaften, aufwand, eignet, empfohlen 
         >
           {letter}
         </span>
-        <div>
-          <h3 className="font-display text-[15px] font-semibold">{titel}</h3>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-baseline gap-2 flex-wrap">
+            <h3 className="font-display text-[15px] font-semibold">{titel}</h3>
+            {status === "aktiv" && (
+              <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded font-mono" style={{ background: `rgb(${farbe})`, color: "white" }}>
+                ● live
+              </span>
+            )}
+          </div>
           <p className="text-[9px] uppercase tracking-wider font-mono" style={{ color: `rgb(${farbe})` }}>
-            {aufwand}{empfohlen && " · empfohlen"}
+            {aufwand}{empfohlen && status === "aktiv" ? " · läuft jetzt" : empfohlen && " · empfohlen"}
           </p>
         </div>
       </header>
