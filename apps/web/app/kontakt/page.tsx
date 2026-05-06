@@ -96,6 +96,12 @@ const FAQ = [
     cta: { label: "Wie funktioniert das", href: "/genossenschaft#wie-funktioniert" },
   },
   {
+    frage: "Was steht mir mit meinem Pflegegrad zu?",
+    antwort:
+      "Pflegegeld, Sachleistung, Tagespflege, Verhinderungspflege, Entlastungsbetrag — auf einer Seite zusammengefasst, ohne Amtsdeutsch. Stand 2025-Sätze.",
+    cta: { label: "Leistungen ansehen", href: "/leistungen" },
+  },
+  {
     frage: "Wo sehe ich, wie weit ihr seid?",
     antwort:
       "Roadmap mit ehrlichen Häkchen — was läuft live, was ist Demo, was steht als nächstes an. Wir veröffentlichen den Stand offen.",

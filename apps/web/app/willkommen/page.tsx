@@ -91,6 +91,9 @@ export default function Willkommen() {
           <Link href="/genossenschaft" className="btn btn-ghost text-[14px] px-4 py-2">
             Wie die Genossenschaft funktioniert
           </Link>
+          <Link href="/leistungen" className="btn btn-ghost text-[14px] px-4 py-2">
+            Was steht mir zu?
+          </Link>
           <Link href="/roadmap" className="btn btn-ghost text-[14px] px-4 py-2">
             Roadmap
           </Link>
