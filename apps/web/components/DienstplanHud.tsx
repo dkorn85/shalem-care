@@ -15,7 +15,7 @@
 // State liegt komplett im Client — Hud wird als initialData übergeben,
 // regenerate() ruft die Server-Action mit neuem Seed.
 
-import { useState, useTransition, useMemo } from "react";
+import { useState, useTransition, useMemo, useEffect } from "react";
 import type {
   DienstplanHud,
   HudFilter,
@@ -25,6 +25,7 @@ import type {
 import {
   SCHICHT_LABEL,
   SCHICHT_FARBE,
+  SCHICHT_STUNDEN,
   KONFLIKT_LABEL,
   alleKiAktionen,
 } from "@/lib/dienstplan/hud-store";
@@ -56,6 +57,16 @@ export type DienstplanHudProps = {
   initialFilter: HudFilter;
   initialHud: DienstplanHud;
   onApplyFilter: (filter: HudFilter) => Promise<DienstplanHud>;
+  /** Optional: speichert den aktuellen Hud-Zustand. Wird in Phase-2 Supabase-persistent. */
+  onSpeichern?: (titel: string, hud: DienstplanHud, mutations: PendingMutation[]) => Promise<{ ok: boolean; snapshotId?: string }>;
+};
+
+export type PendingMutation = {
+  personId: string;
+  personName: string;
+  datumISO: string;
+  vorher: string;
+  nachher: string;
 };
 
 export function DienstplanHudView({
@@ -65,12 +76,22 @@ export function DienstplanHudView({
   initialFilter,
   initialHud,
   onApplyFilter,
+  onSpeichern,
 }: DienstplanHudProps) {
   const [filter, setFilter] = useState<HudFilter>(initialFilter);
   const [hud, setHud] = useState<DienstplanHud>(initialHud);
   const [pending, startTransition] = useTransition();
   const [aktiveZelle, setAktiveZelle] = useState<{ personId: string; datumISO: string } | null>(null);
   const [aktiveAktion, setAktiveAktion] = useState<KiAktionsErgebnis | null>(null);
+  const [editierModus, setEditierModus] = useState(false);
+  const [pendingMutations, setPendingMutations] = useState<PendingMutation[]>([]);
+  const [savedToast, setSavedToast] = useState<string | null>(null);
+  const [saveTitel, setSaveTitel] = useState("");
+
+  // Beim Filter-Wechsel die Mutations leeren — neuer Plan, neue Edits
+  useEffect(() => {
+    setPendingMutations([]);
+  }, [filter.einrichtungId, filter.stationId, filter.wochen, filter.seed]);
 
   const stationsForEinrichtung = useMemo(
     () => filter.einrichtungId ? stations.filter((s) => s.einrichtungId === filter.einrichtungId) : stations,
@@ -86,6 +107,49 @@ export function DienstplanHudView({
   };
 
   const regenerate = () => apply({ ...filter, seed: (filter.seed ?? 0) + 1 });
+
+  /** Mutiert eine Zelle lokal, trackt die Mutation für späteren Save. */
+  const mutiereZelle = (personId: string, datumISO: string, neueSchicht: SchichtKuerzel) => {
+    setHud((prev) => {
+      const zeilen = prev.zeilen.map((z) => {
+        if (z.person.id !== personId) return z;
+        const alteZelle = z.tage[datumISO];
+        if (!alteZelle) return z;
+        const alteStunden = alteZelle.stunden;
+        const neueStunden = SCHICHT_STUNDEN[neueSchicht];
+        const neueZelle = { ...alteZelle, schicht: neueSchicht, stunden: neueStunden, quelle: "manuell" as const };
+        return {
+          ...z,
+          istStunden: z.istStunden - alteStunden + neueStunden,
+          tage: { ...z.tage, [datumISO]: neueZelle },
+        };
+      });
+      return { ...prev, zeilen };
+    });
+    const z = hud.zeilen.find((zz) => zz.person.id === personId);
+    if (z) {
+      const alt = z.tage[datumISO]?.schicht ?? "_";
+      setPendingMutations((m) => [
+        ...m.filter((mm) => !(mm.personId === personId && mm.datumISO === datumISO)),
+        { personId, personName: z.person.name, datumISO, vorher: alt, nachher: neueSchicht },
+      ]);
+    }
+    setAktiveZelle(null);
+  };
+
+  const speichereJetzt = async () => {
+    if (!onSpeichern) return;
+    const titel = saveTitel.trim() || `${hud.station?.name ?? hud.einrichtung?.shortName ?? "Plan"} · ${new Date().toLocaleDateString("de-DE")}`;
+    startTransition(async () => {
+      const res = await onSpeichern(titel, hud, pendingMutations);
+      if (res.ok) {
+        setSavedToast(`✓ Gespeichert · ${pendingMutations.length} Mutation${pendingMutations.length === 1 ? "" : "en"} geloggt`);
+        setPendingMutations([]);
+        setSaveTitel("");
+        setTimeout(() => setSavedToast(null), 3500);
+      }
+    });
+  };
 
   const aktionen = useMemo(() => alleKiAktionen(hud), [hud]);
 
@@ -184,25 +248,96 @@ export function DienstplanHudView({
           </select>
         </div>
 
-        <button
-          type="button"
-          onClick={regenerate}
-          disabled={pending}
-          className="ml-auto px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors disabled:opacity-50 inline-flex items-center gap-2"
-          style={{ background: "rgb(var(--accent))", color: "white" }}
-          title="Generiert eine neue Plan-Variante mit anderem Rotation-Versatz"
-        >
-          {pending ? "…" : "↻"} Neu generieren
-        </button>
+        <div className="ml-auto flex items-center gap-2 flex-wrap">
+          <button
+            type="button"
+            onClick={() => setEditierModus(!editierModus)}
+            className="px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors inline-flex items-center gap-2"
+            style={{
+              background: editierModus ? "rgb(var(--mon))" : "transparent",
+              color: editierModus ? "white" : "rgb(var(--mon))",
+              boxShadow: editierModus ? undefined : "inset 0 0 0 1px rgb(var(--mon) / 0.4)",
+            }}
+            title="Edit-Modus toggeln · Zellen werden klickbar zum Ändern"
+          >
+            {editierModus ? "✎ Bearbeiten · aktiv" : "✎ Bearbeiten"}
+          </button>
 
-        <button
-          type="button"
-          onClick={() => window.print()}
-          className="px-3 py-1.5 rounded-md text-[12px] font-medium surface-mute hover:bg-[rgb(var(--bg-mute))] transition-colors"
-        >
-          Drucken
-        </button>
+          <button
+            type="button"
+            onClick={regenerate}
+            disabled={pending}
+            className="px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors disabled:opacity-50 inline-flex items-center gap-2"
+            style={{ background: "rgb(var(--accent))", color: "white" }}
+            title="Generiert eine neue Plan-Variante mit anderem Rotation-Versatz"
+          >
+            {pending ? "…" : "↻"} Neu generieren
+          </button>
+
+          <button
+            type="button"
+            onClick={() => window.print()}
+            className="px-3 py-1.5 rounded-md text-[12px] font-medium surface-mute hover:bg-[rgb(var(--bg-mute))] transition-colors"
+          >
+            Drucken
+          </button>
+        </div>
       </section>
+
+      {/* Save-Bar wenn Mutations pending oder edit-modus + onSpeichern */}
+      {(pendingMutations.length > 0 || (editierModus && onSpeichern)) && (
+        <section
+          className="rounded-2xl p-3 flex items-center gap-3 flex-wrap"
+          style={{
+            background: pendingMutations.length > 0 ? "rgb(var(--accent) / 0.06)" : "rgb(var(--vibe-team) / 0.06)",
+            boxShadow: `inset 0 0 0 1px rgb(${pendingMutations.length > 0 ? "var(--accent)" : "var(--vibe-team)"} / 0.25)`,
+          }}
+        >
+          <span className="text-[12px]" style={{ color: pendingMutations.length > 0 ? "rgb(var(--accent))" : "rgb(var(--vibe-team))" }}>
+            {pendingMutations.length === 0
+              ? "Edit-Modus aktiv — Klick auf eine Zelle zum Ändern."
+              : `${pendingMutations.length} Änderung${pendingMutations.length === 1 ? "" : "en"} · noch nicht gespeichert`}
+          </span>
+          {pendingMutations.length > 0 && onSpeichern && (
+            <>
+              <input
+                type="text"
+                value={saveTitel}
+                onChange={(e) => setSaveTitel(e.target.value)}
+                placeholder="Titel · z.B. „Mai 2026 · Pulmo 3B“"
+                className="px-2 py-1 rounded text-[12px] surface-mute border-0 focus:outline-none flex-1 min-w-[200px]"
+                style={{ outline: "none" }}
+              />
+              <button
+                type="button"
+                onClick={speichereJetzt}
+                disabled={pending}
+                className="px-3 py-1.5 rounded-md text-[12px] font-medium transition-colors disabled:opacity-50"
+                style={{ background: "rgb(var(--accent))", color: "white" }}
+              >
+                {pending ? "…" : "💾 Speichern"}
+              </button>
+            </>
+          )}
+          {pendingMutations.length > 0 && (
+            <button
+              type="button"
+              onClick={() => {
+                setPendingMutations([]);
+                regenerate();
+              }}
+              className="text-[11px] text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline"
+            >
+              Verwerfen
+            </button>
+          )}
+          {savedToast && (
+            <span className="text-[11px] font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>
+              {savedToast}
+            </span>
+          )}
+        </section>
+      )}
 
       {/* KPI-Strip */}
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-2.5">
@@ -485,18 +620,25 @@ export function DienstplanHudView({
                     <button
                       key={s}
                       type="button"
-                      onClick={() => alert(`Phase 2: ${z.person.name} · ${aktiveZelle.datumISO} → ${SCHICHT_LABEL[s]}\n\nMutation läuft in Phase 2 über Server-Action mit Audit-Log-Eintrag.`)}
-                      className="px-2 py-1 rounded text-[11px] font-mono font-medium transition-colors"
+                      disabled={!editierModus}
+                      onClick={() => mutiereZelle(aktiveZelle.personId, aktiveZelle.datumISO, s)}
+                      className="px-2 py-1 rounded text-[11px] font-mono font-medium transition-colors disabled:opacity-40"
                       style={{
                         background: `rgb(${SCHICHT_FARBE[s]} / 0.15)`,
                         color: `rgb(${SCHICHT_FARBE[s]})`,
                         boxShadow: `inset 0 0 0 1px rgb(${SCHICHT_FARBE[s]} / 0.3)`,
                       }}
+                      title={editierModus ? SCHICHT_LABEL[s] : "Zum Bearbeiten Edit-Modus aktivieren"}
                     >
                       {s}
                     </button>
                   ))}
                 </div>
+                {!editierModus && (
+                  <p className="text-[10px] mt-2" style={{ color: "rgb(var(--mon))" }}>
+                    Edit-Modus oben aktivieren, um Schichten zu ändern.
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={() => setAktiveZelle(null)}

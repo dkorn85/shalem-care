@@ -13,7 +13,7 @@ import {
 } from "@/lib/hierarchy/store";
 import { HIERARCHY_PEOPLE } from "@/lib/hierarchy/seed-hierarchy";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
-import { regenerateHudAction } from "./actions";
+import { regenerateHudAction, speichereSnapshotAction } from "./actions";
 
 export const metadata = {
   title: "KI-Dienstplan-HUD · PDL-Arbeitsfläche",
@@ -92,6 +92,10 @@ export default async function DienstplanHudPage({
             </p>
           </div>
           <div className="flex items-baseline gap-2 text-[11px]">
+            <Link href="/admin/dienstplan/archiv" className="text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+              Archiv · 3 Zonen
+            </Link>
+            <span className="text-soft">·</span>
             <Link href="/admin/dienstplan" className="text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
               Klassischer Editor
             </Link>
@@ -114,6 +118,7 @@ export default async function DienstplanHudPage({
         initialFilter={initialFilter}
         initialHud={initialHud}
         onApplyFilter={regenerateHudAction}
+        onSpeichern={speichereSnapshotAction}
       />
     </AppShell>
   );

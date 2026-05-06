@@ -23,7 +23,9 @@ const NURSE_NAV = [
 ];
 
 const DOCTOR_NAV = [
+  { href: "/arzt/heute",        label: "Heute",          vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/arzt",              label: "Praxis",        vibe: "var(--vibe-team)",     icon: WardIcon },
+  { href: "/arzt/diktat",       label: "Verordnung-Diktat", vibe: "var(--vibe-profile)", icon: SparkIcon },
   { href: "/arzt/dienstplan",   label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/arzt/anfragen",     label: "Anfragen",      vibe: "var(--vibe-approval)", icon: CheckIcon },
   { href: "/arzt/patienten",    label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
@@ -76,7 +78,9 @@ const HEILERZ_NAV = [
 const LEAD_NAV = [
   { href: "/admin",                label: "Übersicht",      vibe: "var(--vibe-plan)",     icon: GridIcon },
   { href: "/admin/dienstplan/hud", label: "KI-HUD",          vibe: "var(--accent)",        icon: SparkIcon },
+  { href: "/admin/dienstplan/archiv",label: "Archiv 3-Zonen", vibe: "var(--vibe-stats)",    icon: ClockIcon },
   { href: "/admin/dienstplan",     label: "Dienstplan",     vibe: "var(--vibe-team)",     icon: PlanIcon },
+  { href: "/trading",              label: "Trading-Hub",     vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/admin/disposition",    label: "KI-Disposition", vibe: "var(--vibe-market)",   icon: SparkIcon },
   { href: "/admin/genehmigungen",  label: "Genehmigungen",  vibe: "var(--vibe-approval)", icon: CheckIcon },
   { href: "/admin/team",           label: "Team",           vibe: "var(--vibe-team)",     icon: TeamIcon },
