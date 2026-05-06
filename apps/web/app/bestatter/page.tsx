@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
@@ -45,6 +46,12 @@ export default function BestatterPage() {
         eyebrow="Würdiges Abschiednehmen · Vorsorge + Begleitung"
         titel="Servus, Hannah."
         loopSrc="/loops/akte-ganzheit.mp4"
+        patternSrc="/patterns/lavender-still.png"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/akte/header-bestatter.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
+          </div>
+        }
       >
         {AKTUELLE_FAELLE.length} aktuelle Fälle · {VORSORGE_VEREINBARUNGEN.filter((v) => v.status === "aktiv").length} aktive Vorsorge-Vereinbarungen · {KOMMENDE_TERMINE.length} Termine die nächsten 10 Tage.
       </RolePastelHeader>

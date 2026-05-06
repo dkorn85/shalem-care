@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
@@ -46,7 +47,13 @@ export default function MedizintechnikPage() {
         rolle="medizintechnik"
         eyebrow="Medizintechnik · Hilfsmittel + Geräte"
         titel="Servus, Carla."
-        loopSrc="/loops/08_loop_geometry_breath_16x9.mp4"
+        loopSrc="/loops/atmo-medtech.mp4"
+        patternSrc="/patterns/dawn-mist.png"
+        rightSlot={
+          <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">
+            <Image src="/akte/header-medtech.png" alt="" fill sizes="(max-width: 1024px) 100vw, 30vw" className="object-cover" priority />
+          </div>
+        }
       >
         {GERAETE_VERSORGUNG.length} aktive Versorgungen · {SERVICE_TICKETS.length} Service-Tickets · {SERVICE_TICKETS.filter((t) => t.prio === "hoch").length} mit hoher Priorität · {VERORDNUNGS_PIPELINE.length} VOs in Bearbeitung.
       </RolePastelHeader>
