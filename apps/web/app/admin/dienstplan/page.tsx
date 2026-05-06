@@ -151,6 +151,13 @@ export default async function DienstplanPage({
           >
             ✦ KI-Monatsplan
           </Link>
+          <Link
+            href="/admin/dienstplan/hud"
+            className="btn text-[13px]"
+            style={{ background: "rgb(var(--accent))", color: "white" }}
+          >
+            🛰 KI-HUD · Multi-Station
+          </Link>
           <span className="text-[11px] text-soft">
             KW {iso8601Week(weekStart)} · {weekStart.toLocaleDateString("de-DE", { day: "2-digit", month: "short" })} – {weekEnd.toLocaleDateString("de-DE", { day: "2-digit", month: "short", year: "numeric" })}
           </span>

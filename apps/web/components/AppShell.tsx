@@ -72,6 +72,7 @@ const HEILERZ_NAV = [
 
 const LEAD_NAV = [
   { href: "/admin",                label: "Übersicht",      vibe: "var(--vibe-plan)",     icon: GridIcon },
+  { href: "/admin/dienstplan/hud", label: "KI-HUD",          vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/admin/dienstplan",     label: "Dienstplan",     vibe: "var(--vibe-team)",     icon: PlanIcon },
   { href: "/admin/disposition",    label: "KI-Disposition", vibe: "var(--vibe-market)",   icon: SparkIcon },
   { href: "/admin/genehmigungen",  label: "Genehmigungen",  vibe: "var(--vibe-approval)", icon: CheckIcon },
