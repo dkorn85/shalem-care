@@ -94,6 +94,9 @@ export default function Willkommen() {
           <Link href="/roadmap" className="btn btn-ghost text-[14px] px-4 py-2">
             Roadmap
           </Link>
+          <Link href="/kontakt" className="btn btn-ghost text-[14px] px-4 py-2">
+            Kontakt
+          </Link>
         </div>
       </section>
 

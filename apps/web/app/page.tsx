@@ -436,6 +436,7 @@ export default async function LandingPage() {
             <Link href="/begleitung" className="hover:text-[rgb(var(--fg))]">Würde-Begleitung</Link>
             <Link href="/entwickler" className="hover:text-[rgb(var(--fg))]">Entwickler-API</Link>
             <Link href="/compliance" className="hover:text-[rgb(var(--fg))]">Compliance</Link>
+            <Link href="/kontakt" className="hover:text-[rgb(var(--fg))]">Kontakt</Link>
             <Link href="/datenschutz" className="hover:text-[rgb(var(--fg))]">Datenschutz</Link>
             <a href="https://merkabaprojekt.de" className="hover:text-[rgb(var(--fg))]">Merkaba Project</a>
             <Link href="/pflege" className="hover:text-[rgb(var(--fg))]">App</Link>
