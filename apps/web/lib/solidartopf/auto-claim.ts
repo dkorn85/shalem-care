@@ -11,7 +11,11 @@ import type { Person } from "../swap-store";
 import { speichereClaim, type SolidarClaim } from "./store";
 import { berechneClaim } from "./calc";
 
-type Slot = { id?: string; start?: string; [k: string]: unknown };
+// Wir tippen den Input bewusst breit (any) — der bestehende Aufruf in
+// meldeKrank reicht uns FHIR-`Slot[]` aus @medplum/fhirtypes durch, das
+// kollidiert sonst mit unserem lokalen Slot-Strukturtyp (FHIR-Slot hat
+// keine string-Index-Signatur, was Hostinger-Build hart abbricht).
+type SlotLike = { id?: string; start?: string };
 
 function tagOffset(slotStart: string, vonDatum: string): number {
   const slotDay = new Date(slotStart);
@@ -22,15 +26,17 @@ function tagOffset(slotStart: string, vonDatum: string): number {
 export function entwurfClaimAusKrankmeldung(
   km: Krankmeldung,
   person: Pick<Person, "id" | "name" | "tariffGrade">,
-  betroffeneSlots: Slot[],
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  betroffeneSlots: readonly any[],
 ): SolidarClaim {
-  const ausgefallene = betroffeneSlots
-    .filter((s) => s.start)
+  const ausgefallene = (betroffeneSlots as SlotLike[])
+    .filter((s) => Boolean(s.start))
     .map((s) => {
-      // calculateBreakdown verlangt einen FHIR-ähnlichen Slot — wir
-      // nehmen das gegebene Objekt (Phase-1-Memory-Store gibt
+      // calculateBreakdown nimmt einen FHIR-Slot — wir reichen das
+      // gegebene Objekt opak weiter (Phase-1-Memory-Store gibt
       // FHIR-konforme Slots zurück).
-      const breakdown = calculateBreakdown(s as Parameters<typeof calculateBreakdown>[0], person.tariffGrade);
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const breakdown = calculateBreakdown(s as any, person.tariffGrade);
       const offset = tagOffset(s.start!, km.vonDatum);
       return {
         slotId: s.id ?? `slot-${Math.random().toString(36).slice(2, 8)}`,
