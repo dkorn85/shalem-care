@@ -267,7 +267,7 @@ export default async function ProfilPage() {
         <div className="lg:col-span-5">
           <PreferencesPanel
             personId={nurse.id}
-            preferenzen={profilM.preferenzen ?? { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true }}
+            preferenzen={profilM.preferenzen ?? { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true, largePrint: false }}
           />
         </div>
       </div>
