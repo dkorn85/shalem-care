@@ -18,6 +18,7 @@ import {
 } from "@/lib/supervisor/store";
 
 export const metadata = { title: "Supervisor · Träger-Vorstand" };
+export const dynamic = "force-dynamic";
 
 const STATUS_FARBE = { gruen: "var(--vibe-approval)", gelb: "var(--sun)", rot: "var(--mon)" } as const;
 
