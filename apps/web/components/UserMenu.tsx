@@ -72,17 +72,27 @@ const SEKTIONEN: Sektion[] = [
     ],
   },
   {
+    label: "Genossenschaft",
+    ziele: [
+      { id: "genossenschaft", label: "Genossenschaft", href: "/genossenschaft", farbe: "var(--sun)", matches: (p) => p === "/genossenschaft" },
+      { id: "pool", label: "Pool · Arbeitsamt-Ersatz", href: "/genossenschaft/pool", farbe: "var(--vibe-team)", matches: (p) => p.startsWith("/genossenschaft/pool") },
+      { id: "solidartopf", label: "Solidar-Topf · Krankheit", href: "/genossenschaft/solidartopf", farbe: "var(--thu)", matches: (p) => p.startsWith("/genossenschaft/solidartopf") },
+      { id: "treuhand", label: "Treuhand", href: "/treuhand", farbe: "rgb(100 150 170)", matches: (p) => p.startsWith("/treuhand") },
+      { id: "warum", label: "Warum Genossenschaft?", href: "/warum", farbe: "var(--accent)", matches: (p) => p.startsWith("/warum") },
+    ],
+  },
+  {
     label: "Plattform-Sichten",
     ziele: [
       { id: "netz", label: "Netz · Übersicht", href: "/netz", farbe: "var(--accent)", matches: (p) => p.startsWith("/netz") },
       { id: "livemap", label: "Live-Map · 24 h", href: "/livemap", farbe: "var(--accent)", matches: (p) => p.startsWith("/livemap") },
       { id: "schicht", label: "Schicht-Akten", href: "/schicht", farbe: "var(--vibe-team)", matches: (p) => p.startsWith("/schicht") },
-      { id: "treuhand", label: "Treuhand", href: "/treuhand", farbe: "rgb(100 150 170)", matches: (p) => p.startsWith("/treuhand") },
       { id: "compliance", label: "Compliance", href: "/compliance", farbe: "rgb(110 140 180)", matches: (p) => p.startsWith("/compliance") },
-      { id: "genossenschaft", label: "Genossenschaft", href: "/genossenschaft", farbe: "var(--sun)", matches: (p) => p === "/genossenschaft" },
-      { id: "pool", label: "Pool · Arbeitsamt-Ersatz", href: "/genossenschaft/pool", farbe: "var(--vibe-team)", matches: (p) => p.startsWith("/genossenschaft/pool") },
-      { id: "solidartopf", label: "Solidar-Topf · Krankheit", href: "/genossenschaft/solidartopf", farbe: "var(--thu)", matches: (p) => p.startsWith("/genossenschaft/solidartopf") },
-      { id: "warum", label: "Warum Genossenschaft?", href: "/warum", farbe: "var(--accent)", matches: (p) => p.startsWith("/warum") },
+    ],
+  },
+  {
+    label: "Werkzeuge",
+    ziele: [
       { id: "ki", label: "KI · Klartext + Berufs-Brücke", href: "/ki", farbe: "var(--accent)", matches: (p) => p === "/ki" },
       { id: "fortbildung", label: "Fortbildung", href: "/fortbildung", farbe: "var(--vibe-stats)", matches: (p) => p.startsWith("/fortbildung") },
       { id: "entwickler", label: "Entwickler-API", href: "/entwickler", farbe: "var(--vibe-team)", matches: (p) => p.startsWith("/entwickler") },
@@ -129,6 +139,20 @@ export function UserMenu({
     }
     return null;
   })();
+
+  // Accordion-State: standardmäßig die aktive Sektion offen, Rest zu.
+  // Über Klick auf Sektion-Header toggeln; Mehrfach-Auswahl möglich.
+  const [offeneSektionen, setOffeneSektionen] = useState<Set<string>>(
+    () => new Set(aktivesZiel ? [aktivesZiel.sektion] : []),
+  );
+  const toggleSektion = (label: string) => {
+    setOffeneSektionen((alt) => {
+      const neu = new Set(alt);
+      if (neu.has(label)) neu.delete(label);
+      else neu.add(label);
+      return neu;
+    });
+  };
 
   useEffect(() => {
     if (!open) return;
@@ -236,54 +260,93 @@ export function UserMenu({
             </div>
           )}
 
-          {/* Sektionen — die Eine-Wahrheit-Liste */}
+          {/* Sektionen — Accordion mit smooth max-height-Animation.
+              Default-offen ist nur die Sektion mit dem aktiven Ziel,
+              Rest collapsed. Klick auf Sektion-Header toggelt. */}
           <div className="max-h-[440px] overflow-y-auto">
-            {SEKTIONEN.map((sek) => (
-              <div key={sek.label} className="border-t border-app-soft">
-                <p className="px-3 pt-2 pb-1 text-[9px] uppercase tracking-wider text-soft font-mono">{sek.label}</p>
-                <ul className="pb-1">
-                  {sek.ziele.map((z) => {
-                    const aktiv = z.matches(pathname);
-                    const farbe = z.farbe.startsWith("rgb") ? z.farbe : `rgb(${z.farbe})`;
-                    const istSwitch = z.switchRolle && darfSwitchen && !ROLLEN_OHNE_SWITCH.includes(z.switchRolle);
-                    return (
-                      <li key={z.id}>
-                        {istSwitch && z.switchRolle ? (
-                          <button
-                            type="button"
-                            disabled={pending}
-                            onClick={() => { setOpen(false); start(() => switcheRolle(z.switchRolle!)); }}
-                            className="w-full px-3 py-1.5 text-left flex items-baseline justify-between gap-2 hover:bg-[rgb(var(--bg-mute))] transition-colors disabled:opacity-50"
-                            style={{ background: aktiv ? `${farbe.replace(")", " / 0.06)")}` : undefined }}
-                          >
+            {SEKTIONEN.map((sek) => {
+              const istOffen = offeneSektionen.has(sek.label);
+              const aktivCount = sek.ziele.filter((z) => z.matches(pathname)).length;
+              return (
+                <div key={sek.label} className="border-t border-app-soft">
+                  <button
+                    type="button"
+                    onClick={() => toggleSektion(sek.label)}
+                    aria-expanded={istOffen}
+                    aria-controls={`menu-sek-${sek.label}`}
+                    className="w-full px-3 py-2 flex items-center justify-between gap-2 hover:bg-[rgb(var(--bg-mute))] transition-colors"
+                  >
+                    <span className="flex items-baseline gap-2 min-w-0">
+                      <span className="text-[10px] uppercase tracking-wider font-mono" style={{ color: aktivCount > 0 ? "rgb(var(--accent))" : "rgb(var(--fg-mute))" }}>{sek.label}</span>
+                      <span className="text-[10px]" style={{ color: "rgb(var(--fg-mute))" }}>· {sek.ziele.length}</span>
+                      {aktivCount > 0 && (
+                        <span aria-hidden className="w-1.5 h-1.5 rounded-full" style={{ background: "rgb(var(--accent))" }} />
+                      )}
+                    </span>
+                    <span
+                      aria-hidden
+                      className="text-[10px] inline-block transition-transform duration-300"
+                      style={{ color: "rgb(var(--fg-mute))", transform: istOffen ? "rotate(0deg)" : "rotate(-90deg)" }}
+                    >
+                      ▾
+                    </span>
+                  </button>
+                  <div
+                    id={`menu-sek-${sek.label}`}
+                    className="overflow-hidden transition-[max-height,opacity] duration-300 ease-out"
+                    style={{
+                      maxHeight: istOffen ? `${sek.ziele.length * 44 + 8}px` : "0px",
+                      opacity: istOffen ? 1 : 0,
+                    }}
+                    aria-hidden={!istOffen}
+                  >
+                    <ul className="pb-1">
+                      {sek.ziele.map((z) => {
+                        const aktiv = z.matches(pathname);
+                        const farbe = z.farbe.startsWith("rgb") ? z.farbe : `rgb(${z.farbe})`;
+                        const istSwitch = z.switchRolle && darfSwitchen && !ROLLEN_OHNE_SWITCH.includes(z.switchRolle);
+                        const eintragInhalt = (
+                          <>
                             <div className="flex items-baseline gap-2 flex-wrap min-w-0">
                               <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1 shrink-0" style={{ background: farbe }} />
                               <span className="text-[12px] font-medium truncate" style={{ color: aktiv ? farbe : undefined }}>{z.label}</span>
-                              {aktiv && <span className="text-[9px] text-soft">aktiv</span>}
+                              {aktiv && <span className="text-[9px]" style={{ color: "rgb(var(--fg-mute))" }}>aktiv</span>}
                             </div>
-                            <span aria-hidden className="text-[10px] text-soft font-mono">{z.href}</span>
-                          </button>
-                        ) : (
-                          <Link
-                            href={z.href}
-                            onClick={() => setOpen(false)}
-                            className="px-3 py-1.5 flex items-baseline justify-between gap-2 hover:bg-[rgb(var(--bg-mute))] transition-colors"
-                            style={{ background: aktiv ? `${farbe.replace(")", " / 0.06)")}` : undefined }}
-                          >
-                            <div className="flex items-baseline gap-2 flex-wrap min-w-0">
-                              <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1 shrink-0" style={{ background: farbe }} />
-                              <span className="text-[12px] font-medium truncate" style={{ color: aktiv ? farbe : undefined }}>{z.label}</span>
-                              {aktiv && <span className="text-[9px] text-soft">aktiv</span>}
-                            </div>
-                            <span aria-hidden className="text-[10px] text-soft font-mono">{z.href}</span>
-                          </Link>
-                        )}
-                      </li>
-                    );
-                  })}
-                </ul>
-              </div>
-            ))}
+                            <span aria-hidden className="text-[10px] font-mono" style={{ color: "rgb(var(--fg-mute))" }}>{z.href}</span>
+                          </>
+                        );
+                        return (
+                          <li key={z.id}>
+                            {istSwitch && z.switchRolle ? (
+                              <button
+                                type="button"
+                                disabled={pending || !istOffen}
+                                tabIndex={istOffen ? 0 : -1}
+                                onClick={() => { setOpen(false); start(() => switcheRolle(z.switchRolle!)); }}
+                                className="w-full px-3 py-1.5 text-left flex items-baseline justify-between gap-2 hover:bg-[rgb(var(--bg-mute))] transition-colors disabled:opacity-50"
+                                style={{ background: aktiv ? `${farbe.replace(")", " / 0.06)")}` : undefined }}
+                              >
+                                {eintragInhalt}
+                              </button>
+                            ) : (
+                              <Link
+                                href={z.href}
+                                tabIndex={istOffen ? 0 : -1}
+                                onClick={() => setOpen(false)}
+                                className="px-3 py-1.5 flex items-baseline justify-between gap-2 hover:bg-[rgb(var(--bg-mute))] transition-colors"
+                                style={{ background: aktiv ? `${farbe.replace(")", " / 0.06)")}` : undefined }}
+                              >
+                                {eintragInhalt}
+                              </Link>
+                            )}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           {/* Mein Konto */}
