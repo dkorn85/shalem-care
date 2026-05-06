@@ -7,13 +7,53 @@ import Link from "next/link";
 import { tokenizeBody, type Message } from "@/lib/messenger/store";
 import { loescheMessage } from "@/lib/messenger/actions";
 import { VoicemailPlayer } from "@/components/VoicemailPlayer";
-import { useTransition } from "react";
+import { ReactionsBar } from "@/components/MessengerShell";
+import type { Reaction } from "@/lib/messenger/channels";
+import { useState, useTransition } from "react";
+
+function pseudoReactions(id: string): Reaction[] {
+  let h = 2166136261 >>> 0;
+  for (let i = 0; i < id.length; i++) {
+    h ^= id.charCodeAt(i);
+    h = Math.imul(h, 16777619) >>> 0;
+  }
+  const emojis = ["👍", "✓", "🙏", "❤"];
+  const out: Reaction[] = [];
+  for (let i = 0; i < 2; i++) {
+    if ((h >> (i * 4)) & 1) {
+      out.push({
+        emoji: emojis[(h >> (i * 8)) % emojis.length],
+        count: 1 + ((h >> (i * 12)) % 4),
+        hatIchReagiert: (h >> (i * 16)) & 1 ? true : false,
+      });
+    }
+  }
+  return out;
+}
 
 export function MessageItem({ m, aktiverUserId }: { m: Message; aktiverUserId: string }) {
   const [pending, start] = useTransition();
+  const [reactions, setReactions] = useState<Reaction[]>(() => pseudoReactions(m.id));
+  const [showThread, setShowThread] = useState(false);
   const tokens = tokenizeBody(m.body);
   const eigene = m.von_user_id === aktiverUserId;
   const datum = new Date(m.created_at);
+
+  const toggleReaction = (emoji: string) => {
+    setReactions((rs) => {
+      const existing = rs.find((r) => r.emoji === emoji);
+      if (existing) {
+        if (existing.hatIchReagiert) {
+          const next = existing.count - 1;
+          return next > 0
+            ? rs.map((r) => (r.emoji === emoji ? { ...r, count: next, hatIchReagiert: false } : r))
+            : rs.filter((r) => r.emoji !== emoji);
+        }
+        return rs.map((r) => (r.emoji === emoji ? { ...r, count: r.count + 1, hatIchReagiert: true } : r));
+      }
+      return [...rs, { emoji, count: 1, hatIchReagiert: true }];
+    });
+  };
 
   return (
     <li className="surface rounded-xl p-3 relative overflow-hidden" style={eigene ? { background: "rgb(var(--accent) / 0.04)" } : undefined}>
@@ -69,9 +109,19 @@ export function MessageItem({ m, aktiverUserId }: { m: Message; aktiverUserId: s
         <VoicemailPlayer src={m.voicemail_url} dauerSec={m.voicemail_dauer_sec} />
       )}
 
+      {/* Reactions */}
+      <ReactionsBar reactions={reactions} onToggle={toggleReaction} />
+
       <footer className="mt-1.5 flex items-baseline gap-2 flex-wrap text-[10px] text-soft">
         {m.mentions.length > 0 && <span>{m.mentions.length} @-Mention{m.mentions.length > 1 ? "s" : ""}</span>}
         {m.hashtags.length > 0 && <span>· {m.hashtags.length} #Tag{m.hashtags.length > 1 ? "s" : ""}</span>}
+        <button
+          type="button"
+          onClick={() => setShowThread(!showThread)}
+          className="hover:text-[rgb(var(--accent))] transition-colors"
+        >
+          {showThread ? "▾ Thread" : "↳ Antworten"}
+        </button>
         {eigene && (
           <button
             type="button"
@@ -83,6 +133,22 @@ export function MessageItem({ m, aktiverUserId }: { m: Message; aktiverUserId: s
           </button>
         )}
       </footer>
+
+      {/* Thread-Stub */}
+      {showThread && (
+        <div className="mt-2 ml-3 pl-3 border-l-2" style={{ borderColor: "rgb(var(--accent) / 0.25)" }}>
+          <p className="text-[10px] text-soft italic">
+            Phase 2: Thread-Antworten via parent_id-Spalte (Schema vorhanden) · Realtime-Stream über Supabase-Channel.
+          </p>
+          <input
+            type="text"
+            placeholder="Antwort schreiben…"
+            className="mt-1.5 w-full px-2 py-1 rounded text-[12px] surface-mute border-0 focus:outline-none"
+            style={{ outline: "none" }}
+            disabled
+          />
+        </div>
+      )}
     </li>
   );
 }

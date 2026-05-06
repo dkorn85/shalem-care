@@ -41,11 +41,11 @@ type Sektion = {
 
 const SEKTIONEN: Sektion[] = [
   {
-    label: "Empfänger:in",
+    label: "Klient & Angehörige",
     farbe: "var(--wed)",
     ziele: [
-      { id: "klient", label: "Klient:in · Helga", href: "/klient", farbe: "var(--wed)", switchRolle: "klient", matches: (p) => p === "/klient" || (p.startsWith("/klient/") && !p.startsWith("/klient-")) },
-      { id: "angehoerig", label: "Angehörige:r", href: "/klient/dienstplan", farbe: "var(--vibe-stats)", switchRolle: "angehoerig", matches: (p) => p.startsWith("/klient/dienstplan") },
+      { id: "klient", label: "Klient:in · Helga", href: "/klient", farbe: "var(--wed)", switchRolle: "klient", matches: (p) => p === "/klient" || (p.startsWith("/klient/") && !p.startsWith("/klient-") && !p.startsWith("/klient/dienstplan")) },
+      { id: "angehoerig", label: "Angehörige:r · Sicht", href: "/klient/dienstplan", farbe: "var(--vibe-stats)", switchRolle: "angehoerig", matches: (p) => p.startsWith("/klient/dienstplan") },
     ],
   },
   {
@@ -365,14 +365,18 @@ export function UserMenu({
                         const farbe = z.farbe.startsWith("rgb") ? z.farbe : `rgb(${z.farbe})`;
                         const istSwitch = z.switchRolle && darfSwitchen && !ROLLEN_OHNE_SWITCH.includes(z.switchRolle);
                         const eintragInhalt = (
-                          <>
-                            <div className="flex items-baseline gap-2 flex-wrap min-w-0">
-                              <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1 shrink-0" style={{ background: farbe }} />
-                              <span className="text-[12px] font-medium truncate" style={{ color: aktiv ? farbe : undefined }}>{z.label}</span>
-                              {aktiv && <span className="text-[9px]" style={{ color: "rgb(var(--fg-mute))" }}>aktiv</span>}
-                            </div>
-                            <span aria-hidden className="text-[10px] font-mono" style={{ color: "rgb(var(--fg-mute))" }}>{z.href}</span>
-                          </>
+                          <div className="flex items-baseline gap-2 flex-wrap min-w-0 flex-1">
+                            <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1 shrink-0" style={{ background: farbe }} />
+                            <span className="text-[12px] font-medium truncate" style={{ color: aktiv ? farbe : undefined }}>{z.label}</span>
+                            {aktiv && (
+                              <span
+                                className="text-[8px] uppercase tracking-wider px-1 py-0.5 rounded font-mono ml-auto"
+                                style={{ background: `${farbe.replace(")", " / 0.15)")}`, color: farbe }}
+                              >
+                                hier
+                              </span>
+                            )}
+                          </div>
                         );
                         return (
                           <li key={z.id}>
