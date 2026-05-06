@@ -67,7 +67,7 @@ export default async function StationKlientPage({
 
   return (
     <AppShell
-      role={viewerRole === "doctor" ? "doctor" : viewerRole === "lead" ? "lead" : viewerRole === "klient" ? "klient" : "nurse"}
+      role={viewerRole === "doctor" ? "doctor" : viewerRole === "lead" ? "lead" : "nurse"}
       user={person ? { id: person.id, name: person.name, subtitle: viewerBeruf, initials: person.initials } : { id: "demo", name: "Demo", subtitle: "Pflege", initials: "DM" }}
       station={station?.name ?? "Pulmologie 3B"}
     >

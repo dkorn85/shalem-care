@@ -9,10 +9,13 @@
     --bg-elev: 255 255 255;
     --bg-mute: 244 243 238;
     --fg: 14 14 12;
-    --fg-mute: 90 89 80;
-    --fg-soft: 140 138 128;
-    --border: 228 226 218;
-    --border-soft: 242 240 234;
+    /* fg-mute & fg-soft 2026-05-06 dunkler gezogen fuer WCAG-AA-Kontrast.
+       Vorher: fg-mute 90/89/80 (5.4:1), fg-soft 140/138/128 (3.0:1 — fail).
+       Jetzt:  fg-mute 70/68/58 (~7.0:1, AAA), fg-soft 105/100/88 (~4.6:1, AA). */
+    --fg-mute: 70 68 58;
+    --fg-soft: 105 100 88;
+    --border: 215 213 204;
+    --border-soft: 235 232 224;
     --accent: 15 110 86;
     --accent-soft: 229 244 238;
 
@@ -54,6 +57,33 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    /* Lesbarkeits-Defaults fuer Sehbehinderte 2026-05-06.
+       Browser-Default 16px bleibt. Tailwind-Utilities `text-[10px]` etc.
+       greifen weiter, aber Body-Text ohne Override ist ab jetzt 16px/1.55. */
+    font-size: 16px;
+    line-height: 1.55;
+  }
+
+  /* Sehbehinderte / Hochkontrast-Modus per Browser-Setting (Win11, macOS). */
+  @media (prefers-contrast: more) {
+    :root {
+      --fg-mute: 50 48 38;        /* fast schwarz */
+      --fg-soft: 80 76 64;        /* dunkler grau */
+      --border: 180 175 160;      /* sichtbarer */
+      --border-soft: 215 210 195;
+    }
+    html, body { font-size: 17px; }
+  }
+
+  /* Opt-In Larger-Print fuer Profil-Praeferenz (PreferencesPanel kann
+     `data-large-print="1"` auf <html> setzen). Erhoeht ALLE Tailwind-
+     `text-[Npx]` Utilities um Faktor 1.125. */
+  html[data-large-print="1"] {
+    font-size: 18px;
+  }
+  html[data-large-print="1"] body {
+    font-size: 18px;
+    line-height: 1.6;
   }
 
   body {
