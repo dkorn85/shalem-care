@@ -85,6 +85,7 @@ const SEKTIONEN: Sektion[] = [
       { id: "warum", label: "Warum Genossenschaft?", href: "/warum", farbe: "var(--accent)", matches: (p) => p.startsWith("/warum") },
       { id: "ki", label: "KI · Klartext + Berufs-Brücke", href: "/ki", farbe: "var(--accent)", matches: (p) => p === "/ki" },
       { id: "fortbildung", label: "Fortbildung", href: "/fortbildung", farbe: "var(--vibe-stats)", matches: (p) => p.startsWith("/fortbildung") },
+      { id: "entwickler", label: "Entwickler-API", href: "/entwickler", farbe: "var(--vibe-team)", matches: (p) => p.startsWith("/entwickler") },
     ],
   },
 ];
