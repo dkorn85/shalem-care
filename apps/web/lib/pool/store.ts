@@ -87,6 +87,24 @@ export function bewerbungenFuer(personId: string): PoolBewerbung[] {
   return [...s.bewerbungen.values()].filter((b) => b.personId === personId);
 }
 
+export function findeBewerbung(personId: string, stelleId: string): PoolBewerbung | null {
+  return [...s.bewerbungen.values()].find((b) => b.personId === personId && b.stelleId === stelleId) ?? null;
+}
+
+export function listBewerbungenFuerStelle(stelleId: string): PoolBewerbung[] {
+  return [...s.bewerbungen.values()]
+    .filter((b) => b.stelleId === stelleId)
+    .sort((a, b) => a.abgegebenAm.localeCompare(b.abgegebenAm));
+}
+
+export function setBewerbungStatus(id: string, status: PoolBewerbung["status"]): PoolBewerbung | null {
+  const b = s.bewerbungen.get(id);
+  if (!b) return null;
+  b.status = status;
+  s.bewerbungen.set(id, b);
+  return b;
+}
+
 // ─── KPIs für Vergleich Arbeitsamt vs. Pool ─────────────────────────────
 
 export type PoolKpi = {
