@@ -87,6 +87,15 @@ const SEKTIONEN: Sektion[] = [
     ],
   },
   {
+    label: "Aufsicht & Politik",
+    farbe: "var(--vibe-stats)",
+    ziele: [
+      { id: "supervisor", label: "Träger-Vorstand · Cross-Einrichtung", href: "/supervisor", farbe: "var(--accent)", matches: (p) => p.startsWith("/supervisor") },
+      { id: "politik", label: "Politik-Schnittstelle + KI-Minister-Sim", href: "/politik", farbe: "var(--vibe-stats)", matches: (p) => p.startsWith("/politik") },
+      { id: "trading", label: "Trading-Hub · Multiplier", href: "/trading", farbe: "var(--accent)", matches: (p) => p.startsWith("/trading") },
+    ],
+  },
+  {
     label: "Plattform-Sichten",
     farbe: "var(--accent)",
     ziele: [

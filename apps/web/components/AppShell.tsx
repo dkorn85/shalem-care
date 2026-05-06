@@ -43,6 +43,7 @@ const THERAPIE_NAV = [
 
 const SOZIAL_NAV = [
   { href: "/sozial",            label: "Übersicht",      vibe: "var(--tue)",           icon: GridIcon },
+  { href: "/sozial/diktat",     label: "Hilfeplan-Diktat", vibe: "var(--tue)",         icon: SparkIcon },
   { href: "/sozial/dienstplan", label: "Dienstplan",     vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/sozial/faelle",     label: "Fälle",           vibe: "var(--vibe-team)",     icon: TeamIcon },
   { href: "/sozial/hilfeplan",  label: "Hilfeplan",       vibe: "var(--vibe-approval)", icon: CheckIcon },
