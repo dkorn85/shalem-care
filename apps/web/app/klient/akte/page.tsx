@@ -175,7 +175,7 @@ export default async function MeineAktePage() {
 
       <Link
         href="/klient/holistik"
-        className="surface-hover rounded-2xl p-4 mb-6 flex items-center gap-3 transition-transform hover:-translate-y-0.5"
+        className="surface-hover rounded-2xl p-4 mb-3 flex items-center gap-3 transition-transform hover:-translate-y-0.5"
         style={{ background: "linear-gradient(135deg, rgb(var(--sat) / 0.08), rgb(var(--mon) / 0.05) 50%, transparent)" }}
       >
         <span aria-hidden className="text-[24px]">✦</span>
@@ -183,6 +183,20 @@ export default async function MeineAktePage() {
           <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Holistische Begleitung</p>
           <p className="text-[14px] font-medium mt-0.5">Vier Brillen lesen die Akte: Merkaba · Shalem · Sowa Rigpa · Ayurveda</p>
           <p className="text-[12px] text-mute mt-0.5">Sanfte Pflege-Vorschläge ergänzend zur ärztlichen Versorgung.</p>
+        </div>
+        <span className="text-mute shrink-0">→</span>
+      </Link>
+
+      <Link
+        href="/klient/dienstplan"
+        className="surface-hover rounded-2xl p-4 mb-6 flex items-center gap-3 transition-transform hover:-translate-y-0.5"
+        style={{ background: "linear-gradient(135deg, rgb(var(--vibe-team) / 0.08), transparent)" }}
+      >
+        <span aria-hidden className="text-[24px]">📅</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Mein Pflegeteam · Dienstplan</p>
+          <p className="text-[14px] font-medium mt-0.5">Wer kommt wann zu mir? — gefiltert auf meine Bezugspersonen</p>
+          <p className="text-[12px] text-mute mt-0.5">Privacy-by-Design: Sie sehen nur Ihre eigene Caseload.</p>
         </div>
         <span className="text-mute shrink-0">→</span>
       </Link>
