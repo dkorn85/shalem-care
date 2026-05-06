@@ -94,6 +94,9 @@ export default function Willkommen() {
           <Link href="/leistungen" className="btn btn-ghost text-[14px] px-4 py-2">
             Was steht mir zu?
           </Link>
+          <Link href="/pflegegrad-check" className="btn btn-ghost text-[14px] px-4 py-2">
+            Pflegegrad-Check
+          </Link>
           <Link href="/roadmap" className="btn btn-ghost text-[14px] px-4 py-2">
             Roadmap
           </Link>

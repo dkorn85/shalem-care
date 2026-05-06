@@ -194,7 +194,10 @@ export default async function LeistungenPage({
             So reicht dein Budget weiter.
           </p>
           <div className="flex flex-wrap gap-2.5">
-            <Link href="/klient/buchen" className="btn btn-primary text-[14px] px-4 py-2">
+            <Link href="/pflegegrad-check" className="btn btn-primary text-[14px] px-4 py-2">
+              Pflegegrad schätzen
+            </Link>
+            <Link href="/klient/buchen" className="btn btn-ghost text-[14px] px-4 py-2">
               Direkt buchen anschauen
             </Link>
             <Link href="/klient/anfrage" className="btn btn-ghost text-[14px] px-4 py-2">
