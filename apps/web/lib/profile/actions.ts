@@ -30,7 +30,7 @@ export async function speicherePreferenzen(
   if (!personId) return { ok: false, error: "personId fehlt" };
   const aktuell = getProfil(personId);
   const profil = updateProfil(personId, {
-    preferenzen: { ...(aktuell.preferenzen ?? { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true }), ...patch },
+    preferenzen: { ...(aktuell.preferenzen ?? { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true, largePrint: false }), ...patch },
   });
   // Sprach-Cookie spiegeln, damit der i18n-Layer mit-zieht
   if (patch.sprache) await setLocale(patch.sprache);

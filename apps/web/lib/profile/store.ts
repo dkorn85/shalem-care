@@ -92,7 +92,7 @@ export function seedProfilOnce() {
     lebensziele: "Eine kleine Pflegegenossenschaft im Umland mitgründen, die nicht nach Akkord rechnet.",
     typischerTag: "Frühdienst 6:30, danach Hund + Backofen-Brot, abends Yoga oder Imkerei.",
     erreichbarkeit: "Werktags 7-19, Notrufpiepser auch nachts.",
-    preferenzen: { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true },
+    preferenzen: { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true, largePrint: false },
   });
 
   updateProfil("klient-hr", {
