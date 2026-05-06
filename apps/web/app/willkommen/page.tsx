@@ -97,6 +97,9 @@ export default function Willkommen() {
           <Link href="/pflegegrad-check" className="btn btn-ghost text-[14px] px-4 py-2">
             Pflegegrad-Check
           </Link>
+          <Link href="/tarif" className="btn btn-ghost text-[14px] px-4 py-2">
+            Tarifrechner
+          </Link>
           <Link href="/roadmap" className="btn btn-ghost text-[14px] px-4 py-2">
             Roadmap
           </Link>

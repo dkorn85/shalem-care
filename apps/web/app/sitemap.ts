@@ -13,6 +13,7 @@ const ROUTES: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/kontakt",                priority: 0.8,  changeFrequency: "monthly" },
   { path: "/leistungen",             priority: 0.85, changeFrequency: "yearly"  },
   { path: "/pflegegrad-check",       priority: 0.85, changeFrequency: "yearly"  },
+  { path: "/tarif",                  priority: 0.8,  changeFrequency: "monthly" },
   { path: "/presse",                 priority: 0.6,  changeFrequency: "monthly" },
   { path: "/roadmap",                priority: 0.7,  changeFrequency: "weekly" },
 
