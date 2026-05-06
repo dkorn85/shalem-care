@@ -139,7 +139,7 @@ export default async function ProfilPage() {
         className="surface-hover rounded-2xl p-4 mb-3 flex items-center gap-3 anim-slideUp max-w-5xl"
         style={{ background: "linear-gradient(135deg, rgb(var(--thu) / 0.08), rgb(var(--vibe-team) / 0.04))" }}
       >
-        <span aria-hidden className="text-[24px]">🤝</span>
+        <Image src="/icons/topf-schutz.png" alt="" width={48} height={48} className="shrink-0" />
         <div className="flex-1 min-w-0">
           <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Mein Solidar-Schutz · {new Date().getFullYear()}</p>
           <p className="text-[14px] font-medium mt-0.5">

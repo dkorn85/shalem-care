@@ -8,6 +8,7 @@
 // nicht in eine Verleih-Marge.
 
 import Link from "next/link";
+import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { HeroBanner } from "@/components/HeroBanner";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -60,8 +61,8 @@ export default async function PoolPage() {
       station="Pulmologie 3B"
     >
       <HeroBanner
-        bild="/akte/header-konferenz.png"
-        variante="split"
+        bild="/akte/header-pool.png"
+        variante="tall"
         eyebrow="Genossenschafts-Pool · Arbeitsamt-Ersatz"
         rolleFarbe="var(--vibe-team)"
         titel={<>Wir ersetzen das <RainbowText>Arbeitsamt</RainbowText>.</>}
@@ -135,7 +136,8 @@ export default async function PoolPage() {
                     <div className="flex items-baseline justify-between gap-2 flex-wrap mb-1">
                       <span className="chip text-[10px]" style={{ background: `rgb(${TYP_FARBE[s.typ]} / 0.15)`, color: `rgb(${TYP_FARBE[s.typ]})` }}>{TYP_LABEL[s.typ]}</span>
                       {s.matchScore !== undefined && (
-                        <span className="text-[11px] font-mono text-soft">
+                        <span className="text-[12px] font-mono text-soft inline-flex items-center gap-1.5">
+                          <Image src="/icons/match-pool.png" alt="" width={20} height={20} className="opacity-90" />
                           KI-Match <strong style={{ color: s.matchScore >= 85 ? "rgb(var(--thu))" : "rgb(var(--fg))" }}>{s.matchScore}/100</strong>
                         </span>
                       )}

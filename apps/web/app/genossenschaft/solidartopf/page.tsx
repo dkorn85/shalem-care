@@ -7,6 +7,7 @@
 // Reserve-Quote, alle Claims (anonymisiert für Nicht-Stationsleitung).
 
 import Link from "next/link";
+import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { HeroBanner } from "@/components/HeroBanner";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -67,8 +68,9 @@ export default async function SolidartopfPage() {
       station="Pulmologie 3B"
     >
       <HeroBanner
-        bild="/akte/header-konferenz.png"
-        variante="split"
+        bild="/akte/header-solidartopf.png"
+        loop="/loops/topf-fluss.mp4"
+        variante="tall"
         eyebrow="Genossenschafts-Solidar-Topf"
         rolleFarbe="var(--thu)"
         titel={<>Wir tragen uns <RainbowText>gegenseitig</RainbowText>.</>}
@@ -96,7 +98,9 @@ export default async function SolidartopfPage() {
       {/* Eigener Jahres-Stand */}
       {nurse && (
         <SmoothReveal direction="up">
-          <section className="surface rounded-2xl p-5 mb-8" style={{ background: "linear-gradient(135deg, rgb(var(--thu) / 0.06), transparent)" }}>
+          <section className="surface rounded-2xl p-5 mb-8 flex gap-4 items-start" style={{ background: "linear-gradient(135deg, rgb(var(--thu) / 0.06), transparent)" }}>
+            <Image src="/icons/krankenschutz.png" alt="" width={64} height={64} className="shrink-0 mt-1" />
+            <div className="flex-1 min-w-0">
             <p className="text-[11px] uppercase tracking-wider text-soft mb-1.5 font-medium">Dein Solidar-Schutz · {new Date().getFullYear()}</p>
             <div className="flex items-baseline gap-3 flex-wrap">
               <span className="font-display text-[28px] font-bold leading-none" style={{ color: "rgb(var(--thu))" }}>
@@ -115,6 +119,7 @@ export default async function SolidartopfPage() {
               <Link href="/genossenschaft" className="text-[12px] px-3 py-1.5 rounded-md" style={{ background: "transparent", color: "rgb(var(--accent))", boxShadow: "inset 0 0 0 1px rgb(var(--accent) / 0.3)" }}>
                 Genossenschaft-Übersicht
               </Link>
+            </div>
             </div>
           </section>
         </SmoothReveal>

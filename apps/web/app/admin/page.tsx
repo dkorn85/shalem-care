@@ -13,6 +13,7 @@ import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
 import { listOffeneClaims, topfKpis, seedSolidarTopfOnce } from "@/lib/solidartopf/store";
+import Image from "next/image";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
@@ -97,7 +98,7 @@ export default async function AdminDashboard() {
           className="surface-hover rounded-2xl p-4 mb-6 flex items-center gap-4 anim-slideUp"
           style={{ background: "linear-gradient(135deg, rgb(var(--thu) / 0.06), transparent)" }}
         >
-          <span aria-hidden className="text-[28px]">🤝</span>
+          <Image src="/icons/topf-schutz.png" alt="" width={56} height={56} className="shrink-0" />
           <div className="flex-1 min-w-0">
             <p className="text-[12px] uppercase tracking-wider text-soft font-medium">Solidar-Topf · Krankheits-Schutz</p>
             <p className="text-[14px] font-medium mt-0.5">
