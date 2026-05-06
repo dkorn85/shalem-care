@@ -8,6 +8,20 @@
 GPT-Image-2.0-Suffix für **alle** Stills:
 > `"soft watercolor + ink line, palette: bone, sage, dusty rose, oxidized brass, slate blue. No text, no logos, no brand marks. Approachable, dignified, not clinical."`
 
+## Hintergrund-Strategie (Transparenz-Realität)
+
+GPT Image 2.0 / Pixella liefern keine echten Alpha-Pixel. Drei pragmatische Pfade je nach Asset:
+
+| Asset-Typ | Hintergrund-Strategie | Post-Processing |
+|-----------|----------------------|-----------------|
+| **Portraits/Personen** (40.x Fallback-Avatare) | flat chroma-green `#00B140`, no shadows, no spill | Pixella „Remove Background" oder `magick in.png -fuzz 8% -transparent "#00B140" out.png` |
+| **Line-Icons auf Bone-Cards** (41.x, 43.x) | flat solid `#FAFAF8` bone (= App-Surface) | keins — das Icon sitzt optisch transparent auf der Karte |
+| **Line-Icons auf Akzent-Chips** (37.2, 37.3, 38.2, 39.2, 42.x) | flat chroma-green `#00B140` | wie Portraits keyen, sonst ist Bone-Rand auf Sage-Chip sichtbar |
+| **Heros** (37.1, 38.1, 39.1) | volle Watercolor-Komposition mit Hintergrund | keins — Bild wird flächig genutzt |
+| **Loops** (37.4, 39.3) | dunkle Watercolor-Komposition | im CSS via `mix-blend-mode: soft-light` (Pattern in [HeroBanner.tsx:77](../apps/web/components/HeroBanner.tsx)) |
+
+Pragmatik: bei Icons die hauptsächlich **auf Bone-Karten** liegen (Status-Tiles, Inline-Lines) lohnt der Chroma-Key-Aufwand nicht — generier auf Bone und nutze sie direkt. Nur bei farbigen Chip-Backgrounds (`rgb(var(--mon) / 0.15)` etc.) ist Chroma-Key nötig.
+
 ---
 
 ## Block 37 · Solidar-Topf · Krankheits-/Verdienstausfall-Schutz (3 Stills · 1 Loop)
@@ -35,7 +49,7 @@ Square 512x512 transparent PNG, soft watercolor + ink line icon.
 Stylized open ceramic bowl seen from 3/4 above, holding a single
 sprouting sage-green leaf, with a faint golden ring above the bowl rim
 suggesting collective contribution. Palette: bone, sage, oxidized brass.
-No text, no logos. Background fully transparent. Icon is centered with
+No text, no logos. Background flat solid #FAFAF8 bone (same as app surface — looks transparent on cards). For chips with colored backgrounds, regenerate with chroma-green #00B140 background and key out in Pixella/ImageMagick.. Icon is centered with
 balanced negative space, suitable as 64-128px tile.
 ```
 
