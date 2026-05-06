@@ -91,6 +91,7 @@ const SEKTIONEN: Sektion[] = [
     farbe: "var(--vibe-stats)",
     ziele: [
       { id: "supervisor", label: "Träger-Vorstand · Cross-Einrichtung", href: "/supervisor", farbe: "var(--accent)", matches: (p) => p.startsWith("/supervisor") },
+      { id: "aufsicht", label: "Aufsichtsrat · KI-Quartalsbericht", href: "/aufsicht", farbe: "var(--vibe-approval)", matches: (p) => p.startsWith("/aufsicht") },
       { id: "politik", label: "Politik-Schnittstelle + KI-Minister-Sim", href: "/politik", farbe: "var(--vibe-stats)", matches: (p) => p.startsWith("/politik") },
       { id: "trading", label: "Trading-Hub · Multiplier", href: "/trading", farbe: "var(--accent)", matches: (p) => p.startsWith("/trading") },
     ],

@@ -16,6 +16,7 @@ import { useEffect, useRef, useState, useTransition, useCallback } from "react";
 import Link from "next/link";
 import { MessengerShell } from "./MessengerShell";
 import { MessageItemLive } from "./MessageItemLive";
+import { isBrowserAuthConfigured } from "@/lib/auth/browser-client";
 import type { Channel, ChannelKategorie, Presence } from "@/lib/messenger/channels";
 import type { Message } from "@/lib/messenger/store";
 import type { DmPartner } from "@/lib/messenger/dm";
@@ -237,13 +238,22 @@ export function MessengerLive({
         )}
       </MessengerShell>
 
-      {/* Live-Status-Badge */}
-      <div className="fixed bottom-4 right-4 z-30 surface rounded-full px-3 py-1.5 flex items-center gap-2" style={{ boxShadow: "0 8px 24px rgb(0 0 0 / 0.15)", inset: "0 0 0 1px rgb(var(--vibe-approval) / 0.3)" }}>
-        <span aria-hidden className="w-2 h-2 rounded-full animate-pulse" style={{ background: "rgb(var(--vibe-approval))" }} />
-        <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "rgb(var(--vibe-approval))" }}>
-          live · {livePresence.length} online
-        </span>
-      </div>
+      {/* Live-Status-Badge — pulsiert nur wenn Realtime auch wirklich aktiv ist */}
+      {isBrowserAuthConfigured() ? (
+        <div className="fixed bottom-4 right-4 z-30 surface rounded-full px-3 py-1.5 flex items-center gap-2" style={{ boxShadow: "0 8px 24px rgb(0 0 0 / 0.15)" }}>
+          <span aria-hidden className="w-2 h-2 rounded-full animate-pulse" style={{ background: "rgb(var(--vibe-approval))" }} />
+          <span className="text-[10px] font-mono uppercase tracking-wider" style={{ color: "rgb(var(--vibe-approval))" }}>
+            live · {livePresence.length} online
+          </span>
+        </div>
+      ) : (
+        <div className="fixed bottom-4 right-4 z-30 surface rounded-full px-3 py-1.5 flex items-center gap-2 max-w-[320px]" style={{ boxShadow: "0 8px 24px rgb(0 0 0 / 0.15)" }}>
+          <span aria-hidden className="w-2 h-2 rounded-full" style={{ background: "rgb(var(--sun))" }} />
+          <span className="text-[10px] font-mono" style={{ color: "rgb(var(--sun))" }}>
+            statisch · NEXT_PUBLIC_SUPABASE_URL fehlt im Build
+          </span>
+        </div>
+      )}
     </>
   );
 }

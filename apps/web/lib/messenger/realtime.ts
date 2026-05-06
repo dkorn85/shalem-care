@@ -9,12 +9,26 @@
 //
 // Phase 3: Care-Team-RLS pro Klient-Channel + Hash-Kette für Audit.
 
-import type { RealtimeChannel } from "@supabase/supabase-js";
-import { browserSupabase } from "@/lib/auth/browser-client";
+import type { RealtimeChannel, SupabaseClient } from "@supabase/supabase-js";
+import { browserSupabase, isBrowserAuthConfigured } from "@/lib/auth/browser-client";
 import type { Message } from "./store";
 
-// Alias zum bisherigen Aufruf-Stil
-const browserClient = browserSupabase;
+/**
+ * Sicherer Browser-Client: liefert null wenn ENV-Vars nicht zur Build-Zeit
+ * gesetzt waren. Verhindert Client-Side-Crash auf Hostinger, wo
+ * NEXT_PUBLIC_SUPABASE_URL/ANON_KEY ggf. nicht propagiert wurden.
+ *
+ * Alle subscribe-/toggle-Funktionen prüfen das und werden zu No-Ops,
+ * wenn kein Client verfügbar — Page rendert mit Server-Initial-State.
+ */
+function safeBrowserClient(): SupabaseClient | null {
+  if (!isBrowserAuthConfigured()) return null;
+  try {
+    return browserSupabase();
+  } catch {
+    return null;
+  }
+}
 
 export type ReactionRow = {
   id: string;
@@ -59,7 +73,8 @@ export function subscribeMessages(
   } | null,
   onChange: MessageChangeHandler,
 ): () => void {
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return () => {};
   const channelName = `msgs:${filter?.dmPair?.join("-") ?? filter?.klientId ?? filter?.hashtag ?? filter?.mention ?? "all"}`;
 
   const channel: RealtimeChannel = supabase.channel(channelName);
@@ -117,7 +132,8 @@ export type ReactionChangeHandler = (event: { type: "INSERT" | "DELETE"; row: Re
 
 export function subscribeReactions(messageIds: string[], onChange: ReactionChangeHandler): () => void {
   if (messageIds.length === 0) return () => {};
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return () => {};
   const channel = supabase.channel(`reactions:${messageIds[0].slice(0, 8)}`);
 
   const ids = new Set(messageIds);
@@ -149,7 +165,8 @@ export function subscribeReactions(messageIds: string[], onChange: ReactionChang
 // ─── Reaction Toggle ─────────────────────────────────────────────
 
 export async function toggleReaction(messageId: string, emoji: string): Promise<{ ok: boolean; added: boolean; error?: string }> {
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return { ok: false, added: false, error: "Realtime nicht konfiguriert (NEXT_PUBLIC_SUPABASE_URL fehlt im Build)." };
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return { ok: false, added: false, error: "Nicht eingeloggt" };
 
@@ -177,7 +194,8 @@ export async function toggleReaction(messageId: string, emoji: string): Promise<
 
 export async function fetchReactionCounts(messageIds: string[]): Promise<ReactionCount[]> {
   if (messageIds.length === 0) return [];
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return [];
   const { data, error } = await supabase.rpc("reactions_for_messages", { message_ids: messageIds });
   if (error || !data) return [];
   return data as ReactionCount[];
@@ -191,7 +209,8 @@ export function subscribePresence(
   user: PresenceUser,
   onChange: PresenceChangeHandler,
 ): () => void {
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return () => {};
   const channel = supabase.channel("messenger:online", {
     config: { presence: { key: user.user_id } },
   });
@@ -227,7 +246,8 @@ export type TypingEvent = {
 };
 
 export function broadcastTyping(channelSlug: string, user: { user_id: string; display_name: string }): () => void {
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return () => {};
   const channel = supabase.channel(`typing:${channelSlug}`, {
     config: { broadcast: { self: false } },
   });
@@ -248,7 +268,8 @@ export function broadcastTyping(channelSlug: string, user: { user_id: string; di
 }
 
 export function subscribeTyping(channelSlug: string, onTyping: (e: TypingEvent) => void): () => void {
-  const supabase = browserClient();
+  const supabase = safeBrowserClient();
+  if (!supabase) return () => {};
   const channel = supabase.channel(`typing:${channelSlug}`, {
     config: { broadcast: { self: false } },
   });
