@@ -22,6 +22,9 @@ import { StationFotoUpload } from "@/components/StationFotoUpload";
 import { StationVitalErfassen } from "@/components/StationVitalErfassen";
 import { StationAkteFiles } from "@/components/StationAkteFiles";
 import { KiBerufsBruecke } from "@/components/KiBerufsBruecke";
+import { MultiBerufTimeline } from "@/components/MultiBerufTimeline";
+import { LanaKiBerater, type NaechsterTermin, type LanaSuggestion } from "@/components/LanaKiBerater";
+import { generateKlientPlan, BERUF_LABEL as BP_BERUF_LABEL } from "@/lib/berufsplan/generator";
 import { KlientAvatar } from "@/components/Avatar";
 import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
 import { store } from "@/lib/swap-store";
@@ -99,6 +102,11 @@ export default async function StationKlientPage({
         </Link>
       </header>
 
+      {/* Multi-Berufe-Timeline · zeitgleiche Live-Sicht aller Berufe heute */}
+      <div className="mb-5">
+        <MultiBerufTimeline klientId={klient.id} />
+      </div>
+
       {/* Grid: Chat (links breit) + Vital + Foto (rechts schmal) */}
       <div className="grid lg:grid-cols-12 gap-4 mb-6">
         <div className="lg:col-span-7">
@@ -134,6 +142,112 @@ export default async function StationKlientPage({
       <div className="mb-6">
         <StationAkteFiles files={files} />
       </div>
+
+      {/* Lana KI-Berater · ganzheitliche Sicht + Chat */}
+      {(() => {
+        const planHeute = generateKlientPlan(klient.id, 1);
+        const heute = (() => { const d = new Date(); return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`; })();
+        const heutePlan = planHeute.filter((i) => i.datumISO === heute);
+        const jetzt = new Date();
+        const jetztMin = jetzt.getHours() * 60 + jetzt.getMinutes();
+        const naechste: NaechsterTermin[] = heutePlan
+          .filter((i) => {
+            const [h, m] = i.startZeit.split(":").map(Number);
+            return h * 60 + m > jetztMin;
+          })
+          .map((i) => ({
+            zeit: i.startZeit,
+            beruf: i.beruf,
+            beruf_label: BP_BERUF_LABEL[i.beruf],
+            aktivitaet: i.aktivitaet,
+            farbe: i.farbe,
+          }));
+        const aktiv = heutePlan.filter((i) => i.status === "läuft").length;
+
+        const suggestions: LanaSuggestion[] = [
+          {
+            id: "vital",
+            titel: "Vital-Check fällig",
+            beschreibung: letzteVital
+              ? `Letzte Messung ${new Date(letzteVital.zeitstempel).toLocaleTimeString("de-DE", { hour: "2-digit", minute: "2-digit" })} — ${jetztMin > 14 * 60 ? "nächste Messung steht nachmittags an" : "der Tagesablauf ist im grünen Bereich"}.`
+              : "Noch keine Vital-Werte heute — bitte messen und ins Cockpit eintragen.",
+            cta: { label: "Vital erfassen", href: "#vital" },
+            farbe: "var(--vibe-team)",
+          },
+          {
+            id: "wohlbefinden",
+            titel: "Wohlbefinden-Check",
+            beschreibung: `Frag ${klient.name} kurz: Schlaf, Appetit, Schmerz (NRS 0-10). Eintrag fließt automatisch in die Akte.`,
+            cta: { label: "In Chat fragen", href: "#chat" },
+            farbe: "var(--accent)",
+          },
+          {
+            id: "kontakt",
+            titel: "Familien-Kontakt anregen",
+            beschreibung: "Letzter Familien-Besuch ≥ 3 Tage her. Kurzer Anruf oder Video-Termin tut gut — Lebensgeschichte aktivieren.",
+            cta: { label: "Angehörigen-Sicht", href: "/klient/dienstplan" },
+            farbe: "var(--vibe-stats)",
+          },
+          {
+            id: "bewegung",
+            titel: "Bewegung & Mobilisation",
+            beschreibung: "Heute kein Therapie-Termin? Kurze 10-min-Mobilisation am Bett aktiviert Kreislauf + senkt Dekubitus-Risiko.",
+            cta: { label: "Mobilisation-Vorschlag", href: "/klient/akte/behandlung" },
+            farbe: "var(--fri)",
+          },
+        ];
+
+        const weiterfuehrend: LanaSuggestion[] = [
+          {
+            id: "hospiz",
+            titel: "Hospiz-Begleitung",
+            beschreibung: "Ehrenamtliche Begleitung über den Hospiz-Verein — Vorlesen, Gespräche, Sitzwache. Kostenfrei.",
+            cta: { label: "Anfragen", href: "/begleitung" },
+            farbe: "var(--thu)",
+          },
+          {
+            id: "tibet-tee",
+            titel: "Tibet-Heilkräuter-Tee",
+            beschreibung: "Sowa-Rigpa-Tee abhängig vom Saft-Profil — beruhigt rLung, balanciert Verdauung. Phase-2: Bestellung über Apotheke.",
+            farbe: "var(--vibe-profile)",
+          },
+          {
+            id: "musik-therapie",
+            titel: "Musiktherapie · Selma",
+            beschreibung: "Wöchentlich 60 min Einzel-Musiktherapie über Genossenschafts-Pool — Erinnerungs-Aktivierung bei Demenz.",
+            cta: { label: "Buchen", href: "/genossenschaft/pool" },
+            farbe: "var(--fri)",
+          },
+          {
+            id: "garten",
+            titel: "Garten-Begleitung",
+            beschreibung: "1× pro Woche 90 min im Pflegeheim-Garten mit Sebastian. Sonne + sanfte Bewegung.",
+            cta: { label: "Termin", href: "/ehrenamt" },
+            farbe: "var(--sat)",
+          },
+        ];
+
+        // Tibet-Säfte: Demo-Werte deterministisch aus klient-id
+        const klientHash = klient.id.split("").reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 0);
+        const saftZustand = {
+          rLung: 50 + (klientHash % 30),
+          tripa: 35 + ((klientHash >> 4) % 35),
+          beken: 40 + ((klientHash >> 8) % 25),
+        };
+
+        return (
+          <section className="mb-6">
+            <LanaKiBerater
+              klientName={klient.name}
+              naechste={naechste}
+              jetzt_aktiv={aktiv}
+              suggestions={suggestions}
+              weiterfuehrend={weiterfuehrend}
+              saftZustand={saftZustand}
+            />
+          </section>
+        );
+      })()}
 
       {/* KI-Brücke: letzte wichtige Nachricht für andere Berufe übersetzen */}
       {letzteWichtigeNachricht && (

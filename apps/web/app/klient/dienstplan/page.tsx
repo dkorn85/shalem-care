@@ -13,6 +13,8 @@ import { seedOnce } from "@/lib/seed";
 import { getKlient } from "@/lib/hierarchy/store";
 import { CASELOADS } from "@/lib/zuordnung/store";
 import { aktuelle as aktuellerKiPlan } from "@/lib/dienstplan/plan-history";
+import { BerufsplanView } from "@/components/BerufsplanView";
+import { generateKlientPlan } from "@/lib/berufsplan/generator";
 
 const KLIENT_ID = "klient-hr";
 
@@ -178,6 +180,14 @@ export default function KlientDienstplanPage() {
             ))}
           </tbody>
         </table>
+      </section>
+
+      <section className="mb-5">
+        <h2 className="text-[14px] font-medium mb-3 flex items-baseline gap-2">
+          Termine über alle Berufe · 14 Tage
+          <span className="text-[10px] text-soft font-mono">arzt · therapie · sozial · ehrenamt · heilerziehung · hauswirtschaft</span>
+        </h2>
+        <BerufsplanView items={generateKlientPlan(KLIENT_ID, 14)} leitfarbe="var(--wed)" perspektive="klient" />
       </section>
 
       <section className="surface rounded-2xl p-4 mb-5">
