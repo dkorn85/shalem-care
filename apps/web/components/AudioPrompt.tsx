@@ -150,14 +150,17 @@ export function AudioMuteToggle({ className = "" }: { className?: string }) {
     <button
       type="button"
       onClick={toggle}
-      className={`text-[12px] px-3 py-1.5 rounded-md transition-colors ${className}`}
+      aria-pressed={!muted}
+      aria-label={muted ? "Ton aktivieren" : "Ton stumm-schalten"}
+      className={`text-[12px] px-3 py-1.5 rounded-md transition-colors inline-flex items-center gap-2 ${className}`}
       style={{
         background: muted ? "rgb(var(--bg-mute))" : "rgb(var(--accent) / 0.15)",
         color: muted ? "rgb(var(--fg-mute))" : "rgb(var(--accent))",
         boxShadow: `inset 0 0 0 1px rgb(var(--${muted ? "fg-mute" : "accent"}) / 0.3)`,
       }}
     >
-      {muted ? "Ton aktivieren" : "Ton ist an · Stumm-schalten"}
+      <img src={muted ? "/icons/voice-off.png" : "/icons/voice-on.png"} alt="" width={20} height={20} className="shrink-0" />
+      <span>{muted ? "Ton aktivieren" : "Ton ist an · Stumm-schalten"}</span>
     </button>
   );
 }

@@ -8,6 +8,8 @@ import Link from "next/link";
 import { KiKlartext } from "@/components/KiKlartext";
 import { KiBerufsBruecke } from "@/components/KiBerufsBruecke";
 import { SectionHeader } from "@/components/SectionHeader";
+import { HeroBanner } from "@/components/HeroBanner";
+import { RainbowText } from "@/components/Rainbow";
 
 export const metadata = {
   title: "KI-Klartext · Shalem Care",
@@ -45,24 +47,21 @@ Wochen.`;
 export default function KiShowcasePage() {
   return (
     <main className="min-h-screen bg-app">
-      <header className="relative w-full overflow-hidden">
-        <div className="max-w-5xl mx-auto px-6 sm:px-12 py-12 sm:py-16">
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">KI-Klartext · live</p>
-          <h1 className="font-display text-[36px] sm:text-[56px] font-bold tracking-tight3 leading-[1.05]">
-            Was die Profis schreiben — <span className="rainbow-text">in deiner Sprache</span>.
-          </h1>
-          <p className="text-[15px] sm:text-[16px] text-mute mt-4 max-w-prose leading-relaxed">
+      <HeroBanner
+        bild="/akte/header-ki-bruecke.png"
+        loop="/loops/ki-bruecke-pulse.mp4"
+        variante="tall"
+        eyebrow="KI-Klartext · live · Brücke zwischen Berufen"
+        titel={<>Was die Profis schreiben — <RainbowText>in deiner Sprache</RainbowText>.</>}
+        untertitel={
+          <>
             Befunde, Wunddoku, Konferenz-Notizen sind oft in Fachsprache verfasst. Diese Seite zeigt
-            drei reale Beispiele aus dem Helga-Universum. Klick auf <em>"in einfacher Sprache erklären"</em>
-            — Claude übersetzt in 3-5 Sätze, dann liest Lana oder Dennis vor.
-          </p>
-          <p className="text-[12px] text-soft mt-3 italic max-w-prose">
-            Stack: Anthropic Claude Haiku 4.5 für den Text, ElevenLabs für die Stimme. Kosten pro
-            Klick: ca. 0,0001 € Text + 0,002 € Audio (kürzere Texte günstiger). Erste Audio-Generierung
-            wird gecacht — Wiederholungen sind kostenlos.
-          </p>
-        </div>
-      </header>
+            reale Beispiele aus dem Helga-Universum. Ein Klick → Claude übersetzt in 3-5 Sätze,
+            dann liest Lana oder Dennis vor. Stack: Anthropic Claude + ElevenLabs.
+            Kosten pro Klick ca. 0,0001 € Text + 0,002 € Audio.
+          </>
+        }
+      />
 
       <section className="max-w-5xl mx-auto px-6 sm:px-12 pb-20 space-y-10">
         <Demo

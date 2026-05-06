@@ -33,7 +33,7 @@ export default function BegleitungPage() {
         rolle="begleitung"
         eyebrow="Würde-Begleitung · Berührung in den letzten Lebensphasen"
         titel="Servus, Marlene."
-        loopSrc="/loops/atmo-haende.mp4"
+        loopSrc="/loops/atmo-begleitung.mp4"
         patternSrc="/patterns/lavender-still.png"
         rightSlot={
           <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">

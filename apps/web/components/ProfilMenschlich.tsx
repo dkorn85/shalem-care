@@ -24,6 +24,13 @@ const NIVEAU_FARBE: Record<ProfilSprache["niveau"], string> = {
   grundkenntnis: "var(--fg-mute)",
 };
 
+const NIVEAU_ICON: Record<ProfilSprache["niveau"], string> = {
+  muttersprache: "/icons/sprache-mutter.png",
+  verhandlung: "/icons/sprache-verhandlung.png",
+  alltag: "/icons/sprache-alltag.png",
+  grundkenntnis: "/icons/sprache-grund.png",
+};
+
 export function ProfilMenschlichSection({ profil }: { profil: ProfilMenschlich }) {
   return (
     <section className="surface rounded-2xl p-5 anim-slideUp">
@@ -219,6 +226,7 @@ function SprachListe({ profil }: { profil: ProfilMenschlich }) {
             className="chip text-[11px] flex items-center gap-1.5"
             style={{ background: `rgb(${NIVEAU_FARBE[s.niveau]} / 0.15)`, color: `rgb(${NIVEAU_FARBE[s.niveau]})` }}
           >
+            <img src={NIVEAU_ICON[s.niveau]} alt="" width={14} height={14} className="shrink-0" />
             {s.label} · {NIVEAU_LABEL[s.niveau]}
             <button onClick={() => entferne(s.code)} className="hover:opacity-70" aria-label={`${s.label} entfernen`}>×</button>
           </span>
