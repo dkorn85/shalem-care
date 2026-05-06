@@ -3,9 +3,16 @@
 // Public-facing für Reviewer und Pilotkunden. Zeigt was schon umgesetzt ist
 // und was noch kommt. Keine Marketing-Sprache, sondern konkret was geprüft
 // wird, von wem, und mit welchem Standard.
+//
+// Refactored nach PLAN_MODULAR · nutzt die zentralen Primitives.
 
 import Image from "next/image";
 import Link from "next/link";
+import { HeroBanner } from "@/components/HeroBanner";
+import { SectionHeader } from "@/components/SectionHeader";
+import { SmoothReveal } from "@/components/SmoothReveal";
+import { NumberedList } from "@/components/NumberedList";
+import { RainbowText } from "@/components/Rainbow";
 
 export const metadata = {
   title: "Compliance · Shalem Care",
@@ -63,83 +70,86 @@ const PUNKTE: { titel: string; detail: string; status: Status; norm: string }[] 
 export default function CompliancePage() {
   return (
     <main className="min-h-screen bg-app">
-      <header className="relative w-full aspect-[16/9] sm:aspect-[16/7] overflow-hidden">
-        <Image src="/compliance/audit-ledger.png" alt="" fill priority className="object-cover" sizes="100vw" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.5) 0%, rgb(var(--bg)) 100%)" }} />
-        <div className="absolute inset-x-0 bottom-0 px-6 sm:px-12 pb-8 sm:pb-12 max-w-5xl mx-auto">
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Compliance · DSGVO + BSI + Audit</p>
-          <h1 className="font-display text-[36px] sm:text-[52px] font-bold tracking-tight3 leading-[1.05]">
-            Was prüfbar ist, ist <span className="rainbow-text">vertrauenswürdig</span>.
-          </h1>
-          <p className="text-[14px] sm:text-[16px] text-mute mt-3 max-w-prose leading-relaxed">
+      <HeroBanner
+        bild="/compliance/audit-ledger.png"
+        variante="tall"
+        eyebrow="Compliance · DSGVO + BSI + Audit"
+        titel={<>Was prüfbar ist, ist <RainbowText>vertrauenswürdig</RainbowText>.</>}
+        untertitel={
+          <>
             Gesundheitsdaten verlangen das höchste Schutzniveau. Hier siehst du konkret was wir tun —
             ehrlich nach Status sortiert, mit Norm-Bezug. Kein Greenwashing.
-          </p>
-        </div>
-      </header>
+          </>
+        }
+      />
 
-      <article className="max-w-5xl mx-auto px-6 sm:px-12 py-12 space-y-10">
+      <article className="max-w-5xl mx-auto px-6 sm:px-12 py-12 space-y-12">
 
-        {/* Drei-Säulen-Visual */}
-        <section className="grid sm:grid-cols-3 gap-3">
-          <Saeule
-            titel="DSGVO-konform"
-            bild="/compliance/datenschutz-hand.png"
-            beschreibung="Privacy by Design · Verarbeitungsverzeichnis · DSB extern."
-            farbe="var(--vibe-team)"
+        {/* Drei-Säulen-Grid */}
+        <SmoothReveal direction="up">
+          <NumberedList
+            variante="horizontal"
+            items={[
+              { nummer: 1, titel: "DSGVO-konform", text: "Privacy by Design · Verarbeitungsverzeichnis · DSB extern.", akzent: "var(--vibe-team)", bild: "/compliance/datenschutz-hand.png" },
+              { nummer: 2, titel: "BSI-IT-Grundschutz", text: "Schutzklasse Hoch für Gesundheitsdaten · jährliches Audit.", akzent: "var(--mon)", bild: "/compliance/bsi-schloss.png" },
+              { nummer: 3, titel: "Audit-Log", text: "Alle Schreib-Operationen unveränderlich protokolliert.", akzent: "var(--accent)", bild: "/compliance/audit-ledger.png" },
+            ]}
           />
-          <Saeule
-            titel="BSI-IT-Grundschutz"
-            bild="/compliance/bsi-schloss.png"
-            beschreibung="Schutzklasse Hoch für Gesundheitsdaten · jährliches Audit."
-            farbe="var(--mon)"
-          />
-          <Saeule
-            titel="Audit-Log"
-            bild="/compliance/audit-ledger.png"
-            beschreibung="Alle Schreib-Operationen unveränderlich protokolliert."
-            farbe="var(--accent)"
-          />
-        </section>
+        </SmoothReveal>
 
         {/* Status-Liste */}
-        <section>
-          <h2 className="font-display text-[20px] font-bold tracking-tight2 mb-3">Stand · ehrlich</h2>
-          <ul className="space-y-2">
-            {PUNKTE.map((p, i) => (
-              <li key={i} className="surface rounded-xl p-3 relative overflow-hidden">
-                <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${STATUS_FARBE[p.status]})` }} />
-                <div className="ml-2.5 flex items-start gap-3 flex-wrap">
-                  <div className="relative w-12 h-12 shrink-0 opacity-90">
-                    <Image src={STATUS_ICON[p.status]} alt="" fill sizes="48px" className="object-contain" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="font-medium text-[14px]">{p.titel}</span>
-                      <span className="chip text-[10px]" style={{ background: `rgb(${STATUS_FARBE[p.status]} / 0.15)`, color: `rgb(${STATUS_FARBE[p.status]})` }}>
-                        {STATUS_LABEL[p.status]}
-                      </span>
+        <SmoothReveal direction="up">
+          <section>
+            <SectionHeader
+              eyebrow="Stand · ehrlich"
+              titel={`${PUNKTE.length} Punkte · Norm-Bezug pro Zeile`}
+              size="large"
+            />
+            <ul className="space-y-2 mt-3">
+              {PUNKTE.map((p, i) => (
+                <SmoothReveal key={i} as="li" delay={i * 40} direction="up">
+                  <article className="surface rounded-xl p-3 relative overflow-hidden group transition-shadow duration-500 hover:shadow-md">
+                    <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full transition-all duration-500 group-hover:w-[5px]" style={{ background: `rgb(${STATUS_FARBE[p.status]})` }} />
+                    <div className="ml-2.5 flex items-start gap-3 flex-wrap">
+                      <div className="relative w-12 h-12 shrink-0 opacity-90">
+                        <Image src={STATUS_ICON[p.status]} alt={`Status ${STATUS_LABEL[p.status]}`} fill sizes="48px" className="object-contain" />
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex items-baseline gap-2 flex-wrap">
+                          <span className="font-medium text-[14px]">{p.titel}</span>
+                          <span className="chip text-[11px]" style={{ background: `rgb(${STATUS_FARBE[p.status]} / 0.15)`, color: `rgb(${STATUS_FARBE[p.status]})` }}>
+                            {STATUS_LABEL[p.status]}
+                          </span>
+                        </div>
+                        <p className="text-[13px] text-mute mt-1 leading-relaxed">{p.detail}</p>
+                        <p className="text-[11px] mt-1 font-mono" style={{ color: "rgb(var(--fg-mute))" }}>{p.norm}</p>
+                      </div>
                     </div>
-                    <p className="text-[12px] text-mute mt-1 leading-relaxed">{p.detail}</p>
-                    <p className="text-[10px] text-soft mt-1 font-mono">{p.norm}</p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </section>
+                  </article>
+                </SmoothReveal>
+              ))}
+            </ul>
+          </section>
+        </SmoothReveal>
 
-        {/* Audit-Log-Icon-Erklärung */}
-        <section className="surface rounded-2xl p-5">
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-3 font-medium">Audit-Log · drei Zustände pro Eintrag</p>
-          <ul className="grid sm:grid-cols-3 gap-3">
-            <AuditIcon bild="/icons/aktion-edit.png" titel="Eintrag" detail="Schreib-Operation passiert · user_id + Zeitstempel · Hash über Inhalt." />
-            <AuditIcon bild="/icons/aktion-verify.png" titel="Geprüft" detail="Pruefer:in (Stationsleitung, Datenschutz-Beauftragte) bestätigt Eintrag." />
-            <AuditIcon bild="/icons/status-private.png" titel="Versiegelt" detail="Nach 30 Tagen wird der Eintrag mit Hash-Kette versiegelt — unveränderlich." />
-          </ul>
-        </section>
+        {/* Audit-Log-Drei-Zustände */}
+        <SmoothReveal direction="up">
+          <section className="surface rounded-2xl p-5">
+            <SectionHeader
+              eyebrow="Audit-Log · drei Zustände pro Eintrag"
+              titel="Eintrag → Geprüft → Versiegelt"
+              size="medium"
+              accent="var(--accent)"
+            />
+            <ul className="grid sm:grid-cols-3 gap-3 mt-3">
+              <AuditIcon bild="/icons/aktion-edit.png" titel="Eintrag" detail="Schreib-Operation passiert · user_id + Zeitstempel · Hash über Inhalt." />
+              <AuditIcon bild="/icons/aktion-verify.png" titel="Geprüft" detail="Pruefer:in (Stationsleitung, Datenschutz-Beauftragte) bestätigt Eintrag." />
+              <AuditIcon bild="/icons/status-private.png" titel="Versiegelt" detail="Nach 30 Tagen wird der Eintrag mit Hash-Kette versiegelt — unveränderlich." />
+            </ul>
+          </section>
+        </SmoothReveal>
 
-        <footer className="text-center text-[11px] text-soft pt-4">
+        <footer className="text-center text-[12px] pt-4" style={{ color: "rgb(var(--fg-mute))" }}>
           <Link href="/" className="hover:text-[rgb(var(--fg))]">← Startseite</Link>
           <span className="mx-2">·</span>
           <Link href="/datenschutz" className="hover:text-[rgb(var(--fg))]">Datenschutz-Erklärung</Link>
@@ -151,23 +161,6 @@ export default function CompliancePage() {
   );
 }
 
-function Saeule({ titel, bild, beschreibung, farbe }: { titel: string; bild: string; beschreibung: string; farbe: string }) {
-  return (
-    <article className="surface rounded-2xl overflow-hidden h-full">
-      <div className="relative aspect-square">
-        <Image src={bild} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
-      </div>
-      <div className="p-3 relative">
-        <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${farbe})` }} />
-        <div className="ml-2.5">
-          <h3 className="font-display text-[14px] font-bold tracking-tight2 mb-1" style={{ color: `rgb(${farbe})` }}>{titel}</h3>
-          <p className="text-[12px] text-mute leading-snug">{beschreibung}</p>
-        </div>
-      </div>
-    </article>
-  );
-}
-
 function AuditIcon({ bild, titel, detail }: { bild: string; titel: string; detail: string }) {
   return (
     <li className="surface-mute rounded-xl p-3 flex gap-3 items-start">
@@ -175,8 +168,8 @@ function AuditIcon({ bild, titel, detail }: { bild: string; titel: string; detai
         <Image src={bild} alt="" fill sizes="48px" className="object-contain" />
       </div>
       <div className="flex-1 min-w-0">
-        <p className="font-medium text-[13px]">{titel}</p>
-        <p className="text-[11px] text-mute leading-snug mt-0.5">{detail}</p>
+        <p className="font-medium text-[14px]">{titel}</p>
+        <p className="text-[12px] text-mute leading-snug mt-0.5">{detail}</p>
       </div>
     </li>
   );
