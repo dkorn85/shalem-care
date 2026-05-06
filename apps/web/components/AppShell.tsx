@@ -32,8 +32,9 @@ const DOCTOR_NAV = [
 ];
 
 const THERAPIE_NAV = [
+  { href: "/therapie/heute",      label: "Heute",          vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/therapie",            label: "Praxis",        vibe: "var(--fri)",           icon: WardIcon },
-  { href: "/therapie/heute",      label: "Heute",          vibe: "var(--vibe-team)",     icon: PlanIcon },
+  { href: "/therapie/diktat",     label: "Termin-Diktat",  vibe: "var(--fri)",           icon: SparkIcon },
   { href: "/therapie/dienstplan", label: "Dienstplan",     vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/therapie/patienten",  label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
   { href: "/therapie/abrechnung", label: "Abrechnung",    vibe: "var(--vibe-stats)",    icon: EuroIcon },
