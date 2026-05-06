@@ -3,7 +3,11 @@
 > שָׁלֵם — vollständig, heil, im Frieden.
 > Eine offene Plattform für Pflege, Betreuung und alle sozialen Berufe — gemeinwohlorientiert, FHIR-nativ, genossenschaftlich getragen.
 
-## Status v0.11.0 — KI-Pflegedoku + Asset-Integration
+## 🏁 Preview · Alpha 0.9 · v0.12.0 · 2026-05-06
+
+**Erste Preview-Alpha mit komplett-konsolidiertem Berufs-Layout**, Genossenschafts-Solidar-Topf (Krankheit + Verdienstausfall), Station-Cockpit (Live-Chat + Vitalwerte + Foto + KI-Brücke pro Klient), Externe API v0.1 (OAuth2 + 3 FHIR-Endpoints), Voice-Layer für Blinde, Larger-Print-Mode, 17 KI-Übersetzungs-Berufe (Beruf-zu-Beruf-Brücke), Pool als Arbeitsamt-Ersatz mit Bewerbungs-Lifecycle, Lana-im-Anruf-Demo. **6/7 Marketing-Pages refactored** nach PLAN_MODULAR. **Strukturelle Lücken** für Pilot-Reife (Persistenz, AVV, DSGVO-FA, TI-Anbindung) sind in [docs/PLAN_EVALUATION.md](docs/PLAN_EVALUATION.md) dokumentiert. Externe-API-Spec in [docs/API_EXTERNAL.md](docs/API_EXTERNAL.md).
+
+## Status v0.12.0 — KI-Pflegedoku + Asset-Integration
 
 Zwei zusammenhängende Brocken:
 

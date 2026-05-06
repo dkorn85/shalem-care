@@ -1,6 +1,6 @@
 {
   "name": "shalem-care",
-  "version": "0.11.0",
+  "version": "0.12.0",
   "private": true,
   "description": "Shalem Care — open social-care platform · monorepo entry for hosters that expect a root package.json (Hostinger, Render, Railway). Real app lives in apps/web.",
   "engines": {
