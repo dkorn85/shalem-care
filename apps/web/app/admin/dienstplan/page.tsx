@@ -33,6 +33,25 @@ export default async function DienstplanPage({
   const slotsByPerson = await Promise.all(
     nurses.map(async (p) => ({ person: p, slots: await store.listSlotsForPerson(p.id) })),
   );
+  // Aktiver KI-Plan einlesen — wird in die Wochen-Cells gemerged.
+  const kiPlan = aktuellerKiPlan();
+  const kiSchichtTyp: Record<string, ShiftType> = {
+    frueh: "early",
+    spaet: "late",
+    nacht: "night",
+    tag: "intermediate",
+    geteilter_dienst: "intermediate",
+  };
+  // pro Person+Tag eine Zuweisung aus dem Plan
+  const kiByPersonDay = new Map<string, { schicht: ShiftType; src: "ki" }>();
+  if (kiPlan?.uebernommen) {
+    for (const z of kiPlan.ergebnis.zuweisungen) {
+      const key = `${z.personId}::${z.datumISO}`;
+      const t = kiSchichtTyp[z.schicht] ?? "early";
+      kiByPersonDay.set(key, { schicht: t, src: "ki" });
+    }
+  }
+
   const rows: PersonRow[] = slotsByPerson.map(({ person, slots }) => {
     const shiftsByDay: Record<string, { slotId: string; shiftType: ShiftType }> = {};
     for (const s of slots) {
@@ -41,6 +60,14 @@ export default async function DienstplanPage({
       if (!dKey) continue;
       const t = getShiftType(s) ?? "early";
       shiftsByDay[dKey] = { slotId: s.id, shiftType: t };
+    }
+    // KI-Plan-Schichten in leere Cells einfuegen (echte Slots haben Vorrang)
+    for (const dKey of dayKeys) {
+      if (shiftsByDay[dKey]) continue;
+      const ki = kiByPersonDay.get(`${person.id}::${dKey}`);
+      if (ki) {
+        shiftsByDay[dKey] = { slotId: `ki-${person.id}-${dKey}`, shiftType: ki.schicht };
+      }
     }
     return {
       id: person.id,
