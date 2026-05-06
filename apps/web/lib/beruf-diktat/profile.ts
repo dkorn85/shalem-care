@@ -60,7 +60,31 @@ const EHRENAMT_FELDER: DiktatFeld[] = [
   { key: "uebergabe", label: "Übergabe an Pflege", beschreibung: "Was sollte das Pflegeteam wissen", farbe: "var(--mon)", keywords: ["pflege", "schmerz", "weh", "bemerkt", "auffällig", "blutung"] },
 ];
 
+const KASSE_FELDER: DiktatFeld[] = [
+  { key: "fall", label: "Fall + Versicherte:r", beschreibung: "Wer · Versicherten-Nr · Anliegen", farbe: "var(--vibe-stats)", keywords: ["versichert", "frau", "herr", "geboren", "fall"] },
+  { key: "leistung", label: "Beantragte Leistung", beschreibung: "HKP, Reha, Hilfsmittel, Pflegegrad-Anpassung etc.", farbe: "var(--accent)", keywords: ["beantragt", "leistung", "hkp", "reha", "hilfsmittel", "pflegegrad", "krankengeld", "verordnung"] },
+  { key: "rechtsgrundlage", label: "Rechtsgrundlage", beschreibung: "SGB-V/-XI-Paragraph + Begründung", farbe: "var(--vibe-team)", keywords: ["§", "sgb", "abs", "satz", "richtlinie", "anlage"] },
+  { key: "entscheidung", label: "Entscheidung", beschreibung: "Bewilligt / Ablehnung / Teilbewilligung", farbe: "var(--vibe-approval)", keywords: ["bewillig", "abgelehn", "teilbewilligt", "übernehmen", "entscheid"] },
+  { key: "begruendung", label: "Begründung in einfacher Sprache", beschreibung: "Klartext-Erklärung warum bewilligt/abgelehnt", farbe: "var(--mon)", keywords: ["weil", "da", "weil sie", "voraussetz", "kriterium"] },
+  { key: "rechtsmittel", label: "Rechtsmittel-Belehrung", beschreibung: "Widerspruchsrecht + Frist + wo einreichen", farbe: "var(--sun)", keywords: ["widerspruch", "frist", "monat", "schriftlich", "rechtsmittel"] },
+];
+
 export const PROFILES: Record<string, DiktatProfil> = {
+  kasse: {
+    id: "kasse",
+    rolle: "kasse",
+    titel: "Bescheid diktieren · in einfacher Sprache",
+    eyebrow: "Krankenkasse · §§ 33-37 SGB V / SGB XI",
+    beispiel: "Frau Helga Reinhardt geboren neunzehnneunundvierzig, Versicherten-Nummer X123456789. Beantragt häusliche Krankenpflege Behandlungspflege Wundversorgung dreimal wöchentlich für vier Wochen. Rechtsgrundlage Paragraph 37 Absatz 2 SGB V mit Anlage 1 Häusliche-Krankenpflege-Richtlinie. Entscheidung: bewilligt für vier Wochen. Begründung: Die Wundversorgung kann nicht durch die Versicherte selbst durchgeführt werden, ärztliche Verordnung liegt vor. Widerspruch innerhalb eines Monats nach Zustellung schriftlich bei der Krankenkasse einzureichen.",
+    felder: KASSE_FELDER,
+    klartext_intro: (n) => `Liebe${n ? " Frau / Lieber Herr " + n : "/r Versicherte:r"},\n\nzu Ihrem Antrag haben wir entschieden:`,
+    vs: [
+      { name: "AOK / Barmer / TK", vorher: "Bescheid in Amtsdeutsch · 60 min Tippen", nachher: "Diktat → Bescheid + Klartext-Begründung in 2 min" },
+      { name: "kein Anbieter", vorher: "Bescheid für Versicherte:n unverständlich", nachher: "Klartext-Brücke automatisch beigelegt" },
+      { name: "Bürokratie-Abbau", vorher: "Antrags-Stau, Nachfrage-Schleifen", nachher: "Sofortige Klartext-Begründung reduziert Widersprüche um geschätzte 40%" },
+    ],
+  },
+
   heilerziehung: {
     id: "heilerziehung",
     rolle: "heilerziehung",
