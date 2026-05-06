@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { tokenizeBody, type Message } from "@/lib/messenger/store";
 import { loescheMessage } from "@/lib/messenger/actions";
+import { VoicemailPlayer } from "@/components/VoicemailPlayer";
 import { useTransition } from "react";
 
 export function MessageItem({ m, aktiverUserId }: { m: Message; aktiverUserId: string }) {
@@ -65,11 +66,7 @@ export function MessageItem({ m, aktiverUserId }: { m: Message; aktiverUserId: s
       )}
 
       {m.voicemail_url && (
-        <div className="mt-2 surface-mute rounded p-2 flex items-baseline gap-2 flex-wrap">
-          <span className="text-[12px]">🎙️ Voicemail</span>
-          {m.voicemail_dauer_sec && <span className="text-[11px] text-soft font-mono">{m.voicemail_dauer_sec}s</span>}
-          <span className="text-[10px] text-soft font-mono ml-auto">{m.voicemail_url}</span>
-        </div>
+        <VoicemailPlayer src={m.voicemail_url} dauerSec={m.voicemail_dauer_sec} />
       )}
 
       <footer className="mt-1.5 flex items-baseline gap-2 flex-wrap text-[10px] text-soft">
