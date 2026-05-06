@@ -8,6 +8,12 @@ import { HANDBUCH_KAPITEL, WANDEL_TABELLE, KNEIPP_SAEULEN } from "@/lib/heilkuns
 import { HAUSMITTEL, AETHERISCHE_OELE, ANWENDUNGSTYP_LABEL, ANWENDUNGSTYP_FARBE } from "@/lib/heilkunst/hausmittel";
 import type { Anwendungstyp } from "@/lib/heilkunst/hausmittel";
 import { getLocale, getT } from "@/lib/i18n/server";
+import { SmoothReveal } from "@/components/SmoothReveal";
+import { SectionHeader } from "@/components/SectionHeader";
+import { AccentCard } from "@/components/AccentCard";
+import { MediaSplit } from "@/components/MediaSplit";
+import { BulletList } from "@/components/BulletList";
+import { RainbowText } from "@/components/Rainbow";
 
 const PROFESSIONS = [
   { src: "/portraits/10_1_portrait_pflege_1x1.png",   label: "Pflege",         color: "var(--mon)" },
@@ -79,19 +85,14 @@ export default async function LandingPage() {
       <section className="max-w-screen-app mx-auto px-4 sm:px-8 py-16 sm:py-20 border-t border-app-soft">
         <div className="grid sm:grid-cols-3 gap-3">
           {PILLARS.map((p, i) => (
-            <div
-              key={p.title}
-              className="surface-hover rounded-2xl p-5 anim-float relative overflow-hidden"
-              style={{ animationDelay: `${i * 0.08}s` }}
-            >
-              <span
-                aria-hidden
-                className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full"
-                style={{ background: `rgb(${p.color})` }}
+            <SmoothReveal key={p.title} direction="up" delay={i * 80}>
+              <AccentCard
+                accent={p.color}
+                titel={p.title}
+                beschreibung={p.body}
+                variante="tile"
               />
-              <h3 className="font-display text-[17px] font-semibold tracking-tight2 ml-2.5">{p.title}</h3>
-              <p className="text-[14px] text-mute mt-2 ml-2.5 leading-relaxed">{p.body}</p>
-            </div>
+            </SmoothReveal>
           ))}
         </div>
       </section>
@@ -142,43 +143,37 @@ export default async function LandingPage() {
       </section>
 
       <section className="max-w-screen-app mx-auto px-4 sm:px-8 py-16 sm:py-20 border-t border-app-soft">
-        <div className="grid lg:grid-cols-12 gap-8 lg:gap-12 items-center">
-          <div className="lg:col-span-5 relative">
-            <div className="absolute -inset-3 rounded-3xl bg-gradient-to-br from-mon-200 via-wed-200 to-sun-200 opacity-25 blur-2xl" />
-            <div className="relative surface rounded-2xl overflow-hidden p-6">
-              <Image
-                src="/onboarding/welcome.png"
-                alt="Drei Mitglieder, die einen Schlussstein gemeinsam tragen"
-                width={1200}
-                height={900}
-                className="w-full h-auto"
-              />
-            </div>
-          </div>
-          <div className="lg:col-span-7">
-            <p className="text-[11px] uppercase tracking-wider text-soft mb-3 font-medium">Wie die Genossenschaft funktioniert</p>
-            <h2 className="font-display text-[28px] sm:text-[36px] font-bold tracking-tight3 leading-[1.1] text-balance">
-              Drei Mitglieder, ein <span className="rainbow-text">Schlussstein</span>.
-            </h2>
-            <p className="text-[15px] text-mute mt-4 leading-relaxed text-pretty max-w-xl">
-              Jedes Mitglied bringt einen Anteil ein — Pflegekraft, Klient, Träger. Was sonst Vermittlungs-Marge und Verwaltungs-Overhead frisst, fließt zurück in den gemeinsamen Pool. Ein:e Stimme pro Mitglied. Plattform-Cut 4 % statt 30–50 % bei Honorar-Verleihern.
-            </p>
-            <ul className="mt-6 space-y-2.5 text-[14px]">
-              <li className="flex gap-3 items-baseline">
-                <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "rgb(var(--mon))" }} />
-                <span><span className="font-medium">Pflegekräfte</span> werden Mit-Eigentümer — Mondragon-Modell, Smart eG-Präzedenz</span>
-              </li>
-              <li className="flex gap-3 items-baseline">
-                <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "rgb(var(--wed))" }} />
-                <span><span className="font-medium">Klient:innen</span> mit Pflegegrad 2+ können sich als Self-Booker freischalten</span>
-              </li>
-              <li className="flex gap-3 items-baseline">
-                <span aria-hidden className="w-1.5 h-1.5 rounded-full mt-1.5 shrink-0" style={{ background: "rgb(var(--sun))" }} />
-                <span><span className="font-medium">Träger</span> als Service-Partner statt Verleiher — IK-Anbindung über Genossenschaft</span>
-              </li>
-            </ul>
-          </div>
-        </div>
+        <SmoothReveal direction="up">
+          <MediaSplit
+            bild="/onboarding/welcome.png"
+            imageSide="left"
+            imageAspect="wide"
+            imageSpan={5}
+            glow="var(--mon)"
+          >
+            <SectionHeader
+              eyebrow="Wie die Genossenschaft funktioniert"
+              titel={<>Drei Mitglieder, ein <RainbowText>Schlussstein</RainbowText>.</>}
+              size="large"
+              lead={
+                <>
+                  Jedes Mitglied bringt einen Anteil ein — Pflegekraft, Klient, Träger. Was sonst Vermittlungs-Marge und Verwaltungs-Overhead frisst, fließt zurück in den gemeinsamen Pool. Ein:e Stimme pro Mitglied. Plattform-Cut 4 % statt 30–50 % bei Honorar-Verleihern.
+                </>
+              }
+            />
+            <BulletList
+              className="mt-6 text-[14px]"
+              size="md"
+              marker="color"
+              items={[
+                { text: <><span className="font-medium">Pflegekräfte</span> werden Mit-Eigentümer — Mondragon-Modell, Smart eG-Präzedenz</>, akzent: "var(--mon)" },
+                { text: <><span className="font-medium">Klient:innen</span> mit Pflegegrad 2+ können sich als Self-Booker freischalten</>, akzent: "var(--wed)" },
+                { text: <><span className="font-medium">Träger</span> als Service-Partner statt Verleiher — IK-Anbindung über Genossenschaft</>, akzent: "var(--sun)" },
+                { text: <><span className="font-medium">Solidar-Topf</span> trägt jedes Mitglied in Krankheit + Verdienstausfall, solange das Modell lebt</>, akzent: "var(--thu)" },
+              ]}
+            />
+          </MediaSplit>
+        </SmoothReveal>
       </section>
 
       {/* ─── Pflege-Handbuch · Vom Kammerdiener zur Pflegekraft ─── */}
@@ -427,15 +422,19 @@ export default async function LandingPage() {
             <Logo size={20} className="accent-text" />
             <span className="text-[13px] text-mute">Shalem Care · 2026 · AGPLv3</span>
           </div>
-          <div className="flex items-center gap-5 text-[13px] text-mute">
+          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-mute">
+            <Link href="/genossenschaft/solidartopf" className="hover:text-[rgb(var(--fg))]">Solidar-Topf</Link>
+            <Link href="/genossenschaft/pool" className="hover:text-[rgb(var(--fg))]">Pool</Link>
             <Link href="/netz" className="hover:text-[rgb(var(--fg))]">Netz · Übersicht</Link>
             <Link href="/livemap" className="hover:text-[rgb(var(--fg))]">Live-Map · 24 h</Link>
             <Link href="/schicht" className="hover:text-[rgb(var(--fg))]">Schicht-Akten</Link>
+            <Link href="/ki" className="hover:text-[rgb(var(--fg))]">KI · Klartext</Link>
             <Link href="/apotheke" className="hover:text-[rgb(var(--fg))]">Apotheke</Link>
             <Link href="/medizintechnik" className="hover:text-[rgb(var(--fg))]">MedTech</Link>
             <Link href="/rettungsdienst" className="hover:text-[rgb(var(--fg))]">Rettungsdienst</Link>
             <Link href="/bestatter" className="hover:text-[rgb(var(--fg))]">Bestatter</Link>
             <Link href="/begleitung" className="hover:text-[rgb(var(--fg))]">Würde-Begleitung</Link>
+            <Link href="/compliance" className="hover:text-[rgb(var(--fg))]">Compliance</Link>
             <Link href="/datenschutz" className="hover:text-[rgb(var(--fg))]">Datenschutz</Link>
             <a href="https://merkabaprojekt.de" className="hover:text-[rgb(var(--fg))]">Merkaba Project</a>
             <Link href="/pflege" className="hover:text-[rgb(var(--fg))]">App</Link>
