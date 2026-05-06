@@ -1,6 +1,8 @@
 # Dead-Link-Audit · Shalem Care
 
-**Stand:** 2026-05-05 · Branch `claude/tender-nightingale-f1bb8b` · 76 Routen
+**Status: ✅ vollständig behoben am 2026-05-06.** Details siehe Resolved-Block am Ende.
+
+**Stand der Erst-Erhebung:** 2026-05-05 · Branch `claude/tender-nightingale-f1bb8b` · 76 Routen
 
 Audit-Methodik: Alle `href`-Attribute in `apps/web/app/` und `apps/web/components/` (inkl. NAV-Konstanten, `<Tab>`, `<Link>`, `<a>`) gegen die tatsächliche Route-Liste (Glob `app/**/{page.tsx,route.ts}`) abgeglichen. Image-`src`-Pfade gegen `apps/web/public/` geprüft.
 
@@ -74,3 +76,22 @@ Audit-Methodik: Alle `href`-Attribute in `apps/web/app/` und `apps/web/component
 2. `/anmelden` Page bauen (1 h, blockiert Auth-Flow für wiederkehrende User)
 3. Satzung-PDF in `public/legal/` ablegen oder Checkbox-Text auf "in Vorbereitung" ändern
 4. `/willkommen` entweder mit Inhalt füllen (z. B. Onboarding-Hero) **oder** alle Footer-Links auf `/` umbiegen — Letzteres ist 2 min Arbeit
+
+---
+
+## ✅ Resolved · 2026-05-06
+
+| # | Punkt | Erledigt durch |
+|---|---|---|
+| 1–3 | KasseShell-Tabs `/kasse/eau`, `/kasse/krankengeld`, `/kasse/hkp` | Pages existieren — frühere Session |
+| 4 | `/anmelden` | Page existiert mit Email/Password + 4 OAuth-Provider — frühere Session |
+| 5 | Satzung-Platzhalter (`href="#"`) | Commit `ac7507a` — Hinweis auf Notar-Termin + Roadmap-Link |
+| 6 | `#wie-funktioniert`-Anchor ohne Ziel | Commit `ac7507a` — Section-ID auf Plattform-Bilanz-Box gesetzt |
+| 9–15 | `/willkommen`-Redirect-Loop (7 Fundstellen, 5 Dateien) | Commit `ac7507a` — `/willkommen` jetzt echte Onboarding-Page mit 10 Portalen; 6 Refs auf `/` umgebogen |
+
+**Zusätzlich gelandet (über Audit-Scope hinaus):**
+- Commit `f844f61` — Shalem-konforme Error-Pages: `app/error.tsx`, `app/not-found.tsx`, `app/global-error.tsx`. Fängt unbekannte Routen + `notFound()` aus dynamischen IDs + Render-Errors auf Page- und Root-Layout-Ebene; ersetzt den nüchternen Next-Default „404: This page could not be found.".
+- Commit `8e9dd1c` — `/kontakt`-Page mit 8 Anliegen-Pfaden + 3-FAQ-Block (Demo-Account, Plattform-Cut, Roadmap), verlinkt aus Landing-Footer und `/willkommen`.
+- Commit `9762033` — `app/sitemap.ts` mit 35 öffentlichen Routen + `app/robots.ts` mit gezielten Disallow-Regeln für auth-Cockpits, `/api/`, `/auth/`, Verifikations-Strecke.
+
+Damit hat die App keine nüchternen Fehlermeldungen, keine toten Links und einen sauberen Crawler-Footprint mehr.

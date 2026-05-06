@@ -300,11 +300,27 @@ Quellen: BARMER Pflege-Report 2024 (38% Burnout), DBfK Personal-Studie 2025, Pfl
 
 ---
 
-## Status zum Session-Ende 2026-05-06
+## Status zum Session-Ende 2026-05-06 (Abend · Polish-Pass)
 
-Build clean · 131 Routen · main = `claude/agitated-germain-e73b91` HEAD · Hostinger zieht.
+Build clean · main = HEAD · Hostinger zieht.
 
-Letzte Commits:
+**Heute zusätzlich gelandet:**
+- `f844f61` feat: Shalem-konforme Error-Pages (`app/error.tsx`, `app/not-found.tsx`,
+  `app/global-error.tsx`) — keine nüchternen Next-Default-404er mehr; alle Fehler
+  zeigen Rainbow-Bar + Portal-Quicklinks + Reset-Button.
+- `ac7507a` fix: AUDIT_DEADLINKS abgearbeitet — `/willkommen` ist keine
+  Redirect-Wüste mehr, sondern echte Onboarding-Page mit 10 Portalen; 6 Wordmark-/
+  Home-Links auf `/` umgestellt; `#wie-funktioniert`-Anchor auf
+  `/genossenschaft` taggt jetzt die Plattform-Bilanz-Section; leerer
+  Satzung-Link in `/genossenschaft/beitreten` entschärft.
+- `8e9dd1c` feat: `/kontakt`-Page mit 8 dedizierten Anliegen-Pfaden
+  (allgemein/pflege/klient/träger/partner/presse/datenschutz/security) +
+  3-FAQ-Block; verlinkt aus Landing-Footer und `/willkommen`.
+- `9762033` feat: `/sitemap.xml` (35 Marketing-Routen mit Priority +
+  ChangeFrequency) + `/robots.txt` (Marketing erlaubt, alle auth-Cockpits +
+  `/api/` + `/auth/` + Verifikations-Strecke gesperrt; Sitemap- + Host-Direktiven).
+
+**Vorherige Commits aus früheren Sessions:**
 - HauptMenu cleanup (Pfad-Anzeigen entfernt) + Messenger-Discord-Layer
 - Echte 1:1-DMs zwischen registrierten Usern + Therapie-Layer
 - HUD Phase 2 (editierbar+Archiv) + Trading-Hub mit pk-ruhr + Arzt-Diktat
@@ -316,5 +332,7 @@ Letzte Commits:
 - Sozial-Diktat + Klient-Akte-Verstehen + Supervisor + Politik + KI-Gesundheitsminister
 - Messenger graceful degradation + 4 Beruf-Diktate + Aufsichtsrat-Bericht
 - Klient-Tageshub + Krankenkasse-Bescheid-Diktat (final)
+
+**AUDIT_DEADLINKS.md vollständig abgearbeitet** — Status siehe dort.
 
 Nächste Session kann sofort einsteigen — alles dokumentiert, alles im main, alles deploybar.
