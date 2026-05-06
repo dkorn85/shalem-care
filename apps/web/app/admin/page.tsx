@@ -129,6 +129,10 @@ export default async function AdminDashboard() {
             <span>Audit-Log einsehen</span>
             <span className="text-mute">→</span>
           </Link>
+          <Link href="/admin/api-clients" className="surface-hover rounded-lg p-3 text-[13px] flex items-baseline justify-between">
+            <span>API-Konsumenten</span>
+            <span className="text-mute">→</span>
+          </Link>
         </section>
       )}
 
