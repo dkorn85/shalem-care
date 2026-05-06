@@ -12,6 +12,7 @@ export const metadata = {
   title: "Politik-Schnittstelle · Aggregat + Simulator",
   description: "Anonymisierte Aggregat-Daten an gesetzgebende Institutionen, Steuerbescheid-Erklärung pro Mitglied, KI-Gesundheitsminister-Simulator für Was-wäre-wenn-Szenarien.",
 };
+export const dynamic = "force-dynamic";
 
 const ZUSTAND_FARBE: Record<string, string> = {
   veroeffentlicht: "var(--vibe-approval)",

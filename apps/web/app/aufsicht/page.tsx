@@ -7,6 +7,7 @@ import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { generiereQuartalsbericht } from "@/lib/aufsicht/bericht";
 
 export const metadata = { title: "Aufsichtsrat · Quartalsbericht" };
+export const dynamic = "force-dynamic";
 
 const TREND_FARBE: Record<string, string> = {
   "↑": "var(--vibe-approval)",
@@ -38,11 +39,12 @@ export default async function AufsichtPage({ searchParams }: { searchParams?: Pr
           ← Supervisor
         </Link>
       </header>
-      <RolePastelHeader rolle="lead" eyebrow={`Aufsichtsrat · Quartalsbericht ${bericht.quartal} ${bericht.jahr}`} titel={bericht.zusammenfassung}>
-        Generiert von Lana KI-Co-Pilot aus Live-Daten · Aggregat über alle Einrichtungen, MA, Klient:innen,
-        Genossenschafts-Bilanz, Compliance-Status. Erstellt am{" "}
-        {new Date(bericht.erstellt_am).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })} ·
-        Unterzeichner: {bericht.unterzeichner}
+      <RolePastelHeader rolle="lead" eyebrow={`Aufsichtsrat · Quartalsbericht ${bericht.quartal} ${bericht.jahr}`} titel={`KI-Quartalsbericht ${bericht.quartal} ${bericht.jahr}`}>
+        {bericht.zusammenfassung}
+        <br />
+        <span className="text-[11px] text-soft mt-2 inline-block">
+          Generiert von Lana KI-Co-Pilot · Erstellt am {new Date(bericht.erstellt_am).toLocaleDateString("de-DE", { day: "2-digit", month: "long", year: "numeric" })} · Unterzeichner: {bericht.unterzeichner}
+        </span>
       </RolePastelHeader>
 
       {/* Quartal-Auswahl */}
