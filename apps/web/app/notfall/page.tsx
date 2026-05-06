@@ -49,6 +49,7 @@ export default function NotfallPage() {
     >
       <HeroBanner
         bild="/akte/header-notfall.png"
+        loop="/loops/notfall-puls.mp4"
         variante="split"
         eyebrow="Notruf · Eskalations-Kette"
         rolleFarbe="var(--mon)"

@@ -53,7 +53,7 @@ export default function ApothekePage() {
         rolle="apotheke"
         eyebrow="Apotheke · Versorgung Pflegeheime + ambulante Touren"
         titel="Servus, Lukas."
-        loopSrc="/loops/texture-licht.mp4"
+        loopSrc="/loops/atmo-apotheke.mp4"
         patternSrc="/patterns/amber-glass.png"
         rightSlot={
           <div className="relative aspect-[4/3] w-full max-w-xs rounded-2xl overflow-hidden">

@@ -15,13 +15,19 @@ import { getActivePersona } from "@/lib/auth/active-user";
 import { DEMO_MODI } from "@/lib/auth/demo-modi";
 import { signOut } from "@/lib/auth/actions";
 import { AudioMuteToggle } from "@/components/AudioPrompt";
+import { PreferencesPanel } from "@/components/PreferencesPanel";
+import { ProfilbildUpload } from "@/components/ProfilbildUpload";
+import { ProfilMenschlichSection } from "@/components/ProfilMenschlich";
+import { getProfil, seedProfilOnce } from "@/lib/profile/store";
 
 export default async function ProfilPage() {
   seedOnce();
   seedRatingsOnce();
   seedKrankmeldungOnce();
+  seedProfilOnce();
   const aktiv = await getActivePersona(CURRENT_USER_ID, "pflege");
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
+  const profilM = getProfil(CURRENT_USER_ID);
   const modusInfo = aktiv.demoMode !== "real" ? DEMO_MODI[aktiv.demoMode] : null;
   const stationId = getStationOfPerson(CURRENT_USER_ID);
   const station = stationId ? getStation(stationId) : null;
@@ -155,17 +161,19 @@ export default async function ProfilPage() {
       </div>
 
       <div className="grid lg:grid-cols-12 gap-5 max-w-5xl">
-        {/* Stammdaten */}
+        {/* Stammdaten + Profilbild */}
         <div className="lg:col-span-7 surface rounded-2xl p-6 anim-slideUp" style={{ animationDelay: "0.05s" }}>
-          <div className="flex items-center gap-4 mb-6">
-            <PersonAvatar id={nurse.id} initials={nurse.initials} size={72} role={nurse.role} />
-            <div>
-              <h2 className="font-display text-[20px] font-semibold">{nurse.name}</h2>
-              <p className="text-[13px] text-mute">{nurse.qualifications.join(" · ")} · {nurse.tariffGrade.replace("TVOED-P_", "")}</p>
-            </div>
+          <ProfilbildUpload
+            personId={nurse.id}
+            aktuellesBild={profilM.profilbildUrl}
+            fallbackInitialen={nurse.initials}
+          />
+          <div className="mt-5 mb-2">
+            <h2 className="font-display text-[20px] font-semibold">{nurse.name}</h2>
+            <p className="text-[13px] text-mute">{nurse.qualifications.join(" · ")} · {nurse.tariffGrade.replace("TVOED-P_", "")}</p>
           </div>
 
-          <dl className="space-y-3">
+          <dl className="space-y-3 mt-4">
             <Row label="Einrichtung" value={einrichtung?.name ?? "—"} />
             <Row label="Station" value={station?.name ?? "—"} />
             <Row label="Qualifikationen" value={nurse.qualifications.join(", ")} />
@@ -224,6 +232,19 @@ export default async function ProfilPage() {
               />
             </div>
           </div>
+        </div>
+      </div>
+
+      {/* Mensch hinter dem Beruf + Präferenzen */}
+      <div className="grid lg:grid-cols-12 gap-5 max-w-5xl mt-6">
+        <div className="lg:col-span-7">
+          <ProfilMenschlichSection profil={profilM} />
+        </div>
+        <div className="lg:col-span-5">
+          <PreferencesPanel
+            personId={nurse.id}
+            preferenzen={profilM.preferenzen ?? { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true }}
+          />
         </div>
       </div>
 
