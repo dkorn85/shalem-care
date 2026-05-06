@@ -5,12 +5,22 @@
 // Phase 2: Supabase-Tabelle `ai_usage_log` für Audit + persistente Limits.
 
 import { NextRequest, NextResponse } from "next/server";
-import { generiereKlartext, type KlartextBeruf } from "@/lib/ai/klartext";
+import { generiereKlartext, type KlartextBeruf, type KlartextZiel } from "@/lib/ai/klartext";
 
 export const runtime = "nodejs";
 export const dynamic = "force-dynamic";
 
-const ERLAUBTE_BERUFE: KlartextBeruf[] = ["pflege", "arzt", "therapie", "sozialarbeit", "konferenz"];
+const ERLAUBTE_BERUFE: KlartextBeruf[] = [
+  "pflege", "arzt", "therapie", "sozialarbeit", "heilerziehung",
+  "ehrenamt", "hauswirtschaft", "erziehung", "apotheke",
+  "medizintechnik", "rettungsdienst", "bestatter", "begleitung",
+  "lead", "klient", "angehoerig", "konferenz",
+];
+const ERLAUBTE_ZIELE: KlartextZiel[] = [
+  "klient", "pflege", "arzt", "therapie", "sozialarbeit",
+  "heilerziehung", "ehrenamt", "hauswirtschaft", "erziehung",
+  "apotheke", "lead",
+];
 
 const RATE_LIMIT = { max: 30, windowMs: 10 * 60_000 };
 const buckets = new Map<string, { count: number; resetAt: number }>();
@@ -47,6 +57,7 @@ export async function POST(req: NextRequest) {
     fachtext?: string;
     klientHinweis?: string;
     zusatzfrage?: string;
+    zielBeruf?: string;
   };
   try {
     body = await req.json();
@@ -72,12 +83,21 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  const zielBeruf = body.zielBeruf as KlartextZiel | undefined;
+  if (zielBeruf && !ERLAUBTE_ZIELE.includes(zielBeruf)) {
+    return NextResponse.json(
+      { error: `zielBeruf muss eines von: ${ERLAUBTE_ZIELE.join(", ")}` },
+      { status: 400 },
+    );
+  }
+
   try {
     const result = await generiereKlartext({
       beruf,
       fachtext,
       klientHinweis: body.klientHinweis?.trim(),
       zusatzfrage: body.zusatzfrage?.trim(),
+      zielBeruf,
     });
     return NextResponse.json(result);
   } catch (err) {

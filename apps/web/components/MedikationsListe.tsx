@@ -123,7 +123,15 @@ function VerordnungsRow({ row, authorId }: { row: Row; authorId: string }) {
 
   return (
     <li className="surface-mute rounded-xl p-3.5">
-      <div className="flex items-start gap-3 cursor-pointer" onClick={() => setOpen((v) => !v)}>
+      <div
+        className="flex items-start gap-3 cursor-pointer"
+        role="button"
+        tabIndex={0}
+        aria-expanded={open}
+        aria-label={`${m.handelsname} Details ${open ? "schließen" : "öffnen"}`}
+        onClick={() => setOpen((v) => !v)}
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setOpen((v) => !v); } }}
+      >
         <div
           className="w-9 h-9 rounded-lg grid place-items-center text-[11px] font-bold shrink-0"
           style={{

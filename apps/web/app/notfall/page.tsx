@@ -4,10 +4,16 @@
 // In Phase 2 echter SOS-Knopf der via Push-Notification + SMS die Kette
 // auslöst (Bezugspflegekraft → Stationsleitung → Hausarzt → 112).
 
-import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { SosButton } from "@/components/SosButton";
+import { HeroBanner } from "@/components/HeroBanner";
+import { MediaSplit } from "@/components/MediaSplit";
+import { SectionHeader } from "@/components/SectionHeader";
+import { NumberedList } from "@/components/NumberedList";
+import { BulletList } from "@/components/BulletList";
+import { SmoothReveal } from "@/components/SmoothReveal";
+import { RainbowText } from "@/components/Rainbow";
 
 export const metadata = {
   title: "Notruf · Shalem Care",
@@ -20,34 +26,18 @@ export const metadata = {
 };
 
 const ESKALATIONS_KETTE = [
-  {
-    schritt: 1,
-    titel: "Bezugspflegekraft",
-    detail: "Sofort-Push + Anruf. Ist Dennis Reuter im Dienst, geht's an ihn. Sonst Vertretung der Schicht.",
-    sla: "≤ 60 s",
-    farbe: "var(--mon)",
-  },
-  {
-    schritt: 2,
-    titel: "Stationsleitung",
-    detail: "Wenn Bezugspflegekraft nicht binnen 90 Sekunden bestätigt: parallele Eskalation an Detektiv Eins.",
-    sla: "≤ 90 s",
-    farbe: "var(--vibe-team)",
-  },
-  {
-    schritt: 3,
-    titel: "Hausärztin",
-    detail: "Bei medizinischer Indikation (Sturz, Atemnot, Bewusstseinsstörung): Tele-Konsultation Dr. Hartmann.",
-    sla: "≤ 5 min",
-    farbe: "var(--vibe-profile)",
-  },
-  {
-    schritt: 4,
-    titel: "Rettungsdienst 112",
-    detail: "Manuelle Auslösung durch Pflegekraft oder Stationsleitung. Wir koordinieren mit ITW + Krankenhaus.",
-    sla: "manuell",
-    farbe: "var(--mon)",
-  },
+  { schritt: 1, titel: "Bezugspflegekraft",  detail: "Sofort-Push + Anruf. Ist Dennis Reuter im Dienst, geht's an ihn. Sonst Vertretung der Schicht.", sla: "≤ 60 s",  farbe: "var(--mon)" },
+  { schritt: 2, titel: "Stationsleitung",    detail: "Wenn Bezugspflegekraft nicht binnen 90 Sekunden bestätigt: parallele Eskalation an Detektiv Eins.", sla: "≤ 90 s",  farbe: "var(--vibe-team)" },
+  { schritt: 3, titel: "Hausärztin",         detail: "Bei medizinischer Indikation (Sturz, Atemnot, Bewusstseinsstörung): Tele-Konsultation Dr. Hartmann.", sla: "≤ 5 min", farbe: "var(--vibe-profile)" },
+  { schritt: 4, titel: "Rettungsdienst 112", detail: "Manuelle Auslösung durch Pflegekraft oder Stationsleitung. Wir koordinieren mit ITW + Krankenhaus.", sla: "manuell", farbe: "var(--mon)" },
+];
+
+const PHASE_2 = [
+  { text: "Web-Push (VAPID) für Bezugspflegekraft + Stationsleitung" },
+  { text: "SMS-Fallback via Twilio (wenn Push nicht zugestellt)" },
+  { text: "Automatische Anruf-Kette über Twilio Voice (sequenziell)" },
+  { text: "Hardware-Pendant über BLE-Gateway (Bluetooth-Beacon → Server)" },
+  { text: "Audit-Trail: jede Eskalations-Stufe mit Zeitstempel + Bestätigung" },
 ];
 
 export default function NotfallPage() {
@@ -57,73 +47,68 @@ export default function NotfallPage() {
       user={{ id: "person-de1", name: "Detektiv Eins", subtitle: "Stationsleitung", initials: "DE" }}
       station="Pulmologie 3B"
     >
-      <header className="mb-6">
-        <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Notruf · Eskalations-Kette</p>
-        <div className="grid lg:grid-cols-12 gap-6 items-end">
-          <div className="lg:col-span-7">
-            <h1 className="font-display text-[32px] sm:text-[44px] font-bold tracking-tight3 leading-[1.05]">
-              Jemand ist <span className="rainbow-text">da</span>.
-            </h1>
-            <p className="text-[14px] text-mute mt-3 max-w-prose leading-relaxed">
-              Klient:in drückt den Notruf-Knopf am Pendant. Innerhalb von 60 Sekunden meldet
-              sich die Bezugspflegekraft per Sprache. Wenn nicht: Stationsleitung. Wenn medizinisch:
-              Hausärztin. Wenn akut: 112. Phase 2 ergänzt: Web-Push (VAPID) + SMS-Fallback,
-              automatische Anrufkette über Twilio.
-            </p>
-          </div>
-          <div className="lg:col-span-5 relative aspect-[16/9] rounded-2xl overflow-hidden surface">
-            <Image src="/akte/header-notfall.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" priority />
-          </div>
-        </div>
-      </header>
+      <HeroBanner
+        bild="/akte/header-notfall.png"
+        loop="/loops/notfall-puls.mp4"
+        variante="split"
+        eyebrow="Notruf · Eskalations-Kette"
+        rolleFarbe="var(--mon)"
+        titel={<>Jemand ist <RainbowText>da</RainbowText>.</>}
+        untertitel={
+          <>
+            Klient:in drückt den Notruf-Knopf am Pendant. Innerhalb von 60 Sekunden meldet
+            sich die Bezugspflegekraft per Sprache. Wenn nicht: Stationsleitung. Wenn medizinisch:
+            Hausärztin. Wenn akut: 112. Phase 2 ergänzt: Web-Push (VAPID) + SMS-Fallback,
+            automatische Anrufkette über Twilio.
+          </>
+        }
+      />
 
       {/* Notruf-Knopf-Demo mit Puls-Loop + Audio-Bestätigung */}
-      <section className="surface rounded-2xl p-6 sm:p-8 mb-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--mon) / 0.04), transparent)" }}>
-        <SosButton audioSrc="/sounds/notruf-bestaetigt-lana.mp3" />
-      </section>
+      <SmoothReveal direction="up">
+        <section className="surface rounded-2xl p-6 sm:p-8 mb-6 mt-6 relative overflow-hidden" style={{ background: "linear-gradient(135deg, rgb(var(--mon) / 0.04), transparent)" }}>
+          <SosButton audioSrc="/sounds/notruf-bestaetigt-lana.mp3" />
+        </section>
+      </SmoothReveal>
 
       {/* Eskalations-Kette */}
-      <section className="grid lg:grid-cols-12 gap-6 mb-6">
-        <div className="lg:col-span-5 relative aspect-square rounded-2xl overflow-hidden surface">
-          <Image src="/notfall/eskalation-kette.png" alt="" fill sizes="(max-width: 1024px) 100vw, 40vw" className="object-cover" />
-        </div>
-        <div className="lg:col-span-7">
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">4 Stufen · sequenziell + parallel</p>
-          <h2 className="font-display text-[20px] sm:text-[24px] font-bold tracking-tight2 mb-3">Wer wird wann geweckt</h2>
-          <ol className="space-y-2.5">
-            {ESKALATIONS_KETTE.map((s) => (
-              <li key={s.schritt} className="surface-mute rounded-xl p-3 relative overflow-hidden">
-                <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${s.farbe})` }} />
-                <div className="ml-2.5 flex items-baseline gap-3 flex-wrap">
-                  <span className="font-mono text-[18px] font-bold w-6 shrink-0" style={{ color: `rgb(${s.farbe})` }}>{s.schritt}</span>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-baseline gap-2 flex-wrap">
-                      <span className="font-medium text-[14px]">{s.titel}</span>
-                      <span className="chip text-[10px] font-mono" style={{ background: `rgb(${s.farbe} / 0.15)`, color: `rgb(${s.farbe})` }}>
-                        {s.sla}
-                      </span>
-                    </div>
-                    <p className="text-[12px] text-mute mt-1 leading-relaxed">{s.detail}</p>
-                  </div>
-                </div>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
+      <SmoothReveal direction="up">
+        <section className="mb-6">
+          <MediaSplit
+            bild="/notfall/eskalation-kette.png"
+            imageSide="left"
+            imageAspect="square"
+            imageSpan={5}
+          >
+            <SectionHeader
+              eyebrow="4 Stufen · sequenziell + parallel"
+              titel="Wer wird wann geweckt"
+              size="medium"
+              accent="var(--mon)"
+            />
+            <NumberedList
+              variante="vertical"
+              className="mt-3"
+              items={ESKALATIONS_KETTE.map((s) => ({
+                nummer: s.schritt,
+                titel: s.titel,
+                text: s.detail,
+                chip: s.sla,
+                akzent: s.farbe,
+              }))}
+            />
+          </MediaSplit>
+        </section>
+      </SmoothReveal>
 
       {/* Phase-2-Hinweis */}
-      <section className="surface rounded-2xl p-5 sm:p-6">
-        <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Phase 2 · was als nächstes kommt</p>
-        <ul className="space-y-1.5 text-[12px]">
-          <li className="flex gap-2 items-baseline"><span aria-hidden className="text-soft shrink-0">›</span><span>Web-Push (VAPID) für Bezugspflegekraft + Stationsleitung</span></li>
-          <li className="flex gap-2 items-baseline"><span aria-hidden className="text-soft shrink-0">›</span><span>SMS-Fallback via Twilio (wenn Push nicht zugestellt)</span></li>
-          <li className="flex gap-2 items-baseline"><span aria-hidden className="text-soft shrink-0">›</span><span>Automatische Anruf-Kette über Twilio Voice (sequenziell)</span></li>
-          <li className="flex gap-2 items-baseline"><span aria-hidden className="text-soft shrink-0">›</span><span>Hardware-Pendant über BLE-Gateway (Bluetooth-Beacon → Server)</span></li>
-          <li className="flex gap-2 items-baseline"><span aria-hidden className="text-soft shrink-0">›</span><span>Audit-Trail: jede Eskalations-Stufe mit Zeitstempel + Bestätigung</span></li>
-        </ul>
-        <Link href="/admin" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mt-4">← Übersicht</Link>
-      </section>
+      <SmoothReveal direction="up">
+        <section className="surface rounded-2xl p-5 sm:p-6">
+          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Phase 2 · was als nächstes kommt</p>
+          <BulletList items={PHASE_2} marker="chevron" />
+          <Link href="/admin" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mt-4">← Übersicht</Link>
+        </section>
+      </SmoothReveal>
     </AppShell>
   );
 }

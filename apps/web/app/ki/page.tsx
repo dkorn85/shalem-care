@@ -6,6 +6,8 @@
 
 import Link from "next/link";
 import { KiKlartext } from "@/components/KiKlartext";
+import { KiBerufsBruecke } from "@/components/KiBerufsBruecke";
+import { SectionHeader } from "@/components/SectionHeader";
 
 export const metadata = {
   title: "KI-Klartext · Shalem Care",
@@ -88,6 +90,28 @@ export default function KiShowcasePage() {
           fachtext={DEMO_KONFERENZ}
           beschreibung="Eine Hilfeplan-Konferenz hat fünf Profis am Tisch und eine Angehörige. Die Notizen sind dicht. Dennis fasst zusammen — ruhig, klar, ohne etwas zu beschönigen."
         />
+
+        {/* KI-Bruecke · Beruf zu Beruf */}
+        <article className="surface rounded-2xl p-6 sm:p-8" style={{ background: "linear-gradient(135deg, rgb(var(--accent) / 0.04), transparent)" }}>
+          <SectionHeader
+            eyebrow="KI-Brücke · Beruf in Beruf"
+            titel="Eine Notiz, elf Sprachen"
+            size="large"
+            accent="var(--accent)"
+            lead="Das ist die Schnittstelle zwischen den Berufen: derselbe Arzt-Befund wird in Pflege-Doku-Sprache, in Therapie-ICF-Sprache, in Sozialarbeit-Hilfeplan-Sprache übersetzt — oder in Klient-Alltagssprache. Ein Klick pro Ziel."
+          />
+          <p className="text-[13px] text-mute mb-4 leading-relaxed max-w-prose">
+            Wähle unten einen Ziel-Beruf und Claude übersetzt den MRT-Befund von oben in dessen Fach-Logik:
+            knapp und handlungsorientiert für Pflege, mit ROM/ICF-Bezug für Therapie, mit SGB-Logik für
+            Sozialarbeit, in Alltagssprache für Klient + Angehörige.
+          </p>
+          <KiBerufsBruecke
+            quellBeruf="arzt"
+            fachtext={DEMO_BEFUND_HELGA}
+            klientHinweis="Helga R., 78 Jahre, Pflegegrad 3"
+            defaultZiel="pflege"
+          />
+        </article>
       </section>
 
       <footer className="max-w-5xl mx-auto px-6 sm:px-12 pb-16 border-t border-soft pt-10">

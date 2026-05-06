@@ -11,13 +11,28 @@
 
 import { getAIProvider, type AIMessage } from "./provider";
 
-export type KlartextBeruf = "pflege" | "arzt" | "therapie" | "sozialarbeit" | "konferenz";
+// Quell-Berufe: aus deren Fach-Sprache wird übersetzt.
+// Erweitert auf alle Berufe + Plattform-Module aus role-theme.ts.
+export type KlartextBeruf =
+  | "pflege" | "arzt" | "therapie" | "sozialarbeit" | "heilerziehung"
+  | "ehrenamt" | "hauswirtschaft" | "erziehung" | "apotheke"
+  | "medizintechnik" | "rettungsdienst" | "bestatter" | "begleitung"
+  | "lead" | "klient" | "angehoerig" | "konferenz";
+
+// Ziel: in welche Sprache übersetzt werden soll.
+// "klient" = Alltagssprache für Klient:in/Angehörige (Default).
+// Sonst: in die Berufssprache der Ziel-Rolle (z.B. arzt → pflege).
+export type KlartextZiel =
+  | "klient" | "pflege" | "arzt" | "therapie" | "sozialarbeit"
+  | "heilerziehung" | "ehrenamt" | "hauswirtschaft" | "erziehung"
+  | "apotheke" | "lead";
 
 export type KlartextEingabe = {
   beruf: KlartextBeruf;
   fachtext: string;
   klientHinweis?: string;          // z.B. "78 J., Pflegegrad 3, lebt allein"
   zusatzfrage?: string;            // optionale Klient-Rückfrage zum Text
+  zielBeruf?: KlartextZiel;        // Default: "klient" (Alltagssprache)
 };
 
 export type KlartextErgebnis = {
@@ -31,42 +46,62 @@ export type KlartextErgebnis = {
   tokens: { input: number; output: number };
 };
 
-const SYSTEM_PROMPT = `Du bist Lana, eine erfahrene Stations-Lead in der Genossenschaft Shalem Care.
-Deine Aufgabe: medizinische, pflegerische und sozialrechtliche Fachtexte für Klient:innen
-und Angehörige in einfache, würdevolle Sprache übersetzen.
+const SYSTEM_PROMPT = `Du bist Lana / Dennis, KI-Brücke zwischen den Berufen in der Genossenschaft Shalem Care.
+Deine Aufgabe: einen Text aus der Fachsprache eines Berufs in die Fachsprache (oder
+Alltagssprache) eines anderen Adressaten übersetzen — ohne Inhalt zu verfälschen.
 
 Regeln:
-- Nutze Sätze von max. 15 Wörtern.
-- Keine Fachbegriffe ohne Erklärung. Wenn ein Fachbegriff unverzichtbar ist, erkläre ihn in Klammern.
-- Sprich die Person direkt an ("Sie", "Ihr Befund", "Ihre Wunde").
+- Lies "Quell-Beruf" und "Ziel-Adressat" aus dem User-Prompt.
+- Wenn Ziel = Klient:in/Angehörige: max. 15 Wörter pro Satz, keine Fachbegriffe ohne Erklärung,
+  direkte Anrede ("Sie", "Ihr Befund").
+- Wenn Ziel = anderer Beruf: passende Fach-Kürzel und Logik der Ziel-Disziplin verwenden,
+  knapp, handlungsorientiert.
 - Beschönige nichts, aber schüre auch keine Angst. Nüchtern, warm.
-- Markiere die EINE Stelle im Text, an der die Person bei ihrer Pflegekraft / Ärztin nachfragen sollte.
+- Markiere — wenn passend — die EINE Stelle, an der die Adressat:in nachfragen sollte.
+- Glossar: erkannte Fachbegriffe aus dem Quelltext erklären (für Adressat:in passend).
+- Rückfragen: 1-3 Fragen, die der/die Adressat:in stellen könnte.
 - Antworte ausschließlich als JSON nach diesem Schema:
   {
-    "klartext": "string · 3-5 kurze Sätze",
+    "klartext": "string · 3-5 kurze Sätze (länger nur bei Beruf-Adressat)",
     "glossar": [{"fach": "Begriff", "klar": "Erklärung"}],
     "rueckfragen": ["Frage 1", "Frage 2"]
   }
 - KEIN Fließtext außerhalb des JSON. Kein Markdown.`;
 
 const VOICE_FOR_BERUF: Record<KlartextBeruf, "lana" | "dennis"> = {
-  pflege: "lana",
-  arzt: "lana",
-  therapie: "lana",
-  sozialarbeit: "lana",
-  konferenz: "dennis",
+  pflege: "lana", arzt: "lana", therapie: "lana", sozialarbeit: "lana",
+  heilerziehung: "lana", ehrenamt: "lana", hauswirtschaft: "lana",
+  erziehung: "lana", apotheke: "dennis", medizintechnik: "dennis",
+  rettungsdienst: "dennis", bestatter: "dennis", begleitung: "lana",
+  lead: "dennis", klient: "lana", angehoerig: "lana", konferenz: "dennis",
+};
+
+const ZIEL_HINWEIS: Record<KlartextZiel, string> = {
+  klient:        "die Klient:in oder Angehörige (Alltagssprache, max. 15 Wörter pro Satz, keine Fachbegriffe)",
+  pflege:        "eine Pflegekraft (knapp, handlungsorientiert, Pflege-Doku-Kürzel ok wie SIS, NRS, BMI, RR)",
+  arzt:          "eine Ärztin/einen Arzt (klinisch-fachlich, ICD-10, Befund-Format)",
+  therapie:      "eine Therapeut:in (funktional, ROM, ICF-Klassifikation, NRS)",
+  sozialarbeit:  "eine Sozialarbeiter:in (Casemanagement-Sprache, SGB-Bezüge, Hilfeplan-Logik)",
+  heilerziehung: "eine Heilerziehungspflegerin (BeWo, Teilhabe, ITP)",
+  ehrenamt:      "eine ehrenamtliche Begleitung (warm, ohne Jargon, Aufmerksamkeit auf Beziehung)",
+  hauswirtschaft:"eine Hauswirtschaftskraft (alltagsnah, Tagesablauf-orientiert, Ernährung/Haushalt)",
+  erziehung:     "eine Erzieher:in/Kindheitspädagog:in (entwicklungsorientiert, Lerngeschichten-Stil)",
+  apotheke:      "eine Apotheker:in (Pharma-Fachsprache, Wirkstoff statt Markenname, Wechselwirkung explizit)",
+  lead:          "eine Stationsleitung (Entscheidungs-orientiert, Kosten/Personal-Bezug, kurz)",
 };
 
 export async function generiereKlartext(eingabe: KlartextEingabe): Promise<KlartextErgebnis> {
   const provider = getAIProvider();
+  const ziel: KlartextZiel = eingabe.zielBeruf ?? "klient";
 
   const userPrompt = [
-    `Beruf-Kontext: ${eingabe.beruf}`,
+    `Quell-Beruf (woher kommt der Text): ${eingabe.beruf}`,
+    `Ziel-Adressat:in: ${ZIEL_HINWEIS[ziel]}`,
     eingabe.klientHinweis ? `Klient-Hinweis: ${eingabe.klientHinweis}` : null,
     "",
     "Fachtext:",
     eingabe.fachtext.trim(),
-    eingabe.zusatzfrage ? `\nZusätzliche Frage der Person: ${eingabe.zusatzfrage}` : null,
+    eingabe.zusatzfrage ? `\nZusätzliche Frage: ${eingabe.zusatzfrage}` : null,
   ].filter(Boolean).join("\n");
 
   const messages: AIMessage[] = [

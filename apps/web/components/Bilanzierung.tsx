@@ -149,7 +149,7 @@ export function Bilanzierung({
       {/* Vitalwerte */}
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <div>
-          <label className="text-[10px] uppercase tracking-wider text-soft font-medium">RR</label>
+          <label className="text-[11px] uppercase tracking-wider font-medium" style={{color: "rgb(var(--fg-mute))"}}>RR · Blutdruck</label>
           <div className="flex items-center gap-1 mt-0.5">
             <input
               value={vital.syst}
@@ -254,7 +254,7 @@ function SimpleVital({
 }) {
   return (
     <div>
-      <label className="text-[10px] uppercase tracking-wider text-soft font-medium">{label} <span className="text-soft normal-case">{unit}</span></label>
+      <label className="text-[11px] uppercase tracking-wider font-medium" style={{color: "rgb(var(--fg-mute))"}}>{label} <span className="normal-case">{unit}</span></label>
       <div className="flex items-center gap-1 mt-0.5">
         <input
           value={value}

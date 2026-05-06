@@ -24,6 +24,8 @@ import {
 } from "./krankenkasse-api";
 import { computeBonusFor, publishReplacementOffer } from "./auto-replacement";
 import type { AUType, SymptomKategorie, Arztterminart } from "./types";
+import { entwurfClaimAusKrankmeldung } from "../solidartopf/auto-claim";
+import { seedSolidarTopfOnce } from "../solidartopf/store";
 
 type Result<T = unknown> = ({ ok: true } & (unknown extends T ? unknown : T)) | { ok: false; error: string };
 
@@ -40,7 +42,7 @@ export async function meldeKrank(input: {
   krankenkasseIK?: string;
   autoReplacement: boolean;
   bonusAufschlagBps: number;
-}): Promise<Result<{ krankmeldungId: string; betroffeneShifts: number; ersatzAngebote: string[] }>> {
+}): Promise<Result<{ krankmeldungId: string; betroffeneShifts: number; ersatzAngebote: string[]; solidarClaimId: string | null }>> {
   seedKrankmeldungOnce();
 
   const person = await store.getPerson(input.personId);
@@ -107,6 +109,20 @@ export async function meldeKrank(input: {
     inverse: { type: "noop", reason: "Krankmeldung wird durch Genesung beendet, nicht zurückgenommen" },
   });
 
+  // ─── Solidar-Topf · Auto-Claim ────────────────────────────────────────
+  // Wer krank wird, soll keine zweite Hürde haben. Die Genossenschaft
+  // erstellt aus der Krankmeldung sofort einen Topf-Claim — Approval
+  // läuft im Hintergrund über die Stationsleitung.
+  let solidarClaimId: string | null = null;
+  try {
+    seedSolidarTopfOnce();
+    const claim = entwurfClaimAusKrankmeldung(km, person, betroffene);
+    solidarClaimId = claim.id;
+  } catch {
+    // Topf-Fehler darf Krankmeldung nicht blockieren — Person muss
+    // krank werden dürfen, auch wenn der Topf-Service hängt.
+  }
+
   revalidatePath("/profil/krankmeldung");
   revalidatePath("/profil");
   revalidatePath("/");
@@ -115,12 +131,14 @@ export async function meldeKrank(input: {
   revalidatePath("/admin/dienstplan");
   revalidatePath("/tausch");
   revalidatePath("/admin/genehmigungen");
+  revalidatePath("/genossenschaft/solidartopf");
 
   return {
     ok: true,
     krankmeldungId: km.id,
     betroffeneShifts: betroffene.length,
     ersatzAngebote,
+    solidarClaimId,
   };
 }
 

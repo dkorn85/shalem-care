@@ -120,7 +120,7 @@ function FeldRender({ feld, value, onChange }: { feld: Feld; value: unknown; onC
     </label>
   );
   const hint = feld.hilfetext && <p className="text-[11px] text-soft mt-1">{feld.hilfetext}</p>;
-  const norm = feld.norm && <p className="text-[10px] text-soft mt-1 font-mono">→ {feld.norm}</p>;
+  const norm = feld.norm && <p className="text-[11px] mt-1 font-mono" style={{color: "rgb(var(--fg-mute))"}}>→ {feld.norm}</p>;
 
   switch (feld.typ) {
     case "kurztext":
