@@ -55,11 +55,12 @@ export function subscribeMessages(
     klientId?: string;
     hashtag?: string;
     mention?: string;
+    dmPair?: [string, string];
   } | null,
   onChange: MessageChangeHandler,
 ): () => void {
   const supabase = browserClient();
-  const channelName = `msgs:${filter?.klientId ?? filter?.hashtag ?? filter?.mention ?? "all"}`;
+  const channelName = `msgs:${filter?.dmPair?.join("-") ?? filter?.klientId ?? filter?.hashtag ?? filter?.mention ?? "all"}`;
 
   const channel: RealtimeChannel = supabase.channel(channelName);
 
@@ -96,8 +97,14 @@ export function subscribeMessages(
   };
 }
 
-function passt(row: Message, filter: { klientId?: string; hashtag?: string; mention?: string } | null): boolean {
+function passt(row: Message, filter: { klientId?: string; hashtag?: string; mention?: string; dmPair?: [string, string] } | null): boolean {
   if (!filter) return true;
+  if (filter.dmPair) {
+    const ps = row.dm_participants ?? [];
+    return ps.length === 2 && ps.includes(filter.dmPair[0]) && ps.includes(filter.dmPair[1]);
+  }
+  // Nicht-DM-Filter: DMs ausschließen
+  if (row.dm_participants && row.dm_participants.length > 0) return false;
   if (filter.klientId && row.klient_id !== filter.klientId) return false;
   if (filter.hashtag && !row.hashtags?.includes(filter.hashtag)) return false;
   if (filter.mention && !row.mentions?.includes(filter.mention)) return false;

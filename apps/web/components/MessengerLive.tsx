@@ -13,10 +13,12 @@
 // nur die live-aktualisierten Daten als props rein.
 
 import { useEffect, useRef, useState, useTransition, useCallback } from "react";
+import Link from "next/link";
 import { MessengerShell } from "./MessengerShell";
 import { MessageItemLive } from "./MessageItemLive";
 import type { Channel, ChannelKategorie, Presence } from "@/lib/messenger/channels";
 import type { Message } from "@/lib/messenger/store";
+import type { DmPartner } from "@/lib/messenger/dm";
 import {
   type ReactionCount,
   type PresenceUser,
@@ -39,6 +41,9 @@ export type MessengerLiveProps = {
   initialPresenceMock: Presence[];
   serverMembers: number;
   composer: React.ReactNode;
+  /** Echte registrierte User für 1:1-DM */
+  dmPartners: DmPartner[];
+  aktiverDmPartner: DmPartner | null;
   /** User-Identität */
   user: { id: string; displayName: string; rolle: string };
 };
@@ -50,6 +55,8 @@ export function MessengerLive({
   initialPresenceMock,
   serverMembers,
   composer,
+  dmPartners,
+  aktiverDmPartner,
   user,
 }: MessengerLiveProps) {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -65,8 +72,12 @@ export function MessengerLive({
   }, [initialMessages]);
 
   useEffect(() => {
-    if (!aktiverChannel) return;
-    const filter = filterFor(aktiverChannel);
+    if (!aktiverChannel && !aktiverDmPartner) return;
+    const filter = aktiverDmPartner
+      ? { dmPair: [user.id, aktiverDmPartner.user_id] as [string, string] }
+      : aktiverChannel
+        ? filterFor(aktiverChannel)
+        : null;
     const dispose = subscribeMessages(filter, (event) => {
       startTransition(() => {
         setMessages((prev) => {
@@ -85,7 +96,7 @@ export function MessengerLive({
       });
     });
     return dispose;
-  }, [aktiverChannel]);
+  }, [aktiverChannel?.id, aktiverDmPartner?.user_id, user.id]);
 
   // ─── Reactions: initial + subscribe ─────────────────────────
   useEffect(() => {
@@ -150,7 +161,6 @@ export function MessengerLive({
   }, [aktiverChannel?.slug, user.id, user.displayName]);
 
   // ─── Presence kombinieren: Live + Mock-Beispiele ────────────
-  // Echte Presence-User haben Vorrang; Mock dient als Demo-Background.
   const presence: Presence[] = [
     ...livePresence.map((p) => ({
       personId: p.user_id,
@@ -161,14 +171,49 @@ export function MessengerLive({
     ...initialPresenceMock.filter((mock) => !livePresence.some((live) => live.user_id === mock.personId)),
   ];
 
+  // ─── DMs: echte registrierte User als Channels in DM-Kategorie ──
+  const echteDmChannels: Channel[] = dmPartners.map((p) => ({
+    id: `dm-real-${p.user_id}`,
+    slug: `real:${p.user_id}`,
+    name: p.display_name,
+    kategorie: "dm" as const,
+    beschreibung: p.haupt_rolle ? `Direkt-Chat · ${p.haupt_rolle}` : "Direkt-Chat · registrierter User",
+    farbe: "var(--vibe-stats)",
+    members: 2,
+    privat: true,
+    e2e_ready: true,
+    ungelesen: p.unread_count,
+  }));
+
+  const erweiterteChannels = {
+    ...channelsProKategorie,
+    dm: [...echteDmChannels, ...channelsProKategorie.dm],
+  };
+
+  // Pseudo-Channel für aktiven DM-Partner damit Header korrekt rendert
+  const dmAlsChannel: Channel | null = aktiverDmPartner
+    ? {
+        id: `dm-real-${aktiverDmPartner.user_id}`,
+        slug: `real:${aktiverDmPartner.user_id}`,
+        name: aktiverDmPartner.display_name,
+        kategorie: "dm" as const,
+        beschreibung: aktiverDmPartner.haupt_rolle ? `Direkt-Chat · ${aktiverDmPartner.haupt_rolle}` : "Direkt-Chat",
+        farbe: "var(--vibe-stats)",
+        members: 2,
+        privat: true,
+        e2e_ready: true,
+      }
+    : null;
+
   return (
     <>
       <MessengerShell
-        channelsProKategorie={channelsProKategorie}
-        aktiverChannel={aktiverChannel}
+        channelsProKategorie={erweiterteChannels}
+        aktiverChannel={aktiverChannel ?? dmAlsChannel}
         presence={presence}
         serverMembers={serverMembers + livePresence.length}
         composer={composerWithTyping(composer, onTyping)}
+        dmHrefBuilder={(slug) => slug.startsWith("real:") ? `/messenger?dm=${slug.slice(5)}` : `/messenger?channel=${slug}`}
       >
         {messages.length === 0 && aktiverChannel ? (
           <ChannelWelcome channelName={aktiverChannel.name} kategorie={aktiverChannel.kategorie} beschreibung={aktiverChannel.beschreibung} />

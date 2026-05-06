@@ -36,6 +36,8 @@ export type MessengerShellProps = {
   composer?: React.ReactNode;
   /** Total Member-Count über alle Channels */
   serverMembers: number;
+  /** Href-Builder pro Channel-slug — für DMs an echte User vs Mock-Channels */
+  dmHrefBuilder?: (slug: string) => string;
 };
 
 export function MessengerShell({
@@ -45,6 +47,7 @@ export function MessengerShell({
   children,
   composer,
   serverMembers,
+  dmHrefBuilder,
 }: MessengerShellProps) {
   const [search, setSearch] = useState("");
   const [collapsed, setCollapsed] = useState<Set<ChannelKategorie>>(new Set());
@@ -140,10 +143,11 @@ export function MessengerShell({
                   <ul>
                     {channels.map((c) => {
                       const aktiv = aktiverChannel?.id === c.id;
+                      const href = dmHrefBuilder ? dmHrefBuilder(c.slug) : `/messenger?channel=${c.slug}`;
                       return (
                         <li key={c.id}>
                           <Link
-                            href={`/messenger?channel=${c.slug}`}
+                            href={href}
                             onClick={() => setSidebarOpen(false)}
                             className="px-3 py-1 flex items-baseline justify-between gap-2 transition-colors hover:bg-[rgb(var(--bg-mute))]"
                             style={{ background: aktiv ? farbeBg : undefined, borderLeft: aktiv ? `2px solid ${farbeFg}` : "2px solid transparent" }}
