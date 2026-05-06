@@ -35,7 +35,7 @@ export async function KlientShell({
       <header className="border-b border-app-soft bg-[rgb(var(--bg-elev))]">
         <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-4">
-            <Link href="/willkommen" className="block">
+            <Link href="/" className="block">
               <Wordmark rainbow />
             </Link>
             <span className="text-[12px] text-soft font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[rgb(var(--bg-mute))]">

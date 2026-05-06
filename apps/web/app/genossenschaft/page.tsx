@@ -69,7 +69,7 @@ export default async function GenossenschaftPage() {
 
         {/* Plattform-Bilanz */}
         {bilanz && (
-          <section className="surface rounded-2xl p-5 sm:p-6 mb-10">
+          <section id="wie-funktioniert" className="surface rounded-2xl p-5 sm:p-6 mb-10 scroll-mt-24">
             <header className="flex items-baseline justify-between gap-3 flex-wrap mb-4">
               <div>
                 <p className="text-[11px] uppercase tracking-wider text-soft mb-1.5 font-medium">Plattform-Bilanz · letztes Quartal</p>

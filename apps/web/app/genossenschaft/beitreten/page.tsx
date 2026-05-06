@@ -220,7 +220,7 @@ export default function BeitretenPage() {
             <div className="space-y-2 mb-5">
               <label className="flex items-baseline gap-2 cursor-pointer text-[12px]">
                 <input type="checkbox" checked={satzungAkzeptiert} onChange={(e) => setSatzungAkzeptiert(e.target.checked)} className="w-4 h-4 mt-0.5" />
-                <span>Ich habe die <a href="#" className="underline">Satzung</a> der Shalem Care eG i.G. zur Kenntnis genommen und akzeptiere sie.</span>
+                <span>Ich habe die Satzung der Shalem Care eG i.G. zur Kenntnis genommen und akzeptiere sie. <span className="text-soft italic">(Volltext folgt mit Notar-Termin · Stand siehe <Link href="/roadmap" className="underline">Roadmap</Link>)</span></span>
               </label>
               <label className="flex items-baseline gap-2 cursor-pointer text-[12px]">
                 <input type="checkbox" checked={datenschutz} onChange={(e) => setDatenschutz(e.target.checked)} className="w-4 h-4 mt-0.5" />

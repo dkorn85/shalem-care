@@ -7,8 +7,8 @@ export default function DatenschutzPage() {
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-app-soft bg-[rgb(var(--bg-elev))]">
         <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-4 flex items-center justify-between gap-4 flex-wrap">
-          <Link href="/willkommen"><Wordmark rainbow /></Link>
-          <Link href="/willkommen" className="btn">← Zurück</Link>
+          <Link href="/"><Wordmark rainbow /></Link>
+          <Link href="/" className="btn">← Zurück</Link>
         </div>
       </header>
 

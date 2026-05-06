@@ -17,10 +17,10 @@ export default async function UeberUnsPage() {
   return (
     <div className="min-h-screen">
       <nav className="max-w-screen-app mx-auto px-4 sm:px-8 py-5 flex items-center justify-between gap-3">
-        <Link href="/willkommen"><Wordmark rainbow /></Link>
+        <Link href="/"><Wordmark rainbow /></Link>
         <div className="flex items-center gap-2.5">
           <LocaleSwitcher current={locale} />
-          <Link href="/willkommen" className="btn">{isEN ? "Home" : "Startseite"}</Link>
+          <Link href="/" className="btn">{isEN ? "Home" : "Startseite"}</Link>
         </div>
       </nav>
 
@@ -137,7 +137,7 @@ export default async function UeberUnsPage() {
             <span className="text-[13px] text-mute">Shalem Care · 2026 · AGPLv3</span>
           </div>
           <div className="flex items-center gap-5 text-[13px] text-mute">
-            <Link href="/willkommen" className="hover:text-[rgb(var(--fg))]">{isEN ? "Home" : "Startseite"}</Link>
+            <Link href="/" className="hover:text-[rgb(var(--fg))]">{isEN ? "Home" : "Startseite"}</Link>
             <Link href="/roadmap" className="hover:text-[rgb(var(--fg))]">Roadmap</Link>
             <Link href="/presse" className="hover:text-[rgb(var(--fg))]">{isEN ? "Press" : "Presse"}</Link>
             <Link href="/datenschutz" className="hover:text-[rgb(var(--fg))]">{isEN ? "Privacy" : "Datenschutz"}</Link>
