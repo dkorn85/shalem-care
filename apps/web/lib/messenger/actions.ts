@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { serverClient } from "@/lib/auth/client";
 import { isNextRedirectError } from "@/lib/auth/redirect-error";
 import { parseMentions, parseHashtags } from "./store";
+import { sortDmPair } from "./dm";
 
 const BUCKET = "messenger";
 const MAX_SIZE = 25 * 1024 * 1024;
@@ -23,6 +24,11 @@ export async function sendeMessage(formData: FormData): Promise<SendResult> {
 
     const klientId = formData.get("klient_id");
     const klient = typeof klientId === "string" && klientId.trim().length > 0 ? klientId.trim() : null;
+
+    // DM-Modus: wenn dm_to gesetzt ist, schreiben wir an einen Bestimmten User.
+    const dmToRaw = formData.get("dm_to");
+    const dmTo = typeof dmToRaw === "string" && dmToRaw.trim().length > 0 ? dmToRaw.trim() : null;
+    const dmParticipants = dmTo ? sortDmPair(user.id, dmTo) : null;
 
     // Auto-Parse Mentions + Hashtags aus dem Body
     const mentions = parseMentions(body);
@@ -76,6 +82,7 @@ export async function sendeMessage(formData: FormData): Promise<SendResult> {
         voicemail_dauer_sec: voicemailDauer,
         mentions,
         hashtags,
+        dm_participants: dmParticipants,
       })
       .select("id")
       .single();
@@ -102,6 +109,12 @@ export async function sendeMessageFormAction(formData: FormData) {
 export async function loescheMessage(messageId: string) {
   const supabase = await serverClient();
   await supabase.from("messages").delete().eq("id", messageId);
+  revalidatePath("/messenger");
+}
+
+export async function markiereDmGelesen(otherUserId: string) {
+  const supabase = await serverClient();
+  await supabase.rpc("mark_dm_read", { other_user_id: otherUserId });
   revalidatePath("/messenger");
 }
 

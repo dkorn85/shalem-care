@@ -14,11 +14,16 @@ export function MessengerForm({
   personen,
   prozessTags,
   defaultKlient,
+  dmTo,
+  dmPartnerName,
 }: {
   klienten: Klient[];
   personen: Person[];
   prozessTags: Tag[];
   defaultKlient?: string;
+  /** Wenn gesetzt: DM-Modus, Klient-Select wird ersetzt durch DM-Banner */
+  dmTo?: string;
+  dmPartnerName?: string;
 }) {
   const [body, setBody] = useState("");
   const [klientId, setKlientId] = useState(defaultKlient ?? "");
@@ -99,22 +104,37 @@ export function MessengerForm({
 
   return (
     <section className="surface rounded-2xl p-4 sm:p-5">
-      <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Neue Nachricht</p>
+      <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">
+        {dmTo ? `DM an ${dmPartnerName ?? "User"}` : "Neue Nachricht"}
+      </p>
       <form ref={formRef} action={sendeMessageFormAction} encType="multipart/form-data" className="space-y-3">
-        {/* Klient-Select */}
-        <label className="block">
-          <span className="text-[11px] uppercase tracking-wider text-soft font-medium block mb-1">Bezug zu Klient:in (optional)</span>
-          <select
-            name="klient_id"
-            value={klientId}
-            onChange={(e) => setKlientId(e.target.value)}
-            className="w-full surface-mute rounded p-2 text-[13px] focus:outline-none"
-            style={{ boxShadow: "inset 0 0 0 1px rgb(var(--fg-mute) / 0.2)" }}
-          >
-            <option value="">— team-weit (kein Klient-Bezug) —</option>
-            {klienten.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
-          </select>
-        </label>
+        {dmTo ? (
+          <>
+            <input type="hidden" name="dm_to" value={dmTo} />
+            <div
+              className="rounded-lg p-2.5"
+              style={{ background: "rgb(var(--vibe-stats) / 0.08)", boxShadow: "inset 0 0 0 1px rgb(var(--vibe-stats) / 0.3)" }}
+            >
+              <p className="text-[11px]" style={{ color: "rgb(var(--vibe-stats))" }}>
+                ✉ Direkt-Nachricht · nur du und <strong>{dmPartnerName ?? dmTo.slice(0, 8)}</strong> sehen das · RLS-gefiltert
+              </p>
+            </div>
+          </>
+        ) : (
+          <label className="block">
+            <span className="text-[11px] uppercase tracking-wider text-soft font-medium block mb-1">Bezug zu Klient:in (optional)</span>
+            <select
+              name="klient_id"
+              value={klientId}
+              onChange={(e) => setKlientId(e.target.value)}
+              className="w-full surface-mute rounded p-2 text-[13px] focus:outline-none"
+              style={{ boxShadow: "inset 0 0 0 1px rgb(var(--fg-mute) / 0.2)" }}
+            >
+              <option value="">— team-weit (kein Klient-Bezug) —</option>
+              {klienten.map((k) => <option key={k.id} value={k.id}>{k.name}</option>)}
+            </select>
+          </label>
+        )}
 
         {/* Body mit Auto-Suggest */}
         <div className="relative">

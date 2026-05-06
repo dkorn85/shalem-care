@@ -22,48 +22,65 @@ import {
   presenceFuerChannel,
   listPresence,
 } from "@/lib/messenger/channels";
+import { sortDmPair, type DmPartner } from "@/lib/messenger/dm";
 import { MessengerForm } from "./form";
 
 export const metadata = { title: "Messenger · Discord-Layer · Shalem Care" };
 export const dynamic = "force-dynamic";
 
-type SearchParams = { error?: string; channel?: string; klient?: string; tag?: string; mention?: string };
+type SearchParams = { error?: string; channel?: string; klient?: string; tag?: string; mention?: string; dm?: string };
 
 export default async function MessengerPage({ searchParams }: { searchParams?: Promise<SearchParams> }) {
   const params = (await searchParams) ?? {};
-
-  // Channel-Resolution aus Query-Param
-  const aktiverChannel = params.channel
-    ? getChannel(params.channel)
-    : params.klient
-      ? getChannel(params.klient)
-      : params.tag
-        ? getChannel(params.tag)
-        : getChannel("klient-hr");
 
   if (!isAuthConfigured()) return <KeineConfig />;
   const user = await getCurrentUser();
   if (!user) return <NichtEingeloggt />;
 
-  // Messages aus Supabase ziehen — Filter nach Channel-Kategorie
+  // DM-Modus: ?dm=<userId> öffnet einen echten 1:1 mit registriertem User
+  const dmTo = params.dm ?? null;
+
+  // Channel-Resolution aus Query-Param
+  const aktiverChannel = dmTo
+    ? null // DM überschreibt normales Channel-Routing
+    : params.channel
+      ? getChannel(params.channel)
+      : params.klient
+        ? getChannel(params.klient)
+        : params.tag
+          ? getChannel(params.tag)
+          : getChannel("klient-hr");
+
+  // DM-Partner-Liste aus Supabase laden (alle registrierten User außer self)
   const supabase = await serverClient();
+  const { data: dmPartnerRaw } = await supabase.rpc("list_dm_partners");
+  const dmPartners: DmPartner[] = (dmPartnerRaw ?? []) as DmPartner[];
+  const aktiverDmPartner = dmTo ? dmPartners.find((p) => p.user_id === dmTo) ?? null : null;
+
+  // Messages aus Supabase ziehen
   let query = supabase.from("messages").select("*").order("created_at", { ascending: false }).limit(100);
 
-  if (aktiverChannel) {
+  if (dmTo) {
+    // DM: nur Messages zwischen self + dmTo
+    const pair = sortDmPair(user.id, dmTo);
+    query = query.eq("dm_participants", `{${pair[0]},${pair[1]}}`);
+  } else if (aktiverChannel) {
+    // Normale Channel-Filter
     if (aktiverChannel.kategorie === "klient") {
-      query = query.eq("klient_id", aktiverChannel.slug);
+      query = query.eq("klient_id", aktiverChannel.slug).is("dm_participants", null);
     } else if (aktiverChannel.kategorie === "prozess") {
-      query = query.contains("hashtags", [aktiverChannel.slug]);
+      query = query.contains("hashtags", [aktiverChannel.slug]).is("dm_participants", null);
     } else if (aktiverChannel.kategorie === "dm") {
-      query = query.contains("mentions", [aktiverChannel.slug]);
+      query = query.contains("mentions", [aktiverChannel.slug]).is("dm_participants", null);
     } else if (aktiverChannel.kategorie === "beruf") {
-      query = query.contains("hashtags", [`beruf-${aktiverChannel.slug}`]);
+      query = query.contains("hashtags", [`beruf-${aktiverChannel.slug}`]).is("dm_participants", null);
+    } else {
+      query = query.is("dm_participants", null);
     }
-    // allgemein + voice = alle Messages ohne klient_id
   }
 
   const { data: rows, error } = await query;
-  const messages = ((rows ?? []) as Message[]).reverse(); // chronologisch aufsteigend
+  const messages = ((rows ?? []) as Message[]).reverse();
 
   const channels = channelsProKategorie();
   const presence = aktiverChannel ? presenceFuerChannel(aktiverChannel) : listPresence();
@@ -75,6 +92,8 @@ export default async function MessengerPage({ searchParams }: { searchParams?: P
       personen={HELGA_UMFELD.begleiter.map((b) => ({ id: b.personId, name: b.name, beruf: b.beruf }))}
       prozessTags={PROZESS_TAGS}
       defaultKlient={aktiverChannel?.kategorie === "klient" ? aktiverChannel.slug : undefined}
+      dmTo={dmTo ?? undefined}
+      dmPartnerName={aktiverDmPartner?.display_name}
     />
   );
 
@@ -97,6 +116,8 @@ export default async function MessengerPage({ searchParams }: { searchParams?: P
         initialPresenceMock={presence}
         serverMembers={serverMembers}
         composer={composerNode}
+        dmPartners={dmPartners}
+        aktiverDmPartner={aktiverDmPartner}
         user={{
           id: user.id,
           displayName: user.email ?? "User",

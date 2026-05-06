@@ -16,6 +16,8 @@ export type Message = {
   parent_id: string | null;
   gelesen_von: string[];
   created_at: string;
+  /** UUID-Paar wenn DM zwischen zwei Usern (sortiert), sonst null */
+  dm_participants: string[] | null;
 };
 
 const MENTION_RE  = /@([a-z0-9-]+(?:-[a-z0-9-]+)*)/gi;
