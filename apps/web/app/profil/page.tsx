@@ -18,7 +18,7 @@ import { AudioMuteToggle } from "@/components/AudioPrompt";
 import { PreferencesPanel } from "@/components/PreferencesPanel";
 import { ProfilbildUpload } from "@/components/ProfilbildUpload";
 import { ProfilMenschlichSection } from "@/components/ProfilMenschlich";
-import { getProfil, seedProfilOnce } from "@/lib/profile/store";
+import { getProfil, seedProfilOnce, DEFAULT_PROFIL_PREFS } from "@/lib/profile/store";
 import { jahresSummeFuerMitglied, topfKpis, CAP_PRO_JAHR_EURO, seedSolidarTopfOnce } from "@/lib/solidartopf/store";
 
 export default async function ProfilPage() {
@@ -267,7 +267,7 @@ export default async function ProfilPage() {
         <div className="lg:col-span-5">
           <PreferencesPanel
             personId={nurse.id}
-            preferenzen={profilM.preferenzen ?? { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true, largePrint: false }}
+            preferenzen={profilM.preferenzen ?? DEFAULT_PROFIL_PREFS}
           />
         </div>
       </div>

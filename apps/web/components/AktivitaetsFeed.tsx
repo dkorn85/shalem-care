@@ -59,7 +59,7 @@ export function AktivitaetsFeed({ events, limit = 30 }: { events: AktivitaetEven
                   {e.inhalt} <span className="text-soft">· {e.klientName}</span>
                 </p>
               </div>
-              <span className="text-[10px] text-soft font-mono shrink-0">{relativeZeit(e.zeitstempel)}</span>
+              <span className="text-[11px] font-mono shrink-0" style={{ color: "rgb(var(--fg-mute))" }}>{relativeZeit(e.zeitstempel)}</span>
             </li>
           );
         })}

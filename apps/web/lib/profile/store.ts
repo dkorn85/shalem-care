@@ -36,7 +36,10 @@ export type ProfilPreferenzen = {
   largePrint: boolean;                // 18px Body statt 16px (Sehbehinderung)
 };
 
-const DEFAULT_PREFS: ProfilPreferenzen = {
+// Exportiert damit Pages + Server-Actions denselben Default nutzen
+// statt jedes Mal ein neues Objekt zu inlinen (führte beim
+// largePrint-Add zu Hostinger-Build-Crash in 3 Stellen).
+export const DEFAULT_PROFIL_PREFS: ProfilPreferenzen = {
   sprache: "de",
   audioStumm: false,
   email: true,
@@ -55,7 +58,7 @@ const s = g.__shalemProfile!;
 export function getProfil(personId: string): ProfilMenschlich {
   const p = s.profile.get(personId);
   if (p) return p;
-  return { personId, preferenzen: { ...DEFAULT_PREFS } };
+  return { personId, preferenzen: { ...DEFAULT_PROFIL_PREFS } };
 }
 
 export function updateProfil(personId: string, patch: Partial<ProfilMenschlich>): ProfilMenschlich {
@@ -64,7 +67,7 @@ export function updateProfil(personId: string, patch: Partial<ProfilMenschlich>)
     ...aktuell,
     ...patch,
     personId,
-    preferenzen: patch.preferenzen ? { ...DEFAULT_PREFS, ...aktuell.preferenzen, ...patch.preferenzen } : aktuell.preferenzen,
+    preferenzen: patch.preferenzen ? { ...DEFAULT_PROFIL_PREFS, ...aktuell.preferenzen, ...patch.preferenzen } : aktuell.preferenzen,
     updatedAt: new Date().toISOString(),
   };
   s.profile.set(personId, next);
@@ -92,7 +95,7 @@ export function seedProfilOnce() {
     lebensziele: "Eine kleine Pflegegenossenschaft im Umland mitgründen, die nicht nach Akkord rechnet.",
     typischerTag: "Frühdienst 6:30, danach Hund + Backofen-Brot, abends Yoga oder Imkerei.",
     erreichbarkeit: "Werktags 7-19, Notrufpiepser auch nachts.",
-    preferenzen: { sprache: "de", audioStumm: false, email: true, push: true, schichtErinnerung: 30, klartextAuto: true, largePrint: false },
+    preferenzen: { ...DEFAULT_PROFIL_PREFS },
   });
 
   updateProfil("klient-hr", {
