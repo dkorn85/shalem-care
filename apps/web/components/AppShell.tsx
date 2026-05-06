@@ -12,9 +12,12 @@ const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung" | "apotheke" | "medizintechnik" | "rettungsdienst" | "bestatter" | "begleitung";
 
 const NURSE_NAV = [
+  { href: "/pflege/heute",    label: "Heute",          vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/pflege",          label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
+  { href: "/pflege/tour",     label: "Tour-KI",        vibe: "var(--fri)",           icon: SparkIcon },
   { href: "/dienst",          label: "Stationsansicht",vibe: "var(--vibe-team)",    icon: WardIcon },
   { href: "/tausch",          label: "Tausch-Markt",  vibe: "var(--vibe-market)",   icon: SwapIcon },
+  { href: "/pflege/selbst",   label: "Selbstpflege",   vibe: "var(--mon)",           icon: SparkIcon },
   { href: "/fortbildung",     label: "Fortbildung",   vibe: "var(--fri)",           icon: BookIcon },
   { href: "/profil",          label: "Mein Profil",   vibe: "var(--vibe-profile)",  icon: ProfileIcon },
 ];
