@@ -76,8 +76,10 @@ export function HeroBanner({
       {loop && (
         <video src={loop} autoPlay muted loop playsInline aria-hidden className="absolute inset-0 w-full h-full object-cover opacity-50 mix-blend-soft-light" />
       )}
-      {/* Gradient unten für Text-Lesbarkeit */}
-      <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.35) 0%, rgb(var(--bg) / 0.05) 35%, rgb(var(--bg) / 0.85) 95%, rgb(var(--bg)) 100%)" }} />
+      {/* Gradient unten für Text-Lesbarkeit · 2026-05-06 staerker gezogen
+          fuer WCAG-AA auf farbigen Watercolor-Heros (Pool, KI-Bruecke).
+          Ueberblendung jetzt frueher (ab 30 %) und dichter (90 % statt 85 %). */}
+      <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.25) 0%, rgb(var(--bg) / 0.10) 30%, rgb(var(--bg) / 0.78) 65%, rgb(var(--bg) / 0.95) 92%, rgb(var(--bg)) 100%)" }} />
       {/* Akzent-Linie wenn Rolle gesetzt */}
       {rolleFarbe && (
         <span aria-hidden className="absolute inset-x-0 bottom-0 h-[2px]" style={{ background: `linear-gradient(90deg, transparent, rgb(${rolleFarbe} / 0.6), transparent)` }} />

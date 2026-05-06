@@ -7,7 +7,7 @@
 // Cookie für Sprache. Zeigt einen leichten "gespeichert"-Hinweis nach
 // jedem Klick.
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { speicherePreferenzen } from "@/lib/profile/actions";
 import type { ProfilPreferenzen } from "@/lib/profile/store";
 
@@ -28,6 +28,14 @@ export function PreferencesPanel({
   const [werte, setWerte] = useState(preferenzen);
   const [pending, start] = useTransition();
   const [gespeichert, setGespeichert] = useState<string | null>(null);
+
+  // Larger-Print: data-Attribut auf <html> setzen, damit globals.css
+  // den Body-Font auf 18px hochzieht (sieht jeder Component-Override
+  // weiter, aber Browser-rem skaliert nicht durch).
+  useEffect(() => {
+    if (typeof document === "undefined") return;
+    document.documentElement.dataset.largePrint = werte.largePrint ? "1" : "";
+  }, [werte.largePrint]);
 
   const update = <K extends keyof ProfilPreferenzen>(key: K, value: ProfilPreferenzen[K]) => {
     setWerte((alt) => ({ ...alt, [key]: value }));
@@ -96,6 +104,21 @@ export function PreferencesPanel({
           <Toggle
             an={werte.klartextAuto}
             onChange={(an) => update("klartextAuto", an)}
+          />
+        </div>
+
+        {/* Larger-Print fuer Sehbehinderte */}
+        <div className="flex items-center justify-between gap-3 flex-wrap pt-3 border-t border-app-soft">
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-medium">Größere Schrift (18 px)</p>
+            <p className="text-[11px] text-mute leading-snug">
+              Default ist 16 px / 1.55. Bei Bedarf 18 px / 1.6 — empfohlen für Sehbehinderte.
+              Hochkontrast-Modus folgt automatisch dem Browser-Setting.
+            </p>
+          </div>
+          <Toggle
+            an={werte.largePrint}
+            onChange={(an) => update("largePrint", an)}
           />
         </div>
 

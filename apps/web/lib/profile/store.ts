@@ -33,6 +33,7 @@ export type ProfilPreferenzen = {
   push: boolean;                      // Push-Benachrichtigungen
   schichtErinnerung: number;          // Minuten vor Schicht (0=aus)
   klartextAuto: boolean;              // Klartext automatisch zeigen
+  largePrint: boolean;                // 18px Body statt 16px (Sehbehinderung)
 };
 
 const DEFAULT_PREFS: ProfilPreferenzen = {
@@ -42,6 +43,7 @@ const DEFAULT_PREFS: ProfilPreferenzen = {
   push: true,
   schichtErinnerung: 30,
   klartextAuto: true,
+  largePrint: false,
 };
 
 type State = { profile: Map<string, ProfilMenschlich> };
