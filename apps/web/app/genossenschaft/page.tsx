@@ -58,6 +58,9 @@ export default async function GenossenschaftPage() {
             <Link href="/genossenschaft/pool" className="btn text-[14px]">
               Pool · Arbeitsamt-Ersatz
             </Link>
+            <Link href="/genossenschaft/solidartopf" className="btn text-[14px]">
+              Solidar-Topf · Krankheit
+            </Link>
             <Link href="#wie-funktioniert" className="btn text-[14px]">
               So funktioniert es
             </Link>

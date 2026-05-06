@@ -19,15 +19,20 @@ import { PreferencesPanel } from "@/components/PreferencesPanel";
 import { ProfilbildUpload } from "@/components/ProfilbildUpload";
 import { ProfilMenschlichSection } from "@/components/ProfilMenschlich";
 import { getProfil, seedProfilOnce } from "@/lib/profile/store";
+import { jahresSummeFuerMitglied, topfKpis, CAP_PRO_JAHR_EURO, seedSolidarTopfOnce } from "@/lib/solidartopf/store";
 
 export default async function ProfilPage() {
   seedOnce();
   seedRatingsOnce();
   seedKrankmeldungOnce();
   seedProfilOnce();
+  seedSolidarTopfOnce();
   const aktiv = await getActivePersona(CURRENT_USER_ID, "pflege");
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
   const profilM = getProfil(CURRENT_USER_ID);
+  const solidarKpi = topfKpis();
+  const eigeneJahresSumme = jahresSummeFuerMitglied(CURRENT_USER_ID);
+  const solidarRest = CAP_PRO_JAHR_EURO - eigeneJahresSumme;
   const modusInfo = aktiv.demoMode !== "real" ? DEMO_MODI[aktiv.demoMode] : null;
   const stationId = getStationOfPerson(CURRENT_USER_ID);
   const station = stationId ? getStation(stationId) : null;
@@ -127,6 +132,25 @@ export default async function ProfilPage() {
           </div>
         )}
       </section>
+
+      {/* Solidar-Topf-Card · Krankheits- + Verdienstausfall-Schutz */}
+      <Link
+        href="/genossenschaft/solidartopf"
+        className="surface-hover rounded-2xl p-4 mb-3 flex items-center gap-3 anim-slideUp max-w-5xl"
+        style={{ background: "linear-gradient(135deg, rgb(var(--thu) / 0.08), rgb(var(--vibe-team) / 0.04))" }}
+      >
+        <span aria-hidden className="text-[24px]">🤝</span>
+        <div className="flex-1 min-w-0">
+          <p className="text-[11px] uppercase tracking-wider text-soft font-medium">Mein Solidar-Schutz · {new Date().getFullYear()}</p>
+          <p className="text-[14px] font-medium mt-0.5">
+            {solidarRest.toLocaleString("de-DE")} € Jahres-Volumen verbleibend · Topf-Saldo {Math.round(solidarKpi.saldoEuro).toLocaleString("de-DE")} €
+          </p>
+          <p className="text-[12px] text-mute mt-0.5">
+            Krankheits-Verdienstausfall durch Genossenschafts-Topf — Tag 1-6 voll, Tag 7-42 zu 70 %.
+          </p>
+        </div>
+        <span className="text-mute shrink-0">→</span>
+      </Link>
 
       <Link
         href="/profil/krankmeldung"

@@ -8,6 +8,7 @@
 // Text-Bestätigung.
 
 import { useEffect, useRef, useState } from "react";
+import { announce } from "@/components/GlobalLiveRegion";
 
 const MUTE_KEY = "shalem-audio-mute";
 
@@ -38,6 +39,9 @@ export function SosButton({ audioSrc }: { audioSrc?: string }) {
     setActive(true);
     setStageIdx(0);
 
+    // Screenreader-Ansage als Notruf (assertive)
+    announce(STAGES[0].text, "assertive");
+
     // Audio nur abspielen wenn nicht stumm
     const muted = typeof window !== "undefined" && localStorage.getItem(MUTE_KEY) === "1";
     if (!muted && audioRef.current) {
@@ -45,10 +49,13 @@ export function SosButton({ audioSrc }: { audioSrc?: string }) {
       audioRef.current.play().catch(() => {/* autoplay-policy oder Datei fehlt */});
     }
 
-    // Stages nacheinander einblenden
+    // Stages nacheinander einblenden + Screenreader
     STAGES.forEach((s, i) => {
       if (i === 0) return;
-      timeouts.current.push(setTimeout(() => setStageIdx(i), s.delay));
+      timeouts.current.push(setTimeout(() => {
+        setStageIdx(i);
+        announce(s.text, "assertive");
+      }, s.delay));
     });
 
     // Reset nach 8 s

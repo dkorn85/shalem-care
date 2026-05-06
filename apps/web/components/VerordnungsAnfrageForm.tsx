@@ -191,10 +191,10 @@ export function VerordnungsAnfrageForm({
           {/* Kategorie-spezifische Felder */}
           {kategorie === "medikament" && (
             <div className="grid sm:grid-cols-2 gap-2">
-              <input value={wirkstoff} onChange={(e) => setWirkstoff(e.target.value)} placeholder="Wirkstoff (z.B. Mirtazapin)" className="input text-[13px]" />
-              <input value={staerke} onChange={(e) => setStaerke(e.target.value)} placeholder="Stärke (z.B. 15 mg)" className="input text-[13px]" />
-              <input value={dosierung} onChange={(e) => setDosierung(e.target.value)} placeholder="Dosierung (z.B. 0-0-1)" className="input text-[13px] font-mono" />
-              <input value={menge} onChange={(e) => setMenge(e.target.value)} placeholder="Menge (z.B. 30 Tbl N1)" className="input text-[13px]" />
+              <input aria-label="Wirkstoff" value={wirkstoff} onChange={(e) => setWirkstoff(e.target.value)} placeholder="Wirkstoff (z.B. Mirtazapin)" className="input text-[13px]" />
+              <input aria-label="Stärke" value={staerke} onChange={(e) => setStaerke(e.target.value)} placeholder="Stärke (z.B. 15 mg)" className="input text-[13px]" />
+              <input aria-label="Dosierung" value={dosierung} onChange={(e) => setDosierung(e.target.value)} placeholder="Dosierung (z.B. 0-0-1)" className="input text-[13px] font-mono" />
+              <input aria-label="Menge" value={menge} onChange={(e) => setMenge(e.target.value)} placeholder="Menge (z.B. 30 Tbl N1)" className="input text-[13px]" />
             </div>
           )}
           {kategorie === "heilmittel" && (
@@ -212,7 +212,7 @@ export function VerordnungsAnfrageForm({
             </div>
           )}
           {kategorie === "hilfsmittel" && (
-            <input value={hilfsmittel} onChange={(e) => setHilfsmittel(e.target.value)} placeholder="Bezeichnung (z.B. Rollator GKV-Standard)" className="input text-[13px]" />
+            <input aria-label="Hilfsmittel-Bezeichnung" value={hilfsmittel} onChange={(e) => setHilfsmittel(e.target.value)} placeholder="Bezeichnung (z.B. Rollator GKV-Standard)" className="input text-[13px]" />
           )}
           {kategorie === "haeusl_pflege" && (
             <div className="grid sm:grid-cols-2 gap-2">

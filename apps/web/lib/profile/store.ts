@@ -80,7 +80,7 @@ export function seedProfilOnce() {
 
   updateProfil("person-dr", {
     bio: "Pflegekraft mit zehn Jahren Erfahrung in der Onkologie. Ich glaube, dass jeder Mensch gehört werden möchte — auch wenn er nicht mehr sprechen kann.",
-    lebensmotto: "„Würde ist kein Pflegestandard.“",
+    lebensmotto: "Würde ist kein Pflegestandard.",
     hobbys: ["Bouldern", "Imker:in seit 2022", "Tibetisches Kochen"],
     sprachen: [
       { code: "de", label: "Deutsch", niveau: "muttersprache" },
@@ -95,7 +95,7 @@ export function seedProfilOnce() {
 
   updateProfil("klient-hr", {
     bio: "Ich bin Helga, 78, Witwe seit 6 Jahren. Pflegegrad 3 wegen meines Sakraldekubitus. Aber ich bin nicht meine Wunde.",
-    lebensmotto: "„Solange ich noch lachen kann, bin ich noch da.“",
+    lebensmotto: "Solange ich noch lachen kann, bin ich noch da.",
     hobbys: ["Stricken", "Kreuzworträtsel", "Kontakt zu Enkelin Lisa per Video"],
     sprachen: [
       { code: "de", label: "Deutsch", niveau: "muttersprache" },
@@ -108,7 +108,7 @@ export function seedProfilOnce() {
 
   updateProfil("person-de1", {
     bio: "Stationsleitung mit Detektiv-Geist. Was die Pflegestatistik nicht zeigt, finde ich heraus.",
-    lebensmotto: "„Daten sind Geschichten, die noch keiner erzählt hat.“",
+    lebensmotto: "Daten sind Geschichten, die noch keiner erzählt hat.",
     hobbys: ["Krimi-Hörbücher", "Schach", "Tour de France gucken"],
     sprachen: [
       { code: "de", label: "Deutsch", niveau: "muttersprache" },
