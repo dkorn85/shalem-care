@@ -1,375 +1,320 @@
 # Shalem Care · Session-Handoff
 
-**Stand:** 2026-05-05 · für die nächste Session
-**Branch:** `claude/tender-nightingale-f1bb8b` · 92 Routen · `tsc --noEmit` exit 0 · `next build` exit 0
-**Phase 2-Stand:** Auth funktional · Verifizierung-Pipeline live · DSGVO-Selbstbedienung · Audit-Log · Messenger · UserMenu mit Rollen-Switch · 12 Audio-Files (Lana+Dennis) · ~75 Demo-Assets eingespielt
+**Stand:** 2026-05-06 · für die nächste Session (Termux / Tablet / Desktop)
+**Branch:** `claude/agitated-germain-e73b91` · **131 Routen** · `tsc --noEmit` exit 0 · `next build` exit 0
+**Phase:** Plattform-Funktional · alle 12 Berufe + 4 Aufsichts-Ebenen + Politik-Schnittstelle
 
 ---
 
-## Was läuft live
+## TL;DR · was läuft live
 
-- Demo-Domain: **shalem.de** (Hostinger Node.js, Auto-Deploy via GitHub-Push)
+- Demo-Domain: **shalem.de** (Hostinger Node.js, Auto-Deploy via Push auf `main`)
 - Repo: <https://github.com/dkorn85/shalem-care>
-- Demo-Mode: `NEXT_PUBLIC_DEMO_MODE=1` aktiviert Banner + Persona-Switcher (Dropdown mit 12 Rollen)
-- 23 echte Bildgebungs-PNGs (Röntgen/CT/MRT/Sono) im Befunde-Cockpit
-- **Supabase-DB live** unter `gpchwlqeqejxvynewjns.supabase.co` (Hostinger → Supabase Frankfurt) — 12 Klient:innen + 3 Einrichtungen + 3 Stationen geseedet, RLS-Policies aktiv. Status-Anzeige `/admin/db-status`.
-- **Auth-Schema** — `profiles`, `user_roles`, `verifications`-Tabellen mit RLS, Auto-Profile-Erstellung beim Signup.
-- **NEU: Auth funktional** — `@supabase/supabase-js` + `@supabase/ssr` integriert. **Google-OAuth ist live** (Client-ID + Secret in Supabase konfiguriert). `/registrieren` → `/registrieren/start?provider=google` → Google-Login → `/auth/callback` (Code-Exchange) → `/registrieren/verifizieren`. Email-Signup als Fallback. Doku `docs/AUTH_SETUP.md`.
+- Supabase: `gpchwlqeqejxvynewjns.supabase.co` · 8 Tabellen · RLS aktiv
+- Auth: Email + Google OAuth · Profile-Auto-Create · DSGVO-Self-Service
+- **Messenger live · Pfad B Supabase-Realtime** mit Channels, DMs, Reactions, Presence, Typing
+- 131 Routen, alle 12 Berufe haben mind. Tageshub + Diktat + Dienstplan
+- KI-Dienstplan-HUD für PDL · 3-Zonen-Archiv · pk-ruhr-Multiplier-Brücke
+- Politik-Schnittstelle mit KI-Gesundheitsminister-Simulator (6 Stellschrauben)
+- Aufsichtsrat-Quartalsbericht KI-generiert (KonTraG / GenG §38)
 
 ---
 
-## Stand der Plattform · Demo-komplett
+## Termux-Setup auf Tablet · neu starten
 
-### Rollen + Cockpits (12)
+```bash
+# Falls Repo noch nicht da:
+pkg install git nodejs-lts
+git clone https://github.com/dkorn85/shalem-care.git
+cd shalem-care/apps/web
+npm install --include=dev
 
-| Rolle | Persona | Route | Sub-Routes |
+# ENV-Vars in .env.local (oder Termux-env via export):
+echo 'NEXT_PUBLIC_SUPABASE_URL=https://gpchwlqeqejxvynewjns.supabase.co' > .env.local
+echo 'NEXT_PUBLIC_SUPABASE_ANON_KEY=<aus Supabase-Dashboard>' >> .env.local
+
+# Dev-Server:
+npm run dev   # localhost:3000
+
+# Type-check:
+npm run type-check
+
+# Build (Achtung Termux-Heap, ggf. NODE_OPTIONS="--max-old-space-size=2048"):
+npm run build
+```
+
+**Pull aktueller Stand bevor du loslegst:**
+```bash
+cd shalem-care
+git fetch origin
+git checkout main
+git pull --ff-only
+```
+
+---
+
+## Was steht und wo
+
+### Berufe (12) · alle Hub + Diktat + Dienstplan
+
+| Beruf | Tageshub | Diktat | Dienstplan |
 |---|---|---|---|
-| 🩺 Pflege | Dennis Reuter (P7) | `/pflege` | `/dienst`, `/tausch`, `/profil`, `/profil/krankmeldung` |
-| 👩‍⚕️ Arzt | Dr. Susanne Hartmann | `/arzt` | `/anfragen`, `/anfragen/[id]`, `/patienten`, `/patient/[id]` |
-| 🤲 Therapie | Sebastian Rauer (Physio/MLD) | `/therapie` | `/heute`, `/patienten`, `/abrechnung` |
-| 📋 Sozialarbeit | Mira Wagner (DGCC-CM) | `/sozial` | `/faelle`, `/hilfeplan`, `/schutz`, `/md-begutachtung` |
-| 🌻 Erziehung | Yvonne Berger | `/erziehung` | `/gruppen`, `/lerngeschichten` |
-| 🤝 Ehrenamt | Rita Schöndorf (Hospiz) | `/ehrenamt` | `/begleitung`, `/protokoll` |
-| 🌱 Heilerziehung | Anika Stein (BTHG) | `/heilerziehung` | — |
-| 🍲 Hauswirtschaft | Helmut Brandt (LMHV) | `/hauswirtschaft` | — |
-| 🗂 Stationsleitung | Detektiv Eins (P9) | `/admin` | `/dienstplan`, `/disposition`, `/team`, `/team/[id]`, `/erloes`, `/zahlungen`, `/auswertung`, `/aktivitaet`, `/dokumentation`, `/genehmigungen` |
-| 💶 Krankenkasse | Sandra Lehmann (AOK) | `/kasse` | `/abrechnung`, `/vorgang/[id]` |
-| 🌿 Klient:in | Helga Reinhardt (PG 3, 78 J.) | `/klient` | `/akte`, `/akte/befunde`, `/akte/wunde`, `/akte/anamnese`, `/akte/behandlung`, `/begleiter`, `/notizen`, `/buchen`, `/anfrage`, `/bewertung` |
-| 🏛 Genossenschaft | öffentliche Sicht | `/genossenschaft` | `/beitreten` |
+| 🩺 Pflege | `/pflege/heute` | `/pflege/doku/[klientId]` (SIS · 6 Felder · Sprache) | `/pflege` + `/pflege/tour` |
+| 👩‍⚕️ Arzt | `/arzt/heute` | `/arzt/diktat` (Verordnung · ICD-10 · GoÄ) | `/arzt/dienstplan` |
+| 🤲 Therapie | `/therapie/heute` | `/therapie/diktat` (HMV-Codes · ICF · VAS) | `/therapie/dienstplan` |
+| 📋 Sozial | `/sozial` | `/sozial/diktat` (BTHG · ICF · SMART) | `/sozial/dienstplan` |
+| 🌱 Heilerziehung | `/heilerziehung` | `/heilerziehung/diktat` (BTHG-Teilhabe · 6 Felder) | `/heilerziehung/dienstplan` |
+| 🍲 Hauswirtschaft | `/hauswirtschaft` | `/hauswirtschaft/diktat` (Speisen · Hygiene · Vorrat) | `/hauswirtschaft/dienstplan` |
+| 🌻 Erziehung | `/erziehung` | `/erziehung/diktat` (Lerngeschichte Margret-Carr) | — |
+| 🤝 Ehrenamt | `/ehrenamt` | `/ehrenamt/diktat` (Hospiz-Begleit-Protokoll) | `/ehrenamt/dienstplan` |
+| 🗂 Stationsleitung | `/admin` | — | `/admin/dienstplan/hud` (KI-HUD) |
+| 💶 Krankenkasse | `/kasse` | `/kasse/diktat` (Bescheid · §§ SGB V/XI · Klartext) | — |
+| 🌿 Klient:in | `/klient/heute` | — (Akte verstehen statt Diktat) | `/klient/dienstplan` |
+| 🏛 Genossenschaft | `/genossenschaft` | — | — |
 
-### Cross-Profession-Layer
+### Klient · Akte verstehen
+- `/klient/akte/verstehen` · KI-Klartext-Übersetzer für Arztbriefe, Befunde, MD-Gutachten, Pflegepläne
+- 33-Begriffs-Glossar · 5-Sektionen-Output · Reading-Level-Score · Lana-Vorlesen-CTA
+- 2 Demo-Dokumente (Arztbrief Pulmologie + MD-Gutachten Helga)
 
-- **`/netz`** — Komplettübersicht als neuronales Netz mit Echtzeit-Synapsen, Pulse-Animation auf aktiven Edges, Live-Aktivitätsfeed (auto-refresh 30 s)
-- **`/konferenz/[id]`** — interdisziplinäre Fall-/Hilfeplan-Konferenz mit Pre-Reads pro Beruf
-- **`/klient/begleiter`** — Klient sieht alle 8 Begleiter:innen + Konferenz-Slot
-- **`AndereBegleiter`** + **`MeineKlienten`** Komponenten in 4–5 Cockpits eingebaut
-- **`CrossProfessionInbox`** — pro Beruf abarbeitbare Inbox aus Aktivitäts-Feed-Events mit `zielBeruf`. Status: offen / in Arbeit / erledigt. Quick-Actions: Übernehmen · Erledigt · Delegieren an anderen Beruf. Eingebaut in `/arzt`, `/pflege`, `/therapie`, `/sozial`, `/admin`. KPI-Tiles oben (offen, in Arbeit, heute fertig, akut).
-- **NEU: `KonferenzLive`** — Live-Mode auf `/konferenz/[id]` mit Start/Beenden/Vertagen-Knöpfen. Während `status === "live"`: auto-save Live-Notizen-Textarea, Agenda mit Status-Buttons (besprochen / vertagen / zurück), Beschluss-Composer (was/wer/bis), Beschluss-Liste mit Status-Toggle (offen/in Arbeit/erledigt) + Löschen. Bei abgeschlossenen Konferenzen wird das Live-Protokoll als statisches Read-only angezeigt.
+### Pflegekraft-Selbstpflege
+- `/pflege/selbst` · Energie + Stress + Schlaf + Mikro-Pausen + Stimmungs-Check
+- BARMER-38%-Burnout-Argumentation + DBfK-Studien-Block
 
----
+### Stations-Cockpit
+- `/station/[klientId]` · Multi-Berufe-Live-Sicht
+- MultiBerufTimeline (Stunden-Achse mit Profession-Lanes)
+- LanaKiBerater (5 Sektionen + Frag-Lana-Chat-Stub)
+- KI-Berufs-Brücke + Live-Chat + Vital + Foto + Akte-Files
 
-## Datenmodell · 20 Klient:innen über 7 Stationen
+### Aufsichts- & Politik-Ebenen
+- `/supervisor` · Träger-Vorstand · Cross-Einrichtungs-Aggregat · 7-KPI-Strip · Health-Score · KI-Strategie-Vorschläge · 6-Stufen-Eskalation · Verantwortungs-Mapping (SGB-XI/GenG/KonTraG)
+- `/aufsicht` · Aufsichtsrats-Quartalsbericht · KI-generiert · 7 Sektionen · Risiko-Ampel · KonTraG/GenG-konform
+- `/politik` · 5 Aggregat-Daten-Pakete für BMG/MD/Sozialminister/ver.di/Länder · Steuerbescheid-Erklärung · KI-Gesundheitsminister-Simulator (6 Stellschrauben → 6 Output-Metriken + Risiko-Bewertung)
+- `/trading` · Trading-Hub mit pk-ruhr.de + 2 weiteren Partnern · Multiplier-Mechanik visualisiert
+- `/partner/[id]` + `/partner/multiplier` · Detail + 4-Akte-Konvergenz-Story
 
-| Pflegeheim | Klient:innen | PG |
-|---|---|---|
-| St. Lukas Bochum WB-A | Helga · Wilhelm · Elfriede · Otto · Gertrud | 3/4/5/4/5 |
-| St. Lukas Bochum WB-B | Peter · Alma | 3/4 |
-| Prenzl-Berg Berlin | Reinhardt · Ingrid · Volker · Margot | 2/3/3/4 |
-| Augsburg ambulant | Friedrich · Maria · Hannelore · Rolf | 2/4/3/2 |
-| München-Nord Geri | Konrad · Edith · Josef | 4/4/5 |
-| Charité Pädiatrie | Jonas (10 J.) | 3 |
-| Klinikum Essen | Bertha | 3 |
+### Messenger · Pfad B aktiv (Supabase Realtime)
+- 6 Channel-Kategorien · 37+ Demo-Channels + alle registrierten User als DM
+- Realtime: postgres_changes auf messages + reactions · presence-channel · typing-broadcast
+- DB: `messages` mit `dm_participants uuid[]` + `message_reactions` Tabelle + RPCs `list_dm_partners()` + `mark_dm_read()` + `reactions_for_messages()`
+- Graceful Degradation wenn `NEXT_PUBLIC_SUPABASE_URL` fehlt → "statisch · Env fehlt"-Badge
+- `/messenger?dm=<userId>` öffnet 1:1 mit anderem registriertem User
+- Reactions: 7 Standard-Emojis · live-syncen · `has_self`-Flag aus DB
+- Threads via `parent_id` (Schema vorhanden, UI-Stub)
 
-### Care-Team-Zuordnung (`lib/zuordnung/store.ts`)
-
-16 Caseloads über 8 Berufsgruppen — jede Persona hat einen klaren `klientIds[]` und `zustaendigkeitsbereich`.
-
----
-
-## Fachliche Tiefe (was an Logik drin ist)
-
-- **NBA-Modul** vollständig (`lib/nba/module.ts`) — 27 Items × 6 Module × BMG-Gewichtung. Helga 53.7 Pkt → PG 4
-- **Wundverlauf** mit DNQP-Standard, EPUAP-Klassifikation. Sakraldekubitus 12.6 → 2.8 cm² in Heilung
-- **AU-Kaskade** Phase 1 (§ 3 EFZG · § 44 SGB V · § 145 SGB III · BEM-Trigger)
-- **Tibetische Medizin** mit 3 Säften (rLung/Tripa/Beken) + 10 Schulmed↔Tibet-Mappings
-- **Anamnese-Schemas** für alle 8 Berufsgruppen (SIS, ICF, BTHG, KitaG-konform)
-- **Genossenschaft** mit 11 Mitgliedern, 87 Anteilen, 8.700 € Einlage, simulierter Q1-Ausschüttung
-- **Self-Booker** PG ≥ 2 mit transparenten Marktpreisen + 84 % Pflegekraft-Anteil
-- **Konferenz-Modul** mit 6 Typen, Pre-Reads, Agenda, Beschluss-Tracking
-
-### Bildgebung-Assets (23 PNGs)
-
-Alle unter `apps/web/public/befunde/demo/`:
-- Wirbelsäule: LWS · BWS · HWS in lateral/AP/sagittal/axial
-- Schädel: CT axial/coronar · MRT axial/sagittal/coronar
-- Thorax: AP + lateral
-- Knie: MRT sag + cor
-- Carotiden: Sono links + rechts
-
-ImagingGallery zeigt sie automatisch via `existsSync` — Fallback SVG-Anatomie wenn Datei fehlt.
+### KI-Dienstplan-HUD
+- `/admin/dienstplan/hud` · editierbar · Save-Button mit Mutations-Log
+- `/admin/dienstplan/archiv` · 3-Zonen (◀ Archiv · ● Aktuell · ▶ Zukunft 3M KI-Sim)
+- KI-Trends pro Station: Krankheits-/Urlaubs-/Bedarfs-Quote · Konfidenz-Score
+- 27 Demo-Snapshots im Archiv
 
 ---
 
-## Geld-Kalkulation
-
-**TVöD-P 2026** (lib/tariff.ts): P7 22,50 € · P8 24,10 € · P9 26,30 € · P10 28,70 €
-
-**Plattform-Cut Genossenschaft:** 4 % statt 30–50 % bei Honorar-Verleihern. Davon 2 % Betrieb · 1 % Rücklage · 1 % Quartals-Ausschüttung.
-
-**Self-Booker-Anteile:** Pflegekraft 82–86 % · Plattform 4 % · Pflegekassen-Direktabrechnung über DTA SGB XI Anlage 5.
-
-**`/admin/team`** zeigt für alle Pflegekräfte: Stundensatz · Wochenstunden · Std/Mo · Brutto/Mo · Caseload · ArbZG-Status, plus Summary-KPI-Bar.
-
----
-
-## Echtzeit-Layer
-
-**`lib/aktivitaet/feed.ts`** — 16 Event-Typen, 28 Demo-Events seeded über 24 h.
-
-**`/netz`** rendert das Genossenschafts-Netz als animiertes SVG:
-- 9 Knoten (8 Berufe + Klient zentral, Lead unten)
-- 16 Basis-Edges
-- Pulse-Animation auf aktiven Edges (Events letzte 5 Min)
-- Aktivitäts-Feed daneben mit Live-Stream
-- Caseload-Matrix
-- 12-Cockpit-Schnellzugang
-
----
-
-## Architektur-Map
-
-### Stores
+## DB-Schema · Supabase
 
 ```
-lib/au-cascade/phases.ts            AU→KG→ALG-Phasen (rein funktional)
-lib/bem/store.ts                    § 167 II SGB IX Workflow
-lib/wiedereingliederung/store.ts    § 74 SGB V Hamburger Modell
-lib/agentur/arbeit-api.ts           ALG 1 + Nahtlosigkeit + DRV-Reha-Stub
-lib/fortbildung/{katalog,store}.ts  25 Module über 8 Berufsgruppen
-lib/befund/{types,store}.ts         Imaging/Labor/Gangbild/Wirbelsäule
-lib/tibetisch/lehre.ts              Sowa-Rigpa-Lehre + Deutungs-Katalog
-lib/anamnese/schemas.ts             8 Berufs-Schemas
-lib/wunde/{types,store}.ts          DNQP-konforme Wunddoku
-lib/genossenschaft/store.ts         Anteile + Mitglieder + Plattform-Bilanz
-lib/selfbooker/store.ts             Self-Buchung mit transparenten Marktpreisen
-lib/team-um-klient/store.ts         CareTeam-Map (Helga-Universum)
-lib/konferenz/{store,actions}.ts    Fallkonferenz mit Pre-Reads + Agenda + Live-Mode
-lib/zuordnung/store.ts              Person→Klient:innen-Caseloads
-lib/nba/module.ts                   NBA Pflegegrad-Begutachtung
-lib/aktivitaet/feed.ts              Event-Stream zwischen Berufen
-lib/inbox/{store,actions}.ts        Cross-Profession-Inbox aus dem Feed
-lib/db/supabase.ts                  REST-Client (PostgREST, fetch-basiert, no SDK)
-lib/klient/db-driver.ts             DB-first Klient-Loader mit Seed-Fallback
+einrichtungen     · 6 Demo (KEM, St. Lukas, KMN, APL, Charité, Wasserturm)
+stationen         · 14 Demo
+klienten          · 20 Demo (Helga + 19 weitere)
+profiles          · auth-user-Profile mit haupt_rolle, demo_mode, demo_person_id
+user_roles        · multi-rolle pro user
+verifications     · Storage-Upload + Pruefer-Workflow
+audit_log         · alle Auth-Tabellen + Trigger · prev_hash/this_hash für Phase-2
+messages          · body + mentions[] + hashtags[] + dm_participants[] + parent_id
+message_reactions · (message_id, user_id, emoji) UNIQUE
 ```
 
-### UI-Komponenten
+Storage-Buckets: `verifizierungen`, `messenger`.
 
-```
-RolePortal · PersonaSwitcher · SpineDiagram · LabTable · ImagingGallery
-GaitAnalysis · DualeDeutung · AnamneseFormular · WundverlaufDoku
-AUKaskade · BemCard · WiedereingliederungCard · KonferenzCard
-AndereBegleiter · MeineKlienten · Berufsnetz · AktivitaetsFeed
-BerufCockpitCard · CrossProfessionInbox · KonferenzLive
-```
+RPCs: `list_dm_partners()`, `mark_dm_read(uuid)`, `reactions_for_messages(uuid[])`, `audit_stats_self()`.
 
----
-
-## Asset-Briefe (in `docs/`)
-
-| Brief | Status |
-|---|---|
-| ASSETS_FLOWSTATE.md (Block 1–6) | ✓ ausgeliefert |
-| ASSETS_BEFUNDE.md (Block 7–11) | ✓ ausgeliefert |
-| ASSETS_IMAGING.md (Block 12) | ✓ 23 Dateien ausgeliefert |
-| ASSETS_LIVEDEMO.md (Block 13–18) | ✓ 25 von 27 ausgeliefert · Block 18 OG-Cards (db-status, inbox, onboarding, heilerziehung, hauswirtschaft) noch ausstehend |
-| AUTH_SETUP.md | OAuth-Provider-Konfiguration in Supabase Dashboard (Google, Apple, Microsoft, GitHub, Verimi, yes®, gematik) + Storage-Bucket + Phase-2-TODO-Liste |
-| STRATEGIE_LIVE.md | NEU · Reife-Einschätzung pro Domain · 4-Phasen-Roadmap zum Pilot-Live · Konkurrenz-Positionierung · Top-3-Engpass |
-| ASSETS_LIVEDEMO_2.md | ✓ 37 von 38 ausgeliefert (Block 19-24) — fehlend: 19.7 og/anmelden |
-| AUDIT_DEADLINKS.md | NEU · 13 Befunde aus 76 Routen — 4 echte tote Links jetzt gefixt |
-| TECH_ROADMAP.md | NEU · Auth-Vervollständigung · DB-Migration · Realtime/Push · Compliance — pro Item Aufwand+Blocker |
-| AUDIT_DESIGN.md | NEU · Asset-Skalierungs-Audit · 6 Major-Befunde, 7 Mittel, 5 Minor — Hero-Bilder werden in 9+ Routen als kleine Cards gequetscht |
-| PLAN_MODULAR.md | NEU · Modularisierungs-Plan · 5 Top-Komponenten (AccentCard, HeroBanner, SectionHeader, MediaSplit, RevealOnScroll) — ~1200 LoC weg |
-| AUDIO_PLAN.md | NEU · ElevenLabs-Sound-Strategie · 22 Audio-Files, 2 Stimm-Profile (Klara/Jonas), Phase-B-Klone von Dennis+Lana mit DSGVO-Pfad |
-| ASSETS_FINISH.md | NEU · Final-Schliff Block 25-30 · Status-Icon-Grid (9-up · 1 Render → 9 Icons), Aktions-Icon-Grid, 5 Avatar-Lücken, 3 Mikro-Patterns, 5 OG-Cards, 2 Audio-Visualizer-Loops · 23 Renders → 41 Files |
-| PHASE_2_INTEGRATION.md | Migrations-Pfade aller 22 Stores |
-| ROADMAP_NEXT.md | 14 Inhalts-Themen mit Priorisierung |
+Realtime-Publication enthält: `messages`, `message_reactions` (REPLICA IDENTITY FULL).
 
 ---
 
 ## Was als nächstes ansteht
 
-### Priorität A · Demo-Story-Tiefe
-- [x] ~~**Konferenz live-mode**~~ — Notizen auto-save, Agenda-Status-Buttons, Beschluss-Composer, Live-Protokoll bei abgeschlossen
-- [x] ~~**Cross-Profession-Inbox**~~ — eingebaut in 5 Cockpits (Arzt, Pflege, Therapie, Sozial, Lead) mit Übernehmen/Erledigt/Delegieren-Aktionen
-- [ ] **Demo-Tour-Update** — Lead-Loop fehlt noch (`loop-persona-lead.mp4`)
-- [ ] **Klartext-Wrapper Spread** — auf Befunde + Wundverlauf + Anamnese-Antworten
+### Priorität A · Funktional vervollständigen
+- [ ] **TI-Messenger gematik-Anbindung** (Pflicht ab Dezember 2026 für eAU/eRezept) — Famedly-Partnerschaft konkretisieren
+- [ ] **Hash-Kette Audit-Log** (Tamper-Evidence) — Spalten `prev_hash`/`this_hash` sind angelegt, Cron-Job + Verify fehlt
+- [ ] **Messenger-Voicemail-Player** (Aufnahme funktioniert) → Wave-Visualizer beim Abspielen
+- [ ] **Messenger Phase 3** · CareTeam-RLS pro Klient-Channel statt allgemeiner Sichtbarkeit
 
-### Priorität B · Phase-2-Vorbereitung
-- [x] ~~**Supabase-DB Klient:innen**~~ — Schema (einrichtungen/stationen/klienten) + RLS + 12 Klient:innen seeded · DB-Driver mit Seed-Fallback · `/admin/db-status` zeigt Quelle live
-- [x] ~~**Auth-Schema + UI**~~ — profiles/user_roles/verifications + RLS + Auto-Profile-Trigger + UI-Wizard
-- [x] ~~**Echtheits-Verifizierung**~~ — File-Upload an Storage + Pruefer-Page + Status-Lifecycle
-- [x] ~~**DSGVO-Selbstbedienung**~~ — Daten-Export + Konto-Löschung
-- [x] ~~**Audit-Log**~~ — Trigger auf alle Auth-Tabellen + append-only RLS + Pruefer-Page
-- [x] ~~**Messenger Phase 1**~~ — Schema + Storage + Form mit @-Mentions + #-Hashtags + Voicemail-Aufnahme im Browser
-- [x] ~~**3-Monats-Dienstplan-Generator**~~ — `seed-rolling.ts` generiert 90 Tage Schichten dynamisch
-- [ ] **Supabase weiter ausrollen** — Slots/Verordnungen/Wunddoku in DB migrieren (Driver-Pattern wie bei klienten)
-- [ ] **Stripe Connect Treuhand-Modul** (lib/treuhand/store.ts → echte Stripe-Integration)
-- [ ] **Push-Notifications** (Web-Push VAPID, Service-Worker)
-- [ ] **gematik-TI-Konnektor-Stub** für eAU + eRezept
-- [ ] **Matrix-Protokoll** für Messenger (Phase 2 · End-to-End-Verschlüsselung pro Klient-Channel)
-- [ ] **Hash-Kette für Audit-Log** (Tamper-Evidence · prev_hash/this_hash-Spalten sind angelegt)
+### Priorität B · KI-Schicht ausbauen
+- [ ] **Anthropic-Stream im LanaKiBerater** statt Heuristik-Stub (im Stations-Cockpit + Akte-verstehen + Frag-Lana)
+- [ ] **ElevenLabs-STT** für alle Diktat-Tools (heute Mediarecorder, Phase-2 echter STT)
+- [ ] **ElevenLabs-TTS-Vorlesen** für Klartext-Brücken (Lana liest Akte/Brief vor)
 
-### Priorität C · weitere Inhalte
-- [x] ~~**Notfall-Modul** (`/notfall`)~~ — Stub mit Eskalations-Kette (4 Stufen) + SOS-Demo-Knopf + Phase-2-Roadmap (VAPID, Twilio, BLE-Pendant)
-- [x] ~~**Marketing-Page `/warum`**~~ — Differenzierung Honorar-Verleih vs. Genossenschaft, 4-%-Visual, Cross-Profession-Story, CTA Beitritt
-- [x] ~~**Hauswirtschaft + Heilerziehung Sub-Routes**~~ — 6 Sub-Routes (Einkauf/Kochen/Reinigung + Teilhabe/Bildung/Tagesstruktur) als SubRouteStub-Komponente
-- [ ] **i18n vervollständigen** — neue Berufe + Befunde-Akte EN
+### Priorität C · Phase-2-Brocken
+- [ ] **Stripe Connect Treuhand-Modul** echte Stripe-Integration (heute Stub)
+- [ ] **Push-Notifications** (Web-Push VAPID + Service-Worker) für Notruf + Messenger-Mentions
+- [ ] **Slot-Migration nach Supabase** (heute in-memory)
 
-### Priorität D · Eye-Candy
-- [ ] **Akte-Atmo-Loops** wirklich einbauen (`atmo-puls/atem/ganzheit.mp4` aus Block 11)
-- [ ] **Tibetisch-Inline-Illustrationen** auf Befunde-Page
+### Priorität D · Inhalt + Politik
+- [ ] **Aufsichtsrats-Bericht-PDF-Export** mit eIDAS-Signatur
+- [ ] **Politik-Aggregat-Pipeline** echt aus aggregierten Daten (heute statische Demo)
+- [ ] **Quartal-Ausschüttung-Workflow** für eG-Mitglieder
+
+### Priorität E · Pending User-Aktionen (organisatorisch)
+- [ ] UG-Notar-Termin (1-2 Wochen)
+- [ ] DSB extern beauftragen (~200-300 €/Mo)
+- [ ] AÜG-Anwalt für Cross-Träger-Tausch (4-8 Wochen)
+- [ ] Genossenschafts-Anwalt-Erstgespräch
+- [ ] pk-ruhr.de tatsächlich kontaktieren für reale Multiplier-Brücke
 
 ---
 
-## Reset-Anleitung
+## Demo-Personas + Test-Routen
 
-```powershell
-Set-Location 'C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care'
-git pull
-Set-Location 'apps/web'
-npm install --include=dev
-npm run build      # → apps/web/.next/standalone/apps/web/server.js
-npm start          # localhost:3000
+| Rolle | Login-Persona | Test-Route |
+|---|---|---|
+| Pflegekraft | Dennis Reuter (`person-dr`) | `/pflege/heute` → Tour-KI → SIS-Diktat |
+| Arzt | Dr. Susanne Hartmann (`person-arzt-001`) | `/arzt/heute` → Anfragen-Inbox → Verordnung-Diktat |
+| Therapie | Sebastian Rauer (`person-therapeut-001`) | `/therapie/heute` → Diktat |
+| Sozial | Mira Wagner (`person-sozial-001`) | `/sozial/diktat` |
+| Lead/PDL | Detektiv Eins (`person-de1`) | `/admin/dienstplan/hud` → Edit-Modus → Save |
+| Klient | Helga Reinhardt (`klient-hr`) | `/klient/heute` → Akte verstehen |
+| Aufsicht | Detektiv Eins | `/aufsicht?q=Q1` |
+| Politik | Demo-Sicht | `/politik` → KI-Sim-Stellschrauben |
+| Trading | Demo-Sicht | `/trading` → pk-ruhr-Detail |
+
+Wechsel zwischen Rollen: **HauptMenu-Dropdown** im Header (oben rechts).
+
+---
+
+## Push-Pattern für Termux
+
+```bash
+# Branch erstellen
+git checkout -b claude/<beschreibung>
+
+# Arbeiten + commiten wie üblich
+git add <files>
+git commit -m "feat: ..."
+
+# Push branch
+git push -u origin claude/<beschreibung>
+
+# Merge in main + push (User muss manuell zulassen)
+git checkout main
+git pull --ff-only origin main
+git merge --no-ff claude/<beschreibung> -m "merge: ..."
+git push origin main
 ```
 
-Hostinger zieht bei `git push origin main` automatisch den neuen Stand.
+Hostinger zieht aus `main` automatisch. Build dauert ~2 min.
 
 ---
 
-## Demo-Persona-Cheat-Sheet
+## Wichtige Dateien · zentrale Orte
 
-| Rolle | Login | Name | Persona-ID |
-|---|---|---|---|
-| Pflegekraft | `/pflege` | Dennis Reuter | `person-dr` |
-| Arzt | `/arzt` | Dr. Susanne Hartmann | `person-arzt-001` |
-| Therapie | `/therapie` | Sebastian Rauer | `person-therapeut-001` |
-| Sozialarbeit | `/sozial` | Mira Wagner | `person-sozial-001` |
-| Erziehung | `/erziehung` | Yvonne Berger | `erzieher-001` |
-| Ehrenamt | `/ehrenamt` | Rita Schöndorf | `person-ehrenamt-001` |
-| Heilerziehung | `/heilerziehung` | Anika Stein | `person-as-005` |
-| Hauswirtschaft | `/hauswirtschaft` | Helmut Brandt | `hwf-001` |
-| Stationsleitung | `/admin` | Detektiv Eins | `person-de1` |
-| Krankenkasse | `/kasse` | Sandra Lehmann (AOK Nordost, IK 100000031) | — |
-| Klient:in | `/klient` | Helga Reinhardt (PG 3) | `klient-hr` |
+```
+apps/web/
+  app/
+    pflege/{heute,doku,tour,selbst}/    Pflege · komplett
+    arzt/{heute,diktat,dienstplan}/     Arzt
+    therapie/{heute,diktat,dienstplan}/ Therapie
+    sozial/{diktat,dienstplan}/          Sozial
+    {heilerziehung,hauswirtschaft,erziehung,ehrenamt}/diktat/   Beruf-Diktate
+    klient/{heute,akte/verstehen,dienstplan}/    Klient
+    kasse/diktat/                        Krankenkasse
+    admin/dienstplan/{hud,archiv}/       PDL-HUD
+    supervisor/                          Träger
+    aufsicht/                            Aufsichtsrat
+    politik/                             Politik + KI-Minister
+    trading/, partner/[id]/, partner/multiplier/   Trading-Hub
+    messenger/                           Messenger-Discord-Layer
+    station/[klientId]/                  Station-Cockpit
 
-Wechsel zwischen Rollen: **Persona-Switcher-Dropdown** im Header (sichtbar wenn `NEXT_PUBLIC_DEMO_MODE=1`).
+  components/
+    AppShell.tsx           sidebar nav (alle Berufs-Navs hier)
+    UserMenu.tsx           HauptMenu-Dropdown rechts oben
+    DienstplanHud.tsx      KI-HUD client
+    BerufDiktat.tsx        generisches Diktat-UI
+    SisDiktat, ArztDiktat, TherapieDiktat, SozialDiktat   spezialisiert
+    AkteVerstaendnis.tsx   Klient-Klartext-Übersetzer
+    GesundheitsministerSim.tsx
+    MessengerLive.tsx + MessengerShell.tsx
+    LanaKiBerater.tsx + MultiBerufTimeline.tsx (Stations-Cockpit)
+    VoicemailPlayer.tsx
 
----
-
-## Diese Session-Schichten (chronologisch)
-
-1. RolePortal-Welcome-Page mit dynamischer Rollenwahl
-2. AU-Kaskade + BEM + Wiedereingliederung + Fortbildung-Modul
-3. Bildgebung-Akte mit Tibetisch-Deutung
-4. 4 Berufs-Cockpits (Therapie/Sozial/Erziehung/Ehrenamt) + 10 Sub-Routes
-5. Konferenz-Modul + Hauswirtschaft + Heilerziehung Cockpits
-6. MD-Begutachtungs-Workflow (NBA) + Klient-Notiztafel + Beitritts-Wizard
-7. 5 weitere Klient:innen mit voller Bildgebung + anatomische SVG
-8. 23 echte Imaging-PNGs aus Asset-Pipeline
-9. **20 Klient:innen-Roster + Care-Team-Mapping + MeineKlienten**
-10. **`/netz` Echtzeit-Komplettübersicht als neuronales Netzwerk**
-11. **Cross-Profession-Inbox in 5 Cockpits** (Übernehmen/Erledigt/Delegieren · KPI · Status-Filter)
-12. **Konferenz Live-Mode** (Notizen auto-save · Agenda-Status · Beschluss-Composer · Live-Protokoll)
-13. **Supabase-DB live** — Schema + 12 Klient:innen + DB-Driver mit Seed-Fallback + `/admin/db-status`
-14. **25 Demo-Assets** ausgeliefert (Block 13–17) + `/warum` Marketing-Page + `/notfall` Stub mit Eskalations-Kette
-15. **Auth-Story komplett angelegt** — Schema + UI für 8 Provider + 12 Rollen + Echtheits-Verifikation (AUTH_SETUP.md)
-16. **Klartext-Begleiter** in Anamnese eingebaut (4 Berufs-Header), Inbox-KPI-Tiles bekommen die 4 Watercolor-Icons, Notfall-Puls-Loop läuft hinter dem SOS-Knopf
-17. **Google-Login live** — `@supabase/ssr` integriert, OAuth-Flow funktional via `/registrieren/start` + `/auth/callback`, Email-Signup als Fallback
-18. **Demo-Modi parallel zur echten Auth** — DB-Schema (`demo_mode`-Enum: real/viewer/superuser/tester), `/registrieren/demo` Anonym-Signin, DemoBanner mit Modus-Indikator + Session-Countdown, Middleware mit Tester-Session-Loss
-19. **Strategie + Roadmap-Docs** — STRATEGIE_LIVE.md (Reife-Stufen, 4 Phasen zum Pilot, Top-3-Engpass) · ASSETS_LIVEDEMO_2.md (38 Assets Block 19-24) · AUDIT_DEADLINKS.md · TECH_ROADMAP.md
-20. **Sub-Routes komplettiert** — `/hauswirtschaft/{einkauf,kochen,reinigung}` + `/heilerziehung/{teilhabe,bildung,tagesstruktur}` + `/anmelden` + `/kasse/{eau,krankengeld,hkp}` (alle Dead-Links aus dem Audit gefixt)
-21. **36 weitere Assets eingebaut** (Block 19-24): Auth-Hero + 3 Vertrauens-Tiles, 3 Demo-Modi-Stills + 3 Loops, 6 Sub-Route-Header, 5 Treuhand-Visuals, 7 Compliance-Stills, 5 Onboarding-Tour-Loops vertikal
-22. **`/treuhand`** — Stripe-Connect-Modul-Stub mit Drei-Schritt-Geld-Fluss (Eingang/Sperrfrist/Auszahlung), 4-%-Verteilungs-Diagramm, Phase-2-Implementierungs-Reihenfolge
-23. **`/compliance`** — DSGVO + BSI + Audit-Log-Story mit 11 Punkten nach Status sortiert (umgesetzt/in_arbeit/geplant/blocker), Audit-Log-3-Zustände-Erklärung
-24. **`OnboardingTour`-Komponente auf Startseite** — 5 vertikale 12-s-Loops zeigen typische Plattform-Momente (Klient-Self-Booker · Pflege-Schichtplan · Konferenz · Beitritt · Notfall)
-25. **Treuhand-Fluss-Loop** läuft als sanfter Hintergrund auf `/treuhand` mit Caption-Overlay — macht den Geld-Fluss visuell lebendig
-26. **Auth-aware Cockpits angefangen** — `lib/auth/active-user.ts` mit `getActivePersona()` (Auth · Persona-Cookie · Default), `requireWriteAccess()`-Guard. **Pflege + Admin** lesen jetzt Auth wenn vorhanden, zeigen den eingeloggten Display-Namen + "eingeloggt"-Subtitle. `/profil` hat eine Auth-Status-Card mit Modus-Indikator + Logout-Button.
-27. **Modulare Komponenten-Library** (von Designer-Sub-Agent geplant) — `HeroBanner` (split/tall/wide mit Loop-Overlay), `AssetCard` (Bild als Background statt klein-Icon), `AccentCard` (3px-Stripe-Pattern), `SectionHeader` (Eyebrow+Titel+Lead), `MediaSplit` (alternierendes Bild-Text-Layout), `SmoothReveal` (CSS-only IntersectionObserver-Cascade). `lib/design/role-theme.ts` zentralisiert Rollen-Farben.
-28. **Treuhand refactored** — Hero auf full-bleed `tall`-Variante mit Treuhand-Loop als hover-Overlay, Drei-Schritt auf `AssetCard` mit echten Bild-Größen statt gequetschten 4:3-Tiles, Ausschüttungs-Diagramm via `MediaSplit` mit Akzent-Glow. SmoothReveal-Cascade beim Scrollen.
-29. **OnboardingTour Smooth-Reveal** — vertikale Loops blenden mit 80ms-Versatz beim Scrollen ein statt alle gleichzeitig. Hover-Glow als 2px-Akzent unter jeder Karte.
-30. **KlartextBegleiter höher** — von 80px-Strip auf 16:5-aspect-Ratio (Audit-Befund: 1600×600-Komposition wurde gequetscht).
-31. **Audio-Layer Phase B aktiv** — Voice-IDs für Dennis (`wcqN36SUOZ0EhToc2OIu`) + Lana (`ZgahlWh5FVSG7MFjZwPE`) in `lib/audio/voices.ts` mit Kontext-Mapping. **12 Audio-Files** generiert (3 System-Sounds + 4 Klartext-Begleiter + 5 Onboarding-Voice-Overs). `SosButton` mit 3-Stage-Animation, `KlartextBegleiter` mit "Lana lesen lassen"-Knopf, `OnboardingTour` mit Voice-Knopf pro Karte, `AudioMuteToggle` in /profil.
-32. **Auth-aware Cockpits Phase 2 komplett** — alle 12 Cockpits nutzen `getActivePersona()` + `userPropsAus()`-Helper. Ohne Login: Demo-Personas wie bisher. Mit Login: Display-Name + "eingeloggt"-Subtitle aus Auth, Demo-Daten-Bridge über `demoPersonId`.
-33. **OAuth-Origin-Bugfix** — `lib/auth/actions.ts` erkennt jetzt 0.0.0.0/127.0.0.1/IPv6 als lokale Hosts und nutzt http statt https. Behebt den "Unable to exchange external code"-Fehler beim lokalen Testen auf 0.0.0.0:3000.
-34. **Verifizierungs-Pipeline funktional** — Storage-Bucket `verifizierungen` in Supabase mit RLS (User uploadet in eigenen Folder, service_role pruft). `lib/auth/verification-upload.ts` mit `reicheVerifikationEin()` (validiert Pflicht-Felder, validiert Datei-Größe + MIME, uploaded an Storage, inserted in `verifications`-Tabelle). `/registrieren/verifizieren` ist jetzt echter File-Upload-Form, nicht mehr Stub. Pflicht-Login wird gecheckt. **`/admin/verifikationen` Pruefer-Seite** mit KPI-Tiles, Cards pro Verifikation mit Datei-Liste + Text-Felder, Aktions-Knöpfe (in Prüfung / verifizieren / ablehnen mit Begründung).
-35. **DSGVO-Selbstbedienung umgesetzt** — `lib/auth/dsgvo.ts` mit `exportiereEigeneDaten()` (Art. 20 · liefert JSON mit Profil/Rollen/Verifikationen/Storage-Pfaden) und `loescheEigenesKonto()` (Art. 17 · löscht alle Storage-Files + DB-Rows + signOut). `/profil/dsgvo` UI mit Download-Button + Lösch-Confirm-Dialog (Tippe `LÖSCHEN`). Link in `/profil`-Auth-Status-Card. Compliance-Status von "geplant" auf "umgesetzt" angehoben.
-36. **Auth-Stack live verifiziert** — User `dkorn85@gmail.com` hat erfolgreich Email-Confirm-Link geklickt → Account aktiv + bestätigt + eingeloggt + Profile-Trigger hat Profil angelegt (display_name, demo_mode='real'). Damit ist der komplette Auth-Stack (Email-Signup, Confirm, Profile-Auto-Create, Session) bewiesen funktional auf Production. OAuth (Google) bleibt zickig wegen Client-Secret-Sync, ist aber optional.
-37. **33 Final-Schliff-Assets eingespielt** (Block 25-30) — 18 Icons (status-* + aktion-*) via PowerShell+System.Drawing aus 2880×2880-Grids gecroppt; 5 Persona-Avatare; 3 Mikro-Patterns; 5 OG-Cards; 2 Audio-Visualizer-Loops. AudioPrompt zeigt Wave-Loop hinter Knopf-Inhalt beim Playback (Auto-Detection lana/dennis aus src-Filename). CrossProfessionInbox + /compliance + /registrieren/verifizieren/eingereicht nutzen jetzt die Status-Icons.
-38. **Audit-Log lückenlos** — neue `audit_log`-Tabelle in Supabase mit Trigger auf profiles + user_roles + verifications. Pro Schreib-Operation (INSERT/UPDATE/DELETE): user_id, Zeitstempel, Tabelle, row_id, vorher+nachher als JSON-Diff. Append-only by RLS-Design (keine update/delete-Policies). `audit_stats_self()`-RPC für eigene Statistik. `/admin/audit-log` Pruefer-Seite mit KPI-Tiles + Stats-pro-Tabelle + Eintrags-Liste mit Aktions-Icons (edit/sign/delete). `/admin` Cockpit hat jetzt Schnellzugriff-Section mit Verifikationen + Audit-Log-Links wenn Auth-User eingeloggt. Compliance-Punkt "Audit-Log lückenlos" von "in Arbeit" → **"umgesetzt"**.
-
-39. **UserMenu mit Rollen-Switch** (alle Routen, fixed top-right) — `lib/auth/rolle-switch.ts` mit `switcheRolle()` + `clearRolleSwitch()` + `darfSwitchen()`-Guard. Cookie `shalem-rolle-override` überschreibt `getActivePersona()`. Berechtigt: `demo_mode='superuser'` ODER `haupt_rolle='lead'` ODER `demo_mode='real'`. Dropdown zeigt: Modus-Header (mit Farbe), aktive Rolle/Switch-Status, alle 12 Rollen klickbar mit Cockpit-Pfad-Hint, Footer-Links zu Profil/DSGVO/Messenger/Verifikationen/Audit-Log/Logout. Geöffnet via Avatar-Klick — Klick außerhalb schließt.
-
-40. **3-Monats-Dienstplan-Generator** — `lib/seed-rolling.ts` generiert 90 Tage Schichten relativ zu heute, 4-Wochen-Rotation pro Pflegekraft (Frühschicht 6-14 / Spätschicht 14-22 / Nachtschicht 22-6 / Frei). Patterns für 4 Personen (Dennis/Aylin/Felix/Eda), `personOffset` aus Person-ID-Hash damit jede:r anders startet. Idempotent via `_rollingSeeded`-Flag. Aufruf in `/pflege` via `await seedRollingSlots()` parallel zum normalen Seed. Macht die Demo "lebendig" — Schichten liegen immer in der nahen Zukunft, egal wann jemand reinkommt.
-
-41. **Messenger funktional** — neue `messages`-Tabelle in Supabase mit Trigger an Audit-Log. Felder: `von_user_id`, `klient_id` (optional), `body`, `attachment_url + name`, `voicemail_url + dauer_sec`, `mentions[]`, `hashtags[]`, `parent_id` für Antworten, `gelesen_von[]`. GIN-Indizes auf mentions+hashtags. Storage-Bucket `messenger` mit 25 MB Limit + image/pdf/audio/video MIME. RLS: User sieht eigene + @mention'te + alle mit klient_id-Bezug; Phase-2 Filter über echte CareTeam-Mitgliedschaft. **`/messenger`-Page** mit:
-   - **`@-Mentions`** für Care-Team-Personen (Auto-Suggest aus Helga's CareTeam)
-   - **`#-Hashtags`** für aktive Behandlungen + Prozesse (12 Standard-Tags: wundversorgung, schmerz-nrs, medikation, physiotherapie, konferenz, verordnung, hilfeplan, md-begutachtung, palliativ, ...)
-   - **Datei-Anhang** bis 25 MB (Bilder, PDFs, Audio, Video)
-   - **Voicemail-Aufnahme** im Browser via `MediaRecorder`-API → automatisch hochgeladen, mit Dauer-Anzeige
-   - **Klient-Filter** + **Hashtag-Schnellfilter** via Query-Param
-   - **Token-Renderer** (`tokenizeBody`) macht @-Mentions + #-Hashtags klickbar (verlinken zu Filter-View)
-   - Eigene Messages löschbar
-   - Phase-2: Matrix-Protokoll, E2E-Verschlüsselung pro Klient-Channel, Realtime via Supabase-Channels
-
-42. **Site-URL-Hinweis (offen)** — der Email-Confirm-Test mit `dkorn85@gmail.com` hat funktioniert (Account aktiv, bestätigt, eingeloggt, Profile-Auto-Create). Browser landet aber auf `0.0.0.0:3000` statt `shalem.de` weil entweder: (a) noch ein OAuth-Test-Klick mit lokalem Server lief, oder (b) Site-URL in Supabase nicht final auf `https://shalem.de`. **Action:** Direktlink zur URL-Konfig: https://supabase.com/dashboard/project/gpchwlqeqejxvynewjns/auth/url-configuration → Site URL = `https://shalem.de` + Redirect URLs = `https://shalem.de/auth/callback` und `http://localhost:3000/auth/callback`.
-
-Build clean, ready to push. **92 Routen.**
+  lib/
+    auth/                  Supabase-Auth (browser-client + server-client getrennt)
+    messenger/             channels, dm, realtime, store
+    pflege/sis-store + tageshub
+    arzt/diktat-store
+    therapie/diktat-store
+    sozial/diktat-store
+    klient/akte-verstehen
+    beruf-diktat/profile   generisch (heilerz/hauswirt/erz/ehrenamt/kasse)
+    dienstplan/hud-store + hud-archive
+    partner/store          pk-ruhr.de + 2 weitere
+    supervisor/store
+    aufsicht/bericht
+    politik/store          AggregatPaket + Steuerbescheid + simuliereSzenario
+    berufsplan/generator   Cross-Profession-Termine
+    hierarchy/             Einrichtungen + Stationen + Personen + Klienten
+    zuordnung/store        CareTeam-Caseloads
+```
 
 ---
 
-## 🤝 Session-Übergabe — Was die nächste Session als erstes anfasst
-
-### Sofort-Test (5 min · keine Code-Änderungen nötig)
-
-1. **Push** den Branch nach `main` (Pattern unten)
-2. **Browser → `https://shalem.de/anmelden`** mit `dkorn85@gmail.com` + Passwort einloggen
-3. **UserMenu** rechts oben sollte erscheinen — klick drauf, switche durch alle 12 Rollen
-4. **`/messenger`** öffnen → Test-Nachricht senden mit `@person-arzt-001` und `#wundversorgung` → soll mit klickbaren Tokens erscheinen
-5. **`/admin/audit-log`** → Audit-Einträge der gerade gemachten Aktionen sind da
-6. **`/profil/dsgvo`** → Daten als JSON exportieren (sollte alles enthalten)
-
-### Falls Login nicht klappt
-1. Site-URL in Supabase prüfen: https://supabase.com/dashboard/project/gpchwlqeqejxvynewjns/auth/url-configuration
-2. Site URL = `https://shalem.de` (nicht localhost, nicht 0.0.0.0)
-3. Redirect URLs = `https://shalem.de/auth/callback` + `http://localhost:3000/auth/callback`
-
-### Was die nächste Session priorisieren sollte (Auto-Mode-Reihenfolge)
-
-1. **Messenger Phase 2** — Care-Team-RLS-Filter (statt "alle Klient-Messages sichtbar"), Email-Notify bei @-Mention, Antwort-Threads via `parent_id`
-2. **Slot-Migration nach Supabase** — derzeit in-memory; mit der Auth-Pipeline kommen schnell viele User, dann braucht's persistente Slots
-3. **Hash-Kette Audit-Log** — `prev_hash`/`this_hash`-Spalten sind angelegt, Cron-Job + Verify-Funktion fehlen
-4. **Messenger-Voicemail-Player** — Aufnahme funktioniert, Abspielen mit Wave-Visualizer noch nicht
-5. **Stripe Connect Treuhand** (echter Phase-2-Brocken — nicht nur Stub)
-6. **Push-Notifications** für Notruf + Messenger-Mentions (VAPID + Service-Worker)
-
-### Pending User-Aktionen (organisatorisch, nicht-tech)
-
-Aus `docs/STRATEGIE_LIVE.md`:
-- UG-Notar-Termin (1-2 Wochen)
-- DSB extern beauftragen (2-3 Wochen, ~200-300 €/Mo)
-- AÜG-Anwalt für Cross-Träger-Tausch-Frage (4-8 Wochen)
-
-Diese drei Wartezeiten sind der **kritische Pfad** zum Pilot-Start.
-
-### Aktuelle Stack-Übersicht
+## Aktuelle Stack-Übersicht
 
 ```
 Frontend:  Next.js 15 App Router · React 19 · TypeScript · Tailwind 3
-Backend:   Supabase (Frankfurt) · PostgREST · RLS · Storage · Auth
-Audio:     ElevenLabs (Lana + Dennis Voice-IDs)
-Hosting:   Hostinger Node.js (Auto-Deploy via GitHub-Push)
-Repo:      github.com/dkorn85/shalem-care · Branch claude/tender-nightingale-f1bb8b
+Backend:   Supabase (Frankfurt eu-central-1) · PostgREST · RLS · Storage · Auth
+Realtime:  Supabase Realtime (postgres_changes + presence + broadcast)
+Audio:     ElevenLabs Voice-IDs Lana + Dennis (TTS, STT in Phase 2)
+Hosting:   Hostinger Node.js (Auto-Deploy via GitHub-Push auf main)
+Repo:      github.com/dkorn85/shalem-care
 DB:        gpchwlqeqejxvynewjns.supabase.co
-Tabellen:  klienten, einrichtungen, stationen, profiles, user_roles,
-           verifications, audit_log, messages
+Tabellen:  einrichtungen, stationen, klienten, profiles, user_roles,
+           verifications, audit_log, messages, message_reactions
 Storage:   verifizierungen, messenger
 ENV:       NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY
-           ELEVENLABS_API_KEY (für Build-Time-TTS, optional)
+           ELEVENLABS_API_KEY (für TTS-Build, optional)
 ```
 
-### Push-Pattern (PowerShell)
+**Hostinger-ENV-Bridge**: `next.config.mjs` bridged `SUPABASE_URL` → `NEXT_PUBLIC_SUPABASE_URL` zur Build-Zeit, falls Hostinger nur die nicht-public Variante setzt.
 
-```powershell
-Set-Location 'C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care\.claude\worktrees\tender-nightingale-f1bb8b'
-git pull --rebase origin main
-if ($?) {
-  Set-Location 'C:\Users\dkorn\Downloads\shalem-care-v0.1.0\shalem-care'
-  git fetch origin
-  if ($?) { git checkout main }
-  if ($?) { git pull --ff-only origin main }
-  if ($?) { git merge --no-ff claude/tender-nightingale-f1bb8b -m 'merge: UserMenu + 3M-Dienstplan + Messenger' }
-  if ($?) { git push origin main }
-}
-```
+---
 
-Hostinger Auto-Deploy braucht ~2 Minuten (Supabase-SDK-Install dauert beim ersten Mal länger). Danach `shalem.de/messenger` öffnen, eingeloggt sein, los geht's.
+## Branchen-Studien-Anker
+
+Vergleichs-Argumentation in den Diktat-/Verstehen-Tools:
+
+- **Pflege**: vs Vivendi, MediFox, Snap (SIS händisch · ~30-90 min/Schicht)
+- **Arzt**: vs CGM, doxter, MEDISTAR (Click-Workflow · 3 min/Verordnung)
+- **Therapie**: vs Theorg, Buchner, Vivendi (8-Felder-Form · ~6 min)
+- **Sozial**: vs connect-ASD, care4, OPEN/Prosoz (60 min/Hilfeplan)
+- **Heilerziehung**: vs VINCI, ProSoz/Klees (60-Felder-Excel)
+- **Erziehung**: vs Stepfolio, Pixi (5 min/Lerngeschichte)
+- **Klient-Klartext**: vs washabich.de, BefundKlar (1-3 Tage Wartezeit)
+- **Kasse-Bescheid**: vs AOK/Barmer/TK (Amtsdeutsch · 60 min Bescheid)
+- **PDL-HUD**: vs Connext Vivendi, MediFox DAN (modul-fragmentiert, kein KI-HUD)
+- **Trading**: 4% Multiplier-Cut vs 35-45% Verleih-Marge
+
+Quellen: BARMER Pflege-Report 2024 (38% Burnout), DBfK Personal-Studie 2025, Pflegebericht 2024, Statistisches Bundesamt 2025.
+
+---
+
+## Status zum Session-Ende 2026-05-06
+
+Build clean · 131 Routen · main = `claude/agitated-germain-e73b91` HEAD · Hostinger zieht.
+
+Letzte Commits:
+- HauptMenu cleanup (Pfad-Anzeigen entfernt) + Messenger-Discord-Layer
+- Echte 1:1-DMs zwischen registrierten Usern + Therapie-Layer
+- HUD Phase 2 (editierbar+Archiv) + Trading-Hub mit pk-ruhr + Arzt-Diktat
+- Pflege-Layer tief (SIS-Sprachdiktat + Tour + Selbstpflege + Tageshub)
+- HauptMenu-Farben + Dienstplan-Integration in 6 Berufe + Stations-Cockpit-KI
+- Voicemail-Player mit Wave-Visualizer
+- KI-Dienstplan-HUD für PDL
+- Messenger Phase 2 Pfad B (Supabase Realtime)
+- Sozial-Diktat + Klient-Akte-Verstehen + Supervisor + Politik + KI-Gesundheitsminister
+- Messenger graceful degradation + 4 Beruf-Diktate + Aufsichtsrat-Bericht
+- Klient-Tageshub + Krankenkasse-Bescheid-Diktat (final)
+
+Nächste Session kann sofort einsteigen — alles dokumentiert, alles im main, alles deploybar.
