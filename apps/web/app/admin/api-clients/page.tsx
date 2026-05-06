@@ -5,6 +5,7 @@
 // Edit-/Pausieren-/Sperren-Buttons + Audit-Log-Drilldown.
 
 import Link from "next/link";
+import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { SectionHeader } from "@/components/SectionHeader";
 import { listApiClients, seedApiClientsOnce } from "@/lib/api/clients";
@@ -42,6 +43,10 @@ export default function ApiClientsPage() {
         <Link href="/admin" className="text-[12px] inline-flex items-center gap-1 mb-3" style={{ color: "rgb(var(--fg-mute))" }}>
           ← Admin-Übersicht
         </Link>
+        <div className="relative aspect-[16/5] rounded-2xl overflow-hidden surface mb-4">
+          <Image src="/akte/header-api-clients.png" alt="" fill priority sizes="100vw" className="object-cover" />
+          <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.15) 0%, rgb(var(--bg) / 0.55) 80%, rgb(var(--bg) / 0.85) 100%)" }} />
+        </div>
         <SectionHeader
           eyebrow="API · v0.1 · Phase-1 Demo"
           titel={<>{clients.length} registrierte API-Konsumenten</>}

@@ -127,6 +127,15 @@ export default async function PoolPage() {
             size="large"
             accent="var(--vibe-team)"
           />
+          {stellen.length === 0 && (
+            <div className="surface rounded-2xl p-6 mt-4 flex items-center gap-4 flex-wrap">
+              <Image src="/empty/pool-leer.png" alt="" width={120} height={120} className="rounded-xl" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-medium">Heute keine offenen Stellen in deiner Region.</p>
+                <p className="text-[12px] mt-1" style={{ color: "rgb(var(--fg-mute))" }}>Hier ist Platz für dich — sobald eine Einrichtung publiziert, erscheint sie sofort.</p>
+              </div>
+            </div>
+          )}
           <ul className="grid lg:grid-cols-2 gap-3 mt-4">
             {stellen.map((s, i) => (
               <SmoothReveal key={s.id} as="li" delay={i * 60} direction="up">

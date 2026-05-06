@@ -135,6 +135,15 @@ export default async function SolidartopfPage() {
             accent="var(--thu)"
             lead="Stationsleitung kann eingehende Claims prüfen, auszahlen oder mit Begründung ablehnen. Jede Aktion ist im Audit-Verlauf protokolliert."
           />
+          {claims.length === 0 && (
+            <div className="surface rounded-2xl p-6 mt-4 flex items-center gap-4 flex-wrap">
+              <Image src="/empty/topf-leer.png" alt="" width={120} height={120} className="rounded-xl" />
+              <div className="flex-1 min-w-0">
+                <p className="text-[14px] font-medium">Noch keine Claims in diesem Quartal.</p>
+                <p className="text-[12px] mt-1" style={{ color: "rgb(var(--fg-mute))" }}>Der Topf wartet auf den ersten Schadensfall — bei Krankmeldung wird der Claim automatisch eingereicht.</p>
+              </div>
+            </div>
+          )}
           <ul className="space-y-3 mt-4">
             {claims.map((c) => {
               const tage = Math.max(1, Math.ceil((Date.parse(c.bisDatum) - Date.parse(c.vonDatum)) / 86_400_000) + 1);

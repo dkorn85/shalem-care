@@ -52,7 +52,7 @@ export default async function EntwicklerPage() {
       </nav>
 
       <HeroBanner
-        bild="/akte/header-ki-bruecke.png"
+        bild="/akte/header-entwickler.png"
         variante="tall"
         eyebrow="Shalem Care API · v0.1 · Phase-1 Demo"
         titel={<>Externe Anbindung — <RainbowText>FHIR-aligned, DSGVO-first</RainbowText>.</>}

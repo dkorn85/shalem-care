@@ -123,11 +123,20 @@ export function LanaCallDemo({ klientName = "Helga" }: { klientName?: string }) 
         )}
 
         {(stand === "klingelt" || stand === "spricht") && (
-          <div className="surface-mute rounded-xl p-4 max-w-xl">
+          <div className="surface-mute rounded-xl p-4 max-w-xl relative overflow-hidden">
+            {/* Background Ring-Loop nur waehrend "klingelt" */}
+            {stand === "klingelt" && (
+              <video
+                src="/loops/lana-call-ring.mp4"
+                autoPlay muted loop playsInline aria-hidden
+                className="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-soft-light pointer-events-none"
+              />
+            )}
+            <div className="relative">
             {/* Anruf-Header */}
             <div className="flex items-center gap-3 mb-3 pb-3 border-b border-app-soft">
-              <div className="relative w-12 h-12 rounded-full grid place-items-center" style={{ background: "linear-gradient(135deg, rgb(var(--mon)), rgb(var(--thu)))" }}>
-                <span className="text-white font-semibold text-[16px]">L</span>
+              <div className="relative w-14 h-14 rounded-full overflow-hidden" style={{ background: "rgb(var(--bg-mute))" }}>
+                <img src="/akte/lana-portrait.png" alt="Lana, KI-Begleiterin" className="w-full h-full object-cover" />
                 {stand === "klingelt" && <span aria-hidden className="absolute inset-0 rounded-full ring-4 animate-ping" style={{ borderColor: "rgb(var(--accent))" }} />}
               </div>
               <div className="flex-1 min-w-0">
@@ -157,6 +166,7 @@ export function LanaCallDemo({ klientName = "Helga" }: { klientName?: string }) 
                 </li>
               ))}
             </ol>
+            </div>
           </div>
         )}
 
