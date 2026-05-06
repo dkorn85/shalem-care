@@ -13,6 +13,7 @@
 //   - KI-Brücke unter dem letzten Chat-Highlight (übersetzt für andere Berufe)
 
 import Link from "next/link";
+import Image from "next/image";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { SectionHeader } from "@/components/SectionHeader";
@@ -71,6 +72,16 @@ export default async function StationKlientPage({
       user={person ? { id: person.id, name: person.name, subtitle: viewerBeruf, initials: person.initials } : { id: "demo", name: "Demo", subtitle: "Pflege", initials: "DM" }}
       station={station?.name ?? "Pulmologie 3B"}
     >
+      {/* Subtle Station-Hero — gibt der Page Atmosphäre ohne den Klient-Header zu verdrängen */}
+      <div className="relative aspect-[16/4] rounded-2xl overflow-hidden surface mb-3 anim-slideUp">
+        <Image src="/akte/header-station.png" alt="" fill priority sizes="100vw" className="object-cover" />
+        <div aria-hidden className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.15) 0%, rgb(var(--bg) / 0.7) 100%)" }} />
+        <div className="absolute inset-x-0 bottom-0 px-4 sm:px-6 pb-3 max-w-3xl">
+          <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: "rgb(var(--fg-mute))" }}>Station-Cockpit</p>
+          <p className="text-[14px] font-medium">Alle anwesenden Berufe in einer Live-Sicht</p>
+        </div>
+      </div>
+
       {/* Klient-Header */}
       <header className="surface rounded-2xl p-4 mb-5 flex items-center gap-4 anim-slideUp">
         <KlientAvatar id={klient.id} initials={klient.initials} size={64} ring={`var(--accent)`} />

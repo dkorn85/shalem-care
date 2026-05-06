@@ -39,11 +39,13 @@ export async function speicherePreferenzen(
   return { ok: true, profil };
 }
 
-export async function ladeProfilbild(personId: string, dataUrl: string): Promise<R<{ profil: ProfilMenschlich }>> {
+export async function ladeProfilbild(personId: string, urlOrDataUrl: string): Promise<R<{ profil: ProfilMenschlich }>> {
   if (!personId) return { ok: false, error: "personId fehlt" };
-  if (!dataUrl.startsWith("data:image/")) return { ok: false, error: "kein Bild" };
-  // Phase 1: in-memory data-URL. Phase 2 → S3-/Hetzner-Upload.
-  const profil = setProfilbild(personId, dataUrl);
+  // Akzeptiert: data:image/...-URL (eigener Upload) oder /portraits/...-Pfad (Fallback-Avatar)
+  const istErlaubt = urlOrDataUrl.startsWith("data:image/") || urlOrDataUrl.startsWith("/portraits/");
+  if (!istErlaubt) return { ok: false, error: "kein Bild" };
+  // Phase 1: in-memory. Phase 2 → S3-/Hetzner-Upload nur fuer data:-URLs, Fallbacks bleiben Statics.
+  const profil = setProfilbild(personId, urlOrDataUrl);
   revalidatePath("/profil");
   return { ok: true, profil };
 }

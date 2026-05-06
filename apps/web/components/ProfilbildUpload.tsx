@@ -10,6 +10,15 @@
 import { useRef, useState, useTransition } from "react";
 import { ladeProfilbild, entferneProfilbild } from "@/lib/profile/actions";
 
+const FALLBACK_AVATARE = [
+  { code: "sage",  url: "/portraits/fallback-01-sage.png",  hue: "Sage" },
+  { code: "rose",  url: "/portraits/fallback-02-rose.png",  hue: "Rose" },
+  { code: "slate", url: "/portraits/fallback-03-slate.png", hue: "Slate" },
+  { code: "brass", url: "/portraits/fallback-04-brass.png", hue: "Brass" },
+  { code: "bone",  url: "/portraits/fallback-05-bone.png",  hue: "Bone" },
+  { code: "mint",  url: "/portraits/fallback-06-mint.png",  hue: "Mint" },
+];
+
 const MAX_KANTE = 512; // px — vor Upload runter-skalieren
 
 async function bildAlsDataUrl(datei: File): Promise<string> {
@@ -48,8 +57,18 @@ export function ProfilbildUpload({
   const [vorschau, setVorschau] = useState<string | undefined>(aktuellesBild);
   const [fehler, setFehler] = useState<string | null>(null);
   const [drag, setDrag] = useState(false);
+  const [zeigeFallbacks, setZeigeFallbacks] = useState(false);
   const [pending, start] = useTransition();
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const waehleFallback = (url: string) => {
+    setVorschau(url);
+    setZeigeFallbacks(false);
+    start(async () => {
+      const r = await ladeProfilbild(personId, url);
+      if (!r.ok) setFehler(r.error);
+    });
+  };
 
   const verarbeite = async (datei?: File) => {
     setFehler(null);
@@ -131,6 +150,15 @@ export function ProfilbildUpload({
           >
             {vorschau ? "Bild ändern" : "Bild wählen"}
           </button>
+          <button
+            type="button"
+            onClick={() => setZeigeFallbacks((s) => !s)}
+            disabled={pending}
+            className="text-[12px] px-3 py-1.5 rounded-md transition-colors"
+            style={{ background: "transparent", color: "rgb(var(--accent))", boxShadow: "inset 0 0 0 1px rgb(var(--accent) / 0.3)" }}
+          >
+            {zeigeFallbacks ? "Schließen" : "Standard-Avatar wählen"}
+          </button>
           {vorschau && (
             <button
               type="button"
@@ -144,6 +172,27 @@ export function ProfilbildUpload({
           )}
         </div>
         {fehler && <p className="text-[11px] mt-1.5" style={{ color: "rgb(var(--mon))" }}>{fehler}</p>}
+        {zeigeFallbacks && (
+          <div className="mt-3 surface-mute rounded-lg p-3">
+            <p className="text-[11px] uppercase tracking-wider font-medium mb-2" style={{ color: "rgb(var(--fg-mute))" }}>Standard-Avatare · ohne eigenes Foto</p>
+            <ul className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+              {FALLBACK_AVATARE.map((a) => (
+                <li key={a.code}>
+                  <button
+                    type="button"
+                    onClick={() => waehleFallback(a.url)}
+                    disabled={pending}
+                    aria-label={`Standard-Avatar ${a.hue} wählen`}
+                    className="w-full aspect-square rounded-full overflow-hidden transition-transform hover:scale-105"
+                    style={{ boxShadow: vorschau === a.url ? "0 0 0 2px rgb(var(--accent))" : "0 0 0 1px rgb(var(--border))" }}
+                  >
+                    <img src={a.url} alt="" className="w-full h-full object-cover" />
+                  </button>
+                </li>
+              ))}
+            </ul>
+          </div>
+        )}
       </div>
     </div>
   );

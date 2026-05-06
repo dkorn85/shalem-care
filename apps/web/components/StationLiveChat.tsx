@@ -114,6 +114,15 @@ export function StationLiveChat({
       </header>
 
       <ul className="flex-1 overflow-y-auto space-y-2.5 pr-1" role="log" aria-live="polite">
+        {nachrichten.length === 0 && (
+          <li className="flex items-center gap-3 py-4">
+            <img src="/empty/cockpit-leer.png" alt="" className="w-20 h-20 rounded-lg shrink-0" />
+            <div>
+              <p className="text-[13px] font-medium">Heute alles ruhig.</p>
+              <p className="text-[11px] mt-0.5" style={{ color: "rgb(var(--fg-mute))" }}>Schreib die erste Nachricht — alle anwesenden Berufe sehen sie.</p>
+            </div>
+          </li>
+        )}
         {nachrichten.map((n) => {
           const farbe = BERUF_FARBE[n.vonBeruf];
           const eigenes = n.vonPersonId === viewerPersonId;
