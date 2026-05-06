@@ -2,6 +2,7 @@
 
 import { useState, useTransition } from "react";
 import { meldeKrank, suchArzttermine, bucheArzttermin, ausstellenTeleAU, attachEAUtoKrankmeldung, beantrageKrankengeld, meldeWiederArbeitsfaehig } from "@/lib/krankmeldung/actions";
+import { announce } from "@/components/GlobalLiveRegion";
 import { SYMPTOM_LABEL, AU_TYPE_LABEL, STATUS_LABEL, TERMINART_LABEL } from "@/lib/krankmeldung/types";
 import type { SymptomKategorie, AUType, Krankmeldung, Arztterminart, Arzttermin } from "@/lib/krankmeldung/types";
 import type { AvailableSlot } from "@/lib/krankmeldung/doctor-api";
@@ -392,12 +393,21 @@ function NeueKrankmeldungForm({
       });
       if (!r.ok) {
         setFeedback(`✕ ${r.error}`);
+        announce(`Krankmeldung-Fehler: ${r.error}`, "assertive");
       } else {
-        setFeedback(
-          `✓ Krankmeldung erfasst · ${r.betroffeneShifts} Schicht${r.betroffeneShifts === 1 ? "" : "en"} betroffen` +
-          (r.ersatzAngebote.length > 0
-            ? ` · ${r.ersatzAngebote.length} Ersatz-Angebot${r.ersatzAngebote.length === 1 ? "" : "e"} im Markt veröffentlicht`
-            : "")
+        const teile = [
+          `✓ Krankmeldung erfasst · ${r.betroffeneShifts} Schicht${r.betroffeneShifts === 1 ? "" : "en"} betroffen`,
+        ];
+        if (r.ersatzAngebote.length > 0) {
+          teile.push(`${r.ersatzAngebote.length} Ersatz-Angebot${r.ersatzAngebote.length === 1 ? "" : "e"} im Markt veröffentlicht`);
+        }
+        if (r.solidarClaimId) {
+          teile.push(`Solidar-Topf-Claim automatisch eingereicht — Stationsleitung prüft`);
+        }
+        setFeedback(teile.join(" · "));
+        announce(
+          `Krankmeldung erfasst. ${r.betroffeneShifts} Schichten betroffen.${r.solidarClaimId ? " Solidar-Topf-Claim wurde automatisch eingereicht." : ""}`,
+          "polite",
         );
       }
     });

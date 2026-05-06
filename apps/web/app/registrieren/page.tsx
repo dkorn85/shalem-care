@@ -4,10 +4,16 @@
 // Verifizierung. Dieser File ist die Provider-Auswahl. Die Rollenwahl
 // passiert nach erfolgreichem OAuth-Callback (nicht in dieser Iteration
 // gebaut — wir zeigen die UI-Story).
+//
+// Refactored nach PLAN_MODULAR · Tier-1-Primitives.
 
 import Link from "next/link";
-import Image from "next/image";
 import { AUTH_PROVIDER, VERTRAUEN_LABEL, STATUS_LABEL, type AuthProvider } from "@/lib/auth/providers";
+import { HeroBanner } from "@/components/HeroBanner";
+import { SectionHeader } from "@/components/SectionHeader";
+import { SmoothReveal } from "@/components/SmoothReveal";
+import { NumberedList } from "@/components/NumberedList";
+import { RainbowText } from "@/components/Rainbow";
 
 export const metadata = {
   title: "Registrieren · Shalem Care",
@@ -31,65 +37,64 @@ export default function RegistrierenPage() {
 
   return (
     <main className="min-h-screen bg-app">
-      <header className="relative w-full aspect-[16/9] sm:aspect-[16/7] overflow-hidden">
-        <Image src="/auth/header-registrieren.png" alt="" fill priority className="object-cover" sizes="100vw" />
-        <div className="absolute inset-0" style={{ background: "linear-gradient(to bottom, rgb(var(--bg) / 0.5) 0%, rgb(var(--bg)) 100%)" }} />
-        <div className="absolute inset-x-0 bottom-0 px-6 sm:px-12 pb-8 sm:pb-12 max-w-4xl mx-auto">
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Account anlegen</p>
-          <h1 className="font-display text-[36px] sm:text-[52px] font-bold tracking-tight3 leading-[1.05]">
-            <span className="rainbow-text">Wer du bist</span>, sehen nur die, mit denen du arbeitest.
-          </h1>
-          <p className="text-[14px] sm:text-[16px] text-mute mt-3 max-w-prose leading-relaxed">
+      <HeroBanner
+        bild="/auth/header-registrieren.png"
+        variante="tall"
+        eyebrow="Account anlegen"
+        titel={<><RainbowText>Wer du bist</RainbowText>, sehen nur die, mit denen du arbeitest.</>}
+        untertitel={
+          <>
             Wähle, wie du dich anmelden willst. Je nach Vertrauensstufe brauchen wir
             unterschiedliche Echtheits-Nachweise — vom schnellen Google-Login bis zur
             Personalausweis-Verifizierung über Verimi.
-          </p>
-        </div>
-      </header>
+          </>
+        }
+      />
 
-      <article className="max-w-4xl mx-auto px-6 sm:px-12 py-12 space-y-10">
+      <article className="max-w-4xl mx-auto px-6 sm:px-12 py-12 space-y-12">
 
         {/* Vertrauens-Stufen erklärt */}
-        <section>
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-3 font-medium">Drei Vertrauens-Stufen</p>
-          <ul className="grid sm:grid-cols-3 gap-3">
-            <VertrauensTile
-              titel="Basis"
-              beschreibung="Konto angelegt, Email bestätigt. Reicht für Klient:innen + Demo-Zugriff."
-              farbe={VERTRAUEN_FARBE.basis}
-              bild="/auth/vertrauen-basis.png"
+        <SmoothReveal direction="up">
+          <section>
+            <SectionHeader
+              eyebrow="Drei Vertrauens-Stufen"
+              titel="Wie viel Echtheits-Nachweis braucht's für dich?"
+              size="medium"
             />
-            <VertrauensTile
-              titel="Identität geprüft"
-              beschreibung="Berufsurkunde + IK-Check. Nötig für Pflegekräfte, Therapie, Sozialarbeit."
-              farbe={VERTRAUEN_FARBE.verifiziert}
-              bild="/auth/vertrauen-verifiziert.png"
+            <NumberedList
+              variante="horizontal"
+              className="mt-4"
+              items={[
+                { nummer: 1, titel: "Basis", text: "Konto angelegt, Email bestätigt. Reicht für Klient:innen + Demo-Zugriff.", akzent: VERTRAUEN_FARBE.basis, bild: "/auth/vertrauen-basis.png" },
+                { nummer: 2, titel: "Identität geprüft", text: "Berufsurkunde + IK-Check. Nötig für Pflegekräfte, Therapie, Sozialarbeit.", akzent: VERTRAUEN_FARBE.verifiziert, bild: "/auth/vertrauen-verifiziert.png" },
+                { nummer: 3, titel: "Echtheits-zertifiziert", text: "Personalausweis-Verifizierung über Verimi/yes®/eHBA. Nötig für Ärzt:innen.", akzent: VERTRAUEN_FARBE.hoch, bild: "/auth/vertrauen-hoch.png" },
+              ]}
             />
-            <VertrauensTile
-              titel="Echtheits-zertifiziert"
-              beschreibung="Personalausweis-Verifizierung über Verimi/yes®/eHBA. Nötig für Ärzt:innen."
-              farbe={VERTRAUEN_FARBE.hoch}
-              bild="/auth/vertrauen-hoch.png"
-            />
-          </ul>
-        </section>
+          </section>
+        </SmoothReveal>
 
         {/* Live-Provider */}
         {live.length > 0 && (
-          <ProviderGruppe titel="Verfügbar" provider={live} primaer />
+          <SmoothReveal direction="up">
+            <ProviderGruppe titel="Verfügbar" provider={live} primaer />
+          </SmoothReveal>
         )}
 
         {/* Geplante */}
         {plan.length > 0 && (
-          <ProviderGruppe titel="In Konfiguration" provider={plan} hint="Sobald du in Supabase die OAuth-Credentials gesetzt hast, sind diese live (siehe docs/AUTH_SETUP.md)." />
+          <SmoothReveal direction="up">
+            <ProviderGruppe titel="In Konfiguration" provider={plan} hint="Sobald du in Supabase die OAuth-Credentials gesetzt hast, sind diese live (siehe docs/AUTH_SETUP.md)." />
+          </SmoothReveal>
         )}
 
         {/* Phase-2-Provider */}
         {ph2.length > 0 && (
-          <ProviderGruppe titel="Phase 2 · Echtheits-Zertifizierung" provider={ph2} hint="Diese Anbieter integrieren echte Identitäts-Prüfung — Personalausweis-NFC-Read-Out, Bank-Login mit KYC, oder elektronischer Heilberufsausweis." />
+          <SmoothReveal direction="up">
+            <ProviderGruppe titel="Phase 2 · Echtheits-Zertifizierung" provider={ph2} hint="Diese Anbieter integrieren echte Identitäts-Prüfung — Personalausweis-NFC-Read-Out, Bank-Login mit KYC, oder elektronischer Heilberufsausweis." />
+          </SmoothReveal>
         )}
 
-        <footer className="text-center text-[11px] text-soft pt-4">
+        <footer className="text-center text-[12px] pt-4" style={{ color: "rgb(var(--fg-mute))" }}>
           Schon registriert? <Link href="/anmelden" className="text-[rgb(var(--accent))] hover:underline">Anmelden</Link>
           <span className="mx-2">·</span>
           <Link href="/" className="hover:text-[rgb(var(--fg))]">← Startseite</Link>
@@ -99,49 +104,31 @@ export default function RegistrierenPage() {
   );
 }
 
-function VertrauensTile({ titel, beschreibung, farbe, bild }: { titel: string; beschreibung: string; farbe: string; bild: string }) {
-  return (
-    <li className="surface rounded-xl overflow-hidden relative">
-      <div className="relative aspect-[4/3]">
-        <Image src={bild} alt="" fill sizes="(max-width: 640px) 100vw, 33vw" className="object-cover" />
-      </div>
-      <div className="p-3 relative">
-        <span aria-hidden className="absolute left-0 top-3 bottom-3 w-[3px] rounded-full" style={{ background: `rgb(${farbe})` }} />
-        <div className="ml-2.5">
-          <p className="text-[10px] uppercase tracking-wider font-medium" style={{ color: `rgb(${farbe})` }}>{titel}</p>
-          <p className="text-[12px] mt-1 leading-snug">{beschreibung}</p>
-        </div>
-      </div>
-    </li>
-  );
-}
-
 function ProviderGruppe({ titel, provider, primaer, hint }: { titel: string; provider: AuthProvider[]; primaer?: boolean; hint?: string }) {
   return (
     <section>
-      <h2 className="font-display text-[20px] font-bold tracking-tight2 mb-3">{titel}</h2>
-      {hint && <p className="text-[12px] text-soft mb-3 leading-relaxed">{hint}</p>}
-      <ul className={`grid gap-2 ${primaer ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
+      <SectionHeader titel={titel} size="medium" lead={hint} />
+      <ul className={`grid gap-2 mt-3 ${primaer ? "sm:grid-cols-2" : "sm:grid-cols-2 lg:grid-cols-3"}`}>
         {provider.map((p) => (
           <li key={p.id}>
             <Link
               href={p.vorhanden === "live" ? `/registrieren/start?provider=${p.id}` : "#"}
               aria-disabled={p.vorhanden !== "live"}
-              className="surface-hover rounded-xl p-4 flex items-baseline justify-between gap-3 flex-wrap relative overflow-hidden block"
+              className="surface-hover rounded-xl p-4 flex items-baseline justify-between gap-3 flex-wrap relative overflow-hidden block group transition-shadow duration-500"
               style={{ opacity: p.vorhanden !== "live" ? 0.65 : 1, pointerEvents: p.vorhanden !== "live" ? "none" : undefined }}
             >
-              <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full" style={{ background: `rgb(${VERTRAUEN_FARBE[p.vertrauen]})` }} />
+              <span aria-hidden className="absolute left-0 top-4 bottom-4 w-[3px] rounded-full transition-all duration-500 group-hover:w-[5px]" style={{ background: `rgb(${VERTRAUEN_FARBE[p.vertrauen]})` }} />
               <div className="ml-2.5 flex-1 min-w-0">
                 <div className="flex items-baseline gap-2 flex-wrap">
                   <span className="font-display text-[15px] font-semibold tracking-tight2">{p.label}</span>
-                  <span className="chip text-[10px]" style={{ background: `rgb(${VERTRAUEN_FARBE[p.vertrauen]} / 0.15)`, color: `rgb(${VERTRAUEN_FARBE[p.vertrauen]})` }}>
+                  <span className="chip text-[11px]" style={{ background: `rgb(${VERTRAUEN_FARBE[p.vertrauen]} / 0.15)`, color: `rgb(${VERTRAUEN_FARBE[p.vertrauen]})` }}>
                     {VERTRAUEN_LABEL[p.vertrauen]}
                   </span>
-                  <span className="chip text-[10px]" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>
+                  <span className="chip text-[11px]" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>
                     {STATUS_LABEL[p.vorhanden]}
                   </span>
                 </div>
-                <p className="text-[12px] text-mute mt-1 leading-snug">{p.beschreibung}</p>
+                <p className="text-[13px] text-mute mt-1 leading-snug">{p.beschreibung}</p>
               </div>
               {p.vorhanden === "live" && <span className="text-mute shrink-0">→</span>}
             </Link>

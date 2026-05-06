@@ -6,6 +6,7 @@ import { getKonferenz, seedKonferenzOnce, KONFERENZTYP_LABEL, STATUS_FARBE } fro
 import { BERUFSFELD_LABEL, BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
 import { KonferenzLiveControl } from "@/components/KonferenzLive";
 import { KonferenzKlientBriefing } from "@/components/KonferenzKlientBriefing";
+import { KiBerufsBruecke } from "@/components/KiBerufsBruecke";
 
 export const metadata = {
   title: "Konferenz · Detail",
@@ -212,10 +213,20 @@ export default async function KonferenzDetailPage({ params }: { params: Promise<
 
       {/* Live-Protokoll bei abgeschlossenen / vertagten Konferenzen */}
       {k.status !== "live" && k.liveNotizen && k.liveNotizen.trim().length > 0 && (
-        <section className="surface rounded-2xl p-5 mb-6">
-          <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Protokoll · Live-Notizen</p>
-          <pre className="text-[13px] leading-relaxed whitespace-pre-wrap font-sans">{k.liveNotizen}</pre>
-        </section>
+        <>
+          <section className="surface rounded-2xl p-5 mb-3">
+            <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Protokoll · Live-Notizen</p>
+            <pre className="text-[13px] leading-relaxed whitespace-pre-wrap font-sans">{k.liveNotizen}</pre>
+          </section>
+          <section className="mb-6">
+            <KiBerufsBruecke
+              quellBeruf="konferenz"
+              fachtext={k.liveNotizen}
+              klientHinweis={`${k.klientName} · ${KONFERENZTYP_LABEL[k.typ]}`}
+              defaultZiel="klient"
+            />
+          </section>
+        </>
       )}
 
       {k.naechsteKonferenz && (
