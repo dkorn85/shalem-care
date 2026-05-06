@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Wordmark, Logo } from "./Logo";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-import { PersonaSwitcher } from "./PersonaSwitcher";
+// PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
 import { getLocale } from "@/lib/i18n/server";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
@@ -42,7 +42,6 @@ export async function KasseShell({
             <span className="text-[11px] text-soft font-mono">IK {user.ik}</span>
           </div>
           <div className="flex items-center gap-3">
-            {DEMO_MODE && <PersonaSwitcher demoMode={DEMO_MODE} />}
             <LocaleSwitcher current={locale} />
             <div className="text-right hidden sm:block">
               <div className="text-[13px] font-medium">{user.name}</div>
