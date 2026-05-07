@@ -26,6 +26,7 @@ import { BulletList } from "@/components/BulletList";
 import { RainbowText } from "@/components/Rainbow";
 import { lieferantenKpis } from "@/lib/lieferanten/store";
 import { STANDARDS } from "@/lib/expertenstandards/dnqp";
+import { gesamtKpis as pvsKpis } from "@/lib/pvs/matrix";
 
 const PROFESSIONS = [
   { src: "/portraits/10_1_portrait_pflege_1x1.png",   label: "Pflege",         color: "var(--mon)" },
@@ -46,6 +47,14 @@ const PILLARS = [
 
 const TEASER_KARTEN = [
   {
+    href: "/roadmap/pvs",
+    eyebrow: "PVS-Reife · 13 Berufe",
+    titel: "Eine Plattform statt zwölf Tools",
+    body: "FHIR-natives PVS für Pflege/Arzt/Therapie/Sozial — heute live · KBV-Zulassung Phase C.",
+    farbe: "var(--vibe-team)",
+    cta: "Reife-Matrix",
+  },
+  {
     href: "/expertenstandards",
     eyebrow: "DNQP · 11 Standards",
     titel: "Auslieferungs-Niveau ab Tag 1",
@@ -62,20 +71,12 @@ const TEASER_KARTEN = [
     cta: "Indikator verstehen",
   },
   {
-    href: "/lieferanten",
-    eyebrow: "Pool · 7 Anbieter",
-    titel: "Hausmeister, Reinigung, Recycling, Lebensmittel",
-    body: "4 Lieferanten-Branchen sortiert nach Score. Genossenschaften zuerst, Konzerne nach Audit-Eignung.",
-    farbe: "var(--sun)",
-    cta: "Pool ansehen",
-  },
-  {
-    href: "/netz/berufe",
-    eyebrow: "Netz · 13 Rollen",
-    titel: "Pflege ist Mannschafts-Sport",
-    body: "Wer arbeitet wann mit wem? Standards × Berufe × Lieferanten in einer Matrix.",
-    farbe: "var(--vibe-team)",
-    cta: "Netz öffnen",
+    href: "/demo/leben",
+    eyebrow: "Live-Demo · 11 KI-Personas",
+    titel: "Eine ganze Schicht in 10 Minuten",
+    body: "Helga, Petra, Dennis, Dr. Hartmann & Co — von Claude live gespielt. Mit Chat-Eingabe.",
+    farbe: "var(--mon)",
+    cta: "Schicht starten",
   },
 ];
 
@@ -83,10 +84,12 @@ export default async function LandingPage() {
   const locale = await getLocale();
   const t = await getT();
   const kpis = lieferantenKpis();
+  const pvs = pvsKpis();
   const stats = [
     { wert: "4 %", label: "Plattform-Cut", sub: "statt 30–50 % Verleih-Marge", farbe: "var(--vibe-approval)" },
-    { wert: "131", label: "Routen live", sub: "12 Berufe + 4 Lieferanten", farbe: "var(--vibe-team)" },
-    { wert: "11", label: "DNQP-Standards", sub: `${STANDARDS.length} mit Beruf-Mapping`, farbe: "var(--accent)" },
+    { wert: "156", label: "Routen live", sub: "13 Berufe + 4 Lieferanten + Konferenz-Live", farbe: "var(--vibe-team)" },
+    { wert: `${pvs.reifegradPct} %`, label: "PVS-Reife", sub: `${pvs.live} live · ${pvs["in-arbeit"]} in Arbeit von ${pvs.gesamt} Modulen`, farbe: "var(--accent)" },
+    { wert: `${STANDARDS.length}`, label: "DNQP-Standards", sub: "mit Beruf-Mapping + Glyphen", farbe: "var(--sun)" },
     { wert: `${Math.round(kpis.vorzugsmodellAnteilVolumen * 100)} %`, label: "Vorzugs-Anteil", sub: `${kpis.anzahl} GWÖ-bewertete Anbieter`, farbe: "var(--sat)" },
   ];
 
@@ -152,7 +155,7 @@ export default async function LandingPage() {
 
       {/* ─── Stats-Bar ─────────────────────────────────────────── */}
       <section className="max-w-screen-app mx-auto px-4 sm:px-8 pb-12 sm:pb-16">
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4">
           {stats.map((s, i) => (
             <SmoothReveal key={s.label} direction="up" delay={i * 60}>
               <div
