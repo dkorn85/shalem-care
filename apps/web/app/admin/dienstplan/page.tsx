@@ -131,6 +131,34 @@ export default async function DienstplanPage({
           Klick auf eine Zelle zum Bearbeiten · neue Schicht anlegen · Schicht in den Tausch-Markt
           freigeben · KI-Vorschlag für freie Slots übernehmen.
         </p>
+        <Link
+          href="/admin/dienstplan/arena"
+          className="block mt-4 rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--accent) / 0.10))",
+            border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+          }}
+        >
+          <div className="flex items-baseline justify-between gap-3 flex-wrap">
+            <div>
+              <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+                ⚡ Neu · Vollbild-Modus mit KI-Mini-Game
+              </p>
+              <h2 className="font-display text-[18px] font-bold tracking-tight2">
+                Dienstplan-Arena starten →
+              </h2>
+              <p className="text-[12px] text-mute mt-1 max-w-prose">
+                Auto-Pilot-Swipe · Manuelle Tour mit Live-Score · Sparring mit
+                Time-Pressure · Combo-Streak und Konfetti bei Vollbesetzung.
+              </p>
+            </div>
+            <div className="flex gap-1.5 text-[11px] font-mono">
+              <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">🤖 Auto-Pilot</span>
+              <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">🎯 Manuell</span>
+              <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">⚡ Sparring</span>
+            </div>
+          </div>
+        </Link>
         <div className="flex items-center gap-3 mt-4 flex-wrap">
           <Link
             href="/admin/dienstplan/import"
