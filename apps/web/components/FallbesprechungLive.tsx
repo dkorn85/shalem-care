@@ -32,6 +32,7 @@ import {
   type LayoutModus,
   type RtcTeilnehmer,
 } from "@/lib/konferenz/fallbesprechung";
+import { lanaModeriert, type LanaModerationsOutput } from "@/lib/konferenz/lana-moderator";
 
 type Props = {
   konferenzId: string;
@@ -45,6 +46,8 @@ type Props = {
   preReadsKurz?: { beruf: string; autorName: string; aktuellerStand: string }[];
   /** DNQP-Skalen-Snapshot für Akte-Panel */
   dnqpSnapshot?: { skala: string; punkte: number; klasse: string; farbe: string }[];
+  /** Anlass der Konferenz für Lana-Kontext */
+  anlass: string;
 };
 
 const AKTE_TABS: AkteTab[] = ["preReads", "dnqp", "vital", "medikation", "verordnungen", "wunde", "biografie", "termine"];
@@ -57,6 +60,7 @@ export function FallbesprechungLive({
   weitere,
   preReadsKurz = [],
   dnqpSnapshot = [],
+  anlass,
 }: Props) {
   const [layout, setLayout] = useState<LayoutModus>("tile");
   const [aktiverTab, setAktiverTab] = useState<AkteTab>("preReads");
@@ -72,6 +76,10 @@ export function FallbesprechungLive({
   const [chatInput, setChatInput] = useState("");
   const [livedauer, setLivedauer] = useState(0);
   const [error, setError] = useState<string | null>(null);
+
+  // Lana KI-Moderator
+  const [lanaPanel, setLanaPanel] = useState<LanaModerationsOutput | null>(null);
+  const [lanaPending, setLanaPending] = useState(false);
 
   const localStreamRef = useRef<MediaStream | null>(null);
   const screenStreamRef = useRef<MediaStream | null>(null);
@@ -179,6 +187,26 @@ export function FallbesprechungLive({
     }
   }
 
+  async function fragLanaAlsModerator() {
+    setLanaPending(true);
+    try {
+      const out = await lanaModeriert({
+        klientName,
+        anlass,
+        preReadsKurz,
+        letzteEreignisse: audit.slice(-8).map((a) => ({
+          person: a.personName,
+          ereignis: a.ereignis,
+          detail: a.detail,
+        })),
+        liveNotizen: chatNachrichten.map((m) => `${m.name}: ${m.text}`).join("\n"),
+      });
+      setLanaPanel(out);
+    } finally {
+      setLanaPending(false);
+    }
+  }
+
   function sendeChat() {
     const text = chatInput.trim();
     if (!text) return;
@@ -277,6 +305,66 @@ export function FallbesprechungLive({
               </button>
             ))}
           </div>
+          {/* Lana-Moderator-Slot */}
+          <div className="px-3 py-2 border-b border-app-soft">
+            <button
+              type="button"
+              onClick={fragLanaAlsModerator}
+              disabled={lanaPending}
+              className="w-full text-[11px] font-medium px-3 py-2 rounded-lg disabled:opacity-50"
+              style={{
+                background: "rgb(var(--accent) / 0.12)",
+                color: "rgb(var(--accent))",
+                boxShadow: "inset 0 0 0 1px rgb(var(--accent) / 0.3)",
+              }}
+            >
+              {lanaPending ? "✦ Lana denkt …" : "✦ Lana moderieren lassen"}
+            </button>
+            {lanaPanel && (
+              <article className="mt-2 surface-mute rounded-xl p-3 text-[11px] leading-relaxed">
+                <p className="font-mono text-[9px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+                  Zusammenfassung {lanaPanel.source === "ki" ? "· Claude" : "· Heuristik"}
+                </p>
+                <p className="text-mute mb-2">{lanaPanel.zusammenfassung}</p>
+                {lanaPanel.vorgeschlageneBeschluesse.length > 0 && (
+                  <>
+                    <p className="font-mono text-[9px] uppercase tracking-wider mb-1 text-soft">
+                      Vorgeschlagene Beschlüsse
+                    </p>
+                    <ul className="space-y-1 mb-2">
+                      {lanaPanel.vorgeschlageneBeschluesse.map((b, i) => (
+                        <li key={i} className="text-mute">
+                          → <strong>{b.was}</strong> ({b.wer}
+                          {b.bis ? `, bis ${b.bis}` : ""})
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {lanaPanel.offeneFragen.length > 0 && (
+                  <>
+                    <p className="font-mono text-[9px] uppercase tracking-wider mb-1 text-soft">
+                      Noch offene Fragen
+                    </p>
+                    <ul className="space-y-1">
+                      {lanaPanel.offeneFragen.map((f, i) => (
+                        <li key={i} className="text-mute">
+                          ? {f}
+                        </li>
+                      ))}
+                    </ul>
+                  </>
+                )}
+                {lanaPanel.meta && (
+                  <p className="font-mono text-[9px] text-soft mt-2 pt-2 border-t border-app-soft">
+                    {lanaPanel.meta.model.replace(/-\d{8}$/, "")} ·{" "}
+                    {lanaPanel.meta.kostenEur.toFixed(4)} €
+                  </p>
+                )}
+              </article>
+            )}
+          </div>
+
           <div className="flex-1 overflow-y-auto px-3 py-3 text-[12px]">
             {aktiverTab === "preReads" && (
               <div className="space-y-2">
