@@ -52,6 +52,42 @@ export default function KlientHeutePage() {
         <Tile label="Konferenz" value={konf ? "↗" : "—"} farbe="var(--vibe-stats)" unten={konf ? "geplant" : "keine offen"} />
       </section>
 
+      {/* Klient-Werkzeuge · Akte-verstehen + Self-Booker + Buchen */}
+      <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--wed))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Selbstbestimmung · Werkzeuge für Sie</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Was Sie selbst entscheiden können</h2>
+          </div>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Link href="/klient/akte/verstehen" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--accent))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+              live · Claude
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Akte verstehen</h3>
+            <p className="text-[11px] text-mute leading-snug">Arztbrief / MD-Gutachten in einfacher Sprache · max 15 Worte/Satz</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--accent))" }}>Übersetzen lassen →</p>
+          </Link>
+          <Link href="/klient/buchen" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              live · § 37b SGB XI
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Direkt buchen</h3>
+            <p className="text-[11px] text-mute leading-snug">Begleitung · Verhinderungspflege · Hauswirtschaft · Entlastungsbetrag</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>Buchen →</p>
+          </Link>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
+              PG 2+ · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Self-Booker · Sachleistung</h3>
+            <p className="text-[11px] text-mute leading-snug">Stunden-Wallet · Pflegekraft direkt aus Pool wählen</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+        </div>
+      </section>
+
       <div className="grid lg:grid-cols-3 gap-4">
         {/* LINKS · Heute + Morgen */}
         <div className="lg:col-span-2 space-y-4">
