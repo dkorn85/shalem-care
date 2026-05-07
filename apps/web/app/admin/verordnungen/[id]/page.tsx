@@ -10,6 +10,7 @@ import {
   pipelineFortschritt,
 } from "@/lib/pvs/eVerordnung/store";
 import { VerordnungActions } from "@/components/VerordnungActions";
+import { erzeugeHkpBundle, erzeugeSMimePreview } from "@/lib/ti/fhir-bundle";
 
 export const metadata = {
   title: "HKP-Verordnung · Detail",
@@ -146,6 +147,69 @@ export default async function VerordnungDetailPage({
           </div>
         )}
       </section>
+
+      <FhirSMimeVorschau verordnungId={v.id} />
     </AppShell>
+  );
+}
+
+function FhirSMimeVorschau({ verordnungId }: { verordnungId: string }) {
+  const v = getVerordnung(verordnungId);
+  if (!v) return null;
+  const bundle = erzeugeHkpBundle(v);
+  const sMime = erzeugeSMimePreview(bundle, v);
+  const json = JSON.stringify(bundle, null, 2);
+
+  return (
+    <section className="surface rounded-2xl p-5 mt-6">
+      <header className="flex items-baseline justify-between gap-3 mb-3 flex-wrap">
+        <div>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono">
+            FHIR-Bundle + S/MIME-Container · KIM-Anhang-Vorschau
+          </p>
+          <h2 className="font-display text-[16px] font-bold tracking-tight2">
+            Was tatsächlich an die Pflegekasse versendet wird
+          </h2>
+        </div>
+        <span
+          className="text-[11px] uppercase tracking-wider px-2 py-0.5 rounded-full font-mono"
+          style={{
+            background: `rgb(${sMime.versandStatus === "zugestellt" ? "var(--vibe-approval)" : "var(--vibe-team)"} / 0.15)`,
+            color: `rgb(${sMime.versandStatus === "zugestellt" ? "var(--vibe-approval)" : "var(--vibe-team)"})`,
+          }}
+        >
+          {sMime.versandStatus}
+        </span>
+      </header>
+
+      <div className="grid sm:grid-cols-2 gap-3 mb-3 text-[12px]">
+        <div className="surface-mute rounded-lg p-3">
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-1">Bundle</p>
+          <p className="font-mono text-[11px] mb-1">{bundle.id}</p>
+          <p className="text-soft text-[10px]">{bundle.entry.length} Resourcen · Profil KBV_PR_EVDGA_Bundle 1.0</p>
+        </div>
+        <div className="surface-mute rounded-lg p-3">
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-1">S/MIME-Container</p>
+          <p className="font-mono text-[11px] mb-1">{sMime.bundleHash}</p>
+          <p className="text-soft text-[10px]">
+            {sMime.signaturAlgo} · SMC-B {sMime.smcbTelematikId} · {(sMime.pkcs7Bytes / 1024).toFixed(1)} KB
+          </p>
+        </div>
+      </div>
+
+      <details className="surface-mute rounded-lg p-3 mb-3">
+        <summary className="text-[12px] cursor-pointer font-mono text-soft">FHIR-Bundle anzeigen ({bundle.entry.length} Resourcen)</summary>
+        <pre className="text-[10px] font-mono leading-relaxed overflow-x-auto mt-3 text-[rgb(var(--fg-mute))]">
+          {json.slice(0, 4000)}
+          {json.length > 4000 ? "\n…" : ""}
+        </pre>
+      </details>
+
+      <p className="text-[11px] text-soft italic leading-relaxed">
+        Phase A · Bundle aus Verordnungs-Datensatz erzeugt, Hash + Signatur sind Stub.
+        Phase B: KBV-Profil-Validierung, Signatur via SMC-B-Karte, Versand
+        über RISE-Konnektor-API an Pflegekassen-KIM-Postfach.
+      </p>
+    </section>
   );
 }
