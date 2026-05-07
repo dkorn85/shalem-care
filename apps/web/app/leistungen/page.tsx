@@ -219,7 +219,10 @@ export default async function LeistungenPage({
           Beträge nach SGB XI · {STAND_STEMPEL}. Die Übersicht ersetzt keine
           individuelle Beratung — Eigenanteile, Kombinationsleistungen
           (Pflegegeld + Sachleistung), Steuerberücksichtigung und Sondersituationen
-          (z.B. Härtefallregelung in PG 5) hängen vom Einzelfall ab. Quellen:{" "}
+          (z.B. Härtefallregelung in PG 5) hängen vom Einzelfall ab. Hintergrund
+          zum aktuellen Stand siehe{" "}
+          <Link href="/pflegekompetenzgesetz" className="underline">Pflegekompetenzgesetz-Erklärung</Link>.
+          Quellen:{" "}
           <a href="https://www.gesetze-im-internet.de/sgb_11/" className="underline">
             SGB XI · gesetze-im-internet.de
           </a>{" "}

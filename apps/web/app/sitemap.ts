@@ -18,6 +18,7 @@ const ROUTES: { path: string; priority: number; changeFrequency: MetadataRoute.S
   { path: "/faq",                    priority: 0.8,  changeFrequency: "weekly"  },
   { path: "/pflegekraft-werden",     priority: 0.85, changeFrequency: "monthly" },
   { path: "/traeger-werden",         priority: 0.85, changeFrequency: "monthly" },
+  { path: "/pflegekompetenzgesetz",  priority: 0.75, changeFrequency: "monthly" },
   { path: "/presse",                 priority: 0.6,  changeFrequency: "monthly" },
   { path: "/roadmap",                priority: 0.7,  changeFrequency: "weekly" },
 
