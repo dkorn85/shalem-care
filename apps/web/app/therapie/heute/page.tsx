@@ -91,6 +91,45 @@ export default async function TherapieHeutePage() {
         <CockpitKpi label="Patient:innen" value={klientCount} farbe="var(--vibe-profile)" />
       </section>
 
+      {/* Therapie-PVS · HMV-Verordnungs-Eingang + DNQP-Mobilität-Anker */}
+      <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--fri))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Therapie-PVS · HMV + DNQP</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Verordnungs-Eingang + Standards</h2>
+          </div>
+          <Link href="/therapie/diktat" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+            HMV-Diktat ✦ →
+          </Link>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="surface-mute rounded-xl p-3">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--fri))" }}>
+              HMV 2025
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Heilmittel-Codes</h3>
+            <p className="text-[11px] text-mute leading-snug">WS1 · EX1 · ZN1 · SP1 · PS1 — ICD-10-Plausibilisierung Phase B</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">Katalog in lib/pvs/abrechnung</p>
+          </div>
+          <Link href="/expertenstandards#mobilitaet" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--accent))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+              DNQP · 2014
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Mobilität-Standard</h3>
+            <p className="text-[11px] text-mute leading-snug">Tinetti / TUG / 6-Min · Co-Lead mit Pflege</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--accent))" }}>Standard öffnen →</p>
+          </Link>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+              § 302 SGB V · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">GKV-Abrechnung</h3>
+            <p className="text-[11px] text-mute leading-snug">DTA-Format · Quartal · Verordnung-Plausi</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+        </div>
+      </section>
+
       <div className="grid lg:grid-cols-3 gap-4">
         {/* LINKS · Termine + Anfragen */}
         <div className="lg:col-span-2 space-y-4">
