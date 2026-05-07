@@ -33,6 +33,7 @@ import {
   type RtcTeilnehmer,
 } from "@/lib/konferenz/fallbesprechung";
 import { lanaModeriert, type LanaModerationsOutput } from "@/lib/konferenz/lana-moderator";
+import { WebRtcMeshTiles } from "@/components/WebRtcMeshTiles";
 
 type Props = {
   konferenzId: string;
@@ -67,6 +68,8 @@ export function FallbesprechungLive({
   const [micAn, setMicAn] = useState(false);
   const [cameraAn, setCameraAn] = useState(false);
   const [screenshareAn, setScreenshareAn] = useState(false);
+  const [webrtcAn, setWebrtcAn] = useState(false);
+  const [localStreamFuerMesh, setLocalStreamFuerMesh] = useState<MediaStream | null>(null);
   const [recording, setRecording] = useState(false);
   const [handGehoben, setHandGehoben] = useState(false);
   const [audit, setAudit] = useState<AuditEvent[]>([]);
@@ -111,6 +114,7 @@ export function FallbesprechungLive({
       // Audio aus
       localStreamRef.current?.getAudioTracks().forEach((t) => t.stop());
       setMicAn(false);
+      setLocalStreamFuerMesh(localStreamRef.current);
       addAudit("mic-aus");
     } else {
       try {
@@ -121,6 +125,7 @@ export function FallbesprechungLive({
           localStreamRef.current = stream;
         }
         setMicAn(true);
+        setLocalStreamFuerMesh(localStreamRef.current);
         addAudit("mic-an");
       } catch (e) {
         setError(e instanceof Error ? e.message : "Mikrofon-Zugriff verweigert");
@@ -136,6 +141,7 @@ export function FallbesprechungLive({
       });
       if (localVideoRef.current) localVideoRef.current.srcObject = null;
       setCameraAn(false);
+      setLocalStreamFuerMesh(localStreamRef.current);
       addAudit("kamera-aus");
     } else {
       try {
@@ -149,6 +155,7 @@ export function FallbesprechungLive({
         }
         if (localVideoRef.current) localVideoRef.current.srcObject = localStreamRef.current;
         setCameraAn(true);
+        setLocalStreamFuerMesh(localStreamRef.current);
         addAudit("kamera-an");
       } catch (e) {
         setError(e instanceof Error ? e.message : "Kamera-Zugriff verweigert");
@@ -526,12 +533,34 @@ export function FallbesprechungLive({
               icon={recording ? "🔴" : "⚪"}
               farbe={recording ? "var(--mon)" : "var(--fg-mute)"}
             />
+            <ToolbarButton
+              an={webrtcAn}
+              onClick={() => {
+                setWebrtcAn(!webrtcAn);
+                addAudit("wortmeldung", webrtcAn ? "WebRTC-Mesh getrennt" : "WebRTC-Mesh aktiviert");
+              }}
+              label={webrtcAn ? "Mesh aus" : "Mesh"}
+              icon="📡"
+              farbe={webrtcAn ? "var(--vibe-approval)" : "var(--fg-mute)"}
+            />
             {error && (
               <span className="text-[11px] font-mono ml-2" style={{ color: "rgb(var(--mon))" }}>
                 {error}
               </span>
             )}
           </div>
+
+          {webrtcAn && (
+            <div className="px-4 pb-3">
+              <WebRtcMeshTiles
+                konferenzId={konferenzId}
+                ownPeerId={selbst.personId}
+                ownName={selbst.name}
+                enabled={webrtcAn}
+                localStream={localStreamFuerMesh}
+              />
+            </div>
+          )}
         </main>
 
         {/* Rechte Spalte: Chat */}
