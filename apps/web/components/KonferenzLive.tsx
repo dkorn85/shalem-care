@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState, useTransition, useEffect, useRef } from "react";
 import {
   konferenzStarten,
@@ -81,6 +82,14 @@ export function KonferenzLiveControl({ konferenz }: { konferenz: Konferenz }) {
           )}
           {istLive && (
             <>
+              <Link
+                href={`/konferenz/${konferenz.id}/live`}
+                className="text-[12px] px-3 py-1 rounded-md transition-colors font-medium inline-flex items-center gap-1.5"
+                style={{ background: "rgb(var(--accent))", color: "white" }}
+              >
+                <span aria-hidden>🎥</span>
+                <span>Beitreten · Video-Modus</span>
+              </Link>
               <button
                 type="button"
                 disabled={pending}
