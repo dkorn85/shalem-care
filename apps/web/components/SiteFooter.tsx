@@ -22,6 +22,7 @@ const SPALTEN: Spalte[] = [
       { href: "/expertenstandards",     label: "Expertenstandards · DNQP" },
       { href: "/gemeinwohl",            label: "Gemeinwohl-Indikator" },
       { href: "/netz/berufe",           label: "Netz · 13 Rollen" },
+      { href: "/pflege/assessment",     label: "Pflege-Assessment · Skalen" },
       { href: "/glossar",               label: "Glossar" },
       { href: "/faq",                   label: "FAQ" },
     ],

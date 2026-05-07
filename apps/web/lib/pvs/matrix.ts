@@ -113,12 +113,12 @@ export const PVS_MODULE: PvsModul[] = [
     beruf: "pflege",
     name: "HKP-Verordnungs-Workflow",
     beschreibung:
-      "Arzt-Verordnung → Pflegekasse-Genehmigung → Pflege-Durchführung → Quartals-Abrechnung.",
-    phase: "B",
-    status: "geplant",
+      "5-Stufen-Pipeline live: Arzt → KIM → Pflegekasse → Pflege → Abrechnung. Phase 2 mit gematik-Konnektor.",
+    phase: "A",
+    status: "in-arbeit",
     rechtsgrundlage: "§ 37 SGB V · Häusliche-Krankenpflege-Richtlinie",
     konkurrent: "Vivendi HKP",
-    codePfad: "lib/pvs/eVerordnung/hkp.ts",
+    codePfad: "app/admin/verordnungen/ + lib/pvs/eVerordnung/",
   },
   {
     id: "pflege-pflegegrad",
@@ -432,6 +432,26 @@ export const PVS_MODULE: PvsModul[] = [
     codePfad: "app/admin/dienstplan/hud/",
   },
   {
+    id: "pdl-fallbesprechung",
+    beruf: "stationsleitung",
+    name: "Interdisziplinäre Fallbesprechung · Live",
+    beschreibung:
+      "Vollbild-Konferenz: Tile-Grid (WebRTC), Akte-Panel, Chat-Sidebar, Lana KI-Moderator. Phase-2 SFU für >4 Teilnehmer.",
+    phase: "A",
+    status: "live",
+    codePfad: "app/konferenz/[id]/live/ + lib/konferenz/fallbesprechung.ts",
+  },
+  {
+    id: "pdl-konferenz-store",
+    beruf: "stationsleitung",
+    name: "Konferenz-Modul · Pre-Reads, Agenda, Beschlüsse",
+    beschreibung:
+      "Strukturierte Vorbereitung + Live-Notizen + Beschluss-Composer · 6 Konferenz-Typen (Fallkonferenz/Pflegeplan-Review/Hilfeplan/Behandlungsplan/Entlass/§8a).",
+    phase: "A",
+    status: "live",
+    codePfad: "lib/konferenz/store.ts + app/konferenz/[id]/",
+  },
+  {
     id: "pdl-personalakte",
     beruf: "stationsleitung",
     name: "Personal-Akte mit Quali-Verfall",
@@ -502,6 +522,16 @@ export const PVS_MODULE: PvsModul[] = [
     codePfad: "lib/klient/akte-verstehen-ki.ts",
   },
   {
+    id: "klient-live-demo",
+    beruf: "klient",
+    name: "Live-Demo · KI-Schicht im Zeitraffer",
+    beschreibung:
+      "11 Personas von Claude gespielt. Tick-Engine, 8h-Schicht in 10 Minuten, Persona-Avatare, Vital-Drift, Chat-Eingabe.",
+    phase: "A",
+    status: "live",
+    codePfad: "app/demo/leben/ + lib/sim/",
+  },
+  {
     id: "klient-self-booker",
     beruf: "klient",
     name: "Self-Booker für Pflegekraft",
@@ -556,12 +586,32 @@ export const PVS_MODULE: PvsModul[] = [
   {
     id: "lief-onboarding",
     beruf: "lieferanten",
-    name: "GWÖ-Onboarding",
+    name: "GWÖ-Onboarding · Score 0-1000",
     beschreibung:
-      "GWÖ-Score-Selbstauskunft, Demo-Auftrag, Vollaudit, Vorzugsmodell-Status.",
+      "20 GWÖ-Themen × 5 Werte × 4 Berührungsgruppen. Vorbild ab 750. Vorzugs-Anbieter zahlen 1-1.5% Solidar-Cut zurück.",
     phase: "A",
     status: "live",
-    codePfad: "lib/gemeinwohl/matrix.ts",
+    codePfad: "lib/gemeinwohl/matrix.ts + app/gemeinwohl/",
+  },
+  {
+    id: "lief-pool",
+    beruf: "lieferanten",
+    name: "Lieferanten-Pool · 4 Branchen",
+    beschreibung:
+      "Hausmeister/Reinigung/Recycling/Lebensmittel mit GWÖ-Score-Sortierung. 7 Demo-Anbieter.",
+    phase: "A",
+    status: "live",
+    codePfad: "lib/lieferanten/store.ts + app/lieferanten/",
+  },
+  {
+    id: "lief-diktate",
+    beruf: "lieferanten",
+    name: "4 Lieferanten-Diktate (Reparatur/Reinigung/Recycling/Speisen)",
+    beschreibung:
+      "Diktat-Profile mit branchenspezifischen Keywords + Pflege-Übergabe-Pflichtfeld + DNQP-Cross-Trigger (Sturz, IAD, Inkontinenz).",
+    phase: "A",
+    status: "live",
+    codePfad: "lib/beruf-diktat/profile.ts",
   },
   {
     id: "lief-sla",

@@ -135,6 +135,33 @@ export default async function RoadmapPage() {
             {liveCount}/{total} ({Math.round((liveCount / total) * 100)} %)
           </div>
         </div>
+
+        {/* ─── PVS-Strang prominent verlinkt ───────────────── */}
+        <Link
+          href="/roadmap/pvs"
+          className="surface-hover rounded-2xl p-5 sm:p-6 mt-8 block relative overflow-hidden group"
+          style={{ borderLeft: "3px solid rgb(var(--vibe-team))" }}
+        >
+          <div
+            aria-hidden
+            className="absolute -top-12 -right-12 w-40 h-40 rounded-full opacity-0 group-hover:opacity-30 transition-opacity blur-2xl"
+            style={{ background: "rgb(var(--vibe-team))" }}
+          />
+          <p className="font-mono text-[10px] uppercase tracking-wider mb-2" style={{ color: "rgb(var(--vibe-team))" }}>
+            {isEN ? "PVS Strategy · 13 professions · 5 phases" : "PVS-Strategie · 13 Berufe · 5 Phasen"}
+          </p>
+          <h2 className="font-display text-[22px] sm:text-[28px] font-bold tracking-tight2 leading-snug mb-2">
+            {isEN ? <>One platform <span className="rainbow-text">instead of twelve</span> tools.</> : <>Eine Plattform <span className="rainbow-text">statt zwölf</span> Tools.</>}
+          </h2>
+          <p className="text-[14px] text-mute leading-relaxed max-w-2xl">
+            {isEN
+              ? "PVS-readiness matrix per profession: which modules are live, which are on the workbench, which are planned for the gematik connector + KBV approval phases."
+              : "PVS-Reife-Matrix pro Beruf — was ist live, was ist auf der Werkbank, was kommt mit gematik-Konnektor + KBV-Zulassung. 53 Module · 5-Phasen-Plan."}
+          </p>
+          <p className="text-[12px] font-medium mt-3 inline-flex items-center gap-1 transition group-hover:gap-2" style={{ color: "rgb(var(--vibe-team))" }}>
+            {isEN ? "Open PVS roadmap" : "PVS-Roadmap öffnen"} →
+          </p>
+        </Link>
       </section>
 
       <section className="max-w-screen-app mx-auto px-4 sm:px-8 py-12 border-t border-app-soft space-y-12">
