@@ -300,11 +300,14 @@ Quellen: BARMER Pflege-Report 2024 (38% Burnout), DBfK Personal-Studie 2025, Pfl
 
 ---
 
-## Status zum Session-Ende 2026-05-06 (Abend · Polish-Pass)
+## Status zum Session-Ende 2026-05-06 / 2026-05-07 (Polish + Marketing-Schicht)
 
 Build clean · main = HEAD · Hostinger zieht.
 
-**Heute zusätzlich gelandet:**
+**12 Pushes in dieser Session — komplette Marketing- und Edukativ-Schicht
+oben drauf:**
+
+Polish-Phase:
 - `f844f61` feat: Shalem-konforme Error-Pages (`app/error.tsx`, `app/not-found.tsx`,
   `app/global-error.tsx`) — keine nüchternen Next-Default-404er mehr; alle Fehler
   zeigen Rainbow-Bar + Portal-Quicklinks + Reset-Button.
@@ -316,9 +319,43 @@ Build clean · main = HEAD · Hostinger zieht.
 - `8e9dd1c` feat: `/kontakt`-Page mit 8 dedizierten Anliegen-Pfaden
   (allgemein/pflege/klient/träger/partner/presse/datenschutz/security) +
   3-FAQ-Block; verlinkt aus Landing-Footer und `/willkommen`.
-- `9762033` feat: `/sitemap.xml` (35 Marketing-Routen mit Priority +
+- `9762033` feat: `/sitemap.xml` (40+ Marketing-Routen mit Priority +
   ChangeFrequency) + `/robots.txt` (Marketing erlaubt, alle auth-Cockpits +
   `/api/` + `/auth/` + Verifikations-Strecke gesperrt; Sitemap- + Host-Direktiven).
+- `efc8651` docs: HANDOFF + AUDIT_DEADLINKS auf Stand 2026-05-06.
+
+Edukativ-Schicht:
+- `ec300fe` feat: `/leistungen` · Pflegekassen-Leistungsrechner SGB XI 2025
+  mit PG-Switch (1–5), 4 Hauptleistungen + 6 Zusatzleistungen, Quellenangabe.
+  Beträge zentral in `lib/pflegegrad/leistungen.ts`.
+- `5dee8c4` feat: `/pflegegrad-check` · NBA-Selbstcheck mit 6 Modulen +
+  22 Fragen, korrekte NBA-Gewichtung (Modul 4/5 alternativ), Schwellen-
+  Mapping nach Tabelle, Ergebnis-Deeplink zu `/leistungen?pg=X`.
+- `83d5bb0` feat: `/tarif` · Tarifrechner Verleiher 30–50% vs. Genossenschaft
+  4% mit Slidern + Marge-Presets, Side-by-side-Vergleich, „X € mehr/Monat"-
+  Hervorhebung, Aufschlüsselung 2/1/1.
+- `70fd42d` feat: `/glossar` · 30 Pflege-Begriffe (PG/NBA/ePA/AÜG/BTHG…)
+  in Klartext, 7 Kategorien mit Farbcode, Such-Filter.
+
+Marketing-Schicht:
+- `3f9416c` feat: `/faq` · 4 Kategorien × 4-5 Fragen (Klient / Pflege /
+  Träger / Recht-Datenschutz), Sprung-Anker, details/summary statt JS-State.
+- `fcdf05d` feat: `/pflegekraft-werden` · B2C-Onboarding-Hub mit
+  6 Versprechen + 3-Schritt-Pfad + 3 Top-Fragen. CTA zu `team@shalem.de`.
+- `6810fc0` feat: `/traeger-werden` · B2B-Onboarding-Hub mit 6 Argumenten
+  + 3-Schritt-Pilot-Pfad + 3 Top-Fragen. CTA zu `traeger@shalem.de`.
+
+**Neue Routen (12 zusätzliche öffentliche Pages):** `/error`, `/global-error`,
+`/not-found` (implizit), `/sitemap.xml`, `/robots.txt`, `/kontakt`,
+`/leistungen`, `/pflegegrad-check`, `/tarif`, `/glossar`, `/faq`,
+`/pflegekraft-werden`, `/traeger-werden` — plus Umbau von `/willkommen`.
+
+**Neue Libraries:** `lib/pflegegrad/leistungen.ts` (SGB-XI-Sätze 2025),
+`lib/pflegegrad/check.ts` (NBA-Module + Score-Logik), `lib/glossar/eintraege.ts`
+(30 Begriffe mit Kategorie + Klartext + Deeplink).
+
+**Neue Komponenten:** `PgCheckWizard` (Client, useState),
+`TarifRechner` (Client, useState), `GlossarFilter` (Client, useMemo).
 
 **Vorherige Commits aus früheren Sessions:**
 - HauptMenu cleanup (Pfad-Anzeigen entfernt) + Messenger-Discord-Layer
