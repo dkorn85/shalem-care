@@ -437,6 +437,7 @@ export default async function LandingPage() {
             <Link href="/entwickler" className="hover:text-[rgb(var(--fg))]">Entwickler-API</Link>
             <Link href="/compliance" className="hover:text-[rgb(var(--fg))]">Compliance</Link>
             <Link href="/pflegekraft-werden" className="hover:text-[rgb(var(--fg))]">Pflegekraft werden</Link>
+            <Link href="/traeger-werden" className="hover:text-[rgb(var(--fg))]">Träger werden</Link>
             <Link href="/faq" className="hover:text-[rgb(var(--fg))]">FAQ</Link>
             <Link href="/glossar" className="hover:text-[rgb(var(--fg))]">Glossar</Link>
             <Link href="/kontakt" className="hover:text-[rgb(var(--fg))]">Kontakt</Link>
