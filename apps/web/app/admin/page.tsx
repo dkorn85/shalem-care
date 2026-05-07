@@ -194,16 +194,27 @@ export default async function AdminDashboard() {
             <p className="text-[11px] text-mute leading-snug">NBA · MD-Termin · Bescheid · Widerspruch</p>
           </Link>
         </div>
-        <div className="mt-2">
-          <Link href="/termine" className="surface-hover rounded-xl p-3 block flex items-baseline justify-between gap-2 flex-wrap" style={{ borderLeft: "3px solid rgb(var(--vibe-plan))" }}>
-            <div>
-              <p className="font-mono text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "rgb(var(--vibe-plan))" }}>
-                live · FHIR Appointment · Cross-Beruf
-              </p>
-              <h3 className="font-display text-[13px] font-bold tracking-tight2">Termin-Tagessicht</h3>
-              <p className="text-[11px] text-mute leading-snug">Pflege-Tour migriert · Arzt · Therapie · Hauswirtschaft auf einer Achse</p>
-            </div>
-            <span className="text-mute text-[12px]">→</span>
+        <div className="mt-2 grid sm:grid-cols-3 gap-2">
+          <Link href="/termine" className="surface-hover rounded-xl p-3 block" style={{ borderLeft: "3px solid rgb(var(--vibe-plan))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "rgb(var(--vibe-plan))" }}>
+              live · FHIR Appointment
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2">Termin-Tagessicht</h3>
+            <p className="text-[11px] text-mute leading-snug">Cross-Beruf · Tour migriert</p>
+          </Link>
+          <Link href="/admin/ti/konnektoren" className="surface-hover rounded-xl p-3 block" style={{ borderLeft: "3px solid rgb(var(--vibe-team))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "rgb(var(--vibe-team))" }}>
+              TI · Konnektor
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2">Anbieter-Vergleich</h3>
+            <p className="text-[11px] text-mute leading-snug">RISE · secunet · CGM · 6 Anbieter</p>
+          </Link>
+          <Link href="/admin/ti/karten" className="surface-hover rounded-xl p-3 block" style={{ borderLeft: "3px solid rgb(var(--vibe-profile))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-0.5" style={{ color: "rgb(var(--vibe-profile))" }}>
+              TI · HBA + SMC-B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2">Karten-Verwaltung</h3>
+            <p className="text-[11px] text-mute leading-snug">Lifecycle · PIN · Verlängerung</p>
           </Link>
         </div>
       </section>
