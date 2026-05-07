@@ -19,6 +19,9 @@ const SPALTEN: Spalte[] = [
       { href: "/pflegegrad-check",      label: "Pflegegrad-Check" },
       { href: "/tarif",                 label: "Tarifrechner" },
       { href: "/pflegekompetenzgesetz", label: "Pflegekompetenzgesetz" },
+      { href: "/expertenstandards",     label: "Expertenstandards · DNQP" },
+      { href: "/gemeinwohl",            label: "Gemeinwohl-Indikator" },
+      { href: "/netz/berufe",           label: "Netz · 13 Rollen" },
       { href: "/glossar",               label: "Glossar" },
       { href: "/faq",                   label: "FAQ" },
     ],
@@ -58,6 +61,16 @@ const SPALTEN: Spalte[] = [
     ],
   },
   {
+    titel: "Lieferanten + Service",
+    links: [
+      { href: "/lieferanten",   label: "Lieferanten-Pool" },
+      { href: "/lebensmittel",  label: "Lebensmittel + Verpflegung" },
+      { href: "/reinigung",     label: "Reinigung + Hygiene" },
+      { href: "/recycling",     label: "Recycling + Entsorgung" },
+      { href: "/hausmeister",   label: "Hausmeister + Facility" },
+    ],
+  },
+  {
     titel: "Recht + Über",
     links: [
       { href: "/datenschutz", label: "Datenschutz" },
@@ -76,7 +89,7 @@ export function SiteFooter() {
     <footer className="max-w-screen-app mx-auto w-full px-4 sm:px-8 py-12 border-t border-app-soft">
       <div className="rainbow-bar h-0.5 w-full rounded-full mb-10 opacity-60" />
 
-      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-8 lg:gap-5 mb-10">
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-7 gap-8 lg:gap-5 mb-10">
         <div className="col-span-2 sm:col-span-3 lg:col-span-1">
           <div className="flex items-center gap-2.5 mb-3">
             <Logo size={22} className="accent-text" />
