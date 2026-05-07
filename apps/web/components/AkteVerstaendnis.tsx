@@ -3,7 +3,7 @@
 // Akte-Verstaendnis-UI · zeigt KI-übersetztes medizinisches Dokument
 // in 5 Klartext-Abschnitten plus Glossar.
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 import {
   type DokumentTyp,
   type AkteVerstaendnis,
@@ -12,16 +12,35 @@ import {
   verstehendeAkte,
   DEMO_DOKUMENTE,
 } from "@/lib/klient/akte-verstehen";
+import { verstehendeAkteMitKi } from "@/lib/klient/akte-verstehen-ki";
+
+type ResultMitQuelle = AkteVerstaendnis & {
+  source?: "ki" | "heuristik";
+  meta?: {
+    provider: string;
+    model: string;
+    kostenEur: number;
+    tokens: { input: number; output: number };
+  };
+};
 
 export function AkteVerstaendnisView() {
   const [text, setText] = useState("");
   const [typ, setTyp] = useState<DokumentTyp>("arztbrief");
-  const [result, setResult] = useState<AkteVerstaendnis | null>(null);
+  const [result, setResult] = useState<ResultMitQuelle | null>(null);
   const [activeDoc, setActiveDoc] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
   const verstehen = () => {
     if (!text.trim()) return;
-    setResult(verstehendeAkte(text, typ));
+    startTransition(async () => {
+      try {
+        const ki = await verstehendeAkteMitKi(text, typ);
+        setResult(ki);
+      } catch {
+        setResult({ ...verstehendeAkte(text, typ), source: "heuristik" });
+      }
+    });
   };
 
   const ladeDemo = (id: string) => {
@@ -30,7 +49,14 @@ export function AkteVerstaendnisView() {
     setText(doc.text);
     setTyp(doc.typ);
     setActiveDoc(id);
-    setResult(verstehendeAkte(doc.text, doc.typ));
+    startTransition(async () => {
+      try {
+        const ki = await verstehendeAkteMitKi(doc.text, doc.typ);
+        setResult(ki);
+      } catch {
+        setResult({ ...verstehendeAkte(doc.text, doc.typ), source: "heuristik" });
+      }
+    });
   };
 
   return (
@@ -90,20 +116,30 @@ export function AkteVerstaendnisView() {
           className="w-full px-3 py-2 rounded-md text-[12px] surface-mute border-0 focus:outline-none font-mono"
           style={{ outline: "none", lineHeight: 1.5 }}
         />
-        <div className="flex items-baseline gap-2 mt-3">
+        <div className="flex items-baseline gap-2 mt-3 flex-wrap">
           <button
             type="button"
             onClick={verstehen}
-            disabled={!text.trim()}
+            disabled={!text.trim() || pending}
             className="px-3 py-1.5 rounded-md text-[12px] font-medium disabled:opacity-40"
             style={{ background: "rgb(var(--wed))", color: "white" }}
           >
-            ✦ Verstehen lassen
+            {pending ? "✦ Claude liest …" : "✦ Verstehen lassen"}
           </button>
-          {text && (
+          {text && !pending && (
             <button type="button" onClick={() => { setText(""); setResult(null); setActiveDoc(null); }} className="text-[11px] text-soft hover:text-[rgb(var(--fg))]">
               Zurücksetzen
             </button>
+          )}
+          {result?.source === "ki" && result.meta && (
+            <span className="text-[10px] font-mono text-soft ml-auto">
+              {result.meta.provider} · {result.meta.model.replace(/-\d{8}$/, "")} · {result.meta.kostenEur.toFixed(4)} €
+            </span>
+          )}
+          {result?.source === "heuristik" && (
+            <span className="text-[10px] font-mono text-soft ml-auto">
+              Heuristik · KI nicht verfügbar
+            </span>
           )}
         </div>
       </section>

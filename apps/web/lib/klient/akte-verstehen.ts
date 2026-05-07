@@ -37,7 +37,7 @@ export const DOK_FARBE: Record<DokumentTyp, string> = {
 };
 
 // Glossar: Fachbegriff → Klartext (Auszug, deterministisch)
-const GLOSSAR: { begriff: string; klartext: string; warum_wichtig?: string }[] = [
+export const GLOSSAR: { begriff: string; klartext: string; warum_wichtig?: string }[] = [
   { begriff: "Hypertonie", klartext: "Bluthochdruck", warum_wichtig: "Erhöht das Risiko für Schlaganfall + Herzinfarkt" },
   { begriff: "Hypotonie", klartext: "Niedriger Blutdruck", warum_wichtig: "Kann zu Schwindel + Stürzen führen" },
   { begriff: "COPD", klartext: "Chronische Lungenerkrankung mit verengten Atemwegen", warum_wichtig: "Belastung schwerer · Sauerstoff oft nötig" },
