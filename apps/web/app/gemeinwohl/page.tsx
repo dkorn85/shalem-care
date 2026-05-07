@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Wordmark } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -6,7 +7,24 @@ import {
   WERT_LABEL,
   GRUPPE_LABEL,
   type Beruehrungsgruppe,
+  type GemeinwohlWert,
 } from "@/lib/gemeinwohl/matrix";
+
+// Glyphen pro Wert + Berührungsgruppe (aus Grid 3 erzeugt)
+const WERT_GLYPH: Record<GemeinwohlWert, string> = {
+  menschenwuerde: "/icons/gwoe-menschenwuerde.png",
+  solidaritaet: "/icons/gwoe-solidaritaet.png",
+  nachhaltigkeit: "/icons/gwoe-nachhaltigkeit.png",
+  transparenz: "/icons/gwoe-transparenz.png",
+  mitbestimmung: "/icons/gwoe-mitbestimmung.png",
+};
+
+const GRUPPE_GLYPH: Partial<Record<Beruehrungsgruppe, string>> = {
+  lieferanten: "/icons/gwoe-grp-lieferanten.png",
+  eigentuemer: "/icons/gwoe-grp-eigentuemer.png",
+  mitarbeitende: "/icons/gwoe-grp-mitarbeitende.png",
+  kunden: "/icons/gwoe-grp-kunden.png",
+};
 
 export const metadata = {
   title: "Gemeinwohl-Indikator · so wählen wir Lieferanten",
@@ -153,24 +171,47 @@ export default function GemeinwohlPage() {
             const farbe = GRUPPE_FARBE[g];
             return (
               <section key={g}>
-                <header className="mb-4">
-                  <p
-                    className="font-mono text-[10px] uppercase tracking-wider mb-1"
-                    style={{ color: `rgb(${farbe})` }}
-                  >
-                    Berührungsgruppe
-                  </p>
-                  <h3 className="font-display text-[22px] font-bold tracking-tight2">
-                    {GRUPPE_LABEL[g]}
-                  </h3>
+                <header className="mb-4 flex items-center gap-3">
+                  {GRUPPE_GLYPH[g] && (
+                    <div className="relative w-12 h-12 shrink-0">
+                      <Image
+                        src={GRUPPE_GLYPH[g]!}
+                        alt=""
+                        fill
+                        sizes="48px"
+                        className="object-contain"
+                      />
+                    </div>
+                  )}
+                  <div>
+                    <p
+                      className="font-mono text-[10px] uppercase tracking-wider mb-1"
+                      style={{ color: `rgb(${farbe})` }}
+                    >
+                      Berührungsgruppe
+                    </p>
+                    <h3 className="font-display text-[22px] font-bold tracking-tight2">
+                      {GRUPPE_LABEL[g]}
+                    </h3>
+                  </div>
                 </header>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                   {themen.map((t) => (
                     <article
                       key={t.id}
-                      className="surface rounded-2xl p-4 relative overflow-hidden"
+                      className="surface rounded-2xl p-4 relative overflow-hidden flex gap-3"
                       style={{ borderLeft: `3px solid rgb(${farbe})` }}
                     >
+                      <div className="relative w-10 h-10 shrink-0 mt-0.5">
+                        <Image
+                          src={WERT_GLYPH[t.wert]}
+                          alt=""
+                          fill
+                          sizes="40px"
+                          className="object-contain"
+                        />
+                      </div>
+                      <div className="flex-1 min-w-0">
                       <div className="flex items-baseline gap-2 mb-1">
                         <span
                           className="font-mono text-[10px] px-1.5 py-0.5 rounded"
@@ -202,6 +243,7 @@ export default function GemeinwohlPage() {
                       <p className="text-[10px] text-soft font-mono mt-2.5">
                         max {t.maxPunkte} Pkt
                       </p>
+                      </div>
                     </article>
                   ))}
                 </div>

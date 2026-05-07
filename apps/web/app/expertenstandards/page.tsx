@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Wordmark } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
 import {
@@ -6,7 +7,23 @@ import {
   BERUF_LABEL,
   BERUF_EMOJI,
   type Beruf,
+  type ExpertenStandardId,
 } from "@/lib/expertenstandards/dnqp";
+
+// Glyphen pro DNQP-Standard (aus Grid 5)
+const DNQP_GLYPH: Record<ExpertenStandardId, string> = {
+  dekubitus: "/icons/dnqp-dekubitus.png",
+  "schmerz-akut": "/icons/dnqp-schmerz.png",
+  "schmerz-chronisch": "/icons/dnqp-schmerz.png",
+  sturz: "/icons/dnqp-sturz.png",
+  ernaehrung: "/icons/dnqp-ernaehrung.png",
+  wunde: "/icons/dnqp-wunde.png",
+  mobilitaet: "/icons/dnqp-mobilitaet.png",
+  demenz: "/icons/dnqp-demenz.png",
+  haut: "/icons/dnqp-hautintegritaet.png",
+  kontinenz: "/icons/dnqp-kontinenz.png",
+  entlassung: "/icons/dnqp-mobilitaet.png", // Reuse mobilitaet-glyph als Bewegungs-Symbol
+};
 
 export const metadata = {
   title: "Expertenstandards · DNQP nach SGB XI § 113a",
@@ -103,16 +120,27 @@ export default function ExpertenstandardsPage() {
               id={s.id}
               className="surface rounded-2xl p-6 sm:p-7 scroll-mt-24"
             >
-              <header className="mb-4">
-                <p className="font-mono text-[10px] uppercase tracking-wider text-soft mb-1">
-                  {s.rechtsgrundlage} · {s.jahr}
-                </p>
-                <h2 className="font-display text-[22px] sm:text-[26px] font-bold tracking-tight2">
-                  {s.titel}
-                </h2>
-                <p className="text-[14px] text-mute mt-3 leading-relaxed">
-                  {s.inhaltKurz}
-                </p>
+              <header className="mb-4 flex gap-4 items-start">
+                <div className="relative w-16 h-16 shrink-0 mt-1">
+                  <Image
+                    src={DNQP_GLYPH[s.id]}
+                    alt=""
+                    fill
+                    sizes="64px"
+                    className="object-contain"
+                  />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-mono text-[10px] uppercase tracking-wider text-soft mb-1">
+                    {s.rechtsgrundlage} · {s.jahr}
+                  </p>
+                  <h2 className="font-display text-[22px] sm:text-[26px] font-bold tracking-tight2">
+                    {s.titel}
+                  </h2>
+                  <p className="text-[14px] text-mute mt-3 leading-relaxed">
+                    {s.inhaltKurz}
+                  </p>
+                </div>
               </header>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-6">

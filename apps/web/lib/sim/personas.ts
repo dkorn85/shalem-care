@@ -28,6 +28,8 @@ export type Persona = {
   kurzname: string;
   /** Avatar-Initialen */
   initialen: string;
+  /** Avatar-Bild (chroma-keyed transparenter PNG) */
+  avatarUrl: string;
   /** Hex-Farbe oder var(--..) */
   farbe: string;
   emoji: string;
@@ -52,6 +54,7 @@ export const PERSONAS: Persona[] = [
     name: "Helga Reinhardt",
     kurzname: "Helga",
     initialen: "HR",
+    avatarUrl: "/klienten/klient-hr.png",
     farbe: "var(--wed)",
     emoji: "🌿",
     unterzeile: "76 J · Pflegegrad 3 · diabetisch · Witwe seit 2018",
@@ -83,6 +86,7 @@ export const PERSONAS: Persona[] = [
     name: "Petra Schmidt-Reinhardt",
     kurzname: "Petra",
     initialen: "PS",
+    avatarUrl: "/people/fam-petra.png",
     farbe: "var(--thu)",
     emoji: "💌",
     unterzeile: "52 J · Tochter · Lehrerin · pendelt von Köln",
@@ -110,6 +114,7 @@ export const PERSONAS: Persona[] = [
     name: "Dennis Reuter",
     kurzname: "Dennis",
     initialen: "DR",
+    avatarUrl: "/people/person-dr.png",
     farbe: "var(--mon)",
     emoji: "🩺",
     unterzeile: "Pflegefachkraft · 7 Jahre · Mit-Eigentümer eG",
@@ -137,6 +142,7 @@ export const PERSONAS: Persona[] = [
     name: "Dr. Susanne Hartmann",
     kurzname: "Dr. Hartmann",
     initialen: "SH",
+    avatarUrl: "/people/person-arzt-001.png",
     farbe: "var(--vibe-team)",
     emoji: "👩‍⚕️",
     unterzeile: "Hausärztin · betreut KEM seit 2019",
@@ -162,6 +168,7 @@ export const PERSONAS: Persona[] = [
     name: "Sebastian Rauer",
     kurzname: "Sebastian",
     initialen: "SR",
+    avatarUrl: "/people/person-therapeut-001.png",
     farbe: "var(--fri)",
     emoji: "🤲",
     unterzeile: "Physiotherapeut · ICF-zertifiziert",
@@ -186,6 +193,7 @@ export const PERSONAS: Persona[] = [
     name: "Helmut Brandt",
     kurzname: "Helmut",
     initialen: "HB",
+    avatarUrl: "/people/person-hwf-001.png",
     farbe: "var(--sun)",
     emoji: "🍲",
     unterzeile: "Hauswirtschaftsleitung · 22 Jahre",
@@ -211,6 +219,7 @@ export const PERSONAS: Persona[] = [
     name: "Detektiv Eins",
     kurzname: "DE.1",
     initialen: "D1",
+    avatarUrl: "/people/person-pdl-001-portrait.png",
     farbe: "var(--vibe-plan)",
     emoji: "🗂",
     unterzeile: "Pflegedienstleitung · KEM Etage 3",
@@ -236,6 +245,7 @@ export const PERSONAS: Persona[] = [
     name: "Mehmet Yıldırım",
     kurzname: "Mehmet",
     initialen: "MY",
+    avatarUrl: "/people/person-hm-001.png",
     farbe: "var(--mon)",
     emoji: "🛠",
     unterzeile: "Hausmeister · TriFi Facility eG",
@@ -260,6 +270,7 @@ export const PERSONAS: Persona[] = [
     name: "Aisha Mwangi",
     kurzname: "Aisha",
     initialen: "AM",
+    avatarUrl: "/people/person-rei-001.png",
     farbe: "var(--vibe-team)",
     emoji: "🧽",
     unterzeile: "Reinigung · Klar Reinigungs eG",
@@ -284,6 +295,7 @@ export const PERSONAS: Persona[] = [
     name: "Marie Kowalski",
     kurzname: "Marie",
     initialen: "MK",
+    avatarUrl: "/portraits/10_12_portrait_lebensmittel_1x1.png",
     farbe: "var(--sun)",
     emoji: "🥬",
     unterzeile: "Lieferung · SoLaWi Rhein-Erft eG",
@@ -308,6 +320,7 @@ export const PERSONAS: Persona[] = [
     name: "Renate Schäfer",
     kurzname: "Renate",
     initialen: "RS",
+    avatarUrl: "/people/person-eh-001.png",
     farbe: "var(--thu)",
     emoji: "🤝",
     unterzeile: "Ehrenamt · Hospiz-Begleitung",
