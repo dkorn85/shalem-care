@@ -136,6 +136,66 @@ export default async function AdminDashboard() {
         </section>
       )}
 
+      {/* ─── Mini-Game-Schnellzugriff ──────────────────────── */}
+      <section className="grid sm:grid-cols-3 gap-2 mb-6">
+        <Link
+          href="/admin/dienstplan/arena"
+          className="rounded-2xl p-3 transition-all hover:scale-[1.01]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--accent) / 0.10))",
+            border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+            ⚡ Dienstplan-Arena
+          </p>
+          <h3 className="font-display text-[14px] font-bold tracking-tight2">Schicht-Vergabe als Game</h3>
+          <p className="text-[11px] text-mute mt-0.5">Auto-Pilot · Manuell · Sparring</p>
+        </Link>
+        <Link
+          href="/admin/genehmigungen/sprint"
+          className="rounded-2xl p-3 transition-all hover:scale-[1.01]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--vibe-approval) / 0.10))",
+            border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+            ⚡ Genehmigungs-Sprint
+          </p>
+          <h3 className="font-display text-[14px] font-bold tracking-tight2">Approvals als Tinder-Stack</h3>
+          <p className="text-[11px] text-mute mt-0.5">Tausch · HKP · PG · eG · KI-Hinweis</p>
+        </Link>
+        <Link
+          href="/admin/wirtschaft/sandbox"
+          className="rounded-2xl p-3 transition-all hover:scale-[1.01]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-approval) / 0.15), rgb(var(--vibe-stats) / 0.10))",
+            border: "2px solid rgb(var(--vibe-approval) / 0.4)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+            ⚡ Wirtschaft-Sandbox
+          </p>
+          <h3 className="font-display text-[14px] font-bold tracking-tight2">Slider-Spielwiese</h3>
+          <p className="text-[11px] text-mute mt-0.5">PG-Mix · Tarif · Personal · live KPI</p>
+        </Link>
+        <Link
+          href="/admin/audit/hunt"
+          className="rounded-2xl p-3 transition-all hover:scale-[1.01]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--mon) / 0.10), rgb(var(--vibe-team) / 0.05))",
+            border: "2px solid rgb(var(--mon) / 0.3)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--mon))" }}>
+            ⚡ MD-Audit-Hunt
+          </p>
+          <h3 className="font-display text-[14px] font-bold tracking-tight2">Akten-Lücken finden</h3>
+          <p className="text-[11px] text-mute mt-0.5">DNQP/MDK-Standards · Multi-Select</p>
+        </Link>
+      </section>
+
       {/* ─── Wirtschaftlichkeits-Cockpit ───────────────────── */}
       <section className="surface rounded-2xl p-5 mb-6">
         <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
