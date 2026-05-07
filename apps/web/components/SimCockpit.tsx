@@ -1,15 +1,19 @@
 "use client";
 
-// Live-Demo-Cockpit · zeigt eine simulierte Pflege-Schicht in Echtzeit.
-// Drei Spalten: Personas links, Activity-Feed Mitte, Klient-Vital rechts.
-// Tick alle N Sekunden — bei jedem Tick:
-//   - Welt-Zeit + 5 Sim-Minuten
-//   - Vital-Drift (kleine Schwankungen)
-//   - Event ziehen: aus Skript-Pool ODER KI-Aussage einer Persona
+// Live-Demo-Cockpit · simulierte Pflege-Schicht in Echtzeit.
 //
-// Tick-Rate vom User steuerbar: 0.5x (langsam) · 1x · 4x (Zeitraffer).
+// Architektur:
+// - Welt-State im React useState (zeit, vital, events, stats, tickNr).
+// - tick() ist STABIL via stateRef-Pattern — sonst würde useEffect bei
+//   jedem Event-Update das Interval neu starten und nichts kommt durch.
+// - Jeder 2. Tick zieht Claude eine Persona-Aussage; dazwischen Skript-
+//   Events.
+// - Chat unten: User schreibt was, KI antwortet als gewählte Persona mit
+//   "anlass"-Kontext, die User-Nachricht erscheint im Feed.
+//
+// Tick-Rate vom User steuerbar: 0.5×–4×.
 
-import { useCallback, useEffect, useMemo, useRef, useState, useTransition } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   PERSONAS,
   DEMO_BESETZUNG,
@@ -29,9 +33,9 @@ import {
 } from "@/lib/sim/world";
 import { simulierePersonaAussage } from "@/lib/sim/charakter-stream";
 
-const TICK_INTERVAL_MS = 6000; // 1× = 6 sec real → 5 sim-min
+const TICK_INTERVAL_MS = 6000; // 1× = 6 s real → 5 sim-min
 const SIM_MINUTEN_PRO_TICK = 5;
-const KI_ALLE_X_TICKS = 2; // jedes 2. Tick eine KI-Aussage
+const KI_ALLE_X_TICKS = 2;
 
 const SPEED_OPTIONS: { label: string; faktor: number }[] = [
   { label: "0.5×", faktor: 0.5 },
@@ -69,6 +73,10 @@ const TYP_LABEL: Record<string, string> = {
   "system": "System",
 };
 
+function makeId(prefix: string): string {
+  return `${prefix}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export function SimCockpit() {
   const [zeit, setZeit] = useState<SimZeit>(STARTZEIT);
   const [vital, setVital] = useState<SimVital>(STARTVITAL);
@@ -78,115 +86,133 @@ export function SimCockpit() {
   const [speedFaktor, setSpeedFaktor] = useState(1);
   const [stats, setStats] = useState<Stats>(STATS_INIT);
   const [aktivPersonaId, setAktivPersonaId] = useState<string | null>(null);
-  const [pending, startTransition] = useTransition();
+  const [kiPending, setKiPending] = useState(false);
 
-  // Skript-Index — geht durch Skript-Events der Reihe nach durch
+  // Chat
+  const [chatInput, setChatInput] = useState("");
+  const [chatZielId, setChatZielId] = useState<string>("klient-hr");
+  const [chatPending, setChatPending] = useState(false);
+
+  // Refs für stale-closure-freien tick
+  const stateRef = useRef({ zeit, vital, events, tickNr });
+  useEffect(() => {
+    stateRef.current = { zeit, vital, events, tickNr };
+  }, [zeit, vital, events, tickNr]);
+
   const skriptIndexRef = useRef(0);
+  const ongoingKiRef = useRef(false); // verhindert doppelte KI-Calls
 
   const aktivePersonas = useMemo(
     () => DEMO_BESETZUNG.map((id) => getPersona(id)).filter(Boolean) as Persona[],
     [],
   );
 
-  const tick = useCallback(() => {
-    setTickNr((n) => n + 1);
-    setZeit((z) => zeitPlus(z, SIM_MINUTEN_PRO_TICK));
+  const tick = useCallback(async () => {
+    // Aktuelle Welt aus Ref lesen — NICHT aus closure
+    const cur = stateRef.current;
+    const next_tickNr = cur.tickNr + 1;
+    const next_zeit = zeitPlus(cur.zeit, SIM_MINUTEN_PRO_TICK);
+    setTickNr(next_tickNr);
+    setZeit(next_zeit);
     setVital((v) => driftVital(v));
 
-    // Soll dieser Tick ein KI-Event ziehen oder ein Skript-Event?
-    setTickNr((tnAfterIncrement) => {
-      const istKiTick = tnAfterIncrement % KI_ALLE_X_TICKS === 0;
+    const istKiTick = next_tickNr % KI_ALLE_X_TICKS === 0;
 
-      if (istKiTick) {
-        // Wähle eine Persona zufällig (gewichtet leicht zugunsten Klient + Pflege)
-        const gewichte: { persona: Persona; gewicht: number }[] = aktivePersonas.map((p) => ({
-          persona: p,
-          gewicht:
-            p.rolle === "klient"
-              ? 3
-              : p.rolle === "pflege"
-                ? 2.5
-                : p.rolle === "angehoerig"
-                  ? 1.5
-                  : 1,
+    if (istKiTick) {
+      if (ongoingKiRef.current) return; // skip wenn vorheriger Call noch läuft
+      ongoingKiRef.current = true;
+
+      // Persona gewichtet auswählen
+      const gewichte: { persona: Persona; gewicht: number }[] = aktivePersonas.map((p) => ({
+        persona: p,
+        gewicht:
+          p.rolle === "klient"
+            ? 3
+            : p.rolle === "pflege"
+              ? 2.5
+              : p.rolle === "angehoerig"
+                ? 1.5
+                : 1,
+      }));
+      const total = gewichte.reduce((s, g) => s + g.gewicht, 0);
+      let r = Math.random() * total;
+      let chosen = gewichte[0].persona;
+      for (const g of gewichte) {
+        r -= g.gewicht;
+        if (r <= 0) { chosen = g.persona; break; }
+      }
+      setAktivPersonaId(chosen.id);
+      setKiPending(true);
+
+      try {
+        const letzteEvents = cur.events.slice(-6).map((e) => ({
+          personaId: e.personaId,
+          text: e.text,
         }));
-        const total = gewichte.reduce((s, g) => s + g.gewicht, 0);
-        let r = Math.random() * total;
-        let chosen = gewichte[0].persona;
-        for (const g of gewichte) {
-          r -= g.gewicht;
-          if (r <= 0) { chosen = g.persona; break; }
-        }
-        setAktivPersonaId(chosen.id);
-
-        startTransition(async () => {
-          try {
-            const letzteEvents = events.slice(-6).map((e) => ({
-              personaId: e.personaId,
-              text: e.text,
-            }));
-            const ergebnis = await simulierePersonaAussage(chosen.id, {
-              zeit: zeit,
-              vital: vital,
-              letzte_events: letzteEvents,
-            });
-            const event: SimEvent = {
-              id: `ev-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-              zeit: zeit,
-              typ: chosen.rolle === "klient"
-                ? "klient-aussage"
-                : chosen.rolle === "angehoerig"
-                  ? "angehoerig-frage"
-                  : "kollege-info",
-              personaId: chosen.id,
-              text: ergebnis.text,
-              klientId: "klient-hr",
-              source: ergebnis.source,
-            };
-            setEvents((es) => [...es, event].slice(-100));
-            setStats((s) => ({
-              ki_calls: s.ki_calls + (ergebnis.source === "ki" ? 1 : 0),
-              ki_kosten_eur: s.ki_kosten_eur + (ergebnis.meta?.kostenEur ?? 0),
-              ki_tokens_in: s.ki_tokens_in + (ergebnis.meta?.tokens.input ?? 0),
-              ki_tokens_out: s.ki_tokens_out + (ergebnis.meta?.tokens.output ?? 0),
-              events_gesamt: s.events_gesamt + 1,
-            }));
-          } finally {
-            setAktivPersonaId(null);
-          }
+        const ergebnis = await simulierePersonaAussage(chosen.id, {
+          zeit: next_zeit,
+          vital: cur.vital,
+          letzte_events: letzteEvents,
         });
-      } else {
-        // Skript-Event ziehen
-        const skript = SKRIPT_EVENTS[skriptIndexRef.current % SKRIPT_EVENTS.length];
-        skriptIndexRef.current += 1;
         const event: SimEvent = {
-          id: `sk-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-          zeit: zeit,
-          typ: skript.typ,
-          personaId: skript.personaId,
-          text: skript.text,
-          klientId: skript.klientId,
-          source: "skript",
-          tags: skript.tags,
+          id: makeId("ev"),
+          zeit: next_zeit,
+          typ:
+            chosen.rolle === "klient"
+              ? "klient-aussage"
+              : chosen.rolle === "angehoerig"
+                ? "angehoerig-frage"
+                : "kollege-info",
+          personaId: chosen.id,
+          text: ergebnis.text,
+          klientId: "klient-hr",
+          source: ergebnis.source,
         };
         setEvents((es) => [...es, event].slice(-100));
-        setStats((s) => ({ ...s, events_gesamt: s.events_gesamt + 1 }));
+        setStats((s) => ({
+          ki_calls: s.ki_calls + (ergebnis.source === "ki" ? 1 : 0),
+          ki_kosten_eur: s.ki_kosten_eur + (ergebnis.meta?.kostenEur ?? 0),
+          ki_tokens_in: s.ki_tokens_in + (ergebnis.meta?.tokens.input ?? 0),
+          ki_tokens_out: s.ki_tokens_out + (ergebnis.meta?.tokens.output ?? 0),
+          events_gesamt: s.events_gesamt + 1,
+        }));
+      } catch (err) {
+        console.warn("[sim] KI-Tick fehlgeschlagen:", err);
+      } finally {
+        ongoingKiRef.current = false;
+        setAktivPersonaId(null);
+        setKiPending(false);
       }
-      return tnAfterIncrement;
-    });
-  }, [aktivePersonas, events, vital, zeit]);
+    } else {
+      // Skript-Event
+      const skript = SKRIPT_EVENTS[skriptIndexRef.current % SKRIPT_EVENTS.length];
+      skriptIndexRef.current += 1;
+      const event: SimEvent = {
+        id: makeId("sk"),
+        zeit: next_zeit,
+        typ: skript.typ,
+        personaId: skript.personaId,
+        text: skript.text,
+        klientId: skript.klientId,
+        source: "skript",
+        tags: skript.tags,
+      };
+      setEvents((es) => [...es, event].slice(-100));
+      setStats((s) => ({ ...s, events_gesamt: s.events_gesamt + 1 }));
+    }
+  }, [aktivePersonas]); // STABIL — keine state-deps
 
   // Tick-Loop
   useEffect(() => {
     if (!running) return;
     const interval = TICK_INTERVAL_MS / speedFaktor;
     const timer = window.setInterval(() => {
-      tick();
+      void tick();
     }, interval);
     return () => window.clearInterval(timer);
   }, [running, speedFaktor, tick]);
 
-  // Auto-Scroll des Activity-Feeds
+  // Auto-Scroll
   const feedRef = useRef<HTMLDivElement>(null);
   useEffect(() => {
     if (feedRef.current) {
@@ -202,6 +228,72 @@ export function SimCockpit() {
     setStats(STATS_INIT);
     setAktivPersonaId(null);
     skriptIndexRef.current = 0;
+    ongoingKiRef.current = false;
+  };
+
+  const sendeChat = async () => {
+    const text = chatInput.trim();
+    if (!text || chatPending) return;
+    const ziel = getPersona(chatZielId);
+    if (!ziel) return;
+
+    const cur = stateRef.current;
+    setChatInput("");
+    setChatPending(true);
+
+    // 1. User-Event sofort einfügen
+    const userEvent: SimEvent = {
+      id: makeId("user"),
+      zeit: cur.zeit,
+      typ: "system",
+      personaId: "user",
+      text: `(an ${ziel.kurzname}) ${text}`,
+      source: "skript",
+      tags: ["user-frage"],
+    };
+    setEvents((es) => [...es, userEvent].slice(-100));
+    setStats((s) => ({ ...s, events_gesamt: s.events_gesamt + 1 }));
+    setAktivPersonaId(ziel.id);
+
+    try {
+      const letzteEvents = [...cur.events, userEvent].slice(-8).map((e) => ({
+        personaId: e.personaId,
+        text: e.text,
+      }));
+      const ergebnis = await simulierePersonaAussage(ziel.id, {
+        zeit: cur.zeit,
+        vital: cur.vital,
+        letzte_events: letzteEvents,
+        anlass: `Du wirst direkt angesprochen. Frage/Anliegen: "${text}". Antworte direkt darauf.`,
+      });
+      const antwortEvent: SimEvent = {
+        id: makeId("chat"),
+        zeit: cur.zeit,
+        typ:
+          ziel.rolle === "klient"
+            ? "klient-aussage"
+            : ziel.rolle === "angehoerig"
+              ? "angehoerig-frage"
+              : "kollege-info",
+        personaId: ziel.id,
+        text: ergebnis.text,
+        klientId: "klient-hr",
+        source: ergebnis.source,
+      };
+      setEvents((es) => [...es, antwortEvent].slice(-100));
+      setStats((s) => ({
+        ki_calls: s.ki_calls + (ergebnis.source === "ki" ? 1 : 0),
+        ki_kosten_eur: s.ki_kosten_eur + (ergebnis.meta?.kostenEur ?? 0),
+        ki_tokens_in: s.ki_tokens_in + (ergebnis.meta?.tokens.input ?? 0),
+        ki_tokens_out: s.ki_tokens_out + (ergebnis.meta?.tokens.output ?? 0),
+        events_gesamt: s.events_gesamt + 1,
+      }));
+    } catch (err) {
+      console.warn("[sim] Chat fehlgeschlagen:", err);
+    } finally {
+      setChatPending(false);
+      setAktivPersonaId(null);
+    }
   };
 
   return (
@@ -245,7 +337,7 @@ export function SimCockpit() {
             color: running ? "rgb(var(--mon))" : "rgb(var(--vibe-approval))",
           }}
         >
-          {running ? "Pause" : "Start"}
+          {running ? "⏸ Pause" : "▶ Start"}
         </button>
         <button
           type="button"
@@ -265,12 +357,21 @@ export function SimCockpit() {
           {aktivePersonas.map((p) => {
             const aktiv = aktivPersonaId === p.id;
             return (
-              <article
+              <button
                 key={p.id}
-                className="surface rounded-xl p-3 transition"
+                type="button"
+                onClick={() => setChatZielId(p.id)}
+                className="w-full text-left surface rounded-xl p-3 transition"
                 style={{
                   borderLeft: `3px solid rgb(${p.farbe})`,
-                  background: aktiv ? `rgb(${p.farbe} / 0.08)` : undefined,
+                  background: aktiv
+                    ? `rgb(${p.farbe} / 0.12)`
+                    : chatZielId === p.id
+                      ? `rgb(${p.farbe} / 0.05)`
+                      : undefined,
+                  boxShadow: chatZielId === p.id
+                    ? `0 0 0 1px rgb(${p.farbe} / 0.4)`
+                    : undefined,
                 }}
               >
                 <div className="flex items-baseline gap-2">
@@ -283,28 +384,55 @@ export function SimCockpit() {
                       schreibt …
                     </span>
                   )}
+                  {chatZielId === p.id && !aktiv && (
+                    <span className="text-[9px] font-mono uppercase tracking-wider ml-auto text-soft">
+                      ✎ Chat-Ziel
+                    </span>
+                  )}
                 </div>
                 <p className="text-[11px] text-soft mt-0.5 leading-snug">{p.unterzeile}</p>
-              </article>
+              </button>
             );
           })}
+          <p className="text-[10px] text-soft italic mt-3 px-1">
+            Klick eine Persona, um sie als Chat-Ziel zu wählen — frag sie unten direkt.
+          </p>
         </aside>
 
-        {/* Mitte: Activity-Feed */}
-        <main className="lg:col-span-6">
-          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">
+        {/* Mitte: Activity-Feed + Chat */}
+        <main className="lg:col-span-6 space-y-3">
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-1">
             Schicht-Geschehen · live
           </p>
           <div
             ref={feedRef}
-            className="surface rounded-2xl p-4 h-[600px] overflow-y-auto space-y-3"
+            className="surface rounded-2xl p-4 h-[500px] overflow-y-auto space-y-3"
           >
             {events.length === 0 ? (
               <p className="text-[13px] text-soft italic text-center py-12">
-                Tick startet … in {Math.round(TICK_INTERVAL_MS / speedFaktor / 1000)} Sekunden kommt die erste Aktion.
+                Tick startet … in {Math.round(TICK_INTERVAL_MS / speedFaktor / 1000)} s kommt die erste Aktion.
               </p>
             ) : (
               events.map((e) => {
+                if (e.personaId === "user") {
+                  // User-Frage anders darstellen
+                  return (
+                    <article
+                      key={e.id}
+                      className="rounded-xl p-3 anim-slideUp ml-12 text-right"
+                      style={{
+                        background: "rgb(var(--bg-mute))",
+                      }}
+                    >
+                      <header className="flex items-baseline gap-2 mb-1.5 justify-end">
+                        <span className="text-[10px] uppercase tracking-wider font-mono text-soft">
+                          du · {formatZeit(e.zeit)}
+                        </span>
+                      </header>
+                      <p className="text-[13px] leading-relaxed">{e.text}</p>
+                    </article>
+                  );
+                }
                 const persona = getPersona(e.personaId);
                 const farbe = persona?.farbe ?? "var(--accent)";
                 return (
@@ -335,7 +463,7 @@ export function SimCockpit() {
                           ✦ KI
                         </span>
                       )}
-                      {e.source === "skript" && (
+                      {e.source === "skript" && e.personaId !== "user" && (
                         <span className="text-[9px] uppercase tracking-wider font-mono ml-auto text-soft">
                           Skript
                         </span>
@@ -351,10 +479,43 @@ export function SimCockpit() {
                 );
               })
             )}
-            {pending && (
+            {(kiPending || chatPending) && (
               <p className="text-[12px] text-soft italic text-center">Claude überlegt …</p>
             )}
           </div>
+
+          {/* Chat-Eingabe */}
+          <form
+            onSubmit={(e) => {
+              e.preventDefault();
+              void sendeChat();
+            }}
+            className="surface rounded-2xl p-3 flex gap-2 items-center"
+          >
+            <span className="text-[10px] font-mono uppercase tracking-wider text-soft px-2 shrink-0">
+              an {getPersona(chatZielId)?.kurzname ?? "?"}
+            </span>
+            <input
+              type="text"
+              value={chatInput}
+              onChange={(e) => setChatInput(e.target.value)}
+              placeholder={`Frag ${getPersona(chatZielId)?.kurzname ?? ""} etwas — Schmerzen, Plan, Sorgen, Wünsche …`}
+              className="flex-1 px-3 py-2 rounded-md text-[13px] surface-mute border-0 focus:outline-none"
+              style={{ outline: "none" }}
+              disabled={chatPending}
+            />
+            <button
+              type="submit"
+              disabled={!chatInput.trim() || chatPending}
+              className="text-[12px] px-4 py-2 rounded-md font-medium disabled:opacity-40 transition"
+              style={{ background: "rgb(var(--accent))", color: "white" }}
+            >
+              {chatPending ? "…" : "Senden"}
+            </button>
+          </form>
+          <p className="text-[10px] text-soft px-1">
+            Wähle links eine Persona, frag sie hier direkt — sie antwortet in Charakter, mit Welt-Kontext.
+          </p>
         </main>
 
         {/* Rechts: Vital + Stats */}
