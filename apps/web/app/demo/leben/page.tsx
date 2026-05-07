@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { Wordmark } from "@/components/Logo";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SimCockpit } from "@/components/SimCockpit";
@@ -49,6 +50,19 @@ export default function DemoLebenPage() {
           (Ehrenamt) und Detektiv Eins (Leitung) sprechen, fragen, melden.
           Vital-Werte driften live. Du steuerst Tempo + Pause.
         </p>
+      </section>
+
+      <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-8">
+        <div className="relative aspect-[16/9] max-w-4xl mx-auto rounded-2xl overflow-hidden">
+          <Image
+            src="/akte/header-demo-leben.png"
+            alt="Schicht-Beginn 14:00"
+            fill
+            sizes="(max-width: 1024px) 100vw, 1024px"
+            priority
+            className="object-cover"
+          />
+        </div>
       </section>
 
       <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-12">

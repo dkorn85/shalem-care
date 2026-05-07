@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 // Live-Demo-Cockpit · simulierte Pflege-Schicht in Echtzeit.
 //
 // Architektur:
@@ -367,7 +368,7 @@ export function SimCockpit() {
                 key={p.id}
                 type="button"
                 onClick={() => setChatZielId(p.id)}
-                className="w-full text-left surface rounded-xl p-3 transition"
+                className="w-full text-left surface rounded-xl p-3 transition flex gap-3 items-start"
                 style={{
                   borderLeft: `3px solid rgb(${p.farbe})`,
                   background: aktiv
@@ -380,23 +381,37 @@ export function SimCockpit() {
                     : undefined,
                 }}
               >
-                <div className="flex items-baseline gap-2">
-                  <span aria-hidden className="text-[14px]">{p.emoji}</span>
-                  <h3 className="font-display text-[13px] font-bold tracking-tight2">
-                    {p.kurzname}
-                  </h3>
-                  {aktiv && (
-                    <span className="text-[9px] font-mono uppercase tracking-wider ml-auto" style={{ color: `rgb(${p.farbe})` }}>
-                      schreibt …
-                    </span>
-                  )}
-                  {chatZielId === p.id && !aktiv && (
-                    <span className="text-[9px] font-mono uppercase tracking-wider ml-auto text-soft">
-                      ✎ Chat-Ziel
-                    </span>
-                  )}
+                <div
+                  className="relative shrink-0 w-12 h-12 rounded-full overflow-hidden"
+                  style={{ background: `rgb(${p.farbe} / 0.12)` }}
+                >
+                  <Image
+                    src={p.avatarUrl}
+                    alt={p.name}
+                    fill
+                    sizes="48px"
+                    className="object-cover object-top"
+                  />
                 </div>
-                <p className="text-[11px] text-soft mt-0.5 leading-snug">{p.unterzeile}</p>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-baseline gap-2 flex-wrap">
+                    <span aria-hidden className="text-[14px]">{p.emoji}</span>
+                    <h3 className="font-display text-[13px] font-bold tracking-tight2">
+                      {p.kurzname}
+                    </h3>
+                    {aktiv && (
+                      <span className="text-[9px] font-mono uppercase tracking-wider ml-auto" style={{ color: `rgb(${p.farbe})` }}>
+                        schreibt …
+                      </span>
+                    )}
+                    {chatZielId === p.id && !aktiv && (
+                      <span className="text-[9px] font-mono uppercase tracking-wider ml-auto text-soft">
+                        ✎ Chat-Ziel
+                      </span>
+                    )}
+                  </div>
+                  <p className="text-[11px] text-soft mt-0.5 leading-snug">{p.unterzeile}</p>
+                </div>
               </button>
             );
           })}
@@ -444,12 +459,27 @@ export function SimCockpit() {
                 return (
                   <article
                     key={e.id}
-                    className="rounded-xl p-3 anim-slideUp"
+                    className="rounded-xl p-3 anim-slideUp flex gap-3"
                     style={{
                       background: `rgb(${farbe} / 0.05)`,
                       borderLeft: `2px solid rgb(${farbe})`,
                     }}
                   >
+                    {persona?.avatarUrl && (
+                      <div
+                        className="relative shrink-0 w-10 h-10 rounded-full overflow-hidden mt-0.5"
+                        style={{ background: `rgb(${farbe} / 0.15)` }}
+                      >
+                        <Image
+                          src={persona.avatarUrl}
+                          alt={persona.name}
+                          fill
+                          sizes="40px"
+                          className="object-cover object-top"
+                        />
+                      </div>
+                    )}
+                    <div className="flex-1 min-w-0">
                     <header className="flex items-baseline gap-2 mb-1.5 flex-wrap">
                       <span className="font-mono text-[11px] tabular-nums text-soft">
                         {formatZeit(e.zeit)}
@@ -481,6 +511,7 @@ export function SimCockpit() {
                       )}
                     </header>
                     <p className="text-[13px] leading-relaxed">{e.text}</p>
+                    </div>
                   </article>
                 );
               })

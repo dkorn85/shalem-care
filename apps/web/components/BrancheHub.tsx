@@ -5,6 +5,7 @@
 // Expertenstandards-Schnittpunkte + Onboarding-CTA.
 
 import Link from "next/link";
+import Image from "next/image";
 import { Wordmark } from "./Logo";
 import { SiteFooter } from "./SiteFooter";
 import {
@@ -78,6 +79,38 @@ export function BrancheHub(p: Props) {
         >
           {p.subline}
         </p>
+      </section>
+
+      <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-12">
+        <div className="grid lg:grid-cols-12 gap-6 items-center">
+          <div className="lg:col-span-5 lg:col-start-2 relative aspect-[16/9] rounded-2xl overflow-hidden">
+            <Image
+              src={`/akte/header-${p.branche}.png`}
+              alt={label}
+              fill
+              sizes="(max-width: 1024px) 100vw, 50vw"
+              priority
+              className="object-cover"
+            />
+          </div>
+          <div className="lg:col-span-5 relative aspect-square max-w-xs mx-auto rounded-2xl overflow-hidden">
+            <Image
+              src={`/portraits/10_${
+                p.branche === "hausmeister"
+                  ? 9
+                  : p.branche === "reinigung"
+                    ? 10
+                    : p.branche === "recycling"
+                      ? 11
+                      : 12
+              }_portrait_${p.branche}_1x1.png`}
+              alt={`${label} · Mit-Eigentümer:in`}
+              fill
+              sizes="(max-width: 1024px) 70vw, 25vw"
+              className="object-cover"
+            />
+          </div>
+        </div>
       </section>
 
       <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-12">
