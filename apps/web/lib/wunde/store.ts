@@ -16,6 +16,17 @@ export function listWundenFor(klientId: string): Wunde[] {
     .sort((a, b) => b.aktualisiertAm.localeCompare(a.aktualisiertAm));
 }
 
+export function listWundenForKlienten(klientIds: string[]): Wunde[] {
+  const set = new Set(klientIds);
+  return s.wunden
+    .filter((w) => set.has(w.klientId))
+    .sort((a, b) => b.aktualisiertAm.localeCompare(a.aktualisiertAm));
+}
+
+export function listAlleWunden(): Wunde[] {
+  return [...s.wunden].sort((a, b) => b.aktualisiertAm.localeCompare(a.aktualisiertAm));
+}
+
 export function getWunde(id: string): Wunde | null {
   return s.wunden.find((w) => w.id === id) ?? null;
 }
@@ -82,6 +93,82 @@ export function seedWundeOnce() {
     aktualisiertAm: new Date().toISOString(),
   };
   s.wunden.push(w1);
+
+  // Wilhelm Brand — Diabetisches Fußsyndrom Ferse links · stagnierend
+  const w2: Wunde = {
+    id: "wunde-seed-002",
+    klientId: "klient-wb",
+    lokalisation: "ferse_li",
+    art: "diabet_fusssyndrom",
+    ersterBefund: tageVor(56),
+    ursache: "Schlecht eingestellter HbA1c · Druckpunkt Ferse links bei stationärer Reha.",
+    status: "stagnierend",
+    zustaendig: "person-as-005",
+    aktualisiertAm: new Date().toISOString(),
+  };
+  s.wunden.push(w2);
+
+  s.eintraege.push(
+    {
+      id: "weo-seed-002a",
+      wundeId: w2.id,
+      datum: tageVor(7),
+      zeit: "10:15",
+      dokumentiertVon: "person-as-005",
+      laengeCm: 2.8,
+      breiteCm: 2.3,
+      tiefeCm: 0.8,
+      flaecheCm2: 6.4,
+      wundgrund: ["fibrinös", "granulierend"],
+      granulationsAnteilProzent: 30,
+      fibrinAnteilProzent: 65,
+      nekroseAnteilProzent: 5,
+      epithelisationProzent: 0,
+      exsudatMenge: "maessig",
+      exsudatArt: "trüb",
+      geruch: "leicht",
+      wundrand: ["mazeriert", "verschwielt"],
+      umgebungshaut: ["trocken"],
+      schmerzNRS: 3,
+      spueloesung: "octenisept",
+      primaerverband: "alginat",
+      sekundaerverband: "schaumstoff",
+      fixierung: "schlauchverband",
+      wechselIntervallTage: 2,
+      fotoUrl: "/befunde/wunde/sakrum-d0.png",
+      tendenz: "unveraendert",
+      freitext: "Wunde stagniert seit 3 Wochen · Wunddiagnostik mit Diabetologe geplant · Druckentlastung Vorfuß-Schuh.",
+    },
+    {
+      id: "weo-seed-002b",
+      wundeId: w2.id,
+      datum: tageVor(1),
+      zeit: "08:30",
+      dokumentiertVon: "person-as-005",
+      laengeCm: 2.6,
+      breiteCm: 2.2,
+      tiefeCm: 0.7,
+      flaecheCm2: 5.7,
+      wundgrund: ["granulierend", "fibrinös"],
+      granulationsAnteilProzent: 45,
+      fibrinAnteilProzent: 50,
+      nekroseAnteilProzent: 0,
+      epithelisationProzent: 5,
+      exsudatMenge: "wenig",
+      exsudatArt: "serös",
+      geruch: "kein",
+      wundrand: ["epithelialisierend"],
+      umgebungshaut: ["intakt"],
+      schmerzNRS: 1,
+      spueloesung: "prontosan",
+      primaerverband: "schaumstoff",
+      fixierung: "schlauchverband",
+      wechselIntervallTage: 3,
+      fotoUrl: "/befunde/wunde/sakrum-d14.png",
+      tendenz: "verbesserung",
+      freitext: "Erste Granulationsinseln · Druckentlastung wirkt · Diabetiker-Schuh getragen.",
+    },
+  );
 
   s.eintraege.push(
     {

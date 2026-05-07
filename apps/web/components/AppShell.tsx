@@ -15,6 +15,7 @@ const NURSE_NAV = [
   { href: "/pflege/heute",    label: "Heute",          vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/pflege",          label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/pflege/tour",     label: "Tour-KI",        vibe: "var(--fri)",           icon: SparkIcon },
+  { href: "/pflege/wunde",    label: "Wundmanagement", vibe: "var(--vibe-profile)",  icon: SparkIcon },
   { href: "/dienst",          label: "Stationsansicht",vibe: "var(--vibe-team)",    icon: WardIcon },
   { href: "/tausch",          label: "Tausch-Markt",  vibe: "var(--vibe-market)",   icon: SwapIcon },
   { href: "/pflege/selbst",   label: "Selbstpflege",   vibe: "var(--mon)",           icon: SparkIcon },
