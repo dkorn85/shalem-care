@@ -179,14 +179,13 @@ export default async function AdminDashboard() {
             <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">HKP-Pipeline</h3>
             <p className="text-[11px] text-mute leading-snug">5 Stufen Cross-Beruf · KIM-Versand</p>
           </Link>
-          <div className="surface-mute rounded-xl p-3 opacity-60">
-            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
-              QPR 2.0 · Phase B
+          <Link href="/admin/abrechnung" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              live · § 302 SGB V
             </p>
-            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">MD-Audit-Pack</h3>
-            <p className="text-[11px] text-mute leading-snug">DNQP × Bewohner · Doku-Vollständigkeit</p>
-            <p className="text-[10px] mt-1.5 text-soft font-mono">in Vorbereitung</p>
-          </div>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Quartalsabrechnung</h3>
+            <p className="text-[11px] text-mute leading-snug">DTA-§302-Vorschau · Sammelrechnung</p>
+          </Link>
           <div className="surface-mute rounded-xl p-3 opacity-60">
             <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
               TVöD/AVR · Phase C
