@@ -1,9 +1,10 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Wordmark, Logo } from "@/components/Logo";
+import { Wordmark } from "@/components/Logo";
 import { LocaleSwitcher } from "@/components/LocaleSwitcher";
 import { RolePortal } from "@/components/RolePortal";
 import { OnboardingTour } from "@/components/OnboardingTour";
+import { SiteFooter } from "@/components/SiteFooter";
 import { HANDBUCH_KAPITEL, WANDEL_TABELLE, KNEIPP_SAEULEN } from "@/lib/heilkunst/philosophie";
 import { HAUSMITTEL, AETHERISCHE_OELE, ANWENDUNGSTYP_LABEL, ANWENDUNGSTYP_FARBE } from "@/lib/heilkunst/hausmittel";
 import type { Anwendungstyp } from "@/lib/heilkunst/hausmittel";
@@ -415,38 +416,7 @@ export default async function LandingPage() {
         </p>
       </section>
 
-      <footer className="max-w-screen-app mx-auto px-4 sm:px-8 py-10 border-t border-app-soft">
-        <div className="rainbow-bar h-0.5 w-full rounded-full mb-6 opacity-60" />
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-          <div className="flex items-center gap-2.5">
-            <Logo size={20} className="accent-text" />
-            <span className="text-[13px] text-mute">Shalem Care · 2026 · AGPLv3</span>
-          </div>
-          <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-[13px] text-mute">
-            <Link href="/genossenschaft/solidartopf" className="hover:text-[rgb(var(--fg))]">Solidar-Topf</Link>
-            <Link href="/genossenschaft/pool" className="hover:text-[rgb(var(--fg))]">Pool</Link>
-            <Link href="/netz" className="hover:text-[rgb(var(--fg))]">Netz · Übersicht</Link>
-            <Link href="/livemap" className="hover:text-[rgb(var(--fg))]">Live-Map · 24 h</Link>
-            <Link href="/schicht" className="hover:text-[rgb(var(--fg))]">Schicht-Akten</Link>
-            <Link href="/ki" className="hover:text-[rgb(var(--fg))]">KI · Klartext</Link>
-            <Link href="/apotheke" className="hover:text-[rgb(var(--fg))]">Apotheke</Link>
-            <Link href="/medizintechnik" className="hover:text-[rgb(var(--fg))]">MedTech</Link>
-            <Link href="/rettungsdienst" className="hover:text-[rgb(var(--fg))]">Rettungsdienst</Link>
-            <Link href="/bestatter" className="hover:text-[rgb(var(--fg))]">Bestatter</Link>
-            <Link href="/begleitung" className="hover:text-[rgb(var(--fg))]">Würde-Begleitung</Link>
-            <Link href="/entwickler" className="hover:text-[rgb(var(--fg))]">Entwickler-API</Link>
-            <Link href="/compliance" className="hover:text-[rgb(var(--fg))]">Compliance</Link>
-            <Link href="/pflegekraft-werden" className="hover:text-[rgb(var(--fg))]">Pflegekraft werden</Link>
-            <Link href="/traeger-werden" className="hover:text-[rgb(var(--fg))]">Träger werden</Link>
-            <Link href="/faq" className="hover:text-[rgb(var(--fg))]">FAQ</Link>
-            <Link href="/glossar" className="hover:text-[rgb(var(--fg))]">Glossar</Link>
-            <Link href="/kontakt" className="hover:text-[rgb(var(--fg))]">Kontakt</Link>
-            <Link href="/datenschutz" className="hover:text-[rgb(var(--fg))]">Datenschutz</Link>
-            <a href="https://merkabaprojekt.de" className="hover:text-[rgb(var(--fg))]">Merkaba Project</a>
-            <Link href="/pflege" className="hover:text-[rgb(var(--fg))]">App</Link>
-          </div>
-        </div>
-      </footer>
+      <SiteFooter />
     </div>
   );
 }
