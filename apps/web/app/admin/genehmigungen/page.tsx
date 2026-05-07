@@ -8,6 +8,8 @@ import { getShiftType } from "@/lib/fhir";
 import { calculateBreakdown } from "@/lib/tariff";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import Link from "next/link";
+import { listePendingApprovals } from "@/lib/approval/sprint-store";
 
 const SHIFT_LABEL: Record<string, string> = { early: "Früh", late: "Spät", night: "Nacht" };
 
@@ -37,6 +39,8 @@ export default async function ApprovalsPage() {
 
   const matchedCount = offers.filter((o) => o.state === "matched").length;
   const activeCount = sorted.filter((o) => o.state !== "completed" && o.state !== "rejected" && o.state !== "withdrawn").length;
+  const sprintKarten = await listePendingApprovals();
+  const sprintCount = sprintKarten.length;
 
   return (
     <AppShell
@@ -53,6 +57,36 @@ export default async function ApprovalsPage() {
             <>Aktuell wartet keine Tauschanfrage auf dich.</>
           )}
         </p>
+        {sprintCount > 0 && (
+          <Link
+            href="/admin/genehmigungen/sprint"
+            className="block mt-4 rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            style={{
+              background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--vibe-approval) / 0.10))",
+              border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+            }}
+          >
+            <div className="flex items-baseline justify-between gap-3 flex-wrap">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+                  ⚡ Vollbild-Sprint · {sprintCount} {sprintCount === 1 ? "Approval offen" : "Approvals offen"}
+                </p>
+                <h2 className="font-display text-[18px] font-bold tracking-tight2">
+                  Genehmigungs-Sprint starten →
+                </h2>
+                <p className="text-[12px] text-mute mt-1 max-w-prose">
+                  Tausch · HKP · Pflegegrad · eG-Ausschüttung in einem Stack ·
+                  Swipe-Pattern · KI-Empfehlung pro Karte · Combo + Punkte.
+                </p>
+              </div>
+              <div className="flex gap-1.5 text-[11px] font-mono">
+                <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">← ablehnen</span>
+                <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">→ annehmen</span>
+                <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">␣ skip</span>
+              </div>
+            </div>
+          </Link>
+        )}
       </header>
 
       {matchedCount === 0 && activeCount === 0 ? <EmptyApprovals /> : null}
