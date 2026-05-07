@@ -36,8 +36,44 @@ export default function PflegegradCheckPage() {
         </p>
       </section>
 
+      <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-6">
+        <div className="max-w-3xl mx-auto">
+          <Link
+            href="/pflegegrad-check/sprint"
+            className="block rounded-2xl p-5 transition-all hover:scale-[1.01] active:scale-[0.99] mb-6"
+            style={{
+              background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--accent) / 0.10))",
+              border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+            }}
+          >
+            <div className="flex items-baseline justify-between gap-3 flex-wrap">
+              <div>
+                <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+                  ⚡ Vollbild-Quiz mit Live-PG-Prognose
+                </p>
+                <h2 className="font-display text-[20px] font-bold tracking-tight2">
+                  NBA-Sprint starten →
+                </h2>
+                <p className="text-[13px] text-mute mt-1">
+                  Eine Frage pro Bildschirm · Tastatur 1–4 · Fanfare bei
+                  PG-Schwellen-Sprung · Konfetti am Ende.
+                </p>
+              </div>
+              <div className="flex gap-1.5 text-[11px] font-mono">
+                <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">22 Fragen</span>
+                <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">Live-Score</span>
+                <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">5 Min</span>
+              </div>
+            </div>
+          </Link>
+        </div>
+      </section>
+
       <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-12">
         <div className="max-w-3xl mx-auto">
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono text-center mb-3">
+            Oder klassisch · Wizard-Form
+          </p>
           <PgCheckWizard />
         </div>
       </section>
