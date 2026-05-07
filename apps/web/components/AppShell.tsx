@@ -6,10 +6,67 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 // PersonaSwitcher-Import entfernt — Konsolidierung im HauptMenu (siehe UserMenu.tsx)
 import { PersonAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
+import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
+import { Brillenmodus } from "./Brillenmodus";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
 type Role = "nurse" | "lead" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung" | "apotheke" | "medizintechnik" | "rettungsdienst" | "bestatter" | "begleitung";
+
+// Beruf-Akzent-Farbe pro Role · für Sidebar-Border, Mobile-Header,
+// Drawer-Trigger, Brillenmodus-Floater. Wert ist der "Inhalt" der CSS-var
+// ohne `var()`, also direkt einsetzbar als `rgb(${ROLE_PRIMAER[role]} / 0.X)`.
+const ROLE_PRIMAER: Record<Role, string> = {
+  nurse: "var(--mon)",
+  doctor: "var(--vibe-profile)",
+  therapie: "var(--fri)",
+  sozial: "var(--tue)",
+  erziehung: "var(--wed)",
+  ehrenamt: "var(--thu)",
+  hauswirtschaft: "var(--sun)",
+  heilerziehung: "var(--sat)",
+  lead: "var(--vibe-team)",
+  apotheke: "var(--vibe-team)",
+  medizintechnik: "var(--vibe-stats)",
+  rettungsdienst: "var(--mon)",
+  bestatter: "var(--vibe-profile)",
+  begleitung: "var(--wed)",
+};
+
+const ROLE_LABEL: Record<Role, string> = {
+  nurse: "Pflege",
+  doctor: "Arzt",
+  therapie: "Therapie",
+  sozial: "Sozial",
+  erziehung: "Erziehung",
+  ehrenamt: "Ehrenamt",
+  hauswirtschaft: "Hauswirtschaft",
+  heilerziehung: "Heilerziehung",
+  lead: "Stationsleitung",
+  apotheke: "Apotheke",
+  medizintechnik: "Medizintechnik",
+  rettungsdienst: "Rettungsdienst",
+  bestatter: "Bestatter",
+  begleitung: "Begleitung",
+};
+
+// Quell-Beruf für KI-Klartext (vom Brillenmodus an /api/ai/klartext)
+const ROLE_KLARTEXT: Record<Role, string> = {
+  nurse: "pflege",
+  doctor: "arzt",
+  therapie: "therapie",
+  sozial: "sozialarbeit",
+  erziehung: "erziehung",
+  ehrenamt: "ehrenamt",
+  hauswirtschaft: "hauswirtschaft",
+  heilerziehung: "heilerziehung",
+  lead: "lead",
+  apotheke: "apotheke",
+  medizintechnik: "medizintechnik",
+  rettungsdienst: "rettungsdienst",
+  bestatter: "bestatter",
+  begleitung: "begleitung",
+};
 
 const NURSE_NAV = [
   { href: "/pflege/heute",    label: "Heute",          vibe: "var(--accent)",        icon: SparkIcon },
@@ -129,14 +186,40 @@ export async function AppShell({
         ? { href: "/admin", label: "→ Träger-Admin" }
         : { href: "/", label: "→ Startseite" };
 
+  const rolePrimaer = ROLE_PRIMAER[role];
+  const roleLabel = ROLE_LABEL[role];
+  const drawerItems: DrawerItem[] = nav.map((item) => {
+    const Icon = item.icon;
+    return {
+      href: item.href,
+      label: item.label,
+      vibe: item.vibe,
+      iconNode: <Icon />,
+    };
+  });
+
   return (
-    <div className="min-h-screen flex">
-      <aside className="hidden md:flex w-[240px] shrink-0 flex-col border-r border-app-soft bg-[rgb(var(--bg-elev))]">
-        <div className="px-5 pt-5 pb-3">
+    <div className="min-h-screen flex" style={{ background: `linear-gradient(180deg, rgb(${rolePrimaer} / 0.025), transparent 240px)` }}>
+      <aside
+        className="hidden md:flex w-[240px] shrink-0 flex-col bg-[rgb(var(--bg-elev))]"
+        style={{ borderRight: `2px solid rgb(${rolePrimaer} / 0.35)` }}
+      >
+        <div
+          className="px-5 pt-5 pb-3 relative"
+          style={{ background: `linear-gradient(180deg, rgb(${rolePrimaer} / 0.10), transparent)` }}
+        >
           <Link href="/" className="block">
             <Wordmark />
           </Link>
-          <p className="text-[12px] text-soft mt-1.5 ml-9">{station}</p>
+          <div className="mt-1.5 ml-9 flex items-baseline gap-2 flex-wrap">
+            <span
+              className="text-[10px] uppercase tracking-wider font-mono font-semibold"
+              style={{ color: `rgb(${rolePrimaer})` }}
+            >
+              {roleLabel}
+            </span>
+            <span className="text-[12px] text-soft">· {station}</span>
+          </div>
           {/* PersonaSwitcher entfernt — Rollen-Wechsel laeuft jetzt zentral
               ueber das HauptMenu (UserMenu) im globalen Layout, top-right */}
         </div>
@@ -199,23 +282,48 @@ export async function AppShell({
       </aside>
 
       <main className="flex-1 min-w-0">
-        <header className="md:hidden border-b border-app-soft px-4 py-3 flex items-center justify-between gap-2 bg-[rgb(var(--bg-elev))]">
-          <Wordmark />
-          <div className="flex items-center gap-2">
-            <LocaleSwitcher current={locale} />
-            <Link href={switchRole.href} className="text-[12px] text-soft">{switchRole.label}</Link>
+        <header
+          className="md:hidden px-3 py-2.5 flex items-center justify-between gap-2 bg-[rgb(var(--bg-elev))] sticky top-0 z-30"
+          style={{ borderBottom: `2px solid rgb(${rolePrimaer} / 0.35)` }}
+        >
+          <div className="flex items-center gap-2 min-w-0">
+            <MobileNavDrawer
+              items={drawerItems}
+              station={station}
+              user={{ name: user.name, subtitle: user.subtitle }}
+              switchRole={switchRole}
+              rolePrimaer={rolePrimaer}
+              roleLabel={roleLabel}
+            />
+            <div className="min-w-0">
+              <p
+                className="text-[9px] uppercase tracking-wider font-mono leading-tight"
+                style={{ color: `rgb(${rolePrimaer})` }}
+              >
+                {roleLabel}
+              </p>
+              <p className="text-[12px] font-medium leading-tight truncate">{station}</p>
+            </div>
           </div>
-          {/* Mobile Persona-Switcher entfernt — HauptMenu top-right deckt es ab */}
+          <div className="flex items-center gap-1 shrink-0">
+            <LocaleSwitcher current={locale} />
+          </div>
         </header>
 
+        <div
+          aria-hidden
+          className="hidden md:block h-1"
+          style={{ background: `linear-gradient(90deg, rgb(${rolePrimaer}) 0%, rgb(${rolePrimaer} / 0.4) 60%, transparent 100%)` }}
+        />
+
         <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-24 lg:pb-10">
-          <div className="rainbow-bar h-1 rounded-full mb-6 sm:mb-8 opacity-60" />
           {children}
         </div>
       </main>
 
       <UndoBanner />
-      <BottomNav role={mapRoleForBottomNav(role)} />
+      <BottomNav role={mapRoleForBottomNav(role)} rolePrimaer={rolePrimaer} />
+      <Brillenmodus beruf={ROLE_KLARTEXT[role]} rolePrimaer={rolePrimaer} roleLabel={roleLabel} />
     </div>
   );
 }

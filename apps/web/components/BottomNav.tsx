@@ -66,7 +66,13 @@ const HEILERZ_NAV: NavItem[] = [
   { href: "/heilerziehung", label: "Übersicht", icon: <HomeIcon /> },
 ];
 
-export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung" }) {
+export function BottomNav({
+  role,
+  rolePrimaer,
+}: {
+  role: "nurse" | "lead" | "klient" | "doctor" | "therapie" | "sozial" | "erziehung" | "ehrenamt" | "hauswirtschaft" | "heilerziehung";
+  rolePrimaer?: string;
+}) {
   const items =
     role === "lead"           ? LEAD_NAV       :
     role === "klient"         ? KLIENT_NAV     :
@@ -79,10 +85,16 @@ export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "docto
     role === "heilerziehung"  ? HEILERZ_NAV    :
                                 NURSE_NAV;
 
+  const accent = rolePrimaer ?? "var(--accent)";
+
   return (
     <nav
-      className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[rgb(var(--bg-elev)/0.92)] border-t border-app-soft bottom-nav-safe"
-      style={{ backdropFilter: "saturate(180%) blur(12px)", WebkitBackdropFilter: "saturate(180%) blur(12px)" }}
+      className="lg:hidden fixed bottom-0 inset-x-0 z-30 bg-[rgb(var(--bg-elev)/0.92)] bottom-nav-safe"
+      style={{
+        backdropFilter: "saturate(180%) blur(12px)",
+        WebkitBackdropFilter: "saturate(180%) blur(12px)",
+        borderTop: `2px solid rgb(${accent} / 0.35)`,
+      }}
     >
       <ul className="flex items-stretch justify-around max-w-screen-app mx-auto">
         {items.map((item) => (
@@ -90,8 +102,12 @@ export function BottomNav({ role }: { role: "nurse" | "lead" | "klient" | "docto
             <Link
               href={item.href}
               className="flex flex-col items-center justify-center gap-1 py-2.5 px-2 text-[10px] text-mute hover:text-[rgb(var(--fg))] transition-colors group"
+              style={{ ["--bn-accent" as string]: `rgb(${accent})` }}
             >
-              <span className="opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-transform">
+              <span
+                className="opacity-80 group-hover:opacity-100 group-hover:scale-110 transition-all"
+                style={{ color: "var(--bn-accent)" }}
+              >
                 {item.icon}
               </span>
               <span className="font-medium">{item.label}</span>

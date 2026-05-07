@@ -6,6 +6,10 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 // PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
 import { KlientAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
+import { Brillenmodus } from "./Brillenmodus";
+
+const KLIENT_PRIMAER = "var(--wed)";
+const KLIENT_LABEL = "Klient:in";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
@@ -62,7 +66,8 @@ export async function KlientShell({
       </main>
 
       <UndoBanner />
-      <BottomNav role="klient" />
+      <BottomNav role="klient" rolePrimaer={KLIENT_PRIMAER} />
+      <Brillenmodus beruf="klient" rolePrimaer={KLIENT_PRIMAER} roleLabel={KLIENT_LABEL} />
     </div>
   );
 }

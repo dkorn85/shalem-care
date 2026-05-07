@@ -3,6 +3,10 @@ import { Wordmark, Logo } from "./Logo";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 // PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
 import { getLocale } from "@/lib/i18n/server";
+import { Brillenmodus } from "./Brillenmodus";
+
+const KASSE_PRIMAER = "var(--vibe-approval)";
+const KASSE_LABEL = "Krankenkasse";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
@@ -82,6 +86,7 @@ export async function KasseShell({
           </div>
         </div>
       </footer>
+      <Brillenmodus beruf="lead" rolePrimaer={KASSE_PRIMAER} roleLabel={KASSE_LABEL} />
     </div>
   );
 }
