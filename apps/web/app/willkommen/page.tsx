@@ -103,6 +103,9 @@ export default function Willkommen() {
           <Link href="/glossar" className="btn btn-ghost text-[14px] px-4 py-2">
             Glossar
           </Link>
+          <Link href="/faq" className="btn btn-ghost text-[14px] px-4 py-2">
+            FAQ
+          </Link>
           <Link href="/roadmap" className="btn btn-ghost text-[14px] px-4 py-2">
             Roadmap
           </Link>
