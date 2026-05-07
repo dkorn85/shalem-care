@@ -214,6 +214,24 @@ export default async function KlientPage() {
             Anfragen →
           </div>
         </Link>
+        <Link
+          href="/klient/bescheid-quiz"
+          className="surface-hover rounded-2xl p-5 group relative overflow-hidden"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.12), rgb(var(--accent) / 0.08))",
+            border: "2px solid rgb(var(--vibe-stats) / 0.3)",
+          }}
+        >
+          <span aria-hidden className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full" style={{ background: "rgb(var(--vibe-stats))" }} />
+          <div className="ml-2.5">
+            <div className="text-[11px] uppercase tracking-wider font-medium mb-2" style={{ color: "rgb(var(--vibe-stats))" }}>⚡ Quiz · Amtsdeutsch</div>
+            <h3 className="font-display text-[16px] font-semibold tracking-tight2">Bescheid verstehen</h3>
+            <p className="text-[12px] text-mute mt-1.5">6 echte Formulierungen aus Kassen-Briefen · Klartext-Antwort wählen</p>
+            <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-stats))" }}>
+              Quiz starten →
+            </div>
+          </div>
+        </Link>
         <Link href="/klient/bewertung" className="surface-hover rounded-2xl p-5 group">
           <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Rückmeldung</div>
           <h3 className="font-display text-[16px] font-semibold tracking-tight2">Pflegekräfte bewerten</h3>
