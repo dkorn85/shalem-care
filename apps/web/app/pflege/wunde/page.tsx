@@ -91,6 +91,34 @@ export default async function PflegeWundePage() {
         </p>
       </header>
 
+      <Link
+        href="/pflege/wunde/quiz"
+        className="block mb-5 rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
+        style={{
+          background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--accent) / 0.10))",
+          border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+        }}
+      >
+        <div className="flex items-baseline justify-between gap-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+              ⚡ DNQP-Trainings-Modus
+            </p>
+            <h2 className="font-display text-[18px] font-bold tracking-tight2">
+              Wund-Tendenz-Quiz starten →
+            </h2>
+            <p className="text-[12px] text-mute mt-1">
+              5 Vorher/Nachher-Paare · schätze die Tendenz · Punkte + DNQP-Hinweise.
+            </p>
+          </div>
+          <div className="flex gap-1.5 text-[11px] font-mono">
+            <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">↘ besser</span>
+            <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">→ gleich</span>
+            <span className="px-2 py-1 rounded bg-[rgb(var(--bg))]">↗ schlechter</span>
+          </div>
+        </div>
+      </Link>
+
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <Mini label="Wunden gesamt" value={String(wunden.length)} />
         <Mini label="In Bearbeitung" value={String(offen.length)} />
