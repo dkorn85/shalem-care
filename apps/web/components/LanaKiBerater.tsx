@@ -16,6 +16,7 @@
 
 import { useState } from "react";
 import Link from "next/link";
+import { fragLana } from "@/lib/ai/frag-lana";
 
 export type NaechsterTermin = {
   zeit: string;
@@ -50,10 +51,22 @@ export function LanaKiBerater({
   saftZustand?: { rLung: number; tripa: number; beken: number };
 }) {
   const [chatInput, setChatInput] = useState("");
-  const [chatHistorie, setChatHistorie] = useState<{ rolle: "user" | "lana"; text: string }[]>([
+  type ChatItem = {
+    rolle: "user" | "lana";
+    text: string;
+    quellen?: { titel: string; href: string }[];
+    source?: "ki" | "heuristik";
+    meta?: {
+      provider: string;
+      model: string;
+      kostenEur: number;
+      tokens: { input: number; output: number };
+    };
+  };
+  const [chatHistorie, setChatHistorie] = useState<ChatItem[]>([
     {
       rolle: "lana",
-      text: `Hallo. Ich bin Lana und hab heute ein Auge auf ${klientName}. Frag mich was — ich versuche zu helfen, ohne in die Akte einzugreifen.`,
+      text: `Hallo. Ich bin Lana und hab heute ein Auge auf ${klientName}. Frag mich zu Schmerz, Sturz, Ernährung, Hausmitteln — ich beziehe mich auf die DNQP-Standards.`,
     },
   ]);
   const [pending, setPending] = useState(false);
@@ -61,32 +74,46 @@ export function LanaKiBerater({
   const sendeNachricht = async () => {
     const text = chatInput.trim();
     if (!text || pending) return;
+    const historieFuerKi = chatHistorie
+      .filter((m) => m.text)
+      .map((m) => ({ rolle: m.rolle, text: m.text }));
     setChatHistorie((h) => [...h, { rolle: "user", text }]);
     setChatInput("");
     setPending(true);
 
-    // Phase 1: einfache Heuristik-Antwort als Stub.
-    // Phase 2: streamt Anthropic-Antwort + zieht relevante Akte-Snippets via RAG.
-    const lower = text.toLowerCase();
-    let antwort = "Das ist eine wichtige Frage. In Phase 2 schaue ich in die Akte und antworte mit Belegen — heute liefere ich noch ein Stub.";
-    if (lower.includes("schmerz")) {
-      antwort = `Schmerz-Items in der Akte zeigen aktuell NRS 3-4. Letzte Medikation: Novalgin 1g vor 4h. Tipp: vor der nächsten Therapie um 14:00 NRS-Check, Ibuprofen 400mg als Reserve.`;
-    } else if (lower.includes("schlaf")) {
-      antwort = `Schlafqualität letzte Woche: 4×nacht-unruhig, 3×durchgeschlafen. rLung-Energie ist erhöht. Empfehlung: Lavendelöl-Pad nachts, 19:00 leichtes Abendessen.`;
-    } else if (lower.includes("ernähr") || lower.includes("essen")) {
-      antwort = `Speiseplan heute: Mittag Kartoffelsuppe, Abend Vollkornbrot mit Aufschnitt. Protein-Bedarf bei PG 3 + Wundheilung: +20g/Tag empfohlen. Sprich mit Helmut (Hauswirtschaft) für Eiweiß-Shake-Ergänzung.`;
-    } else if (lower.includes("angehör") || lower.includes("familie")) {
-      antwort = `Letzter Familien-Kontakt: 3 Tage her (Tochter Petra). Geburtstag des Enkels in 2 Wochen — gute Gelegenheit für Kontakt-Reminder. Soll ich Petra eine Notification senden?`;
-    } else if (lower.includes("nächst") || lower.includes("plan")) {
-      antwort = naechste.length > 0
-        ? `Als nächstes: ${naechste[0].zeit} ${naechste[0].beruf_label} (${naechste[0].aktivitaet}). Heute insgesamt noch ${naechste.length} geplante Termine.`
-        : "Heute keine weiteren Termine geplant. Morgen geht's weiter.";
-    }
-
-    setTimeout(() => {
-      setChatHistorie((h) => [...h, { rolle: "lana", text: antwort }]);
+    try {
+      const res = await fragLana({
+        frage: text,
+        klientName,
+        naechsteTermine: naechste.map((n) => ({
+          zeit: n.zeit,
+          beruf_label: n.beruf_label,
+          aktivitaet: n.aktivitaet,
+        })),
+        historie: historieFuerKi,
+      });
+      setChatHistorie((h) => [
+        ...h,
+        {
+          rolle: "lana",
+          text: res.antwort,
+          quellen: res.quellen,
+          source: res.source,
+          meta: res.meta,
+        },
+      ]);
+    } catch (err) {
+      setChatHistorie((h) => [
+        ...h,
+        {
+          rolle: "lana",
+          text: "Fehler bei der KI-Anfrage. Versuch es nochmal.",
+          source: "heuristik",
+        },
+      ]);
+    } finally {
       setPending(false);
-    }, 800);
+    }
   };
 
   return (
@@ -227,7 +254,7 @@ export function LanaKiBerater({
         <p className="text-[11px] uppercase tracking-wider font-medium mb-2.5" style={{ color: "rgb(var(--accent))" }}>
           Frag Lana · Chat
         </p>
-        <ul className="space-y-2 max-h-[200px] overflow-y-auto mb-3">
+        <ul className="space-y-2 max-h-[260px] overflow-y-auto mb-3">
           {chatHistorie.map((m, i) => (
             <li
               key={i}
@@ -239,8 +266,30 @@ export function LanaKiBerater({
             >
               <span className="text-[10px] uppercase tracking-wider font-mono block mb-0.5" style={{ color: m.rolle === "user" ? "rgb(var(--fg-mute))" : "rgb(var(--accent))" }}>
                 {m.rolle === "user" ? "du" : "Lana"}
+                {m.source === "ki" && m.meta && (
+                  <span className="ml-1.5 text-soft normal-case">
+                    · {m.meta.model.replace(/-\d{8}$/, "")} · {m.meta.kostenEur.toFixed(4)} €
+                  </span>
+                )}
+                {m.source === "heuristik" && m.rolle === "lana" && (
+                  <span className="ml-1.5 text-soft normal-case">· Heuristik</span>
+                )}
               </span>
               {m.text}
+              {m.quellen && m.quellen.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 mt-2">
+                  {m.quellen.map((q, qi) => (
+                    <Link
+                      key={qi}
+                      href={q.href}
+                      className="text-[10px] px-1.5 py-0.5 rounded font-mono"
+                      style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))" }}
+                    >
+                      {q.titel} →
+                    </Link>
+                  ))}
+                </div>
+              )}
             </li>
           ))}
           {pending && (
@@ -273,7 +322,7 @@ export function LanaKiBerater({
           </button>
         </form>
         <p className="text-[10px] text-soft mt-2 italic">
-          Phase 1: Heuristik-Stub. Phase 2: Anthropic-Stream + RAG über CareTeam-gefilterte Akte-Snippets.
+          Claude mit DNQP-Standards + Hausmittel als Knowledge-Base. Wenn API-Key fehlt: Heuristik-Fallback.
         </p>
       </section>
     </div>

@@ -2,21 +2,33 @@
 
 // Generisches Beruf-Diktat-Tool · konfigurierbar via DiktatProfil.
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import {
   type DiktatProfil,
   type StrukturiertesProtokoll,
   strukturiereDiktat,
 } from "@/lib/beruf-diktat/profile";
+import { strukturiereDiktatMitKi } from "@/lib/beruf-diktat/strukturiere-ki";
+
+type ResultMitQuelle = StrukturiertesProtokoll & {
+  source?: "ki" | "heuristik";
+  meta?: {
+    provider: string;
+    model: string;
+    kostenEur: number;
+    tokens: { input: number; output: number };
+  };
+};
 
 export function BerufDiktat({ profil }: { profil: DiktatProfil }) {
   const [transkript, setTranskript] = useState("");
   const [recording, setRecording] = useState(false);
   const [recordSec, setRecordSec] = useState(0);
   const [audioUrl, setAudioUrl] = useState<string | null>(null);
-  const [result, setResult] = useState<StrukturiertesProtokoll | null>(null);
+  const [result, setResult] = useState<ResultMitQuelle | null>(null);
   const [signedTime, setSignedTime] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [pending, startTransition] = useTransition();
 
   const recRef = useRef<MediaRecorder | null>(null);
   const chunksRef = useRef<Blob[]>([]);
@@ -54,7 +66,17 @@ export function BerufDiktat({ profil }: { profil: DiktatProfil }) {
   const strukturiere = () => {
     if (!transkript.trim()) { setError("Erst Transkript eintragen"); return; }
     setError(null);
-    setResult(strukturiereDiktat(transkript, profil));
+    startTransition(async () => {
+      try {
+        const ki = await strukturiereDiktatMitKi(transkript, profil.id);
+        setResult(ki);
+      } catch (err) {
+        // Fallback auf reine Heuristik wenn Server-Action selbst scheitert
+        const local = strukturiereDiktat(transkript, profil);
+        setResult({ ...local, source: "heuristik" });
+        setError(err instanceof Error ? err.message : "KI-Strukturierung fehlgeschlagen");
+      }
+    });
   };
 
   const updateFeld = (key: string, value: string) => {
@@ -106,12 +128,22 @@ export function BerufDiktat({ profil }: { profil: DiktatProfil }) {
           style={{ outline: "none", lineHeight: 1.5 }}
         />
 
-        <div className="flex items-baseline gap-2 mt-3">
-          <button type="button" onClick={strukturiere} disabled={!transkript.trim()} className="px-3 py-1.5 rounded-md text-[12px] font-medium disabled:opacity-40" style={{ background: `rgb(${leitfarbe})`, color: "white" }}>
-            ✦ KI-Strukturierung
+        <div className="flex items-baseline gap-2 mt-3 flex-wrap">
+          <button type="button" onClick={strukturiere} disabled={!transkript.trim() || pending} className="px-3 py-1.5 rounded-md text-[12px] font-medium disabled:opacity-40" style={{ background: `rgb(${leitfarbe})`, color: "white" }}>
+            {pending ? "✦ Claude denkt …" : "✦ KI-Strukturierung"}
           </button>
-          {transkript && (
+          {transkript && !pending && (
             <button type="button" onClick={() => { setTranskript(""); setResult(null); }} className="text-[11px] text-soft hover:text-[rgb(var(--fg))]">Zurücksetzen</button>
+          )}
+          {result?.source === "ki" && result.meta && (
+            <span className="text-[10px] font-mono text-soft ml-auto">
+              {result.meta.provider} · {result.meta.model.replace(/-\d{8}$/, "")} · {result.meta.tokens.input + result.meta.tokens.output} Tok · {result.meta.kostenEur.toFixed(4)} €
+            </span>
+          )}
+          {result?.source === "heuristik" && (
+            <span className="text-[10px] font-mono text-soft ml-auto">
+              Heuristik · kein KI-Provider verfügbar
+            </span>
           )}
         </div>
         {error && <p className="text-[11px] mt-2" style={{ color: "rgb(var(--mon))" }}>{error}</p>}
