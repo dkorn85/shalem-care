@@ -27,6 +27,7 @@ const DOCTOR_NAV = [
   { href: "/arzt/heute",        label: "Heute",          vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/arzt",              label: "Praxis",        vibe: "var(--vibe-team)",     icon: WardIcon },
   { href: "/arzt/diktat",       label: "Verordnung-Diktat", vibe: "var(--vibe-profile)", icon: SparkIcon },
+  { href: "/arzt/erezepte",     label: "eRezept-Pilot", vibe: "var(--accent)",        icon: SparkIcon },
   { href: "/arzt/dienstplan",   label: "Dienstplan",    vibe: "var(--vibe-plan)",     icon: PlanIcon },
   { href: "/arzt/anfragen",     label: "Anfragen",      vibe: "var(--vibe-approval)", icon: CheckIcon },
   { href: "/arzt/patienten",    label: "Patient:innen", vibe: "var(--vibe-profile)",  icon: TeamIcon },
