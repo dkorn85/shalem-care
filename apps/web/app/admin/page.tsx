@@ -153,6 +153,51 @@ export default async function AdminDashboard() {
         </div>
       </section>
 
+      {/* ─── PVS-Module für Stationsleitung ─────────────── */}
+      <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--vibe-plan))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[11px] uppercase tracking-wider text-soft font-mono">PDL-PVS · MD-Audit · KonTraG · GenG § 38</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Werkzeuge für Stationsleitung</h2>
+          </div>
+          <Link href="/roadmap/pvs" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+            PVS-Reife →
+          </Link>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-4 gap-2">
+          <Link href="/admin/dienstplan/hud" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              live · ArbZG
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Dienstplan-HUD</h3>
+            <p className="text-[11px] text-mute leading-snug">KI-Vorschläge · 3-Zonen-Archiv</p>
+          </Link>
+          <Link href="/admin/verordnungen" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--accent))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+              live · § 37 SGB V
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">HKP-Pipeline</h3>
+            <p className="text-[11px] text-mute leading-snug">5 Stufen Cross-Beruf · KIM-Versand</p>
+          </Link>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
+              QPR 2.0 · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">MD-Audit-Pack</h3>
+            <p className="text-[11px] text-mute leading-snug">DNQP × Bewohner · Doku-Vollständigkeit</p>
+            <p className="text-[10px] mt-1.5 text-soft font-mono">in Vorbereitung</p>
+          </div>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+              TVöD/AVR · Phase C
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Tarif-Lohn-Modul</h3>
+            <p className="text-[11px] text-mute leading-snug">Steuer- + SV-Meldung · ELStAM</p>
+            <p className="text-[10px] mt-1.5 text-soft font-mono">in Vorbereitung</p>
+          </div>
+        </div>
+      </section>
+
       {/* ─── Compliance-Cockpit · ArbZG + Burnout ─────────── */}
       <section className="surface rounded-2xl p-5 mb-6">
         <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
