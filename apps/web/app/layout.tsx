@@ -25,7 +25,12 @@ const SITE = {
   description: "Eine offene Plattform für Pflege, Betreuung und alle sozialen Berufe — gemeinwohlorientiert, FHIR-nativ, genossenschaftlich getragen.",
 };
 
+// Site-URL für OpenGraph/Twitter-Image-Auflösung. Auf Hostinger via
+// SHALEM_SITE_URL setzen, sonst Default.
+const SITE_URL = process.env.SHALEM_SITE_URL ?? "https://shalem.de";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(SITE_URL),
   title: { default: SITE.name, template: `%s · ${SITE.name}` },
   description: SITE.description,
   applicationName: SITE.name,
