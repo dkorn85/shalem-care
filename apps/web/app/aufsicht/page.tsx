@@ -75,13 +75,13 @@ export default async function AufsichtPage({ searchParams }: { searchParams?: Pr
               {bericht.risiko_ampel === "gruen" ? "🟢 Grün · operativ stabil" : bericht.risiko_ampel === "gelb" ? "🟡 Gelb · Beobachtung" : "🔴 Rot · Eskalation"}
             </h2>
           </div>
-          <button
-            type="button"
+          <Link
+            href={`/aufsicht/druck/${bericht.quartal}`}
+            target="_blank"
             className="text-[12px] px-3 py-1.5 rounded-md surface-mute hover:bg-[rgb(var(--bg-mute))]"
-            onClick={() => alert("Phase 2: PDF-Export mit qualifizierter elektronischer Signatur")}
           >
-            📄 Als PDF exportieren
-          </button>
+            📄 Druck-Ansicht · PDF + eIDAS-Signatur
+          </Link>
         </div>
       </section>
 
