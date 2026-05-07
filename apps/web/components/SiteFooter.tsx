@@ -47,6 +47,7 @@ const SPALTEN: Spalte[] = [
       { href: "/livemap",                   label: "Live-Map · 24 h" },
       { href: "/system",                    label: "Bundes-Terminal" },
       { href: "/roadmap",                   label: "Roadmap" },
+      { href: "/roadmap/pvs",               label: "PVS-Reife · 13 Berufe" },
     ],
   },
   {
