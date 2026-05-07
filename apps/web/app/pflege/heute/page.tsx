@@ -139,6 +139,42 @@ export default async function PflegeHeutePage() {
         </section>
       )}
 
+      {/* Schnell-Zugriff: Mini-Games */}
+      <section className="grid sm:grid-cols-2 gap-2 mb-4">
+        <Link
+          href="/pflege/diktat/booster"
+          className="rounded-2xl p-3 transition-all hover:scale-[1.01]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--accent) / 0.10))",
+            border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+            ⚡ Diktat-Booster · Rapid-Fire
+          </p>
+          <h3 className="font-display text-[14px] font-bold tracking-tight2">SIS-Felder treffen</h3>
+          <p className="text-[11px] text-mute mt-0.5 leading-snug">
+            10 Schnipsel · 8-Sek-Timer · Combo-Punkte
+          </p>
+        </Link>
+        <Link
+          href="/pflege/wunde/quiz"
+          className="rounded-2xl p-3 transition-all hover:scale-[1.01]"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--vibe-stats) / 0.15), rgb(var(--accent) / 0.10))",
+            border: "2px solid rgb(var(--vibe-stats) / 0.4)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
+            ⚡ Wund-Tendenz-Quiz · DNQP
+          </p>
+          <h3 className="font-display text-[14px] font-bold tracking-tight2">Verlauf erkennen</h3>
+          <p className="text-[11px] text-mute mt-0.5 leading-snug">
+            Vorher/Nachher · 5 Runden · Lern-Hinweise
+          </p>
+        </Link>
+      </section>
+
       {/* Schnell-Zugriff: Assessment-Skalen */}
       <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--accent))" }}>
         <header className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
