@@ -518,21 +518,21 @@ export default async function LandingPage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mt-8 relative">
             <Link
-              href="/registrieren/demo"
+              href="/demo/leben"
               className="surface-hover rounded-2xl p-5 block group"
               style={{ borderTop: "3px solid rgb(var(--accent))" }}
             >
               <p className="font-mono text-[10px] uppercase tracking-wider mb-1 text-[rgb(var(--accent))]">
-                10 Sekunden
+                ✦ Live · KI · 10 min
               </p>
               <h3 className="font-display text-[18px] font-bold tracking-tight2 mb-1.5">
-                Demo-Account
+                Live-Demo · KI-Schicht
               </h3>
               <p className="text-[12px] text-mute leading-relaxed">
-                Klick dich durch — alle Daten erfunden. Kein Login, kein Risiko.
+                11 Charaktere von Claude gespielt. Eine 8-Stunden-Schicht im Zeitraffer.
               </p>
               <p className="text-[12px] font-medium mt-3 text-[rgb(var(--accent))] group-hover:underline">
-                Jetzt starten →
+                Schicht starten →
               </p>
             </Link>
             <Link
