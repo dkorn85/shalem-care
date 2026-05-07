@@ -202,9 +202,15 @@ export function SimCockpit() {
     }
   }, [aktivePersonas]); // STABIL — keine state-deps
 
-  // Tick-Loop
+  // Tick-Loop · erster Tick sofort beim Start, danach im Intervall
+  const firstTickRef = useRef(true);
   useEffect(() => {
     if (!running) return;
+    if (firstTickRef.current) {
+      firstTickRef.current = false;
+      // Sofortiger Initial-Tick — sonst wirkt die Sim 6s lang tot
+      void tick();
+    }
     const interval = TICK_INTERVAL_MS / speedFaktor;
     const timer = window.setInterval(() => {
       void tick();
