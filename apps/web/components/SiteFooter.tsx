@@ -33,6 +33,7 @@ const SPALTEN: Spalte[] = [
       { href: "/traeger-werden",          label: "Träger werden" },
       { href: "/genossenschaft/beitreten",label: "Mitglied werden" },
       { href: "/registrieren/demo",       label: "Demo-Account" },
+      { href: "/demo/leben",              label: "Live-Demo · KI-Schicht" },
       { href: "/kontakt",                 label: "Kontakt" },
     ],
   },
