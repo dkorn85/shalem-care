@@ -86,6 +86,7 @@ export default async function KonferenzLivePage({
       weitere={weitere}
       preReadsKurz={preReadsKurz}
       dnqpSnapshot={dnqpSnapshot}
+      anlass={k.anlass}
     />
   );
 }
