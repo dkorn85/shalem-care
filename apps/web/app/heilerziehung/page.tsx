@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
@@ -47,6 +48,42 @@ export default async function HeilerziehungPage() {
         <CockpitKpi label="Konferenzen Wo." value={KONFERENZEN.length}          farbe="var(--vibe-approval)" />
         <CockpitKpi label="UK-Setting"     value={2} hint="UK aktiv (Tarek + Lena)" farbe="var(--vibe-profile)" />
       </div>
+
+      {/* Heilerziehung-PVS · ITP + Tagesstruktur + SGB IX */}
+      <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--sat))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Heilerziehungs-PVS · BTHG · SGB IX</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Workflows aus dem PVS-Plan</h2>
+          </div>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Link href="/heilerziehung/teilhabe" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              § 121 SGB IX · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">ITP · Teilhabeplan</h3>
+            <p className="text-[11px] text-mute leading-snug">ICF-basiert · Ressourcen · Hindernisse · Maßnahmen-Ziele</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>Teilhabe-Modul →</p>
+          </Link>
+          <Link href="/heilerziehung/tagesstruktur" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--accent))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+              Modul-Anwesenheit
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Tagesstruktur-Doku</h3>
+            <p className="text-[11px] text-mute leading-snug">Holzwerkstatt · Garten · Schwimmen · Förder-Notizen</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--accent))" }}>Tag öffnen →</p>
+          </Link>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
+              SGB IX · Phase C
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Eingliederungs-Abrechnung</h3>
+            <p className="text-[11px] text-mute leading-snug">Tagessatz + Modul-Buchung · Sozialhilfe-Träger</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+        </div>
+      </section>
 
       <CockpitSection eyebrow="Begleitung" title="Aktive Klient:innen" count={KLIENTEN.length}>
         <ul className="space-y-2">
