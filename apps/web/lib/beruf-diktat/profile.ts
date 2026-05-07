@@ -60,6 +60,42 @@ const EHRENAMT_FELDER: DiktatFeld[] = [
   { key: "uebergabe", label: "Übergabe an Pflege", beschreibung: "Was sollte das Pflegeteam wissen", farbe: "var(--mon)", keywords: ["pflege", "schmerz", "weh", "bemerkt", "auffällig", "blutung"] },
 ];
 
+const HAUSMEISTER_FELDER: DiktatFeld[] = [
+  { key: "auftrag", label: "Auftrag + Standort", beschreibung: "Was · wo · wie dringend", farbe: "var(--mon)", keywords: ["zimmer", "bad", "etage", "küche", "garten", "sanitär", "heizung", "licht", "tür", "fenster"] },
+  { key: "ursache", label: "Ursache + Diagnose", beschreibung: "Was ist defekt / wodurch entstanden", farbe: "var(--vibe-stats)", keywords: ["kaputt", "defekt", "tropft", "bricht", "verstopf", "kurzschluss", "funktion", "lose", "abgenutzt"] },
+  { key: "massnahme", label: "Reparatur-Maßnahme", beschreibung: "Was wurde getan · was wurde ersetzt", farbe: "var(--vibe-team)", keywords: ["repariert", "getauscht", "ersetzt", "abgedichtet", "festgezogen", "gewechselt", "neu eingebaut"] },
+  { key: "material", label: "Material + Kosten", beschreibung: "Welche Teile · welcher Preis", farbe: "var(--accent)", keywords: ["material", "ersatzteil", "schraube", "dichtung", "lampe", "filter", "euro", "kosten"] },
+  { key: "sicherheit", label: "Sicherheits-Hinweis Pflege", beschreibung: "Was muss Pflege-Team wissen / Sturzgefahr / Hygiene", farbe: "var(--sun)", keywords: ["rutsch", "sturz", "haltegriff", "hygiene", "warnung", "achtung", "vorsicht"] },
+  { key: "naechster", label: "Nächster Schritt", beschreibung: "Wartung · Folge-Termin · Bestellung", farbe: "var(--vibe-approval)", keywords: ["nachschauen", "wartung", "bestellt", "übermorgen", "nächste woche", "folge"] },
+];
+
+const REINIGUNG_FELDER: DiktatFeld[] = [
+  { key: "bereich", label: "Bereich + Räume", beschreibung: "Welcher Bereich wurde gereinigt", farbe: "var(--vibe-team)", keywords: ["zimmer", "bad", "wohnbereich", "küche", "flur", "treppenhaus", "etage"] },
+  { key: "art", label: "Reinigungs-Art", beschreibung: "Unterhalts- oder Grundreinigung · Spezial", farbe: "var(--mon)", keywords: ["unterhalt", "grundreinigung", "feucht", "trocken", "desinfek", "spezial", "wäsche"] },
+  { key: "produkte", label: "Reiniger + Produkte", beschreibung: "Welche Mittel · Bio/Blauer Engel", farbe: "var(--sat)", keywords: ["bio", "blauer engel", "desinfek", "essig", "soda", "produkt", "ph-neutral"] },
+  { key: "hygiene", label: "Hygiene-Beobachtung", beschreibung: "Auffälligkeiten · MRSA-Risiko · Schimmel · Ungeziefer", farbe: "var(--vibe-stats)", keywords: ["schimmel", "mrsa", "keim", "ungezief", "feucht", "stockflecken", "geruch"] },
+  { key: "uebergabe", label: "Übergabe Pflege", beschreibung: "Was sollte das Pflege-Team wissen", farbe: "var(--accent)", keywords: ["pflege", "bewohner", "abwesend", "schlaft", "stört", "neuer fleck"] },
+  { key: "auffaellig", label: "Verbrauch + Bestellung", beschreibung: "Was geht zur Neige · was bestellt", farbe: "var(--vibe-approval)", keywords: ["leer", "knapp", "bestell", "fehlt", "papierhandtuch", "seife"] },
+];
+
+const RECYCLING_FELDER: DiktatFeld[] = [
+  { key: "abfallart", label: "Abfall-Art + AVV-Schlüssel", beschreibung: "Was wurde abgeholt · welche Schlüsselnummer", farbe: "var(--sat)", keywords: ["restmüll", "wertstoff", "bio", "papier", "glas", "med", "18 01", "inkontinenz", "pharma"] },
+  { key: "menge", label: "Menge + Volumen", beschreibung: "Wie viel kg · wie viele Behälter", farbe: "var(--accent)", keywords: ["kilo", "kg", "tonne", "behälter", "sack", "fass", "liter"] },
+  { key: "trennung", label: "Mülltrennungs-Quote", beschreibung: "Wie sauber war die Trennung · Fehlwürfe", farbe: "var(--vibe-team)", keywords: ["sauber", "getrennt", "fehlwurf", "kontamin", "vermischt", "korrekt"] },
+  { key: "schulung", label: "Schulungs-Hinweis Pflege", beschreibung: "Wo Pflege-Team Nachschulung braucht", farbe: "var(--sun)", keywords: ["schulung", "nachschulung", "team", "info", "merkblatt"] },
+  { key: "auffaellig", label: "Auffälligkeit", beschreibung: "Vorfälle · Geruch · Sicherheits-Risiko", farbe: "var(--vibe-stats)", keywords: ["geruch", "auslauf", "spitze", "kanüle", "infektion", "vorfall", "verletzung"] },
+  { key: "co2", label: "CO₂-Beitrag + Reporting", beschreibung: "Recyclingquote · Audit-Tagebuch", farbe: "var(--vibe-approval)", keywords: ["co2", "klima", "audit", "report", "quote", "kreislauf"] },
+];
+
+const LEBENSMITTEL_FELDER: DiktatFeld[] = [
+  { key: "menue", label: "Menü + Mahlzeit", beschreibung: "Was wurde geliefert · welche Mahlzeit", farbe: "var(--sun)", keywords: ["frühstück", "mittag", "abend", "menü", "suppe", "salat", "auflauf", "smoothie", "fingerfood"] },
+  { key: "diaet", label: "Diäten + Anpassungen", beschreibung: "Diabetes/Schluckkost/Demenz/Allergien", farbe: "var(--mon)", keywords: ["diabet", "schluck", "dysphagie", "demenz", "vegetarisch", "vegan", "lakto", "glut"] },
+  { key: "qualitaet", label: "Bio + Regional + Saison", beschreibung: "Bio-Anteil · Herkunft · saisonal", farbe: "var(--sat)", keywords: ["bio", "demeter", "regional", "saison", "ernte", "hof", "zertif", "frisch"] },
+  { key: "akzeptanz", label: "Akzeptanz Bewohner:in", beschreibung: "Wer hat gut/schlecht gegessen · Vorlieben", farbe: "var(--vibe-team)", keywords: ["aß gut", "verweigert", "lecker", "schmeckt", "abneig", "verlangt", "wunschspeise"] },
+  { key: "hygiene", label: "Hygiene + Temperatur", beschreibung: "Lieferungs-Temp · HACCP · Charge", farbe: "var(--vibe-stats)", keywords: ["temperatur", "kühlkette", "haccp", "charge", "mhd", "frisch"] },
+  { key: "bestellung", label: "Vorrat + Bestellung", beschreibung: "Was geht zur Neige · was bestellen", farbe: "var(--accent)", keywords: ["aus", "knapp", "bestellt", "milch", "obst", "gemüse", "trinknahrung"] },
+];
+
 const KASSE_FELDER: DiktatFeld[] = [
   { key: "fall", label: "Fall + Versicherte:r", beschreibung: "Wer · Versicherten-Nr · Anliegen", farbe: "var(--vibe-stats)", keywords: ["versichert", "frau", "herr", "geboren", "fall"] },
   { key: "leistung", label: "Beantragte Leistung", beschreibung: "HKP, Reha, Hilfsmittel, Pflegegrad-Anpassung etc.", farbe: "var(--accent)", keywords: ["beantragt", "leistung", "hkp", "reha", "hilfsmittel", "pflegegrad", "krankengeld", "verordnung"] },
@@ -136,6 +172,62 @@ export const PROFILES: Record<string, DiktatProfil> = {
     vs: [
       { name: "Papier-Heft", vorher: "Hand-Notiz, oft nicht digitalisiert", nachher: "Diktat → digital + Pflege-Übergabe automatisch" },
       { name: "kein Anbieter", vorher: "Kein Tool für Ehrenamt", nachher: "Erstes spezialisiertes Begleit-Doku-Tool" },
+    ],
+  },
+
+  hausmeister: {
+    id: "hausmeister",
+    rolle: "hausmeister",
+    titel: "Reparatur-Protokoll diktieren",
+    eyebrow: "Hausmeister · Facility · DGUV V3",
+    beispiel: "Sanitär Etage 3 Zimmer 314, Spülkasten tropft, Dichtung am Eckventil ist abgenutzt. Habe Eckventil komplett getauscht, neue Dichtung eingesetzt. Material 8 Euro 40, ein Eckventil, drei Dichtungsringe. Pflege-Hinweis: Bewohnerin Helga ist sturzgefährdet, Boden nur kurz feucht, Hinweisschild aufgestellt. Wartungs-Folge in zwei Wochen Heizungsfilter prüfen.",
+    felder: HAUSMEISTER_FELDER,
+    klartext_intro: () => "Stations-Hinweis nach Reparatur:",
+    vs: [
+      { name: "Papier-Logbuch", vorher: "Hand-Notiz im Reparatur-Buch · selten an Pflege übergeben", nachher: "Diktat → digital · Sicherheits-Hinweis sofort an Pflege" },
+      { name: "kein Anbieter", vorher: "Hausmeister-Doku in Pflege-Cockpits ungewöhnlich", nachher: "Erstes Reparatur-Diktat mit DNQP-Sturz-Cross-Trigger" },
+    ],
+  },
+
+  reinigung: {
+    id: "reinigung",
+    rolle: "reinigung",
+    titel: "Reinigungs-Protokoll diktieren",
+    eyebrow: "Reinigung · Hygiene-Plan IfSG § 36",
+    beispiel: "Wohnbereich 2 grundgereinigt heute Vormittag, Bad und Toilette desinfiziert mit Blauer-Engel-Reiniger. In Zimmer 217 Schimmelfleck oben an der Decke entdeckt, vermutlich Feuchtigkeit, Hausmeister informiert. Pflege-Hinweis: Bewohner Otto schlief während der Reinigung, nicht gestört. Verbrauch: Papierhandtücher Etage 3 fast leer, bestelle.",
+    felder: REINIGUNG_FELDER,
+    klartext_intro: () => "Reinigungs-Übergabe:",
+    vs: [
+      { name: "Stempel-Listen", vorher: "Reinigungs-Plan mit Häkchen, keine Hygiene-Beobachtung erfasst", nachher: "Diktat → strukturiert · Hygiene-Auffälligkeit + Pflege-Übergabe automatisch" },
+      { name: "kein Anbieter", vorher: "Reinigungskräfte ohne digitales Tool · Sprache oft Hürde", nachher: "Mehrsprachiges Diktat (Phase 2) · Hygiene-Beobachtung gleichberechtigt mit Pflege" },
+    ],
+  },
+
+  recycling: {
+    id: "recycling",
+    rolle: "recycling",
+    titel: "Abfall-Protokoll diktieren",
+    eyebrow: "Recycling · KrWG § 52 · AVV",
+    beispiel: "Heute Wertstoff und Restmüll von Etage 1 und 2 abgeholt. Restmüll achtundvierzig Kilo, Inkontinenz-Material AVV 18 01 04 zweiunddreißig Kilo, Bioabfall siebzehn Kilo. Trennungsquote sehr gut, nur in Etage 2 ein Fehlwurf Glas im Restmüll. Empfehlung: Pflege-Team Etage 2 kurze Auffrischung Mülltrennung. Audit-Tagebuch eingetragen, CO₂-Beitrag minus zwölf Kilo gegenüber Vorwoche.",
+    felder: RECYCLING_FELDER,
+    klartext_intro: () => "Entsorgungs-Übergabe:",
+    vs: [
+      { name: "Lieferschein-Stapel", vorher: "Papier-Schein pro Abholung · keine Quote-Erfassung", nachher: "Diktat → strukturiert · CO₂-Bilanz + Audit-Tagebuch automatisch" },
+      { name: "Kein Anbieter", vorher: "Recycling als reine Logistik-Frage", nachher: "Recycling als Pflege-Partner · DNQP-Cross-Trigger Inkontinenz + Wunde" },
+    ],
+  },
+
+  lebensmittel: {
+    id: "lebensmittel",
+    rolle: "lebensmittel",
+    titel: "Speisen-Protokoll diktieren",
+    eyebrow: "Lebensmittel · DGE-Pflegestandard",
+    beispiel: "Mittagessen heute Wohnbereich 1, Linseneintopf mit Bio-Würstchen aus Demeter-Hof Niederrhein, dreiundzwanzig Portionen verteilt. Diabetes-Variante für Bertha angepasst, Schluck-Portion mit IDDSI Stufe vier für Helga, Demenz-Fingerfood-Variante für Walter. Akzeptanz sehr gut bei zwanzig, Helga hat halb gegessen, Walter hat gestrahlt und alles aufgegessen. Trinknahrung Fresubin geht zur Neige, bestelle morgen. Temperatur bei Lieferung achtundsechzig Grad, HACCP eingehalten.",
+    felder: LEBENSMITTEL_FELDER,
+    klartext_intro: () => "Mahlzeiten-Übergabe an Pflege + Hauswirtschaft:",
+    vs: [
+      { name: "Speiseplan-Excel", vorher: "Standard-Plan ohne Anpassungs-Tracking pro Bewohner", nachher: "Diktat → Diät-Anpassung pro Person · Akzeptanz-Verlauf · DNQP-Ernährungs-Brücke" },
+      { name: "Edeka Foodservice", vorher: "Lieferschein nur · keine Bewohner-Akzeptanz", nachher: "Akzeptanz-Daten zurück an Lieferant · Speiseplan lernt mit" },
     ],
   },
 };
