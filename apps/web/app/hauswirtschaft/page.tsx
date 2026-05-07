@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
@@ -59,6 +60,45 @@ export default async function HauswirtschaftPage() {
         <CockpitKpi label="Touren"          value={ROUTEN.length}              hint={`${ROUTEN.reduce((s, r) => s + r.dauer_min, 0)} min`} farbe="var(--vibe-stats)" />
         <CockpitKpi label="HACCP heute"     value={`${HACCP_HEUTE.length}/${HACCP_HEUTE.length}`} hint="alle erledigt" farbe="var(--thu)" />
       </div>
+
+      {/* Hauswirtschafts-PVS · Speiseplan + HACCP + Lebensmittel-Lieferanten */}
+      <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--sun))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Hauswirtschafts-PVS · LMHV · § 36 IfSG</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Module aus dem PVS-Plan</h2>
+          </div>
+          <Link href="/lebensmittel" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+            Bio-Lieferanten →
+          </Link>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+              IDDSI · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Speiseplan-Software</h3>
+            <p className="text-[11px] text-mute leading-snug">Vorlieben pro Bewohner:in · Diabetes/Schluckkost/Demenz · Lieferanten-Bestellung</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
+              VO (EG) 852/2004 · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">HACCP-Logbuch</h3>
+            <p className="text-[11px] text-mute leading-snug">Temperatur-Logbuch · Reinigungs-Plan · Charge-Verfolgung</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+          <Link href="/expertenstandards#ernaehrung" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              DNQP · 2017
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Ernährungs-Standard</h3>
+            <p className="text-[11px] text-mute leading-snug">MNA-Screening · Co-Lead mit Pflege · Lieferant-Konsil bei Risiko</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>Standard öffnen →</p>
+          </Link>
+        </div>
+      </section>
 
       <CockpitSection eyebrow="Heute" title="Speiseplan">
         <ul className="space-y-2">

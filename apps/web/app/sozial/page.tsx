@@ -68,6 +68,42 @@ export default async function SozialPage() {
         <CockpitKpi label="Reviews fällig" value={HILFEPLAN_REVIEWS.length} hint="≤ 14 Tage" farbe="var(--vibe-approval)" />
       </div>
 
+      {/* Sozial-PVS · BTHG-Abrechnung + § 8a Schutz + Hilfeplan-Pipeline */}
+      <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--tue))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Sozial-PVS · BTHG · SGB IX/XII/VIII</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Workflows aus dem PVS-Plan</h2>
+          </div>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Link href="/sozial/hilfeplan" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              § 36 SGB VIII · § 117 SGB IX
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Hilfeplan-Pipeline</h3>
+            <p className="text-[11px] text-mute leading-snug">Aufnahme → ICF → Maßnahmen → Evaluation → Fortschreibung</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>Fall öffnen →</p>
+          </Link>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
+              SGB IX · XII · Phase C
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">BTHG-Abrechnung</h3>
+            <p className="text-[11px] text-mute leading-snug">Eingliederung + Sozialhilfe-Träger · DTA-Format</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+          <Link href="/sozial/schutz" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--mon))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--mon))" }}>
+              § 8a SGB VIII
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Kindeswohl-Schutz</h3>
+            <p className="text-[11px] text-mute leading-snug">Risiko-Einschätzung · Meldekette · Inobhutnahme</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--mon))" }}>Schutz-Workflow →</p>
+          </Link>
+        </div>
+      </section>
+
       <CrossProfessionInbox beruf="sozialarbeit" items={sozialInbox} kpi={sozialInboxKpi} zugewiesenAn="Mira Wagner" />
 
       <CockpitSection eyebrow="Fälle" title="Meine Fallliste" count={FAELLE.length}>

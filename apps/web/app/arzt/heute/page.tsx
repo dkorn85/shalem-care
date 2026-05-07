@@ -101,6 +101,45 @@ export default async function ArztHeutePage() {
         <Tile label="KI-Zeitersparnis" value="~ 2 h" farbe="var(--vibe-approval)" unten="vs Click-Workflow" />
       </section>
 
+      {/* PVS-Modul-Schnellzugriff: HKP-Verordnung erstellen + DMP + eRezept */}
+      <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-team))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Arzt-PVS · Verordnungen + Programme</p>
+            <h2 className="font-display text-[16px] font-bold tracking-tight2">Was du als Arzt:in jetzt verordnen kannst</h2>
+          </div>
+          <Link href="/admin/verordnungen" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+            Pipeline-Übersicht →
+          </Link>
+        </header>
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <Link href="/admin/verordnungen/neu" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-approval))" }}>
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-approval))" }}>
+              § 37 SGB V
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">HKP-Verordnung</h3>
+            <p className="text-[11px] text-mute leading-snug">Häusliche Krankenpflege · KIM-Versand an Kasse</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>Erstellen →</p>
+          </Link>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
+              gematik · Phase B
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">eRezept</h3>
+            <p className="text-[11px] text-mute leading-snug">Mit HBA + SMC-B · KBV-zugelassenes PVS</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+          <div className="surface-mute rounded-xl p-3 opacity-60">
+            <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
+              § 137f SGB V · Phase C
+            </p>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">DMP-Programme</h3>
+            <p className="text-[11px] text-mute leading-snug">Diabetes T2 · KHK · Asthma · COPD · Brust</p>
+            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
+          </div>
+        </div>
+      </section>
+
       <div className="grid lg:grid-cols-3 gap-4">
         {/* LINKS · Anfragen-Inbox */}
         <div className="lg:col-span-2 space-y-4">

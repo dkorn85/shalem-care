@@ -23,6 +23,12 @@ import {
   naechsteTermineCrossProfession,
 } from "@/lib/pflege/tageshub";
 import { gesamtZeitErsparnis, seedSisOnce } from "@/lib/pflege/sis-store";
+import {
+  listVerordnungen,
+  seedHkpOnce,
+  STATUS_LABEL as HKP_STATUS_LABEL,
+  STATUS_FARBE as HKP_STATUS_FARBE,
+} from "@/lib/pvs/eVerordnung/store";
 
 export const metadata = {
   title: "Pflege · Heute · Tageshub",
@@ -48,6 +54,7 @@ const PRIORITAET_FARBE: Record<string, string> = {
 
 export default async function PflegeHeutePage() {
   seedSisOnce();
+  seedHkpOnce();
   const persona = await getActivePersona(CURRENT_USER_ID, "pflege");
   const personId = persona.demoPersonId ?? CURRENT_USER_ID;
   const user = userPropsAus(persona, {
@@ -66,6 +73,13 @@ export default async function PflegeHeutePage() {
   const massnahmenOffen = offeneMassnahmenZahl(klientIds);
   const ersparnis = gesamtZeitErsparnis(personId);
   const naechsteCross = naechsteTermineCrossProfession(klientIds);
+
+  // Verordnungen, die für die Pflege-Caseload zur Erbringung anstehen
+  const eigeneVerordnungen = listVerordnungen()
+    .filter((v) => klientIds.includes(v.klientId) || v.klientId === "klient-hr")
+    .filter((v) =>
+      ["genehmigt", "in-erbringung", "kim-versendet"].includes(v.status),
+    );
 
   return (
     <AppShell role="nurse" user={user} station="Pulmologie 3B Essen">
@@ -87,6 +101,60 @@ export default async function PflegeHeutePage() {
         <KpiTile label="Tour-Punkte" value={tour.length} farbe="var(--fri)" unten={`${tour.reduce((s, t) => s + t.geschaetzteDauer_min, 0)} min Pflegezeit`} />
         <KpiTile label="Vital fällig" value={vitals.filter((v) => v.faelligIn_min < 0).length} farbe="var(--vibe-stats)" unten={`${vitals.length} Klienten`} />
         <KpiTile label="Energie" value={`${selbst.energie}%`} farbe={selbst.energie > 65 ? "var(--vibe-approval)" : selbst.energie > 40 ? "var(--sun)" : "var(--mon)"} unten={`${selbst.pausen_genommen}/${selbst.pausen_geplant} Pausen`} />
+      </section>
+
+      {/* HKP-Verordnungen für meinen Caseload */}
+      {eigeneVerordnungen.length > 0 && (
+        <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-team))" }}>
+          <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+            <div className="flex items-baseline gap-2">
+              <h2 className="font-display text-[16px] font-bold tracking-tight2">HKP-Verordnungen · zur Erbringung</h2>
+              <span className="text-[11px] text-soft font-mono">§ 37 SGB V · {eigeneVerordnungen.length} aktiv</span>
+            </div>
+            <Link href="/admin/verordnungen" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+              Alle Verordnungen →
+            </Link>
+          </header>
+          <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+            {eigeneVerordnungen.slice(0, 4).map((v) => (
+              <li key={v.id}>
+                <Link href={`/admin/verordnungen/${v.id}`} className="surface-mute rounded-xl p-3 block">
+                  <div className="flex items-baseline gap-2 mb-1 flex-wrap">
+                    <span
+                      className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded-full font-mono"
+                      style={{ background: `rgb(${HKP_STATUS_FARBE[v.status]} / 0.15)`, color: `rgb(${HKP_STATUS_FARBE[v.status]})` }}
+                    >
+                      {HKP_STATUS_LABEL[v.status]}
+                    </span>
+                    <span className="text-[10px] text-soft font-mono ml-auto">{v.datumAusstellung}</span>
+                  </div>
+                  <p className="text-[13px] font-medium leading-snug">{v.leistung.bezeichnung}</p>
+                  <p className="text-[11px] text-soft mt-0.5">
+                    Klient {v.klientId} · {v.leistung.haeufigkeit} · {v.leistung.dauerWochen} Wo
+                  </p>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+      )}
+
+      {/* Schnell-Zugriff: Assessment-Skalen */}
+      <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--accent))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+          <h2 className="font-display text-[16px] font-bold tracking-tight2">DNQP-Skalen · live berechnet</h2>
+          <span className="text-[11px] text-soft font-mono">Braden · NRS · MNA · Tinetti</span>
+        </header>
+        <p className="text-[12px] text-mute leading-relaxed mb-3">
+          Risiko-Klassifikation + Empfehlungen direkt im Cockpit. Bei mittlerem Tinetti-Score automatischer Hausmeister-Auftrag, bei MNA-Risiko Lebensmittel-Konsil.
+        </p>
+        <Link
+          href="/pflege/assessment"
+          className="inline-flex items-center gap-1.5 text-[12px] font-medium px-3 py-1.5 rounded-md"
+          style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))" }}
+        >
+          Assessment öffnen →
+        </Link>
       </section>
 
       <div className="grid lg:grid-cols-3 gap-4">
