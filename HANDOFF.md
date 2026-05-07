@@ -344,18 +344,33 @@ Marketing-Schicht:
   6 Versprechen + 3-Schritt-Pfad + 3 Top-Fragen. CTA zu `team@shalem.de`.
 - `6810fc0` feat: `/traeger-werden` · B2B-Onboarding-Hub mit 6 Argumenten
   + 3-Schritt-Pilot-Pfad + 3 Top-Fragen. CTA zu `traeger@shalem.de`.
+- `05b1100` docs: HANDOFF mit allen 12 Session-Pushes Phase 2.
 
-**Neue Routen (12 zusätzliche öffentliche Pages):** `/error`, `/global-error`,
+Konsolidierung + zusätzliche Themenseite:
+- `8c13a5b` feat: `/pflegekompetenzgesetz` · Erklärbär-Page für PKG 2025
+  mit 3-Sätze-Kern, 3 Perspektiven (Klient/Pflege/Träger) inkl. konkreter
+  Zahlen-Vergleiche alt-vs-neu, Inkrafttretens-Timeline (Q1/2025–Q3/2026),
+  Quellen BMG + SGB XI + DBfK. /leistungen verweist als Hintergrund.
+- `e8bcec9` refactor: `SiteFooter`-Komponente · 5 thematische Spalten
+  (Lernen / Mitmachen / Plattform / Berufe+Werkzeuge / Recht+Über) +
+  Logo-Spalte, Bottom-Bar mit AGPLv3-Vermerk und Mini-Nav.
+- `b347b33` refactor: SiteFooter auch auf `/willkommen` und `/kontakt`
+  ausgerollt — Edukativ-Tools behalten ihren knappen Footer mit
+  Quellenangabe (Quellen-Block ist dort die wichtigere Information).
+
+**Neue Routen (13 zusätzliche öffentliche Pages):** `/error`, `/global-error`,
 `/not-found` (implizit), `/sitemap.xml`, `/robots.txt`, `/kontakt`,
 `/leistungen`, `/pflegegrad-check`, `/tarif`, `/glossar`, `/faq`,
-`/pflegekraft-werden`, `/traeger-werden` — plus Umbau von `/willkommen`.
+`/pflegekraft-werden`, `/traeger-werden`, `/pflegekompetenzgesetz` —
+plus Umbau von `/willkommen`.
 
 **Neue Libraries:** `lib/pflegegrad/leistungen.ts` (SGB-XI-Sätze 2025),
 `lib/pflegegrad/check.ts` (NBA-Module + Score-Logik), `lib/glossar/eintraege.ts`
 (30 Begriffe mit Kategorie + Klartext + Deeplink).
 
 **Neue Komponenten:** `PgCheckWizard` (Client, useState),
-`TarifRechner` (Client, useState), `GlossarFilter` (Client, useMemo).
+`TarifRechner` (Client, useState), `GlossarFilter` (Client, useMemo),
+`SiteFooter` (Server, wiederverwendbar).
 
 **Vorherige Commits aus früheren Sessions:**
 - HauptMenu cleanup (Pfad-Anzeigen entfernt) + Messenger-Discord-Layer
