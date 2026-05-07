@@ -186,14 +186,13 @@ export default async function AdminDashboard() {
             <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Quartalsabrechnung</h3>
             <p className="text-[11px] text-mute leading-snug">DTA-§302-Vorschau · Sammelrechnung</p>
           </Link>
-          <div className="surface-mute rounded-xl p-3 opacity-60">
+          <Link href="/admin/pflegegrad" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--vibe-stats))" }}>
             <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-stats))" }}>
-              TVöD/AVR · Phase C
+              live · §§ 14-18 SGB XI
             </p>
-            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Tarif-Lohn-Modul</h3>
-            <p className="text-[11px] text-mute leading-snug">Steuer- + SV-Meldung · ELStAM</p>
-            <p className="text-[10px] mt-1.5 text-soft font-mono">in Vorbereitung</p>
-          </div>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Pflegegrad-Pipeline</h3>
+            <p className="text-[11px] text-mute leading-snug">NBA · MD-Termin · Bescheid · Widerspruch</p>
+          </Link>
         </div>
       </section>
 
