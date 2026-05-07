@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { Wordmark } from "@/components/Logo";
+import { SiteFooter } from "@/components/SiteFooter";
 
 const PORTALS = [
   { href: "/pflege",         label: "Pflege",         vibe: "var(--mon)",          hint: "Dienstplan, Tour, SIS-Diktat" },
@@ -115,12 +116,7 @@ export default function Willkommen() {
         </div>
       </section>
 
-      <footer className="max-w-screen-app mx-auto w-full px-4 sm:px-8 py-8">
-        <div className="rainbow-bar h-0.5 w-full rounded-full opacity-60" />
-        <p className="text-[12px] text-soft mt-4 font-mono text-center">
-          Shalem Care · 2026 · AGPLv3
-        </p>
-      </footer>
+      <SiteFooter />
     </main>
   );
 }
