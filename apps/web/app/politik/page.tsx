@@ -6,7 +6,8 @@ import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { GesundheitsministerSim } from "@/components/GesundheitsministerSim";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
-import { AGGREGAT_PAKETE, beispielSteuerbescheid } from "@/lib/politik/store";
+import { beispielSteuerbescheid } from "@/lib/politik/store";
+import { liveAggregatPakete, pruefeAnonymisierung } from "@/lib/politik/aggregator";
 
 export const metadata = {
   title: "Politik-Schnittstelle · Aggregat + Simulator",
@@ -45,18 +46,24 @@ export default async function PolitikPage() {
         Verständnis · KI-Was-wäre-wenn-Simulation für Gesundheitsminister:innen.
       </RolePastelHeader>
 
-      {/* 1 · Aggregat-Daten-Pakete */}
+      {/* 1 · Aggregat-Daten-Pakete · live */}
       <section className="mb-6">
-        <header className="mb-3">
-          <p className="text-[10px] uppercase tracking-wider text-soft font-mono">1 · Aggregat-Daten an Institutionen</p>
-          <h2 className="font-display text-[18px] font-semibold mt-0.5">Was wir der Politik geben</h2>
-          <p className="text-[12px] text-mute mt-1 leading-relaxed">
-            Daten-Pakete aus dem täglichen Pflegebetrieb · k-anonymisiert · pro Empfänger maßgeschneidert.
-          </p>
+        <header className="mb-3 flex items-baseline justify-between gap-2 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">1 · Aggregat-Daten an Institutionen · live aus PVS</p>
+            <h2 className="font-display text-[18px] font-semibold mt-0.5">Was wir der Politik geben</h2>
+            <p className="text-[12px] text-mute mt-1 leading-relaxed">
+              Live aggregiert aus Träger-KPIs, Wundverlauf, Pflegegrad-Anträgen und HKP-Pipeline · k-anonym · pro Empfänger maßgeschneidert.
+            </p>
+          </div>
+          <span className="text-[10px] uppercase tracking-wider font-mono px-2 py-1 rounded" style={{ background: "rgb(var(--vibe-approval) / 0.15)", color: "rgb(var(--vibe-approval))" }}>
+            ● live
+          </span>
         </header>
         <ul className="grid lg:grid-cols-2 gap-3">
-          {AGGREGAT_PAKETE.map((p) => {
+          {liveAggregatPakete().map((p) => {
             const f = ZUSTAND_FARBE[p.zustand];
+            const audit = pruefeAnonymisierung(p);
             return (
               <li key={p.id} className="surface rounded-2xl p-4" style={{ boxShadow: `inset 0 0 0 1px rgb(${f} / 0.2)` }}>
                 <header className="mb-2 flex items-baseline justify-between gap-2 flex-wrap">
@@ -68,12 +75,16 @@ export default async function PolitikPage() {
                     {p.zustand.replace("_", " ")}
                   </span>
                 </header>
-                <div className="flex items-baseline gap-2 mb-2 text-[10px] text-soft font-mono">
+                <div className="flex items-baseline gap-2 mb-2 text-[10px] text-soft font-mono flex-wrap">
                   <span>k≥{p.k_anonymitaet}</span>
                   <span>·</span>
                   <span>{p.granularitaet}</span>
                   <span>·</span>
                   <span>{p.rechtsgrundlage}</span>
+                  <span>·</span>
+                  <span style={{ color: audit.bestehtKMin ? "rgb(var(--vibe-approval))" : "rgb(var(--mon))" }}>
+                    Re-ID-Risiko {(audit.reIdRisiko * 100).toFixed(0)}%
+                  </span>
                 </div>
                 <p className="text-[12px] text-mute leading-relaxed mb-2.5">{p.beschreibung}</p>
                 <ul className="space-y-1">
