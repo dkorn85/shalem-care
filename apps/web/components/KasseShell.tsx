@@ -4,6 +4,7 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 // PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
 import { getLocale } from "@/lib/i18n/server";
 import { Brillenmodus } from "./Brillenmodus";
+import { GameModeToggle } from "./GameModeToggle";
 
 const KASSE_PRIMAER = "var(--vibe-approval)";
 const KASSE_LABEL = "Krankenkasse";
@@ -87,6 +88,7 @@ export async function KasseShell({
         </div>
       </footer>
       <Brillenmodus beruf="lead" rolePrimaer={KASSE_PRIMAER} roleLabel={KASSE_LABEL} />
+      <GameModeToggle />
     </div>
   );
 }

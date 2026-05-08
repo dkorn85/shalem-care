@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Wordmark } from "@/components/Logo";
 import { PgCheckWizard } from "@/components/PgCheckWizard";
 import { SiteFooter } from "@/components/SiteFooter";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 
 export const metadata = {
   title: "Pflegegrad-Check · Schätzung in 5 Minuten",
@@ -38,6 +39,7 @@ export default function PflegegradCheckPage() {
 
       <section className="max-w-screen-app mx-auto w-full px-4 sm:px-8 pb-6">
         <div className="max-w-3xl mx-auto">
+          <GameModeOnly>
           <Link
             href="/pflegegrad-check/sprint"
             className="block rounded-2xl p-5 transition-all hover:scale-[1.01] active:scale-[0.99] mb-6"
@@ -66,6 +68,7 @@ export default function PflegegradCheckPage() {
               </div>
             </div>
           </Link>
+          </GameModeOnly>
         </div>
       </section>
 

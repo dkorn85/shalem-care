@@ -9,6 +9,7 @@ import { computeCoordinatorSuggestions } from "@/lib/dispo/actions";
 import { getSlotImportSource } from "@/lib/dispo/store";
 import { aktuelle as aktuellerKiPlan } from "@/lib/dienstplan/plan-history";
 import { eachDayOfInterval, isSameDay, startOfWeek, endOfWeek } from "date-fns";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 
 export default async function DienstplanPage({
   searchParams,
@@ -131,6 +132,7 @@ export default async function DienstplanPage({
           Klick auf eine Zelle zum Bearbeiten · neue Schicht anlegen · Schicht in den Tausch-Markt
           freigeben · KI-Vorschlag für freie Slots übernehmen.
         </p>
+        <GameModeOnly>
         <Link
           href="/admin/dienstplan/arena"
           className="block mt-4 rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
@@ -159,6 +161,7 @@ export default async function DienstplanPage({
             </div>
           </div>
         </Link>
+        </GameModeOnly>
         <div className="flex items-center gap-3 mt-4 flex-wrap">
           <Link
             href="/admin/dienstplan/import"

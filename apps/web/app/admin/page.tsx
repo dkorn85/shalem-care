@@ -17,6 +17,7 @@ import Image from "next/image";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 
 export default async function AdminDashboard() {
   seedOnce();
@@ -136,7 +137,8 @@ export default async function AdminDashboard() {
         </section>
       )}
 
-      {/* ─── Mini-Game-Schnellzugriff ──────────────────────── */}
+      {/* ─── Mini-Game-Schnellzugriff · nur bei aktivem Game-Mode ── */}
+      <GameModeOnly>
       <section className="grid sm:grid-cols-3 gap-2 mb-6">
         <Link
           href="/admin/dienstplan/arena"
@@ -195,6 +197,7 @@ export default async function AdminDashboard() {
           <p className="text-[11px] text-mute mt-0.5">DNQP/MDK-Standards · Multi-Select</p>
         </Link>
       </section>
+      </GameModeOnly>
 
       {/* ─── Wirtschaftlichkeits-Cockpit ───────────────────── */}
       <section className="surface rounded-2xl p-5 mb-6">

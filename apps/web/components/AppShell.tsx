@@ -8,6 +8,7 @@ import { PersonAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
 import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
 import { Brillenmodus } from "./Brillenmodus";
+import { GameModeToggle } from "./GameModeToggle";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
@@ -324,6 +325,7 @@ export async function AppShell({
       <UndoBanner />
       <BottomNav role={mapRoleForBottomNav(role)} rolePrimaer={rolePrimaer} />
       <Brillenmodus beruf={ROLE_KLARTEXT[role]} rolePrimaer={rolePrimaer} roleLabel={roleLabel} />
+      <GameModeToggle />
     </div>
   );
 }

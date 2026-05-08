@@ -7,6 +7,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CURRENT_USER_ID } from "@/lib/seed";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { caseloadFuerPflegekraft } from "@/lib/pflege/tageshub";
 import {
@@ -91,6 +92,7 @@ export default async function PflegeWundePage() {
         </p>
       </header>
 
+      <GameModeOnly>
       <Link
         href="/pflege/wunde/quiz"
         className="block mb-5 rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
@@ -118,6 +120,7 @@ export default async function PflegeWundePage() {
           </div>
         </div>
       </Link>
+      </GameModeOnly>
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <Mini label="Wunden gesamt" value={String(wunden.length)} />

@@ -10,6 +10,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import Link from "next/link";
 import { listePendingApprovals } from "@/lib/approval/sprint-store";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 
 const SHIFT_LABEL: Record<string, string> = { early: "Früh", late: "Spät", night: "Nacht" };
 
@@ -58,6 +59,7 @@ export default async function ApprovalsPage() {
           )}
         </p>
         {sprintCount > 0 && (
+          <GameModeOnly>
           <Link
             href="/admin/genehmigungen/sprint"
             className="block mt-4 rounded-2xl p-4 transition-all hover:scale-[1.01] active:scale-[0.99]"
@@ -86,6 +88,7 @@ export default async function ApprovalsPage() {
               </div>
             </div>
           </Link>
+          </GameModeOnly>
         )}
       </header>
 

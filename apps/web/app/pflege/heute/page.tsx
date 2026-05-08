@@ -29,6 +29,7 @@ import {
   STATUS_LABEL as HKP_STATUS_LABEL,
   STATUS_FARBE as HKP_STATUS_FARBE,
 } from "@/lib/pvs/eVerordnung/store";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 
 export const metadata = {
   title: "Pflege · Heute · Tageshub",
@@ -139,7 +140,8 @@ export default async function PflegeHeutePage() {
         </section>
       )}
 
-      {/* Schnell-Zugriff: Mini-Games */}
+      {/* Schnell-Zugriff: Mini-Games · nur bei Game-Mode */}
+      <GameModeOnly>
       <section className="grid sm:grid-cols-2 gap-2 mb-4">
         <Link
           href="/pflege/diktat/booster"
@@ -174,6 +176,7 @@ export default async function PflegeHeutePage() {
           </p>
         </Link>
       </section>
+      </GameModeOnly>
 
       {/* Schnell-Zugriff: Assessment-Skalen */}
       <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--accent))" }}>

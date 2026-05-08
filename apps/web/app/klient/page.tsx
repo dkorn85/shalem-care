@@ -20,6 +20,7 @@ import { BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
 import { getActivePersona } from "@/lib/auth/active-user";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 
 const KLIENT_ID = "klient-hr";
 
@@ -214,6 +215,7 @@ export default async function KlientPage() {
             Anfragen →
           </div>
         </Link>
+        <GameModeOnly>
         <Link
           href="/klient/bescheid-quiz"
           className="surface-hover rounded-2xl p-5 group relative overflow-hidden"
@@ -232,6 +234,7 @@ export default async function KlientPage() {
             </div>
           </div>
         </Link>
+        </GameModeOnly>
         <Link href="/klient/bewertung" className="surface-hover rounded-2xl p-5 group">
           <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Rückmeldung</div>
           <h3 className="font-display text-[16px] font-semibold tracking-tight2">Pflegekräfte bewerten</h3>

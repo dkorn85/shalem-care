@@ -7,6 +7,7 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 import { KlientAvatar } from "./Avatar";
 import { getLocale } from "@/lib/i18n/server";
 import { Brillenmodus } from "./Brillenmodus";
+import { GameModeToggle } from "./GameModeToggle";
 
 const KLIENT_PRIMAER = "var(--wed)";
 const KLIENT_LABEL = "Klient:in";
@@ -68,6 +69,7 @@ export async function KlientShell({
       <UndoBanner />
       <BottomNav role="klient" rolePrimaer={KLIENT_PRIMAER} />
       <Brillenmodus beruf="klient" rolePrimaer={KLIENT_PRIMAER} roleLabel={KLIENT_LABEL} />
+      <GameModeToggle />
     </div>
   );
 }
