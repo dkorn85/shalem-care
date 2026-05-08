@@ -1,9 +1,11 @@
 # Shalem Care · Session-Handoff
 
 **Stand:** 2026-05-08 · für die nächste Session
-**Branch:** `main` direkt · **207 Routen** · `tsc --noEmit` exit 0
-**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · 5 neue Beruf-Cockpits ·
-**Expertise-Modus** (Lerne/Praxis/Profi) auf **13 Cockpits** live · 4 zusätzliche KI-Funktionen
+**Branch:** `main` direkt · **208 Routen** · `tsc --noEmit` exit 0
+**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games ·
+**Expertise-Modus** auf **17 Cockpits** durchgängig · 4 KI-Funktionen ·
+**Schein-Optik** für Kasse mit 5 KI-Bild-Assets · Ehrenamt-Begleit-Cockpit live ·
+[Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
 ---
 
@@ -23,7 +25,9 @@
 - **Voll-WebRTC** mit Supabase-Signaling · RTCPeerConnection-Mesh ≤4 Peers
 - 11 Berufe mit eindeutiger **Akzent-Farbe** in Sidebar/Header/BottomNav
 - **🎮 Game-Mode** als optionaler Spielmodus · 15 Mini-Games über alle Berufe
-- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · 13 Cockpits durchgängig mit Lern-Tipps + Profi-KPI-Blöcken (auch Kasse-Portal über KasseShell)
+- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · 17 Cockpits durchgängig (auch Kasse-Portal über KasseShell, auch Genossenschaft via `expertiseRolleOverride`)
+- **📜 Schein-Optik** im Kasse-Portal · Original-Look Muster 1 (gelb) / Muster 12 (rosé) / formaler Bescheid-Brief mit Briefkopf · 5 KI-generierte Stempel-/Papier-Assets via mix-blend-mode komponiert
+- **🤝 Ehrenamt-Begleit-Cockpit** mit Stimmungs-Sparkline 1–5 (DHPV-Curriculum), Lebenslagen-Tags, Trübe-Warnung bei 2× ≤2 in Folge, Biografie nach Schuchardt
 - **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
 - **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
 
@@ -98,6 +102,50 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 17 · Schein-Optik Kasse · Ehrenamt-Workflow · GenG-Expertise · Layout-Fix (Session 19 · 2026-05-08)
+
+**Schein-Optik im Kasse-Portal (`5965d47`, `ba3bbd9`):**
+
+| Komponente | Datei | Look |
+|---|---|---|
+| `<MusterZwoelfHKP>` | `components/scheine/MusterZwoelfHKP.tsx` | rosé HKP-Verordnung mit Vordruck-Linien, IK/LANR/BSNR-Grid, Maßnahmen-Tabelle |
+| `<MusterEinsAU>` | `components/scheine/MusterEinsAU.tsx` | kanariengelbe AU-Bescheinigung mit roten Druck-Linien, Diagnose+ICD-Chips |
+| `<KassenBescheidBrief>` | `components/scheine/KassenBescheidBrief.tsx` | formaler Brief mit Wellen-Logo, Anschriften-Fenster, Rechtsbehelfsbelehrung |
+| `<KlartextSpalte>` | `components/scheine/KlartextSpalte.tsx` | Side-by-side Original ↔ Lana-Klartext + Glossar + nächste Schritte |
+
+**5 KI-generierte Bild-Assets** (`public/scheine/`):
+- `stempel-praxis.png` · runder Praxis-Stempel mit BSNR/LANR · `nano_banana_2`
+- `stempel-bewilligt.png` · grüner „BEWILLIGT"-Tintenstempel
+- `stempel-abgelehnt.png` · roter „ABGELEHNT"-Tintenstempel
+- `papier-textur.png` · kachelbare Briefpapier-Faserung
+- `wm-eau.png` · diagonales eAU-KIM-Wasserzeichen
+
+Alles via `mix-blend-mode: multiply` komponiert — weißer Hintergrund verschwindet, nur die Tinte bleibt. Geheuristik in `lib/kasse/bescheid-daten.ts` baut aus jedem `KassenVorgang` automatisch den passenden Schein + ein vorgangs-spezifisches Klartext-Paket.
+
+**Ehrenamt-Begleit-Cockpit (`17a89f4`):**
+
+| Datei | Was |
+|---|---|
+| `lib/ehrenamt/begleit-store.ts` | 3 Klient:innen mit 5–8 Termin-Verläufen · Stimmung 1–5 (DHPV) · Lebenslagen-Tags · Tendenz-Helper |
+| `/ehrenamt/begleitung` | Liste mit Tendenz-Chips · Lerne: Schuchardt-Biografie · Profi: Lebenslagen-Verteilung |
+| `/ehrenamt/begleitung/[id]` | Sparkline-Verlauf · Trübe-Warnung bei 2× Stimmung ≤2 in Folge · Biografie · Lebenslagen-Chips · vereinbarte Grenzen · Termin-Liste |
+
+**Genossenschaft-Expertise (`fea69bd`, `d301111`):**
+
+| Cockpit | Lerne (Mitglied) | Profi (Aufsichtsrat) |
+|---|---|---|
+| `/genossenschaft/pool` | GenG § 1 + BAP-Marge | Pool-Auslastung · Bedarfe/Stellen-Match · Marge-Ersparnis |
+| `/genossenschaft/solidartopf` | GenG § 17 + Cap-Logik | Reserve-Status · Claim-Quote · Cap-Tage · § 17-Bezug |
+| `/genossenschaft/ausschuettung` | GenG § 19 + Workflow Vorstand→AR→SEPA | Genehmigungs-Stau · Auszahlungs-Quote · Σ YTD · § 19-Rechtsbasis |
+
+`AppShell` bekam `expertiseRolleOverride`-Prop, damit GenG-Pages mit `role="nurse"`/`role="lead"` trotzdem den Genossenschafts-Toggle zeigen.
+
+**Layout-Fix (`367ba48`):**
+GameMode-FAB (`bottom-36` mobile = 144px) verdeckte Inhalt — `pb-24` reichte nicht. AppShell jetzt `pb-48 lg:pb-32`, KasseShell nachgezogen + Footer mit `pb-24 lg:pb-10`.
+
+**Konzept-Doc (`735ad08`):**
+[`docs/EXPERTISE_KONZEPT.md`](docs/EXPERTISE_KONZEPT.md) hält pro Beruf systematisch fest, wer in welcher Stufe was sieht (Pflege: Azubi/Pflegekraft/Pflegeprofi · Arzt: Assistenz/Facharzt/Oberarzt · …) und gibt Faustregeln für künftige Cockpits.
 
 ### 16 · 5 echte Beruf-Cockpits · Expertise-Modus · 4 KI-Funktionen (Session 18 · 2026-05-08)
 
@@ -239,14 +287,14 @@ chmod 600 ~/.git-credentials
 | 🌱 Heilerziehung | Diktat · **Teilhabepläne BTHG + P-Budget** | Diktat | ICF-Lebenswelten | ✓ Liste+Detail |
 | 🍲 Hauswirtschaft | Diktat · **DGE-Wochenplan + Allergen-Filter** | Diktat · **Speiseplan-KI** | Kostform-Puzzle | ✓ Wochenplan |
 | 🌻 Erziehung | Diktat · **Carr-Lerngeschichten** | Diktat · **Lerngeschichte-Entwurf-KI** | Bildungs-Bingo | ✓ Liste+Detail |
-| 🤝 Ehrenamt | Begleit-Diktat · Aufwands-Rechner | — | Begleit-Bingo | ✓ Cockpit |
+| 🤝 Ehrenamt | Begleit-Diktat · Aufwands-Rechner · **Begleit-Cockpit mit Stimmungs-Sparkline** | — | Begleit-Bingo | ✓ Cockpit + Liste + Detail |
 | 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
-| 💶 Krankenkasse | Bescheid-Diktat · Vorgangs-Eingangskorb | — | — | ✓ Portal |
-| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus | KI-Klartext | NBA-Sprint · Bescheid-Quiz | — |
-| 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | — |
+| 💶 Krankenkasse | Bescheid-Diktat · Eingangskorb · **Schein-Optik Muster 1/12 + Bescheid-Brief mit KI-Stempel-Assets** | — | — | ✓ Portal + Vorgang |
+| 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | **✓ Pool + Solidartopf + Ausschüttung** |
+| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus | KI-Klartext | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~82 % live · 15 Mini-Games über 11 Routen verteilt, jeder Beruf hat seinen optionalen Spaß-Modus, 7 Berufe haben echte Workflow-Cockpits über das Diktat hinaus, Expertise-Modus durchgängig auf 13 Cockpits inklusive Kasse-KasseShell.
+**Aktueller Reifegrad gesamt:** ~85 % live · 15 Mini-Games, 8 Berufe haben echte Workflow-Cockpits über das Diktat hinaus (jetzt auch Ehrenamt), Expertise-Modus durchgängig auf 17 Cockpits inkl. Kasse-Portal und Genossenschaft, Schein-Optik mit Original-Look + KI-Stempeln.
 
 ---
 
@@ -276,7 +324,11 @@ chmod 600 ~/.git-credentials
 - [x] 15 Mini-Games hinter optionalem 🎮-Toggle
 - [x] 5 echte Beruf-Cockpits (Therapie · Sozial · HE · HW · Erz) über das Diktat hinaus
 - [x] 4 zusätzliche KI-Funktionen pro Cockpit
-- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + KasseShell + 13 Cockpits gewired
+- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + KasseShell + 17 Cockpits gewired (inkl. Genossenschaft via override)
+- [x] Schein-Optik im Kasse-Portal (Muster 1/12 + Bescheid-Brief) mit 5 KI-Bild-Assets
+- [x] Ehrenamt-Begleit-Cockpit als echtes Workflow-Cockpit (Stimmungs-Sparkline + Lebenslagen)
+- [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert
+- [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
 
 ### Priorität A · Pending User-Aktionen (organisatorisch)
 
@@ -313,10 +365,10 @@ chmod 600 ~/.git-credentials
 - [ ] Mobile-Drawer · Search-Filter wenn Sidebar > 10 Items
 - [ ] Game-Mode · Highscore-Liste pro Beruf (anonym, ohne Login)
 - [ ] Game-Mode · Lana-Phrasen je Beruf-Persönlichkeit personalisieren
-- [ ] Ehrenamt-Workflow-Cockpit (Biographie-Box · Lebenslagen · Begleit-Verlauf)
-- [ ] Kasse-Bescheid-Pipeline-Cockpit (Eingang → Klartext → Versand · Versicherten-Sicht)
-- [ ] Klient:in-Expertise-Modus (eigener Pfad, evtl. „teilhabe"-Variante)
-- [ ] Genossenschaft-Expertise-Modus für Mitglied/Vorstand/Aufsichtsrat
+- [ ] Pflege-Sub-Cockpits Expertise (`/pflege/wunde`, `/pflege/assessment`, `/pflege/tour`)
+- [ ] Versicherten-Sicht für Bescheide (Klient bekommt seinen Bescheid in Klartext)
+- [ ] echte Stempel-Bild-Assets im Print-Stylesheet (`@media print`)
+- [ ] Schein-Optik-Konzept auf andere Berufe ausweiten (Therapie-Heilmittel-VO, Sozial-Hilfeplan-Antrag)
 
 ---
 
@@ -381,6 +433,7 @@ chmod 600 ~/.git-credentials
 docs/
   PVS_STRATEGIE.md             Strategie + Phasen + Modul-Matrix
   HANDOFF.md                    Diese Datei
+  EXPERTISE_KONZEPT.md          3 Stufen pro Beruf systematisch (Azubi/Praxis/Profi)
   STRATEGIE_TEAM_WOW.md         Branchen-Studien-Anker
 
 apps/web/
@@ -405,11 +458,16 @@ apps/web/
     politik/ · termine/ · genossenschaft/{pool,solidartopf,ausschuettung}/
 
   components/
-    AppShell.tsx                Sidebar · Mobile-Drawer · Beruf-Akzent · ExpertiseChip-Slot
+    AppShell.tsx                Sidebar · Mobile-Drawer · Beruf-Akzent · ExpertiseChip-Slot · expertiseRolleOverride
+    KasseShell.tsx              Kostenträger-Portal-Shell · ExpertiseChip-Slot · pb-Korrektur
     ExpertiseChip.tsx           Lerne/Praxis/Profi-FAB-Toggle pro Beruf
     ExpertiseGate.tsx           <NurAbProfi>, <NurBeiLerne>, <NurAb / NurBis>
     LerneTipp.tsx               Glossar-Banner für Casual/Azubi · nur im lerne-Modus
-    Sparkline.tsx               Mini-Chart für VAS/ROM/MRC-Verlauf (Therapie)
+    Sparkline.tsx               Mini-Chart für VAS/ROM/MRC + Stimmung 1–5
+    scheine/MusterEinsAU.tsx    AU gelb · Muster 1 KBV-Look
+    scheine/MusterZwoelfHKP.tsx HKP rosé · Muster 12 KBV-Look
+    scheine/KassenBescheidBrief.tsx Bescheid-Brief mit Briefkopf + Stempel
+    scheine/KlartextSpalte.tsx  Side-by-side Original ↔ Klartext + Glossar
     IcfVorschlagBox.tsx         Sozial-Bedarfs-Text → ICF-Codes (Lana)
     TherapieBriefBox.tsx        Therapie-Sitzungen → Hausarzt-Brief (Lana)
     SpeiseplanKiBox.tsx         HW-Klient + Kostform → Wochenplan-Vorschlag (Lana)
@@ -431,6 +489,12 @@ apps/web/
     hauswirtschaft/speiseplan-ki.ts Kostform-Plan-Vorschlag
     erziehung/lerngeschichten-store.ts BBP-Bereiche · Carr-Dispositionen
     erziehung/lerngeschichte-ki.ts Beobachtung → Entwurf
+    ehrenamt/begleit-store.ts   3 Klient:innen · Stimmung 1–5 · Lebenslagen · Tendenz-Helper
+    kasse/bescheid-daten.ts     Heuristik VorgangsTyp → Schein + Klartext-Paket
+
+  public/scheine/
+    stempel-praxis.png · stempel-bewilligt.png · stempel-abgelehnt.png
+    papier-textur.png · wm-eau.png  (KI-generiert via nano_banana_2)
     games/quiz-{arzt,therapie,sozial,heilerziehung,hauswirtschaft,erziehung,ehrenamt}.ts
     dienstplan/arena-score.ts · approval/sprint-{store,actions}.ts
     audit/hunt-faelle.ts · wirtschaft/sandbox-modell.ts
