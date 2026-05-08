@@ -2,6 +2,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { WochenplanGrid } from "@/components/WochenplanGrid";
+import { SpeiseplanKiBox } from "@/components/SpeiseplanKiBox";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
 export const metadata = {
@@ -33,6 +34,10 @@ export default async function HauswirtschaftWochenplanPage() {
       </RolePastelHeader>
 
       <WochenplanGrid />
+
+      <div className="mt-4">
+        <SpeiseplanKiBox />
+      </div>
 
       <section className="surface rounded-2xl p-5 sm:p-6 mt-4">
         <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Phase 2 · was als nächstes</p>
