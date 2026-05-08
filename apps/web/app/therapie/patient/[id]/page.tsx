@@ -6,7 +6,9 @@ import { Sparkline } from "@/components/Sparkline";
 import { TherapieBriefBox } from "@/components/TherapieBriefBox";
 import { LerneTipp } from "@/components/LerneTipp";
 import { NurAbProfi } from "@/components/ExpertiseGate";
-import { getTherapiePatient, listTherapiePatienten, tendenzVas } from "@/lib/therapie/verlauf";
+import { MusterDreizehnHMV } from "@/components/scheine/MusterDreizehnHMV";
+import { DruckenButton } from "@/components/scheine/DruckenButton";
+import { getTherapiePatient, listTherapiePatienten, tendenzVas, type TherapiePatient } from "@/lib/therapie/verlauf";
 
 export const metadata = { title: "Therapie · Patient:in" };
 
@@ -194,6 +196,18 @@ export default async function TherapiePatientPage({ params }: { params: Promise<
         </section>
       </NurAbProfi>
 
+      {/* Aktuelle HMV in Original-Optik */}
+      <section className="mt-5">
+        <header className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+          <div>
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Aktuelle Verordnung</p>
+            <h2 className="font-display text-[18px] font-bold tracking-tight2">Heilmittel-Verordnung · Muster 13</h2>
+          </div>
+          <DruckenButton label="🖨 HMV drucken" />
+        </header>
+        <MusterDreizehnHMV daten={baueMusterDreizehn(patient)} />
+      </section>
+
       <TherapieBriefBox patientId={patient.id} hatTermine={patient.termine.length > 0} />
 
       <section className="surface rounded-2xl p-5 mt-5">
@@ -258,3 +272,56 @@ function MetrikKarte({
 function cssRoot(token: string) {
   return token; // CSS akzeptiert `rgb(var(--xx) / 0.12)` direkt
 }
+
+// HMV-Code → Diagnosegruppe-Code (vereinfachte Mapping-Tabelle).
+const DIAGGRUPPE: Record<string, string> = {
+  WS: "Wirbelsäule",
+  EX: "Extremitäten",
+  ZN: "Zentral-Nervensystem",
+  SP: "Sprache",
+  PS: "Psychomotorik",
+};
+
+// TherapiePatient → MusterDreizehnDaten · für die Schein-Darstellung.
+function baueMusterDreizehn(p: TherapiePatient) {
+  // VO-Text in Leistung + Anzahl zerlegen (z.B. „KG-Mobilisation 12×")
+  const m = p.vo.match(/^(.+?)\s*(\d+)\s*[×x]/);
+  const leistung = m ? m[1].trim() : p.vo;
+  const anzahl = m ? Number(m[2]) : 10;
+
+  return {
+    kassenName: "AOK Nordost",
+    ikNummer: "100000031",
+    versicherterName: p.name,
+    versichertenNr: "A123456789",
+    geburtsdatum: deDatum(p.geburt),
+    versichertenStatus: "1000",
+    betriebsstaette: "21" + "100000031".slice(-7),
+    arztBsnr: "183456700",
+    arztLanr: "999990300",
+    arztName: "Dr. med. Susanne Hartmann",
+    arztAnschrift: "Hausarztpraxis am Park\nKantstraße 11, 10623 Berlin",
+    ausstellungsDatum: p.termine[0] ? deDatum(p.termine[0].datumISO) : deDatum(new Date().toISOString()),
+    therapieArt: "physio" as const,
+    istErstverordnung: !p.fortschritt.startsWith("0/"),
+    ausserhalbRegelfall: false,
+    hausbesuch: false,
+    therapieBericht: true,
+    dringendInnerhalb14T: false,
+    diagnose: p.diagnoseKlartext,
+    icd10: p.diagnoseIcd,
+    diagnoseGruppe: p.hmvCode,
+    leitsymptomatik: p.icfCodes.slice(0, 3).map((c) => `${c.code} ${c.label}`).join(" · "),
+    therapieZiele: p.smartZiele.slice(0, 3).join(" · "),
+    positionen: [
+      { nr: 1, leistung, anzahl, doppelbehandlung: false },
+    ],
+    frequenz: anzahl >= 12 ? "2 × pro Woche" : "1–2 × pro Woche",
+  };
+}
+
+function deDatum(iso: string): string {
+  const d = new Date(iso);
+  return `${String(d.getDate()).padStart(2, "0")}.${String(d.getMonth() + 1).padStart(2, "0")}.${d.getFullYear()}`;
+}
+
