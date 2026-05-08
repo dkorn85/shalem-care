@@ -10,6 +10,8 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { CURRENT_USER_ID } from "@/lib/seed";
 import { buildTour, caseloadFuerPflegekraft } from "@/lib/pflege/tageshub";
@@ -53,6 +55,55 @@ export default async function PflegeTourPage() {
         {" "}{akutCount > 0 && <>⚠ {akutCount} akute Situation{akutCount === 1 ? "" : "en"} ganz oben.</>}
         {" "}Phase 2: dynamische Re-Planung bei Notfall + Geo-Routing.
       </RolePastelHeader>
+
+      <LerneTipp rolle="pflege" titel="So liest du die Tour">
+        Die <strong>Reihenfolge</strong> ist nicht zufällig — sie kommt aus
+        Pflegegrad-Stufe (PG 5 vor PG 2), Akut-Status (rot ganz oben) und
+        bekannten Klient:innen-Wünschen (z.B. „Frau Brand will früh"). Eine
+        rote Kachel <em>akut</em> heißt: jetzt nicht abwarten, hingehen und
+        einschätzen — ggf. Arzt-Anfrage starten. Kennzahl unten ist
+        <strong> Pflegezeit</strong> nach LK-Schlüssel SGB XI Anlage 1, nicht
+        Wegezeit (kommt in Phase 2 dazu).
+      </LerneTipp>
+
+      <NurAbProfi rolle="pflege">
+        <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Pflegeprofi · Tour-Steuerung</p>
+          {(() => {
+            const geplant = tour.filter((t) => t.prioritaet === "geplant").length;
+            const fakultativ = tour.filter((t) => t.prioritaet === "fakultativ").length;
+            const minProKlient = tour.length ? Math.round(totalMin / tour.length) : 0;
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Akut-Anteil</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: akutCount > 0 ? "rgb(var(--mon))" : undefined }}>
+                    {akutCount}/{tour.length}
+                  </p>
+                  <p className="text-[10px] text-soft">≥ 30 % = Schicht-Notlage</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Pflegezeit Ø</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2">{minProKlient} min</p>
+                  <p className="text-[10px] text-soft">SGB XI Anlage 1 Schnitt 25–35</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Geplant / Fakultativ</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2">{geplant} / {fakultativ}</p>
+                  <p className="text-[10px] text-soft">Puffer-Indikator</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">PpUGV-Risiko</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2">
+                    {totalMin > 480 ? "↑" : "OK"}
+                  </p>
+                  <p className="text-[10px] text-soft">{totalMin} min vs 480 min Schicht</p>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+      </NurAbProfi>
 
       <section className="surface rounded-2xl p-4">
         <ol className="space-y-3">

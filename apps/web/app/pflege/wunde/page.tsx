@@ -8,6 +8,8 @@ import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { CURRENT_USER_ID } from "@/lib/seed";
 import { GameModeOnly } from "@/components/GameModeWrapper";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { caseloadFuerPflegekraft } from "@/lib/pflege/tageshub";
 import {
@@ -122,12 +124,57 @@ export default async function PflegeWundePage() {
       </Link>
       </GameModeOnly>
 
+      <LerneTipp rolle="pflege" titel="Was steckt hinter Wundmanagement?">
+        <strong>DNQP</strong> = Deutsches Netzwerk für Qualitätsentwicklung in der Pflege —
+        gibt den <em>Expertenstandard chronische Wunden</em> heraus (Größe, Wundgrund,
+        Exsudat, Verbandstoff, Tendenz). <strong>ICW</strong> = Initiative Chronische Wunden,
+        liefert die Code-Tabellen für Wundart und Lokalisation. Status <em>stagnierend</em>
+        nach 12 Wochen heißt: an die Ärztin melden, ggf. neue Verordnung. Pflegegrad-relevant
+        bei chronischen Wunden ist Modul 3 (Selbstversorgung).
+      </LerneTipp>
+
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <Mini label="Wunden gesamt" value={String(wunden.length)} />
         <Mini label="In Bearbeitung" value={String(offen.length)} />
         <Mini label="Stagnierend" value={String(wunden.filter((w) => w.status === "stagnierend").length)} alarm />
         <Mini label="Abgeheilt" value={String(fertig.length)} />
       </section>
+
+      <NurAbProfi rolle="pflege">
+        <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Pflegeprofi · Wundlast-Steuerung</p>
+          {(() => {
+            const stagnierend = wunden.filter((w) => w.status === "stagnierend").length;
+            const akut = wunden.filter((w) => w.status === "akut").length;
+            const heilend = wunden.filter((w) => w.status === "heilend").length;
+            const heilQuote = wunden.length ? Math.round((fertig.length / wunden.length) * 100) : 0;
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Akut</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: "rgb(var(--mon))" }}>{akut}</p>
+                  <p className="text-[10px] text-soft">braucht VW täglich</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Stagnierend</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: stagnierend ? "rgb(var(--vibe-approval))" : undefined }}>{stagnierend}</p>
+                  <p className="text-[10px] text-soft">Arzt-Konsil + ggf. ICW-Spezialist:in</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Heilend</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: "rgb(var(--thu))" }}>{heilend}</p>
+                  <p className="text-[10px] text-soft">positive Tendenz im Verlauf</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Heilungs-Quote</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2">{heilQuote}%</p>
+                  <p className="text-[10px] text-soft">DNQP-Audit-Indikator</p>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+      </NurAbProfi>
 
       <section className="mb-6">
         <header className="flex items-baseline gap-3 mb-3">

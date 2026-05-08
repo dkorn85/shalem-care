@@ -8,6 +8,8 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import {
   BradenTool,
   NrsTool,
@@ -75,6 +77,48 @@ export default async function PflegeAssessmentPage() {
       >
         Vier Standard-Skalen interaktiv. Punkte berechnen sich live, Risiko-Klasse + Empfehlungen kommen sofort. Re-Beurteilungs-Termine landen Phase 2 im Dienstplan.
       </RolePastelHeader>
+
+      <LerneTipp rolle="pflege" titel="Wozu Assessment-Skalen?">
+        Skalen <em>messen</em>, was sonst Bauchgefühl wäre — und machen es auditierbar.
+        <strong> Braden</strong>: Dekubitus-Risiko (6–23 Punkte; ≤ 18 = Risiko).
+        <strong> NRS</strong>: Schmerz 0–10 (≥ 4 = handlungspflichtig nach DNQP).
+        <strong> MNA-SF</strong>: Mangelernährung Kurz-Screen (≤ 11 = Risiko).
+        <strong> Tinetti POMA</strong>: Sturzrisiko (≤ 19 von 28 = hohes Risiko).
+        Alle vier sind <strong>DNQP-pflichtig</strong> bei MD-Audit. Bei kritischen Werten
+        triggern sie automatisch Pflegeplan-Anpassung + ggf. Hausmeister-/Konsil-Auftrag.
+      </LerneTipp>
+
+      <NurAbProfi rolle="pflege">
+        <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Pflegeprofi · Re-Assessment-Frequenzen</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Braden</p>
+              <p className="font-display text-[14px] font-bold tracking-tight2">7 Tage</p>
+              <p className="text-[10px] text-soft">+ nach jedem Statuswechsel</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">NRS</p>
+              <p className="font-display text-[14px] font-bold tracking-tight2">je Schicht</p>
+              <p className="text-[10px] text-soft">bei NRS ≥ 3 zwingend</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">MNA-SF</p>
+              <p className="font-display text-[14px] font-bold tracking-tight2">90 Tage</p>
+              <p className="text-[10px] text-soft">+ bei Aufnahme</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Tinetti</p>
+              <p className="font-display text-[14px] font-bold tracking-tight2">6 Monate</p>
+              <p className="text-[10px] text-soft">+ nach jedem Sturz-Event</p>
+            </div>
+          </div>
+          <p className="text-[10px] text-soft mt-2 italic">
+            Frist-Trigger landen automatisch im Dienstplan-HUD, MD-Audit-Hunt prüft die
+            Lückenlosigkeit (vgl. /admin/audit/hunt).
+          </p>
+        </section>
+      </NurAbProfi>
 
       <section className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-6">
         {STANDARDS.map((s) => (
