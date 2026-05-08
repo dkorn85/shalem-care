@@ -1,10 +1,10 @@
 # Shalem Care · Session-Handoff
 
 **Stand:** 2026-05-08 · für die nächste Session
-**Branch:** `main` direkt · **208 Routen** · `tsc --noEmit` exit 0
+**Branch:** `main` direkt · **210 Routen** · `tsc --noEmit` exit 0
 **Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games ·
-**Expertise-Modus** auf **17 Cockpits** durchgängig · 4 KI-Funktionen ·
-**Schein-Optik** für Kasse mit 5 KI-Bild-Assets · Ehrenamt-Begleit-Cockpit live ·
+**Expertise-Modus** auf **20 Cockpits** durchgängig (alle Konzept-Lücken geschlossen) ·
+**Schein-Optik** für Kasse + **Versicherten-Sicht** für Klientin (gleiche Komponenten, andere Spalte) ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
 ---
@@ -25,8 +25,9 @@
 - **Voll-WebRTC** mit Supabase-Signaling · RTCPeerConnection-Mesh ≤4 Peers
 - 11 Berufe mit eindeutiger **Akzent-Farbe** in Sidebar/Header/BottomNav
 - **🎮 Game-Mode** als optionaler Spielmodus · 15 Mini-Games über alle Berufe
-- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · 17 Cockpits durchgängig (auch Kasse-Portal über KasseShell, auch Genossenschaft via `expertiseRolleOverride`)
+- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · 20 Cockpits durchgängig (auch Kasse-Portal über KasseShell, auch Genossenschaft via `expertiseRolleOverride`)
 - **📜 Schein-Optik** im Kasse-Portal · Original-Look Muster 1 (gelb) / Muster 12 (rosé) / formaler Bescheid-Brief mit Briefkopf · 5 KI-generierte Stempel-/Papier-Assets via mix-blend-mode komponiert
+- **🌿 Versicherten-Sicht** `/klient/bescheide` nutzt dieselben Schein-Komponenten · klartext-orientierte Status-Sprache · Widerspruchs-Block bei Ablehnung mit § 84 SGG
 - **🤝 Ehrenamt-Begleit-Cockpit** mit Stimmungs-Sparkline 1–5 (DHPV-Curriculum), Lebenslagen-Tags, Trübe-Warnung bei 2× ≤2 in Folge, Biografie nach Schuchardt
 - **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
 - **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
@@ -102,6 +103,25 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 18 · Pflege-Sub-Cockpits · Versicherten-Sicht für Bescheide (Session 20 · 2026-05-08)
+
+**Pflege-Sub-Cockpits Expertise (`64e720b`):** Letzte Lücke aus dem Konzept-Doc geschlossen.
+
+| Cockpit | Lerne-Tipp | Profi-Block |
+|---|---|---|
+| `/pflege/wunde` | DNQP-Expertenstandard + ICW-Codes + Stagnation-Regel | Wundlast (Akut/Stagn./Heilend) + Heilungs-Quote als DNQP-Audit-Indikator |
+| `/pflege/assessment` | Braden ≤18, NRS ≥3, MNA ≤11, Tinetti ≤19 + DNQP-Audit-Pflicht | Re-Assessment-Frequenzen (Braden 7d, NRS Schicht, MNA 90d, Tinetti 6Mo) mit Audit-Hunt-Verweis |
+| `/pflege/tour` | Reihenfolge-Logik PG+Akut+Wunsch + LK-Schlüssel | Tour-Steuerung Akut-Quote + Pflegezeit Ø vs. SGB XI Anlage 1 + PpUGV-Risiko bei > 480 min |
+
+**Versicherten-Sicht für Bescheide (`09080a8`):** Schein-Komponenten doppelt monetarisiert — gleiche Optik in Kasse-Sachbearbeitung *und* Klient-Akte.
+
+| Datei | Was |
+|---|---|
+| `/klient/bescheide` | Liste eigener Vorgänge der Klientin · klartext-Status („läuft / wird geprüft / bewilligt ✓ / abgelehnt") statt Sachbearbeiter-Sprache · Lana-Lese-Hinweis zur Widerspruchs-Frist |
+| `/klient/bescheide/[id]` | Original-Schein (Muster 1/12 oder Bescheid-Brief) + Klartext-Spalte aus Kasse-Modul · zusätzlich Bescheid-Brief separat sichtbar wenn entschieden · Widerspruchs-Hilfe-Block (§ 84 SGG · 1 Monat · Sozialberatung) bei Ablehnung |
+
+Schutz: `notFound()` wenn Vorgang einer anderen Klient:in. Klient-Hub bekommt 4. Werkzeug-Karte „Meine Bescheide". KlientShell-Layout-Bug analog zu AppShell/KasseShell mitgenommen (`pb-48 lg:pb-32`).
 
 ### 17 · Schein-Optik Kasse · Ehrenamt-Workflow · GenG-Expertise · Layout-Fix (Session 19 · 2026-05-08)
 
@@ -280,7 +300,7 @@ chmod 600 ~/.git-credentials
 
 | Beruf | Live | KI-Funktion | Game-Mode | Expertise |
 |---|---|---|---|---|
-| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ Heute |
+| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ Heute + Wunde + Assessment + Tour |
 | 👩‍⚕️ Arzt | Diktat · eRezept-Pilot · KIM-FHIR-Bundle | Diktat-Strukturierung | ICD-10-Sprint | ✓ Heute |
 | 🤲 Therapie | Diktat · **Patient-Verlauf mit VAS/ROM/MRC-Sparkline** | Diktat · **Verlaufsbrief-KI** | HMV-Code-Match | ✓ Liste+Detail |
 | 📋 Sozial | Diktat · **Hilfepläne mit ICF + SMART-Zielen** | Diktat · **ICF-Vorschlag-KI** | Paragraphen-Hunt | ✓ Liste+Detail |
@@ -291,10 +311,10 @@ chmod 600 ~/.git-credentials
 | 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
 | 💶 Krankenkasse | Bescheid-Diktat · Eingangskorb · **Schein-Optik Muster 1/12 + Bescheid-Brief mit KI-Stempel-Assets** | — | — | ✓ Portal + Vorgang |
 | 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | **✓ Pool + Solidartopf + Ausschüttung** |
-| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus | KI-Klartext | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
+| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext** | KI-Klartext | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~85 % live · 15 Mini-Games, 8 Berufe haben echte Workflow-Cockpits über das Diktat hinaus (jetzt auch Ehrenamt), Expertise-Modus durchgängig auf 17 Cockpits inkl. Kasse-Portal und Genossenschaft, Schein-Optik mit Original-Look + KI-Stempeln.
+**Aktueller Reifegrad gesamt:** ~88 % live · 15 Mini-Games, 8 Berufe haben echte Workflow-Cockpits über das Diktat hinaus (jetzt auch Ehrenamt), Expertise-Modus durchgängig auf **20 Cockpits** (alle Konzept-Lücken geschlossen), Schein-Optik mit Original-Look + KI-Stempeln in *Sachbearbeitung und Klient-Akte*.
 
 ---
 
@@ -324,10 +344,11 @@ chmod 600 ~/.git-credentials
 - [x] 15 Mini-Games hinter optionalem 🎮-Toggle
 - [x] 5 echte Beruf-Cockpits (Therapie · Sozial · HE · HW · Erz) über das Diktat hinaus
 - [x] 4 zusätzliche KI-Funktionen pro Cockpit
-- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + KasseShell + 17 Cockpits gewired (inkl. Genossenschaft via override)
+- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + KasseShell + 20 Cockpits gewired (inkl. Genossenschaft via override + Pflege-Sub-Cockpits)
 - [x] Schein-Optik im Kasse-Portal (Muster 1/12 + Bescheid-Brief) mit 5 KI-Bild-Assets
+- [x] Versicherten-Sicht für Bescheide (`/klient/bescheide`) · gleiche Schein-Komponenten in Klient-Akte
 - [x] Ehrenamt-Begleit-Cockpit als echtes Workflow-Cockpit (Stimmungs-Sparkline + Lebenslagen)
-- [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert
+- [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert (AppShell + KasseShell + KlientShell)
 - [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
 
 ### Priorität A · Pending User-Aktionen (organisatorisch)
@@ -365,10 +386,11 @@ chmod 600 ~/.git-credentials
 - [ ] Mobile-Drawer · Search-Filter wenn Sidebar > 10 Items
 - [ ] Game-Mode · Highscore-Liste pro Beruf (anonym, ohne Login)
 - [ ] Game-Mode · Lana-Phrasen je Beruf-Persönlichkeit personalisieren
-- [ ] Pflege-Sub-Cockpits Expertise (`/pflege/wunde`, `/pflege/assessment`, `/pflege/tour`)
-- [ ] Versicherten-Sicht für Bescheide (Klient bekommt seinen Bescheid in Klartext)
-- [ ] echte Stempel-Bild-Assets im Print-Stylesheet (`@media print`)
-- [ ] Schein-Optik-Konzept auf andere Berufe ausweiten (Therapie-Heilmittel-VO, Sozial-Hilfeplan-Antrag)
+- [ ] Print-Stylesheet (`@media print`) für Schein-Optik · Bescheide ausdruckbar als richtiges Briefblatt (Stempel + Papier sichtbar im Druck)
+- [ ] Schein-Optik auf andere Berufe ausweiten (Therapie-Heilmittel-VO Muster 13, Sozial-Hilfeplan-Antrag, Arzt-eRezept Token-Karte)
+- [ ] Bescheid-Versand-Workflow: aus Sachbearbeitung als KIM-Mail an Versicherten-Postfach
+- [ ] Klient-Bescheide-Liste mit Filter „braucht meine Aufmerksamkeit" (Rückfrage + Ablehnung)
+- [ ] Widerspruchs-Editor im Klient-Cockpit: Vor-Formulierung + KIM-Versand
 
 ---
 
@@ -446,7 +468,7 @@ apps/web/
     hauswirtschaft/{diktat,quiz,wochenplan}/                            HW + DGE-Plan
     erziehung/{diktat,quiz,lerngeschichten,lerngeschichten/{[id],neu}}/ Erz + Carr
     ehrenamt/{begleitung,protokoll,quiz}/                               EA
-    klient/{heute,akte/verstehen,akte/wunde,bescheid-quiz}/             Klient
+    klient/{heute,akte/verstehen,akte/wunde,bescheid-quiz,bescheide,bescheide/[id]}/ Klient
     kasse/diktat/                                                        Kasse
     admin/{dienstplan/{hud,archiv,arena}}/                               PDL
       genehmigungen/{,sprint}/ · verordnungen/ · abrechnung/[id]/[rId]/
@@ -460,6 +482,7 @@ apps/web/
   components/
     AppShell.tsx                Sidebar · Mobile-Drawer · Beruf-Akzent · ExpertiseChip-Slot · expertiseRolleOverride
     KasseShell.tsx              Kostenträger-Portal-Shell · ExpertiseChip-Slot · pb-Korrektur
+    KlientShell.tsx             Klient-Sicht-Shell · ohne Expertise (Sonderfall „teilhabe") · pb-Korrektur
     ExpertiseChip.tsx           Lerne/Praxis/Profi-FAB-Toggle pro Beruf
     ExpertiseGate.tsx           <NurAbProfi>, <NurBeiLerne>, <NurAb / NurBis>
     LerneTipp.tsx               Glossar-Banner für Casual/Azubi · nur im lerne-Modus
