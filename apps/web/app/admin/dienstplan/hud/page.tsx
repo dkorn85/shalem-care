@@ -6,6 +6,8 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { DienstplanHudView } from "@/components/DienstplanHud";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { generateHud } from "@/lib/dienstplan/hud-store";
 import {
   listEinrichtungen,
@@ -110,6 +112,43 @@ export default async function DienstplanHudPage({
           </div>
         </div>
       </header>
+
+      <LerneTipp rolle="lead" titel="Was ist hier neu?">
+        Das HUD ersetzt klassische Excel-Dienstpläne durch eine KI-gestützte
+        Multi-Einrichtungs-Sicht. <strong>ArbZG</strong> = Arbeitszeitgesetz —
+        Pausen, Ruhezeiten (mind. 11 h), Höchstarbeitszeit (10 h/Tag) werden live
+        geprüft. <strong>Co-Pilot</strong> kann <em>Lücken füllen</em>,
+        <em>Wünsche optimieren</em>, <em>ArbZG-Konflikte vorschlagen</em> oder
+        <em>Skill-Mix balancieren</em> — du bestätigst, das System schreibt.
+      </LerneTipp>
+
+      <NurAbProfi rolle="lead">
+        <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● PDL-Modus · Steuerungs-Kennzahlen</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Einrichtungen</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{einrichtungen.length}</p>
+              <p className="text-[10px] text-soft">{stationen.length} Stationen gesamt</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Mitarbeiter:innen</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{HIERARCHY_PEOPLE.length}</p>
+              <p className="text-[10px] text-soft">{qualifikationen.length} Qualifikations-Cluster</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Plan-Horizont</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{initialFilter.wochen} Wo</p>
+              <p className="text-[10px] text-soft">PflegeArbbV 26 Wo Vorschau</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">PpUGV-Verstoß-Risiko</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">live</p>
+              <p className="text-[10px] text-soft">aus HUD-Konflikten</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       <DienstplanHudView
         einrichtungen={einrichtungen}
