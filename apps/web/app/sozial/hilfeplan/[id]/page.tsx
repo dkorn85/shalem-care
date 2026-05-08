@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { CockpitSection } from "@/components/BerufCockpitCard";
+import { IcfVorschlagBox } from "@/components/IcfVorschlagBox";
 import {
   getHilfeplan, listHilfeplaene,
   ICF_DOMAIN_LABEL, ICF_DOMAIN_FARBE, ICF_BEWERTUNG_LABEL,
@@ -166,6 +167,8 @@ export default async function HilfeplanDetailPage({ params }: { params: Promise<
           <li className="flex justify-between gap-3"><span className="text-mute">Nächste Review</span><span className="font-mono">{plan.naechsteReview}</span></li>
         </ul>
       </section>
+
+      <IcfVorschlagBox />
     </AppShell>
   );
 }
