@@ -48,8 +48,11 @@ export default async function KlientBescheidePage() {
     (v) => v.klientId === KLIENT_ID || v.versicherterName === KLIENT_NAME,
   );
 
-  const aktiv = meine.filter((v) => v.status === "eingegangen" || v.status === "in_pruefung" || v.status === "rueckfrage");
-  const entschieden = meine.filter((v) => v.status === "genehmigt" || v.status === "abgelehnt");
+  // „Braucht meine Aufmerksamkeit": Rückfrage (muss reagieren) oder
+  // Ablehnung (Widerspruch möglich, 1 Monat-Frist)
+  const aufmerksam = meine.filter((v) => v.status === "rueckfrage" || v.status === "abgelehnt");
+  const aktiv = meine.filter((v) => v.status === "eingegangen" || v.status === "in_pruefung");
+  const entschieden = meine.filter((v) => v.status === "genehmigt");
 
   return (
     <KlientShell user={{ name: KLIENT_NAME, initials: "HR", relation: "self", klientId: KLIENT_ID }}>
@@ -65,15 +68,39 @@ export default async function KlientBescheidePage() {
         </p>
       </header>
 
+      {/* Aufmerksamkeits-Block · prominent oben, wenn etwas zu tun ist */}
+      {aufmerksam.length > 0 && (
+        <section
+          className="rounded-2xl p-4 mb-5"
+          style={{
+            background: "linear-gradient(135deg, rgb(var(--mon) / 0.10), rgb(var(--vibe-team) / 0.05))",
+            boxShadow: "inset 0 0 0 1.5px rgb(var(--mon) / 0.35)",
+          }}
+        >
+          <div className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+            <p className="text-[10px] uppercase tracking-wider font-mono font-medium" style={{ color: "rgb(var(--mon))" }}>
+              ⚠ Braucht deine Aufmerksamkeit · {aufmerksam.length}
+            </p>
+            <span className="text-[10px] text-soft">{aufmerksam.filter((v) => v.status === "abgelehnt").length} Widerspruch möglich · {aufmerksam.filter((v) => v.status === "rueckfrage").length} Rückfrage</span>
+          </div>
+          <ul className="space-y-2">
+            {aufmerksam.map((v) => (
+              <BescheidKarte key={v.id} v={v} />
+            ))}
+          </ul>
+        </section>
+      )}
+
       <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--accent))" }}>
         <p className="text-[10px] uppercase tracking-wider font-mono mb-1" style={{ color: "rgb(var(--accent))" }}>
           ✦ Lana · so liest du diese Liste
         </p>
         <p className="text-[12px] text-mute leading-relaxed text-pretty">
-          Oben siehst du, was gerade <strong>läuft</strong> — die Krankenkasse hat noch nicht
-          entschieden oder fragt etwas nach. Unten siehst du, was schon <strong>entschieden</strong>
-          ist (bewilligt oder abgelehnt). Bei Ablehnung kannst du innerhalb von <strong>1 Monat
-          Widerspruch</strong> einlegen — sag es deiner Pflegekraft oder dem Hospiz-Koordinator.
+          Oben siehst du, was gerade deine <strong>Aufmerksamkeit braucht</strong> — entweder hat
+          die Krankenkasse eine Rückfrage, oder ein Antrag wurde abgelehnt und du kannst innerhalb
+          von <strong>1 Monat Widerspruch</strong> einlegen. Darunter, was gerade <strong>läuft</strong>
+          (noch in Bearbeitung) und was bereits <strong>bewilligt</strong> ist. Hilfe bekommst du
+          jederzeit von deiner Pflegekraft oder einer Sozialberatung — kostet nichts.
         </p>
       </section>
 
@@ -90,7 +117,7 @@ export default async function KlientBescheidePage() {
 
       {entschieden.length > 0 && (
         <section className="mb-6">
-          <h2 className="font-display text-[16px] font-bold tracking-tight2 mb-2">Entschieden · {entschieden.length}</h2>
+          <h2 className="font-display text-[16px] font-bold tracking-tight2 mb-2">Bewilligt · {entschieden.length}</h2>
           <ul className="space-y-2">
             {entschieden.map((v) => (
               <BescheidKarte key={v.id} v={v} />

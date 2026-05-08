@@ -15,6 +15,8 @@ import { listAktiveVerordnungenFor, seedMedikationOnce } from "@/lib/medikation/
 import { findMedikament } from "@/lib/medikation/katalog";
 import { dosierAlsText } from "@/lib/medikation/types";
 import { listAnfragen, seedAnfragenOnce } from "@/lib/verordnung/store";
+import { listVorgaenge, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
+import { seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
 import { naechsteKonferenzFuerKlient, seedKonferenzOnce, KONFERENZTYP_LABEL } from "@/lib/konferenz/store";
 import { BERUFSFELD_FARBE } from "@/lib/team-um-klient/store";
 import { getActivePersona } from "@/lib/auth/active-user";
@@ -43,6 +45,17 @@ export default async function KlientPage() {
   seedSalutoOnce();
   seedZieleOnce();
   seedKonferenzOnce();
+  seedKrankmeldungOnce();
+  seedKostentraegerOnce();
+
+  // „Aufmerksamkeits-Counter" für Bescheid-Karte
+  const meineVorgaenge = listVorgaenge().filter(
+    (v) => v.klientId === KLIENT_ID || v.versicherterName === "Helga Reinhardt",
+  );
+  const bescheidAufmerksam = meineVorgaenge.filter(
+    (v) => v.status === "rueckfrage" || v.status === "abgelehnt",
+  ).length;
+
   const aktiv = await getActivePersona(KLIENT_ID, "klient");
   const konf = naechsteKonferenzFuerKlient(KLIENT_ID);
   const balanceChecks = listChecks(KLIENT_ID, 30);
@@ -218,15 +231,41 @@ export default async function KlientPage() {
         <Link
           href="/klient/bescheide"
           className="surface-hover rounded-2xl p-5 group relative overflow-hidden"
-          style={{ background: "linear-gradient(135deg, rgb(var(--vibe-approval) / 0.10), rgb(var(--thu) / 0.05))" }}
+          style={{
+            background: bescheidAufmerksam > 0
+              ? "linear-gradient(135deg, rgb(var(--mon) / 0.10), rgb(var(--vibe-approval) / 0.06))"
+              : "linear-gradient(135deg, rgb(var(--vibe-approval) / 0.10), rgb(var(--thu) / 0.05))",
+            boxShadow: bescheidAufmerksam > 0 ? "inset 0 0 0 1.5px rgb(var(--mon) / 0.35)" : undefined,
+          }}
         >
-          <span aria-hidden className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full" style={{ background: "rgb(var(--vibe-approval))" }} />
+          <span
+            aria-hidden
+            className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full"
+            style={{ background: bescheidAufmerksam > 0 ? "rgb(var(--mon))" : "rgb(var(--vibe-approval))" }}
+          />
           <div className="ml-2.5">
-            <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Krankenkasse</div>
+            <div className="flex items-baseline gap-2 mb-2">
+              <div className="text-[11px] uppercase tracking-wider text-soft font-medium">Krankenkasse</div>
+              {bescheidAufmerksam > 0 && (
+                <span
+                  className="text-[10px] font-mono px-1.5 rounded"
+                  style={{ background: "rgb(var(--mon) / 0.18)", color: "rgb(var(--mon))" }}
+                >
+                  ⚠ {bescheidAufmerksam}
+                </span>
+              )}
+            </div>
             <h3 className="font-display text-[16px] font-semibold tracking-tight2">Meine Bescheide</h3>
-            <p className="text-[12px] text-mute mt-1.5">Original-Bescheid + Lana erklärt in Klartext, was er bedeutet</p>
-            <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>
-              Öffnen →
+            <p className="text-[12px] text-mute mt-1.5">
+              {bescheidAufmerksam > 0
+                ? "Etwas wartet auf dich — Rückfrage oder Widerspruch möglich"
+                : "Original-Bescheid + Lana erklärt in Klartext, was er bedeutet"}
+            </p>
+            <div
+              className="text-[12px] mt-3 font-medium"
+              style={{ color: bescheidAufmerksam > 0 ? "rgb(var(--mon))" : "rgb(var(--vibe-approval))" }}
+            >
+              {bescheidAufmerksam > 0 ? "Ansehen →" : "Öffnen →"}
             </div>
           </div>
         </Link>
