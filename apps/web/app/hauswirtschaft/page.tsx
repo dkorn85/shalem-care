@@ -88,14 +88,14 @@ export default async function HauswirtschaftPage() {
           </Link>
         </header>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-          <div className="surface-mute rounded-xl p-3 opacity-60">
+          <Link href="/hauswirtschaft/wochenplan" className="surface-hover rounded-xl p-3 block" style={{ borderTop: "2px solid rgb(var(--accent))" }}>
             <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--accent))" }}>
-              IDDSI · Phase B
+              DGE · LMIV Anhang II
             </p>
-            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Speiseplan-Software</h3>
-            <p className="text-[11px] text-mute leading-snug">Vorlieben pro Bewohner:in · Diabetes/Schluckkost/Demenz · Lieferanten-Bestellung</p>
-            <p className="text-[10px] mt-2 text-soft font-mono">in Vorbereitung</p>
-          </div>
+            <h3 className="font-display text-[13px] font-bold tracking-tight2 mb-0.5">Wochenplan-Cockpit</h3>
+            <p className="text-[11px] text-mute leading-snug">7-Tage-Grid · 6 Kostformen-Filter · Allergen-Chips · Tages-kcal live</p>
+            <p className="text-[10px] mt-2 font-medium" style={{ color: "rgb(var(--accent))" }}>Wochenplan öffnen →</p>
+          </Link>
           <div className="surface-mute rounded-xl p-3 opacity-60">
             <p className="font-mono text-[10px] uppercase tracking-wider mb-1" style={{ color: "rgb(var(--vibe-team))" }}>
               VO (EG) 852/2004 · Phase B
