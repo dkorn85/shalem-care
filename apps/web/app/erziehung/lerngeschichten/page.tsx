@@ -1,7 +1,9 @@
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { CockpitSection, CockpitListItem, CockpitKpi } from "@/components/BerufCockpitCard";
-import { listLerngeschichten, BB_LABEL, BB_FARBE } from "@/lib/erziehung/lerngeschichten-store";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
+import { listLerngeschichten, BB_LABEL, BB_FARBE, LERNDISPO_LABEL } from "@/lib/erziehung/lerngeschichten-store";
 
 export const metadata = { title: "Erziehung · Lerngeschichten" };
 
@@ -22,12 +24,51 @@ export default async function LerngeschichtenPage() {
         </p>
       </header>
 
+      <LerneTipp rolle="erziehung" titel="Was ist eine Lerngeschichte?">
+        Eine <strong>Lerngeschichte</strong> nach <strong>Margaret Carr</strong> ist
+        eine wertschätzende Bildungs-Doku — du beschreibst einen Moment, in dem das
+        Kind etwas Neues kann oder sich neu zeigt. Statt „kann noch nicht …" schreibst
+        du „heute habe ich gesehen, wie …". <strong>BBP</strong> = Bayerischer Bildungs-
+        und Erziehungsplan, ordnet jeden Moment einem Bildungsbereich zu (Sprache,
+        Natur, Mathe …). Lana hilft beim Klassifizieren, das Polieren bleibt bei dir.
+      </LerneTipp>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
         <CockpitKpi label="Geschichten"   value={geschichten.length}  farbe="var(--fri)" />
         <CockpitKpi label="Veröffentlicht" value={veroeffentlicht}     farbe="var(--thu)" />
         <CockpitKpi label="Entwürfe"      value={entwuerfe}            farbe="var(--vibe-approval)" />
         <CockpitKpi label="Kinder"        value={kinder}               farbe="var(--vibe-team)" />
       </div>
+
+      <NurAbProfi rolle="erziehung">
+        <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Profi-Modus · Bildungsbereich-Verteilung</p>
+          {(() => {
+            const counts = new Map<keyof typeof BB_LABEL, number>();
+            geschichten.forEach((g) => g.bildungsbereiche.forEach((b) => counts.set(b, (counts.get(b) ?? 0) + 1)));
+            const max = Math.max(1, ...counts.values());
+            const sorted = Array.from(counts.entries()).sort((a, b) => b[1] - a[1]);
+            return (
+              <ul className="space-y-1.5">
+                {sorted.map(([b, n]) => (
+                  <li key={b} className="flex items-baseline gap-2 text-[12px]">
+                    <span className="w-[110px] shrink-0 text-mute">{BB_LABEL[b]}</span>
+                    <span className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: "rgb(var(--bg-mute))" }}>
+                      <span className="block h-full rounded-full" style={{ width: `${(n / max) * 100}%`, background: `rgb(${BB_FARBE[b]})` }} />
+                    </span>
+                    <span className="font-mono tabular-nums text-[11px] w-[24px] text-right">{n}</span>
+                  </li>
+                ))}
+              </ul>
+            );
+          })()}
+          <p className="text-[10px] text-soft mt-2 italic">
+            Nicht-Balance ist okay — aber wenn ein Bereich monatelang fehlt, lohnt es sich,
+            ihn bei der Beobachtung gezielt zu suchen. Lerndispositionen-Tags
+            ({Object.values(LERNDISPO_LABEL).join(" · ")}) machen Carr-Profile sichtbar.
+          </p>
+        </section>
+      </NurAbProfi>
 
       <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--accent))" }}>
         <header className="flex items-baseline justify-between gap-2 mb-1.5 flex-wrap">
