@@ -215,6 +215,21 @@ export default async function KlientPage() {
             Anfragen →
           </div>
         </Link>
+        <Link
+          href="/klient/bescheide"
+          className="surface-hover rounded-2xl p-5 group relative overflow-hidden"
+          style={{ background: "linear-gradient(135deg, rgb(var(--vibe-approval) / 0.10), rgb(var(--thu) / 0.05))" }}
+        >
+          <span aria-hidden className="absolute left-0 top-5 bottom-5 w-[3px] rounded-full" style={{ background: "rgb(var(--vibe-approval))" }} />
+          <div className="ml-2.5">
+            <div className="text-[11px] uppercase tracking-wider text-soft font-medium mb-2">Krankenkasse</div>
+            <h3 className="font-display text-[16px] font-semibold tracking-tight2">Meine Bescheide</h3>
+            <p className="text-[12px] text-mute mt-1.5">Original-Bescheid + Lana erklärt in Klartext, was er bedeutet</p>
+            <div className="text-[12px] mt-3 font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>
+              Öffnen →
+            </div>
+          </div>
+        </Link>
         <GameModeOnly>
         <Link
           href="/klient/bescheid-quiz"
