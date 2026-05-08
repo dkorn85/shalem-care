@@ -44,7 +44,12 @@
       "Read(//root/.config/**)",
       "Bash(gh --version)",
       "Bash(ssh -T git@github.com)",
-      "Bash(chmod 600 ~/.git-credentials)"
+      "Bash(chmod 600 ~/.git-credentials)",
+      "Bash(cp -v /storage/emulated/0/Download/Stempel-praxis.png /root/shalem-care/apps/web/public/scheine/stempel-praxis.png)",
+      "Bash(cp -v /storage/emulated/0/Download/Stempel-bewilligt.png /root/shalem-care/apps/web/public/scheine/stempel-bewilligt.png)",
+      "Bash(cp -v /storage/emulated/0/Download/Stempel-abgelehnt.png /root/shalem-care/apps/web/public/scheine/stempel-abgelehnt.png)",
+      "Bash(cp -v /storage/emulated/0/Download/Papier-textur.png /root/shalem-care/apps/web/public/scheine/papier-textur.png)",
+      "Bash(cp -v /storage/emulated/0/Download/Wm-eau.png /root/shalem-care/apps/web/public/scheine/wm-eau.png)"
     ]
   },
   "enableAllProjectMcpServers": true,

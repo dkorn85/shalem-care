@@ -138,14 +138,12 @@ export function MusterZwoelfHKP({ daten }: { daten: MusterZwoelfDaten }) {
           <p>Vertragsärztliche Versorgung · KBV-Vordruck</p>
           <p className="mt-0.5">Ausgestellt am {daten.ausstellungsDatum}</p>
         </div>
-        <div
-          className="text-right text-[10px] font-medium px-2 py-1.5 rotate-[-1deg]"
-          style={{ background: "rgba(255,255,255,0.6)", border: "1.5px solid #1E3A8A", color: "#1E3A8A", boxShadow: "0 1px 2px rgba(0,0,0,0.08)" }}
-        >
-          <p className="font-bold">{daten.arztName}</p>
-          <p className="font-normal whitespace-pre-line text-[9px]">{daten.arztAnschrift}</p>
-          {daten.arztBsnr && <p className="font-mono text-[9px] mt-0.5">BSNR {daten.arztBsnr}</p>}
-        </div>
+        <img
+          src="/scheine/stempel-praxis.png"
+          alt={`Praxisstempel ${daten.arztName}`}
+          className="w-[140px] h-[140px] object-contain pointer-events-none select-none"
+          style={{ mixBlendMode: "multiply", transform: "rotate(-7deg)" }}
+        />
       </footer>
     </article>
   );

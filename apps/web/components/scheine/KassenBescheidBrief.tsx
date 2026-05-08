@@ -58,7 +58,11 @@ export function KassenBescheidBrief({ daten }: { daten: BescheidBriefDaten }) {
     <article
       className="relative font-sans text-[12px] text-black p-6 sm:p-8 mx-auto"
       style={{
-        background: "#FFFFFF",
+        backgroundColor: "#FFFFFF",
+        backgroundImage: "url('/scheine/papier-textur.png')",
+        backgroundSize: "500px 500px",
+        backgroundRepeat: "repeat",
+        backgroundBlendMode: "multiply",
         boxShadow: "0 6px 28px rgb(0 0 0 / 0.10), 0 0 0 1px rgb(0 0 0 / 0.05)",
         maxWidth: "640px",
         borderRadius: 4,
@@ -166,25 +170,41 @@ export function KassenBescheidBrief({ daten }: { daten: BescheidBriefDaten }) {
           </p>
           <p className="text-[10px] text-black/65 mt-0.5">{daten.kassenName}</p>
         </div>
-        <div
-          className="rotate-[-6deg] text-center px-3 py-2 font-display"
-          style={{
-            border: "2.5px solid " + farbe,
-            color: farbe,
-            background: "rgba(255,255,255,0.6)",
-            borderRadius: 6,
-            minWidth: 110,
-          }}
-        >
-          <p className="font-bold text-[12px] uppercase tracking-wider leading-none">
-            {daten.entscheidung === "genehmigt" && "Bewilligt"}
-            {daten.entscheidung === "abgelehnt" && "Abgelehnt"}
-            {daten.entscheidung === "teilgenehmigt" && "Teilbewilligt"}
-            {daten.entscheidung === "rueckfrage" && "Rückfrage"}
-          </p>
-          <p className="text-[9px] mt-0.5 font-mono">{daten.ausstellungsDatum}</p>
-          <p className="text-[8px] mt-0.5 font-mono opacity-80">IK {daten.ikNummer}</p>
-        </div>
+        {daten.entscheidung === "genehmigt" && (
+          <img
+            src="/scheine/stempel-bewilligt.png"
+            alt="Bewilligt"
+            className="w-[180px] object-contain pointer-events-none select-none"
+            style={{ mixBlendMode: "multiply", transform: "rotate(-6deg)" }}
+          />
+        )}
+        {daten.entscheidung === "abgelehnt" && (
+          <img
+            src="/scheine/stempel-abgelehnt.png"
+            alt="Abgelehnt"
+            className="w-[180px] object-contain pointer-events-none select-none"
+            style={{ mixBlendMode: "multiply", transform: "rotate(5deg)" }}
+          />
+        )}
+        {(daten.entscheidung === "teilgenehmigt" || daten.entscheidung === "rueckfrage") && (
+          <div
+            className="rotate-[-6deg] text-center px-3 py-2 font-display"
+            style={{
+              border: "2.5px solid " + farbe,
+              color: farbe,
+              background: "rgba(255,255,255,0.6)",
+              borderRadius: 6,
+              minWidth: 110,
+            }}
+          >
+            <p className="font-bold text-[12px] uppercase tracking-wider leading-none">
+              {daten.entscheidung === "teilgenehmigt" && "Teilbewilligt"}
+              {daten.entscheidung === "rueckfrage" && "Rückfrage"}
+            </p>
+            <p className="text-[9px] mt-0.5 font-mono">{daten.ausstellungsDatum}</p>
+            <p className="text-[8px] mt-0.5 font-mono opacity-80">IK {daten.ikNummer}</p>
+          </div>
+        )}
       </footer>
     </article>
   );

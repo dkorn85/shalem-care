@@ -125,15 +125,29 @@ export function MusterEinsAU({ daten }: { daten: MusterEinsDaten }) {
           <p>Vertragsärztliche Versorgung · KBV-Vordruck</p>
           <p className="mt-0.5">eAU-Versand an Kasse via KIM</p>
         </div>
-        <div
-          className="text-right text-[10px] font-medium px-2 py-1.5 rotate-[-1.5deg]"
-          style={{ background: "rgba(255,255,255,0.65)", border: "1.5px solid #1E3A8A", color: "#1E3A8A", boxShadow: "0 1px 2px rgba(0,0,0,0.08)" }}
-        >
-          <p className="font-bold">{daten.arztName}</p>
-          <p className="font-normal whitespace-pre-line text-[9px]">{daten.arztAnschrift}</p>
-          {daten.arztBsnr && <p className="font-mono text-[9px] mt-0.5">BSNR {daten.arztBsnr}</p>}
-        </div>
+        <img
+          src="/scheine/stempel-praxis.png"
+          alt={`Praxisstempel ${daten.arztName}`}
+          className="w-[140px] h-[140px] object-contain pointer-events-none select-none"
+          style={{ mixBlendMode: "multiply", transform: "rotate(-7deg)" }}
+        />
       </footer>
+
+      {/* eAU-Watermark · diagonal */}
+      <img
+        src="/scheine/wm-eau.png"
+        alt=""
+        aria-hidden
+        className="absolute pointer-events-none select-none"
+        style={{
+          mixBlendMode: "multiply",
+          left: "10%",
+          right: "10%",
+          top: "40%",
+          width: "80%",
+          opacity: 0.55,
+        }}
+      />
     </article>
   );
 }
