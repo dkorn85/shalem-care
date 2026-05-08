@@ -2,6 +2,8 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { CockpitSection } from "@/components/BerufCockpitCard";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import {
   getTeilhabeKlient, listTeilhabeKlienten,
   TEILHABE_BEREICH_FARBE, TEILHABE_STATUS_FARBE,
@@ -43,11 +45,56 @@ export default async function TeilhabeKlientPage({ params }: { params: Promise<{
         </div>
       </header>
 
+      <LerneTipp rolle="heilerziehung" titel="So liest du diese Akte">
+        Oben steht die <strong>Selbstvertretungs-Notiz</strong> — wer in der HPK
+        zuerst spricht. Dann der <strong>ICF-Bedarfsbogen</strong>: jeder Code
+        beschreibt einen Aspekt von Teilhabe (b = Körperfunktion, d = Aktivität).
+        Die Bewertung 0–4 zeigt, wie viel Unterstützung gerade gebraucht wird —
+        nicht „wie schwer das Problem ist", sondern „wie das Wechselspiel mit der
+        Umwelt heute läuft".
+      </LerneTipp>
+
       <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: `3px solid rgb(${k.farbe})` }}>
         <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Selbstvertretung · BTHG-Partizipation</p>
         <p className="text-[13px] mt-1 leading-relaxed">{k.selbstvertretung}</p>
         <p className="text-[11px] text-soft mt-1.5">Setting: {k.setting}</p>
       </section>
+
+      <NurAbProfi rolle="heilerziehung">
+        <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Profi-Modus · ICF-Profil-Verdichtung</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Bedarf-Schnitt</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {(k.bedarf.reduce((s, b) => s + b.bewertung, 0) / k.bedarf.length).toFixed(1)}
+              </p>
+              <p className="text-[10px] text-soft">über {k.bedarf.length} ICF-Items</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Hochbedarf</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {k.bedarf.filter((b) => b.bewertung >= 3).length}
+              </p>
+              <p className="text-[10px] text-soft">Bewertung 3 oder 4</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Aktive Ziele</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {k.ziele.filter((z) => z.status !== "erreicht").length}
+              </p>
+              <p className="text-[10px] text-soft">{k.ziele.length} insgesamt</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Tage bis HPK</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {tageHpk}
+              </p>
+              <p className="text-[10px] text-soft">{tageHpk <= 14 ? "Vorbereitung dringlich" : "im Plan"}</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       {/* ICF-Bedarfsbogen */}
       <CockpitSection eyebrow="ICF · Aktivitäten + Teilhabe" title="Bedarfsbogen" count={k.bedarf.length}>
