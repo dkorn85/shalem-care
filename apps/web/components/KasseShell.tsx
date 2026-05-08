@@ -5,6 +5,7 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 import { getLocale } from "@/lib/i18n/server";
 import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
+import { ExpertiseChip } from "./ExpertiseChip";
 
 const KASSE_PRIMAER = "var(--vibe-approval)";
 const KASSE_LABEL = "Krankenkasse";
@@ -47,6 +48,7 @@ export async function KasseShell({
             <span className="text-[11px] text-soft font-mono">IK {user.ik}</span>
           </div>
           <div className="flex items-center gap-3">
+            <ExpertiseChip rolle="kasse" />
             <LocaleSwitcher current={locale} />
             <div className="text-right hidden sm:block">
               <div className="text-[13px] font-medium">{user.name}</div>

@@ -1,5 +1,7 @@
 import Link from "next/link";
 import { KasseShell } from "@/components/KasseShell";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { listVorgaenge, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
 import {
   KASSEN_STATUS_LABEL, KASSEN_STATUS_FARBE, VORGANGS_LABEL,
@@ -60,6 +62,16 @@ export default async function KassenPortalPage({
         </p>
       </header>
 
+      <LerneTipp rolle="kasse" titel="Was läuft in diesem Korb?">
+        Hier landen Anträge von Pflegediensten, Ärzt:innen und Versicherten:
+        <strong> eAU</strong> = elektronische Arbeitsunfähigkeitsbescheinigung,
+        <strong> HKP</strong> = Häusliche Krankenpflege § 37 SGB V,
+        <strong> Krankengeld</strong> § 44 SGB V, <strong>Abrechnung</strong> §§ 105/302.
+        Status-Spur: <em>eingegangen</em> → <em>in Prüfung</em> → optional <em>Rückfrage</em>
+        → <em>genehmigt</em> oder <em>abgelehnt</em>. Audit-Log wird automatisch geführt
+        (§ 35 SGB I + DSGVO Art. 30).
+      </LerneTipp>
+
       <section className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-6">
         <Tile label="eingegangen" value={counts.eingegangen} color="var(--fri)" alarm={counts.eingegangen > 0} />
         <Tile label="in Prüfung"  value={counts.in_pruefung} color="var(--vibe-profile)" />
@@ -67,6 +79,41 @@ export default async function KassenPortalPage({
         <Tile label="genehmigt"   value={counts.genehmigt}   color="var(--thu)" />
         <Tile label="abgelehnt"   value={counts.abgelehnt}   color="var(--mon)" />
       </section>
+
+      <NurAbProfi rolle="kasse">
+        <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Spezialist:in · Bearbeitungs-SLAs</p>
+          {(() => {
+            const genehmigungsQuote = counts.alle ? Math.round((counts.genehmigt / counts.alle) * 100) : 0;
+            const ablehnungsQuote = counts.alle ? Math.round((counts.abgelehnt / counts.alle) * 100) : 0;
+            const rueckfrageQuote = counts.alle ? Math.round((counts.rueckfrage / counts.alle) * 100) : 0;
+            return (
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Genehmigungs-Quote</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: "rgb(var(--thu))" }}>{genehmigungsQuote}%</p>
+                  <p className="text-[10px] text-soft">Bundesschnitt HKP ≈ 78 %</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Rückfrage-Quote</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2">{rueckfrageQuote}%</p>
+                  <p className="text-[10px] text-soft">Indikator Antrags-Qualität</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">Ablehnungs-Quote</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: "rgb(var(--mon))" }}>{ablehnungsQuote}%</p>
+                  <p className="text-[10px] text-soft">davon MD-Stellungnahme prüfen</p>
+                </div>
+                <div className="surface-mute rounded-lg p-2.5">
+                  <p className="font-mono text-[10px] text-soft">SLA-Frist § 13 Abs. 3a</p>
+                  <p className="font-display text-[18px] font-bold tracking-tight2">3 Wo</p>
+                  <p className="text-[10px] text-soft">5 Wo mit MD · sonst Fiktion</p>
+                </div>
+              </div>
+            );
+          })()}
+        </section>
+      </NurAbProfi>
 
       <nav className="flex flex-wrap gap-1.5 mb-5">
         {(["alle", "eingegangen", "in_pruefung", "rueckfrage", "genehmigt", "abgelehnt"] as const).map((f) => (
