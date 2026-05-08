@@ -1,8 +1,9 @@
 # Shalem Care · Session-Handoff
 
 **Stand:** 2026-05-08 · für die nächste Session
-**Branch:** `main` direkt · **201 Routen** · `tsc --noEmit` exit 0
-**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · 14 von 20 HANDOFF-ToDos abgearbeitet
+**Branch:** `main` direkt · **207 Routen** · `tsc --noEmit` exit 0
+**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · 5 neue Beruf-Cockpits ·
+**Expertise-Modus** (Lerne/Praxis/Profi) auf 9 Cockpits live · 4 zusätzliche KI-Funktionen
 
 ---
 
@@ -22,6 +23,9 @@
 - **Voll-WebRTC** mit Supabase-Signaling · RTCPeerConnection-Mesh ≤4 Peers
 - 11 Berufe mit eindeutiger **Akzent-Farbe** in Sidebar/Header/BottomNav
 - **🎮 Game-Mode** als optionaler Spielmodus · 15 Mini-Games über alle Berufe
+- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · in 9 Cockpits Lern-Tipps + Profi-KPI-Blöcke
+- **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
+- **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
 
 ---
 
@@ -94,6 +98,50 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 16 · 5 echte Beruf-Cockpits · Expertise-Modus · 4 KI-Funktionen (Session 18 · 2026-05-08)
+
+**5 neue Beruf-Cockpits — von Diktat-only zu echten Workflows:**
+
+| Commit | Cockpit | Route(n) | Was es bringt |
+|---|---|---|---|
+| `fcc2b8d` | **Therapie-Patient-Verlauf** | `/therapie/patienten`, `/therapie/patient/[id]` | VAS / ROM / MRC als Sparkline · Tendenz-Chip · ICF + SMART-Ziele · Termin-Historie |
+| `fcc2b8d` | **HW-Wochenplan** | `/hauswirtschaft/wochenplan` | DGE-konformer 7-Tage-Plan · 6 Kostformen · LMIV-Allergen-Filter |
+| `953a125` | **Sozial-Hilfepläne** | `/sozial/hilfeplan`, `/sozial/hilfeplan/[id]` | ICF-Bedarfsbogen · SMART-Ziele · Maßnahmen-Status · Reviews · SGB IX/XII/VIII/XI |
+| `953a125` | **Heilerziehung-Teilhabe** | `/heilerziehung/teilhabe`, `/.../[id]` | BTHG-Teilhabeplan · Selbstvertretung · Persönliches Budget · HPK-Zyklus |
+| `76d4be3` | **Erz-Lerngeschichten** | `/erziehung/lerngeschichten`, `/.../[id]`, `/.../neu` | Carr-Lerngeschichten · BBP-Bildungsbereiche · Lerndispositionen |
+
+**4 KI-Funktionen pro Cockpit (Anthropic Haiku 4.5 · Mock-Fallback):**
+
+| Commit | KI-Box | Cockpit |
+|---|---|---|
+| `57db143` | **Therapie-Verlaufsbrief** · 4 Sitzungen → Brief an Hausarzt | Therapie-Patient-Detail |
+| `57db143` | **ICF-Vorschlag** · Bedarfs-Text → b/d/e-Code-Vorschläge | Sozial-Hilfeplan |
+| `76d4be3` | **DGE-Speiseplan** · Klient + Kostform → Wochenplan-Vorschlag | HW-Wochenplan |
+| `76d4be3` | **Carr-Lerngeschichte** · Beobachtung → Entwurf + BBP-Tags | Erz-Lerngeschichten/neu |
+
+**Expertise-Modus · Lerne / Praxis / Profi (`2c1c52b`):**
+
+- Globaler `<ExpertiseChip />` im AppShell-Header — Default `praxis`, persistiert pro Beruf in `localStorage["shalem.expertise.<rolle>"]`
+- 11 Berufe haben rollen-spezifische Labels (Pflege: Azubi/Pflegekraft/Pflegeprofi · Arzt: Assistenz/Facharzt/Oberarzt · …)
+- `<LerneTipp rolle>` blendet Glossar-Banner für Casual/Azubi ein
+- `<NurAbProfi rolle>` zeigt erweiterte KPI-Blöcke nur im Profi-Modus
+- `<NurAb / NurBis / NurBeiLevel>` als Komfort-Wrapper
+
+**In 9 Cockpits eingezogen** (Commits `685e50e`, `fce8fe4`, `1e6ce2c`, `3ead59c` plus initiale Wires):
+
+| Cockpit | Lerne-Tipp | Profi-Block |
+|---|---|---|
+| Pflege/Heute | DBfK-Glossar | Performance-Tracking · Caseload · Cross-Termine · HKP-VOs |
+| Sozial/Hilfeplan-Liste | SGB IX/XII/VIII/XI · SMART | SGB-Verteilung · DGCC-Caseload |
+| Sozial/Hilfeplan-Detail | (initial) | (initial) |
+| Therapie/Patienten-Liste | VAS/ROM/MRC | Outcome-Verteilung fallend/stabil/steigend |
+| Therapie/Patient-Detail | (initial) | (initial) |
+| HE/Teilhabe-Liste | BTHG/ICF/P-Budget | P-Budget-Quote · Ziele · HPK |
+| HE/Teilhabe-Detail | Carr-ICF-Lesart | Bedarf-Schnitt · Hochbedarf · HPK-Tage |
+| HW/Wochenplan | DGE/LMIV/IDDSI | Wareneinsatz · Bio-Anteil · HACCP · Reste |
+| Erz/Lerngeschichten-Liste | Carr-Methodik | Bildungsbereich-Verteilung |
+| Erz/Lerngeschichte-Detail | Carr-Disposition | Carr-Profil · Tag-Vielseitigkeit |
 
 ### 15 · Game-Mode · Mini-Games über alle Berufe (Session 17 · 2026-05-08)
 
@@ -178,23 +226,23 @@ chmod 600 ~/.git-credentials
 
 53 Module katalogisiert in `lib/pvs/matrix.ts`. Sichtbar unter `/roadmap/pvs`.
 
-| Beruf | Live | Game-Mode |
-|---|---|---|
-| 🩺 Pflege | SIS · Tour · Assessment-Skalen · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat-Booster · Wund-Tendenz-Quiz |
-| 👩‍⚕️ Arzt | Diktat · eRezept-Pilot · KIM-FHIR-Bundle | ICD-10-Sprint |
-| 🤲 Therapie | Diktat | HMV-Code-Match |
-| 📋 Sozial | Diktat | Paragraphen-Hunt |
-| 🌱 Heilerziehung | Diktat | ICF-Lebenswelten |
-| 🍲 Hauswirtschaft | Diktat | Kostform-Puzzle |
-| 🌻 Erziehung | Lerngeschichten | Bildungs-Bingo |
-| 🤝 Ehrenamt | Begleit-Diktat | Begleit-Bingo |
-| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox |
-| 💶 Krankenkasse | Bescheid-Diktat | — |
-| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus | NBA-Sprint · Bescheid-Quiz |
-| 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — |
-| 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — |
+| Beruf | Live | KI-Funktion | Game-Mode | Expertise |
+|---|---|---|---|---|
+| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ |
+| 👩‍⚕️ Arzt | Diktat · eRezept-Pilot · KIM-FHIR-Bundle | Diktat-Strukturierung | ICD-10-Sprint | — |
+| 🤲 Therapie | Diktat · **Patient-Verlauf mit VAS/ROM/MRC-Sparkline** | Diktat · **Verlaufsbrief-KI** | HMV-Code-Match | ✓ Liste+Detail |
+| 📋 Sozial | Diktat · **Hilfepläne mit ICF + SMART-Zielen** | Diktat · **ICF-Vorschlag-KI** | Paragraphen-Hunt | ✓ Liste+Detail |
+| 🌱 Heilerziehung | Diktat · **Teilhabepläne BTHG + P-Budget** | Diktat | ICF-Lebenswelten | ✓ Liste+Detail |
+| 🍲 Hauswirtschaft | Diktat · **DGE-Wochenplan + Allergen-Filter** | Diktat · **Speiseplan-KI** | Kostform-Puzzle | ✓ |
+| 🌻 Erziehung | Diktat · **Carr-Lerngeschichten** | Diktat · **Lerngeschichte-Entwurf-KI** | Bildungs-Bingo | ✓ Liste+Detail |
+| 🤝 Ehrenamt | Begleit-Diktat | — | Begleit-Bingo | — |
+| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | — |
+| 💶 Krankenkasse | Bescheid-Diktat | — | — | — |
+| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus | KI-Klartext | NBA-Sprint · Bescheid-Quiz | — |
+| 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | — |
+| 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~75 % live · 15 Mini-Games über 11 Routen verteilt, jeder Beruf hat seinen optionalen Spaß-Modus.
+**Aktueller Reifegrad gesamt:** ~80 % live · 15 Mini-Games über 11 Routen verteilt, jeder Beruf hat seinen optionalen Spaß-Modus, 7 Berufe haben echte Workflow-Cockpits über das Diktat hinaus, Expertise-Modus auf 9 Cockpits eingezogen.
 
 ---
 
@@ -222,6 +270,9 @@ chmod 600 ~/.git-credentials
 - [x] Brillenmodus universal (KI-Klartext)
 - [x] 11 Berufe mit eindeutiger Akzent-Farbe
 - [x] 15 Mini-Games hinter optionalem 🎮-Toggle
+- [x] 5 echte Beruf-Cockpits (Therapie · Sozial · HE · HW · Erz) über das Diktat hinaus
+- [x] 4 zusätzliche KI-Funktionen pro Cockpit
+- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + 9 Cockpits gewired
 
 ### Priorität A · Pending User-Aktionen (organisatorisch)
 
@@ -258,6 +309,9 @@ chmod 600 ~/.git-credentials
 - [ ] Mobile-Drawer · Search-Filter wenn Sidebar > 10 Items
 - [ ] Game-Mode · Highscore-Liste pro Beruf (anonym, ohne Login)
 - [ ] Game-Mode · Lana-Phrasen je Beruf-Persönlichkeit personalisieren
+- [ ] Expertise-Modus auf restliche Cockpits ziehen (Arzt-Heute, Ehrenamt, Kasse, Lead-HUD)
+- [ ] Ehrenamt-Cockpit über das Diktat hinaus (Biographie-Box, Lebenslagen)
+- [ ] Kasse-Bescheid-Pipeline-Cockpit (Eingang → Klartext → Versand)
 
 ---
 
@@ -327,60 +381,55 @@ docs/
 apps/web/
   app/
     pflege/{heute,doku,tour,selbst,assessment,wunde,diktat/booster}/    Pflege-Cockpit
-      wunde/quiz/                  Wund-Tendenz-Quiz
-      diktat/booster/              Diktat-Booster Rapid-Fire
     arzt/{heute,diktat,erezepte,quiz,...}/                              Arzt
-      quiz/                        ICD-10-Sprint
-    therapie/{heute,diktat,quiz}/                                       Therapie
-    sozial/{diktat,quiz}/                                               Sozial
-    heilerziehung/{diktat,quiz}/                                        HE
-    hauswirtschaft/{diktat,quiz}/                                       HW
-    erziehung/{diktat,quiz,lerngeschichten}/                            Erz
+    therapie/{heute,diktat,quiz,patienten,patient/[id]}/                Therapie + Verlauf
+    sozial/{diktat,quiz,hilfeplan,hilfeplan/[id]}/                      Sozial + Hilfeplan
+    heilerziehung/{diktat,quiz,teilhabe,teilhabe/[id]}/                 HE + Teilhabe
+    hauswirtschaft/{diktat,quiz,wochenplan}/                            HW + DGE-Plan
+    erziehung/{diktat,quiz,lerngeschichten,lerngeschichten/{[id],neu}}/ Erz + Carr
     ehrenamt/{begleitung,protokoll,quiz}/                               EA
     klient/{heute,akte/verstehen,akte/wunde,bescheid-quiz}/             Klient
     kasse/diktat/                                                        Kasse
     admin/{dienstplan/{hud,archiv,arena}}/                               PDL
-      genehmigungen/{,sprint}/      Approvals + Sprint
-      verordnungen/                 HKP-Pipeline
-      abrechnung/[id]/[rId]/        Quartalsabrechnung DTA-§302
-      pflegegrad/[id]/              Pflegegrad-Pipeline
-      ti/{konnektoren,karten,sfu}/  TI-Cockpits
-      recordings/                   Cloud-Recording + FHIR
-      audit/hunt/                   MD-Audit-Hunt
-      wirtschaft/sandbox/           Wirtschafts-Sandbox
+      genehmigungen/{,sprint}/ · verordnungen/ · abrechnung/[id]/[rId]/
+      pflegegrad/[id]/ · ti/{konnektoren,karten,sfu}/
+      recordings/ · audit/hunt/ · wirtschaft/sandbox/
     konferenz/[id]/{live}/                                              Fallbesprechung
-    pflegegrad-check/{,sprint}/     Pflegegrad-Schätzer + NBA-Sprint
-    aufsicht/druck/[quartal]/                                           Bericht-Druck
-    politik/                                                            Politik live
-    termine/                                                            Cross-Beruf-Tagessicht
-    genossenschaft/{pool,solidartopf,ausschuettung}/                    eG
+    pflegegrad-check/{,sprint}/                                          Pflegegrad-Quiz
+    aufsicht/druck/[quartal]/                                            Bericht-Druck
+    politik/ · termine/ · genossenschaft/{pool,solidartopf,ausschuettung}/
 
   components/
-    AppShell.tsx                Sidebar · Mobile-Drawer · Beruf-Akzent
-    MobileNavDrawer.tsx
-    Brillenmodus.tsx            FAB · KI-Klartext
-    GameModeToggle.tsx          🎮-FAB
-    GameModeWrapper.tsx         <GameModeOnly>, <ClassicOnly>
-    KategorieMatch.tsx          Generische Quiz-Shell für 7 Beruf-Quiz
-    QuizHeroCard.tsx            Einheitliche Hero-Karte
-    DienstplanArena.tsx · GenehmigungsSprint.tsx · NbaSprint.tsx ·
-    WundQuiz.tsx · DiktatBooster.tsx · BescheidQuiz.tsx ·
-    AuditHunt.tsx · WirtschaftSandbox.tsx
+    AppShell.tsx                Sidebar · Mobile-Drawer · Beruf-Akzent · ExpertiseChip-Slot
+    ExpertiseChip.tsx           Lerne/Praxis/Profi-FAB-Toggle pro Beruf
+    ExpertiseGate.tsx           <NurAbProfi>, <NurBeiLerne>, <NurAb / NurBis>
+    LerneTipp.tsx               Glossar-Banner für Casual/Azubi · nur im lerne-Modus
+    Sparkline.tsx               Mini-Chart für VAS/ROM/MRC-Verlauf (Therapie)
+    IcfVorschlagBox.tsx         Sozial-Bedarfs-Text → ICF-Codes (Lana)
+    TherapieBriefBox.tsx        Therapie-Sitzungen → Hausarzt-Brief (Lana)
+    SpeiseplanKiBox.tsx         HW-Klient + Kostform → Wochenplan-Vorschlag (Lana)
+    LerngeschichteEntwurfBox.tsx Beobachtung → Carr-Lerngeschichte (Lana)
+    WochenplanGrid.tsx          7×5-Mahlzeiten-Grid mit Allergen-Filter
+    Brillenmodus.tsx · GameModeToggle.tsx · GameModeWrapper.tsx
+    KategorieMatch.tsx · QuizHeroCard.tsx
     [+ alle früheren · siehe git history]
 
   lib/
+    ui/expertise.ts             useExpertise · ExpertiseLevel · LEVEL_RANK · localStorage
     ui/game-mode.ts             useGameMode-Hook
-    games/                      Daten für 7 Beruf-Quizze
-      quiz-arzt.ts · quiz-therapie.ts · quiz-sozial.ts ·
-      quiz-heilerziehung.ts · quiz-hauswirtschaft.ts · quiz-erziehung.ts ·
-      quiz-ehrenamt.ts
-    dienstplan/arena-score.ts
-    approval/sprint-store.ts · sprint-actions.ts
-    audit/hunt-faelle.ts
-    wirtschaft/sandbox-modell.ts
-    klient/bescheid-quiz.ts
-    beruf-diktat/booster-snippets.ts
-    wunde/quiz.ts
+    therapie/verlauf.ts         Patient-Karteikarten · termine · tendenzVas
+    therapie/verlaufsbrief-ki.ts Anthropic-Wrap mit Mock-Fallback
+    sozial/hilfeplan-store.ts    Hilfeplan-Daten · ICF-Bewertungen
+    sozial/icf-vorschlag-ki.ts   Bedarfs-Text → ICF-Codes
+    heilerziehung/teilhabe-store.ts BTHG-Klient · Bedarf · Ziele · P-Budget
+    hauswirtschaft/wochenplan.ts Mahlzeiten · Allergen-Codes · DGE
+    hauswirtschaft/speiseplan-ki.ts Kostform-Plan-Vorschlag
+    erziehung/lerngeschichten-store.ts BBP-Bereiche · Carr-Dispositionen
+    erziehung/lerngeschichte-ki.ts Beobachtung → Entwurf
+    games/quiz-{arzt,therapie,sozial,heilerziehung,hauswirtschaft,erziehung,ehrenamt}.ts
+    dienstplan/arena-score.ts · approval/sprint-{store,actions}.ts
+    audit/hunt-faelle.ts · wirtschaft/sandbox-modell.ts
+    klient/bescheid-quiz.ts · beruf-diktat/booster-snippets.ts · wunde/quiz.ts
     [+ alle früheren · siehe git history]
 
 scripts/
