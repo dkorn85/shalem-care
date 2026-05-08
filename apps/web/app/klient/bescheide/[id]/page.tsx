@@ -12,6 +12,7 @@ import { MusterEinsAU } from "@/components/scheine/MusterEinsAU";
 import { KassenBescheidBrief } from "@/components/scheine/KassenBescheidBrief";
 import { KlartextSpalte } from "@/components/scheine/KlartextSpalte";
 import { DruckenButton } from "@/components/scheine/DruckenButton";
+import { WiderspruchEntwurfBox } from "@/components/scheine/WiderspruchEntwurfBox";
 import { getVorgang, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
 import { seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
 import { seedAnfragenOnce } from "@/lib/verordnung/store";
@@ -116,31 +117,40 @@ export default async function KlientBescheidDetailPage({ params }: { params: Pro
         </section>
       )}
 
-      {/* Widerspruchs-Hinweis bei Ablehnung */}
+      {/* Widerspruchs-Hinweis + KI-Editor bei Ablehnung */}
       {istWiderspruchsfaehig && (
-        <section
-          className="surface rounded-2xl p-5"
-          style={{ borderLeft: "3px solid rgb(var(--mon))", background: "rgb(var(--mon) / 0.05)" }}
-        >
-          <p className="text-[10px] uppercase tracking-wider font-mono mb-2" style={{ color: "rgb(var(--mon))" }}>
-            ⚠ Widerspruch möglich · § 84 SGG
-          </p>
-          <h3 className="font-display text-[16px] font-bold tracking-tight2 mb-2">
-            Du hast 1 Monat Zeit, um zu widersprechen
-          </h3>
-          <p className="text-[13px] leading-relaxed text-pretty mb-3">
-            Wenn du mit der Ablehnung nicht einverstanden bist, kannst du <strong>schriftlich
-            Widerspruch</strong> einlegen. Der Brief muss bei deiner Kasse innerhalb von
-            <strong> einem Monat nach Erhalt</strong> ankommen. Du musst nichts begründen — sag
-            einfach „Ich widerspreche dem Bescheid vom [Datum] mit dem Aktenzeichen [Az]".
-            Die Begründung kannst du nachreichen.
-          </p>
-          <p className="text-[12px] text-mute leading-relaxed">
-            Hilfe? Sag deiner <strong>Pflegekraft</strong>, dem <strong>Hospiz-Koordinator</strong>
-            oder einer <strong>Sozialberatungs-Stelle</strong> Bescheid — die schreiben den
-            Widerspruch für dich. Es kostet nichts.
-          </p>
-        </section>
+        <>
+          <section
+            className="surface rounded-2xl p-5 mb-5 no-print"
+            style={{ borderLeft: "3px solid rgb(var(--mon))", background: "rgb(var(--mon) / 0.05)" }}
+          >
+            <p className="text-[10px] uppercase tracking-wider font-mono mb-2" style={{ color: "rgb(var(--mon))" }}>
+              ⚠ Widerspruch möglich · § 84 SGG
+            </p>
+            <h3 className="font-display text-[16px] font-bold tracking-tight2 mb-2">
+              Du hast 1 Monat Zeit, um zu widersprechen
+            </h3>
+            <p className="text-[13px] leading-relaxed text-pretty mb-3">
+              Lana baut dir unten einen <strong>fertigen Brief</strong>, den du nur noch drucken
+              und unterschreiben musst. Er muss innerhalb von <strong>einem Monat nach Erhalt
+              des Bescheids</strong> bei deiner Kasse ankommen. Eine Begründung ist nicht
+              zwingend — auch ohne ist der Widerspruch gültig.
+            </p>
+            <p className="text-[12px] text-mute leading-relaxed">
+              Wenn du dir unsicher bist: deine <strong>Pflegekraft</strong>, der <strong>
+              Hospiz-Koordinator</strong> oder eine <strong>Sozialberatungs-Stelle</strong>
+              prüfen den Brief gerne mit dir — kostet nichts.
+            </p>
+          </section>
+
+          <WiderspruchEntwurfBox
+            vorgang={v}
+            klientName={KLIENT_NAME}
+            klientAnrede="Frau"
+            klientAnschrift={"Pulmologie 3B\nGutleutstraße 88\n45128 Essen"}
+            ortAusstellung="Essen"
+          />
+        </>
       )}
     </KlientShell>
   );
