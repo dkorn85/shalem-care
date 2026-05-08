@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { CockpitSection } from "@/components/BerufCockpitCard";
 import { IcfVorschlagBox } from "@/components/IcfVorschlagBox";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import {
   getHilfeplan, listHilfeplaene,
   ICF_DOMAIN_LABEL, ICF_DOMAIN_FARBE, ICF_BEWERTUNG_LABEL,
@@ -60,6 +62,14 @@ export default async function HilfeplanDetailPage({ params }: { params: Promise<
           </div>
         </div>
       </header>
+
+      <LerneTipp rolle="sozial" titel="BTHG · ICF · Hilfeplan in Kürze">
+        <strong>BTHG</strong> = Bundesteilhabegesetz, regelt Eingliederungshilfe nach SGB IX.
+        <strong> ICF</strong> = Internationale Klassifikation der Funktionsfähigkeit, beschreibt mit
+        Codes wie b730 (Muskelkraft) oder d450 (Gehen) wo Unterstützung nötig ist. Bewertung 0–4
+        sagt, wie stark der Bedarf ist. Der <strong>Hilfeplan</strong> ist die schriftliche
+        Vereinbarung zwischen Klient:in, Sozialarbeit und Trägern — partizipativ, also gemeinsam.
+      </LerneTipp>
 
       {/* Selbstvertretung · Banner */}
       <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: `3px solid rgb(${plan.farbe})` }}>
@@ -167,6 +177,17 @@ export default async function HilfeplanDetailPage({ params }: { params: Promise<
           <li className="flex justify-between gap-3"><span className="text-mute">Nächste Review</span><span className="font-mono">{plan.naechsteReview}</span></li>
         </ul>
       </section>
+
+      <NurAbProfi rolle="sozial">
+        <section className="surface rounded-2xl p-4 mt-5" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-1">● Profi-Modus · Case-Manager-Tools (DGCC)</p>
+          <ul className="space-y-1 text-[12px] text-mute leading-relaxed">
+            <li>· Träger-Konsil-Vorbereitung mit Bedarfs-Synthese aus ICF + Maßnahmen-Status</li>
+            <li>· Frist-Tracking je Antrag (3-/6-/12-Mo-Reviews automatisch terminiert)</li>
+            <li>· DSGVO-Verlaufs-Export mit Beteiligungs-Nachweis pro HPK</li>
+          </ul>
+        </section>
+      </NurAbProfi>
 
       <IcfVorschlagBox />
     </AppShell>

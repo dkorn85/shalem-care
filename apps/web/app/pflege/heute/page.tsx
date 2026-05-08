@@ -30,6 +30,8 @@ import {
   STATUS_FARBE as HKP_STATUS_FARBE,
 } from "@/lib/pvs/eVerordnung/store";
 import { GameModeOnly } from "@/components/GameModeWrapper";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 
 export const metadata = {
   title: "Pflege · Heute · Tageshub",
@@ -96,6 +98,13 @@ export default async function PflegeHeutePage() {
         {ersparnis.eintraege > 0 && <> Du hast diese Woche {ersparnis.stundenWoche.toFixed(1)} h durch SIS-Diktat gespart.</>}
       </RolePastelHeader>
 
+      <LerneTipp rolle="pflege" titel="So liest du diesen Hub">
+        Oben siehst du, wie deine Schicht heute läuft. Die roten Karten heißen
+        „Hoch-Priorität" — das sind Menschen, bei denen heute besonders gut hingeschaut
+        werden soll. SIS = Strukturierte Informationssammlung — die Pflegedoku.
+        HKP = Häusliche Krankenpflege nach § 37 SGB V.
+      </LerneTipp>
+
       {/* KPI-Strip */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
         <KpiTile label="Hoch-Priorität" value={uebergabe.filter((u) => u.prioritaet === "hoch").length} farbe="var(--mon)" unten="Übergabe" />
@@ -103,6 +112,40 @@ export default async function PflegeHeutePage() {
         <KpiTile label="Vital fällig" value={vitals.filter((v) => v.faelligIn_min < 0).length} farbe="var(--vibe-stats)" unten={`${vitals.length} Klienten`} />
         <KpiTile label="Energie" value={`${selbst.energie}%`} farbe={selbst.energie > 65 ? "var(--vibe-approval)" : selbst.energie > 40 ? "var(--sun)" : "var(--mon)"} unten={`${selbst.pausen_genommen}/${selbst.pausen_geplant} Pausen`} />
       </section>
+
+      {/* Profi-Extras · Auswertung + Performance-Kennzahlen */}
+      <NurAbProfi rolle="pflege">
+        <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <header className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono">● Profi-Modus · Performance-Tracking</p>
+            <Link href="/admin/auswertung" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+              Auswertung →
+            </Link>
+          </header>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Diktate diese Wo.</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{ersparnis.eintraege}</p>
+              <p className="text-[10px] text-soft">{ersparnis.stundenWoche.toFixed(1)} h gespart</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Caseload-Größe</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{klientIds.length}</p>
+              <p className="text-[10px] text-soft">DBfK-Empfehlung 6–8</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Cross-Termine</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{naechsteCross.length}</p>
+              <p className="text-[10px] text-soft">heute koordiniert</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">HKP-VOs</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{eigeneVerordnungen.length}</p>
+              <p className="text-[10px] text-soft">§ 37 SGB V</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       {/* HKP-Verordnungen für meinen Caseload */}
       {eigeneVerordnungen.length > 0 && (
