@@ -11,6 +11,8 @@ import {
   type Ausschuettung,
 } from "@/lib/genossenschaft/ausschuettung";
 import { AusschuettungActions } from "@/components/AusschuettungActions";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 
 export const metadata = {
   title: "Quartals-Ausschüttung · eG-Workflow",
@@ -26,6 +28,7 @@ export default function AusschuettungPage() {
       role="lead"
       user={{ id: "person-de1", name: "Detektiv Eins", subtitle: "Vorstand · eG", initials: "DE" }}
       station="Genossenschafts-Zentrale"
+      expertiseRolleOverride="genossenschaft"
     >
       <header className="mb-6">
         <Link href="/genossenschaft" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-2">← Genossenschaft</Link>
@@ -42,12 +45,55 @@ export default function AusschuettungPage() {
         </p>
       </header>
 
+      <LerneTipp rolle="genossenschaft" titel="Wer entscheidet hier was?">
+        <strong>GenG § 19</strong> + <strong>Satzung § 33</strong> regeln die
+        Ausschüttung: <em>Vorstand</em> macht den Vorschlag, <em>Aufsichtsrat</em>
+        genehmigt, dann läuft der <em>SEPA-Sammler</em> an die Hausbank. Jedes
+        Mitglied bekommt seinen Anteil je gehaltener <strong>Geschäftsanteile</strong>
+        (1 Anteil = 1 Stimme in der Generalversammlung). Plattform-Cut 4 % bleibt
+        für Betriebskosten, 1 % geht in den Solidar-Topf, der Rest wird verteilt.
+      </LerneTipp>
+
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-6">
         <Mini label="Ausschüttungen" value={String(kpi.total)} />
         <Mini label="Ausgezahlt" value={String(kpi.ausgezahlt)} />
         <Mini label="Offen" value={String(kpi.offen)} alarm={kpi.offen > 0} />
         <Mini label="Σ ausgezahlt" value={`${kpi.summeAusgezahltEuro.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} €`} />
       </section>
+
+      <NurAbProfi rolle="genossenschaft">
+        <section className="surface rounded-2xl p-4 mb-6" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Aufsichtsrat · Quartal-Workflow-Steuerung</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Genehmigungs-Stau</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: kpi.offen > 0 ? "rgb(var(--mon))" : "rgb(var(--thu))" }}>
+                {kpi.offen}
+              </p>
+              <p className="text-[10px] text-soft">braucht AR-Sitzung</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Auszahlungs-Quote</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {kpi.total ? Math.round((kpi.ausgezahlt / kpi.total) * 100) : 0}%
+              </p>
+              <p className="text-[10px] text-soft">{kpi.ausgezahlt} / {kpi.total} Quartale</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Σ ausgezahlt YTD</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {Math.round(kpi.summeAusgezahltEuro / 1000)} k€
+              </p>
+              <p className="text-[10px] text-soft">Mitglieder-Anteil-Auszahlung</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Rechtsbasis</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">§ 19</p>
+              <p className="text-[10px] text-soft">GenG · Verteilungs-Satz</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       <ul className="space-y-3">
         {alle.map((a) => (

@@ -16,6 +16,8 @@ import { StatTile } from "@/components/StatTile";
 import { BulletList } from "@/components/BulletList";
 import { RainbowText } from "@/components/Rainbow";
 import { SolidarClaimAktion } from "@/components/SolidarClaimAktion";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import {
   listClaims, listZufluesse, topfKpis, jahresSummeFuerMitglied,
   CAP_PRO_CLAIM_EURO, CAP_PRO_JAHR_EURO, MAX_KRANKENTAGE_PRO_JAHR, RESERVE_QUOTE_MIN,
@@ -66,6 +68,7 @@ export default async function SolidartopfPage() {
       role="nurse"
       user={nurse ? { id: nurse.id, name: nurse.name, subtitle: "Pflegefachkraft", initials: nurse.initials } : { id: "demo", name: "Demo", subtitle: "Pflege", initials: "DM" }}
       station="Pulmologie 3B"
+      expertiseRolleOverride="genossenschaft"
     >
       <HeroBanner
         bild="/akte/header-solidartopf.png"
@@ -84,6 +87,17 @@ export default async function SolidartopfPage() {
         }
       />
 
+      <LerneTipp rolle="genossenschaft" titel="Wie funktioniert der Solidar-Topf?">
+        Der Topf ist ein <strong>genossenschaftlicher Krankheits-Schutz</strong> —
+        keine Versicherung, keine GKV, sondern ein freiwilliger Mitgliedertopf
+        nach <strong>GenG § 17</strong> (Förderung der Mitglieder). Er speist
+        sich aus 1 % Plattform-Cut + Opt-In-Spenden aus der Quartals-Ausschüttung.
+        Maximal {CAP_PRO_CLAIM_EURO.toLocaleString("de-DE")} € pro Claim,
+        {CAP_PRO_JAHR_EURO.toLocaleString("de-DE")} € im Jahr — Tag 1–6 100 %,
+        danach 70 % parallel zum gesetzlichen Krankengeld § 44 SGB V.
+        Reserve-Quote muss bei mindestens {Math.round(RESERVE_QUOTE_MIN * 100)} % liegen.
+      </LerneTipp>
+
       {/* Topf-KPIs */}
       <SmoothReveal direction="up">
         <section className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 mt-6 mb-8" aria-label="Solidar-Topf-Kennzahlen">
@@ -94,6 +108,38 @@ export default async function SolidartopfPage() {
           <StatTile label="Offene Claims" value={kpi.offeneClaims} akzent="var(--sun)" hint="warten auf Approval" />
         </section>
       </SmoothReveal>
+
+      <NurAbProfi rolle="genossenschaft">
+        <section className="surface rounded-2xl p-4 mb-8" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Aufsichtsrat · Topf-Kontroll-Indikatoren</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Reserve-Status</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: reserveOk ? "rgb(var(--thu))" : "rgb(var(--mon))" }}>
+                {reserveOk ? "OK" : "ALARM"}
+              </p>
+              <p className="text-[10px] text-soft">{Math.round(kpi.reserveQuote * 100)} % vs. min {Math.round(RESERVE_QUOTE_MIN * 100)} %</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Claim-Quote</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {claims.length ? Math.round((kpi.ausgezahlteClaims / claims.length) * 100) : 0}%
+              </p>
+              <p className="text-[10px] text-soft">{kpi.ausgezahlteClaims} / {claims.length} ausgezahlt</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Cap-Tage Schutz</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{MAX_KRANKENTAGE_PRO_JAHR}</p>
+              <p className="text-[10px] text-soft">Max-Tage/Jahr · Mitglied</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">GenG-Bezug</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">§ 17</p>
+              <p className="text-[10px] text-soft">Mitglieder-Förderung</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       {/* Eigener Jahres-Stand */}
       {nurse && (
