@@ -8,6 +8,7 @@ import { MusterZwoelfHKP } from "@/components/scheine/MusterZwoelfHKP";
 import { MusterEinsAU } from "@/components/scheine/MusterEinsAU";
 import { KassenBescheidBrief } from "@/components/scheine/KassenBescheidBrief";
 import { KlartextSpalte } from "@/components/scheine/KlartextSpalte";
+import { DruckenButton } from "@/components/scheine/DruckenButton";
 import { getVorgang, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
 import {
   KASSEN_STATUS_LABEL, KASSEN_STATUS_FARBE, VORGANGS_LABEL,
@@ -46,9 +47,12 @@ export default async function VorgangPage({ params }: { params: Promise<{ id: st
       user={{ name: "Sandra Lehmann", ik: CURRENT_KASSE_IK, role: "sachbearbeiterin" }}
       kassenName="AOK Nordost"
     >
-      <Link href="/kasse" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
-        ← Eingangskorb
-      </Link>
+      <div className="flex items-baseline justify-between gap-2 mb-3 no-print">
+        <Link href="/kasse" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1">
+          ← Eingangskorb
+        </Link>
+        <DruckenButton />
+      </div>
 
       <header className="mb-5">
         <div className="flex items-baseline gap-2 flex-wrap mb-2">

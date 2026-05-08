@@ -11,6 +11,7 @@ import { MusterZwoelfHKP } from "@/components/scheine/MusterZwoelfHKP";
 import { MusterEinsAU } from "@/components/scheine/MusterEinsAU";
 import { KassenBescheidBrief } from "@/components/scheine/KassenBescheidBrief";
 import { KlartextSpalte } from "@/components/scheine/KlartextSpalte";
+import { DruckenButton } from "@/components/scheine/DruckenButton";
 import { getVorgang, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
 import { seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
 import { seedAnfragenOnce } from "@/lib/verordnung/store";
@@ -51,9 +52,12 @@ export default async function KlientBescheidDetailPage({ params }: { params: Pro
 
   return (
     <KlientShell user={{ name: KLIENT_NAME, initials: "HR", relation: "self", klientId: KLIENT_ID }}>
-      <Link href="/klient/bescheide" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
-        ← Meine Bescheide
-      </Link>
+      <div className="flex items-baseline justify-between gap-2 mb-3 no-print">
+        <Link href="/klient/bescheide" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1">
+          ← Meine Bescheide
+        </Link>
+        <DruckenButton />
+      </div>
 
       <header className="mb-5">
         <p className="text-[10px] uppercase tracking-wider text-soft font-mono">

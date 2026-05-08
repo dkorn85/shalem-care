@@ -425,3 +425,100 @@
 @keyframes confettiFall {
   to { transform: translateY(120vh) rotate(360deg); }
 }
+
+/* ──────────────────────────────────────────────────────────────────────────
+ * Print-Stylesheet
+ * ──────────────────────────────────────────────────────────────────────────
+ *
+ * Beim Drucken landet nur der Schein/Bescheid auf dem Papier — Sidebar,
+ * BottomNav, FAB-Stack (Brillenmodus, GameMode, ExpertiseChip), Sticky
+ * Header und Klartext-Spalte werden ausgeblendet. Mit `.print-only` lassen
+ * sich Versand-Hinweise nur fürs gedruckte Blatt anzeigen, mit `.no-print`
+ * dasselbe in die andere Richtung. Schein-Komponenten (Klasse beginnt mit
+ * `surface` oder ist ein `<article>`) müssen sichtbar bleiben — den Rest
+ * blenden wir aktiv aus.
+ */
+
+@media print {
+  /* Browser-Defaults: kein Header/Footer, knappe Ränder */
+  @page {
+    size: A4;
+    margin: 12mm 14mm;
+  }
+
+  html, body {
+    background: #FFFFFF !important;
+    color: #000000 !important;
+  }
+
+  /* Globale Hide-Liste: alles, was zur App-Bedienung gehört */
+  aside,
+  nav,
+  header.border-b,
+  footer.border-t,
+  .bottom-nav-safe,
+  [aria-label*="Brillenmodus"],
+  [aria-label*="brillenmodus"],
+  [aria-label*="Game-Mode"],
+  [aria-label*="gamemode"],
+  details > summary,
+  .no-print,
+  .rainbow-bar {
+    display: none !important;
+  }
+
+  /* FAB-Stack komplett wegfegen — alles Fixed-Positioned ausblenden */
+  .fixed {
+    display: none !important;
+  }
+
+  /* Klartext-Spalte ist hilfreich am Bildschirm, nicht auf Papier — der
+   * gedruckte Bescheid soll wie das Original aussehen. */
+  .lg\:grid-cols-\[1fr_320px\] {
+    grid-template-columns: 1fr !important;
+  }
+  .lg\:grid-cols-\[1fr_320px\] > aside {
+    display: none !important;
+  }
+
+  /* Schein-Container (article) bekommt vollen Druck-Bereich, kein Schatten */
+  article {
+    box-shadow: none !important;
+    max-width: 100% !important;
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+
+  /* mix-blend-mode wird beim Druck oft schlecht gerendert — auf normal
+   * zurückfallen, sonst verschwinden Stempel komplett. */
+  img[style*="multiply"] {
+    mix-blend-mode: multiply !important;
+  }
+
+  /* details>* aufklappen, damit verborgene Inhalte (Bescheid-Vorschau)
+   * sichtbar sind */
+  details {
+    display: block !important;
+  }
+  details > * {
+    display: block !important;
+  }
+
+  /* Page-Break-Empfehlungen */
+  h1, h2, h3 {
+    page-break-after: avoid;
+  }
+  table, tr, td {
+    page-break-inside: avoid;
+  }
+
+  /* Print-only Marker (z. B. Versand-Vermerk) sichtbar */
+  .print-only {
+    display: block !important;
+  }
+}
+
+.print-only {
+  display: none;
+}
+
