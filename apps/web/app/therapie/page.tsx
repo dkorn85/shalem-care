@@ -91,7 +91,7 @@ export default async function TherapiePage() {
           {HEUTE.map((h) => (
             <CockpitListItem
               key={h.id}
-              href={`/therapie/patienten`}
+              href="/therapie/patienten"
               badge={h.zeit}
               title={`${h.patient} · ${h.leistung}`}
               subtitle={`${h.region} · ICD ${h.icd}`}
@@ -101,6 +101,20 @@ export default async function TherapiePage() {
           ))}
         </ul>
       </CockpitSection>
+
+      <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--fri))" }}>
+        <header className="flex items-baseline justify-between gap-2 mb-1.5 flex-wrap">
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono">Verlauf · neu</p>
+          <Link href="/therapie/patienten" className="text-[11px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+            Alle Patient:innen →
+          </Link>
+        </header>
+        <h3 className="font-display text-[16px] font-bold tracking-tight2">VAS · ROM · Kraft als Sparkline</h3>
+        <p className="text-[12px] text-mute mt-1">
+          Pro Patient:in jetzt ein Cockpit mit Schmerz-Verlauf, Beweglichkeit, MRC-Kraft, ICF-Codes
+          und SMART-Zielen. Kein Theorg-Click-Marathon mehr.
+        </p>
+      </section>
 
       <MeineKlienten personId="person-therapeut-001" beruf="therapie" />
 
