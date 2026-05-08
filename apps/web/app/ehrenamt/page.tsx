@@ -3,6 +3,8 @@ import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { QuizHeroCard } from "@/components/QuizHeroCard";
 import { GameModeOnly } from "@/components/GameModeWrapper";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -73,12 +75,48 @@ export default async function EhrenamtPage() {
         </div>
       </GameModeOnly>
 
+      <LerneTipp rolle="ehrenamt" titel="Was zählt als Ehrenamt?">
+        Ehrenamt = freiwillige Begleitung ohne Erwerbsabsicht. Du sammelst
+        <strong> Aufwandsentschädigung</strong> (§ 3 Nr. 26a EStG · 840 €/Jahr steuerfrei)
+        plus Fahrtkostenerstattung. Wichtigste Aufgabe: <strong>da sein</strong> — nicht pflegen.
+        Bei medizinischen Themen meldest du dich an die Pflege oder den Hospiz-Koordinator.
+        Supervision ist ein Recht, kein Luxus.
+      </LerneTipp>
+
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Begleitungen"   value={BEGLEITUNG.length} farbe="var(--thu)" />
         <CockpitKpi label="Stunden Mai"     value={AUFWANDS_BUDGET.geleistetStunden} unit="h" farbe="var(--vibe-team)" />
         <CockpitKpi label="Pauschale"        value={AUFWANDS_BUDGET.paushaleEuro} unit="€" hint="zur Auszahlung" farbe="var(--vibe-stats)" />
         <CockpitKpi label="Fahrtkosten"      value={AUFWANDS_BUDGET.kmGeldEuro.toFixed(2)} unit="€" hint={`${AUFWANDS_BUDGET.km} km`} farbe="var(--vibe-profile)" />
       </div>
+
+      <NurAbProfi rolle="ehrenamt">
+        <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Hospizfachkraft · Verstetigungs-Indikatoren</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Stunden YTD</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">52 h</p>
+              <p className="text-[10px] text-soft">DHPV-Schnitt 60–80 / Jahr</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Steuer-Spielraum</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{(840 - AUFWANDS_BUDGET.paushaleEuro * 5).toFixed(0)} €</p>
+              <p className="text-[10px] text-soft">bis Freibetrag § 3 Nr. 26a EStG</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Pflichtfortbildung</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">2/4</p>
+              <p className="text-[10px] text-soft">DHPV-Curriculum</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Supervision Q2</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">offen</p>
+              <p className="text-[10px] text-soft">Termin buchbar</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       <CockpitSection eyebrow="Begleitung" title="Meine Klient:innen" count={BEGLEITUNG.length}>
         <ul className="space-y-2">
