@@ -3,7 +3,7 @@
 **Stand:** 2026-05-08 · für die nächste Session
 **Branch:** `main` direkt · **207 Routen** · `tsc --noEmit` exit 0
 **Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · 5 neue Beruf-Cockpits ·
-**Expertise-Modus** (Lerne/Praxis/Profi) auf 9 Cockpits live · 4 zusätzliche KI-Funktionen
+**Expertise-Modus** (Lerne/Praxis/Profi) auf **13 Cockpits** live · 4 zusätzliche KI-Funktionen
 
 ---
 
@@ -23,7 +23,7 @@
 - **Voll-WebRTC** mit Supabase-Signaling · RTCPeerConnection-Mesh ≤4 Peers
 - 11 Berufe mit eindeutiger **Akzent-Farbe** in Sidebar/Header/BottomNav
 - **🎮 Game-Mode** als optionaler Spielmodus · 15 Mini-Games über alle Berufe
-- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · in 9 Cockpits Lern-Tipps + Profi-KPI-Blöcke
+- **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · 13 Cockpits durchgängig mit Lern-Tipps + Profi-KPI-Blöcken (auch Kasse-Portal über KasseShell)
 - **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
 - **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
 
@@ -128,20 +128,24 @@
 - `<NurAbProfi rolle>` zeigt erweiterte KPI-Blöcke nur im Profi-Modus
 - `<NurAb / NurBis / NurBeiLevel>` als Komfort-Wrapper
 
-**In 9 Cockpits eingezogen** (Commits `685e50e`, `fce8fe4`, `1e6ce2c`, `3ead59c` plus initiale Wires):
+**In 13 Cockpits eingezogen** (Commits `685e50e`, `fce8fe4`, `1e6ce2c`, `3ead59c`, `a5555cb`, `9a0d007`, `c9dde2a`, `ab7fcf7` plus initiale Wires):
 
 | Cockpit | Lerne-Tipp | Profi-Block |
 |---|---|---|
 | Pflege/Heute | DBfK-Glossar | Performance-Tracking · Caseload · Cross-Termine · HKP-VOs |
-| Sozial/Hilfeplan-Liste | SGB IX/XII/VIII/XI · SMART | SGB-Verteilung · DGCC-Caseload |
-| Sozial/Hilfeplan-Detail | (initial) | (initial) |
+| Arzt/Heute | AU/HKP/ICD/DMP-Glossar | Akut-Quote · CGM-Click-Vergleich · Diktat-Ersparnis |
 | Therapie/Patienten-Liste | VAS/ROM/MRC | Outcome-Verteilung fallend/stabil/steigend |
 | Therapie/Patient-Detail | (initial) | (initial) |
+| Sozial/Hilfeplan-Liste | SGB IX/XII/VIII/XI · SMART | SGB-Verteilung · DGCC-Caseload |
+| Sozial/Hilfeplan-Detail | (initial) | (initial) |
 | HE/Teilhabe-Liste | BTHG/ICF/P-Budget | P-Budget-Quote · Ziele · HPK |
 | HE/Teilhabe-Detail | Carr-ICF-Lesart | Bedarf-Schnitt · Hochbedarf · HPK-Tage |
 | HW/Wochenplan | DGE/LMIV/IDDSI | Wareneinsatz · Bio-Anteil · HACCP · Reste |
 | Erz/Lerngeschichten-Liste | Carr-Methodik | Bildungsbereich-Verteilung |
 | Erz/Lerngeschichte-Detail | Carr-Disposition | Carr-Profil · Tag-Vielseitigkeit |
+| Ehrenamt/Cockpit | § 3 Nr. 26a EStG · Rollenklarheit | Stunden-YTD · Steuer-Spielraum · DHPV-Curriculum |
+| Kasse/Portal | eAU/HKP/Krankengeld · Status-Spur | Genehm/Rückfr/Ablehn-Quote · § 13 Abs. 3a Fiktion |
+| Admin/Dienstplan-HUD | ArbZG · Co-Pilot-Aktionen | Einrichtungen · Quals · 26-Wo-Horizont · PpUGV-Risiko |
 
 ### 15 · Game-Mode · Mini-Games über alle Berufe (Session 17 · 2026-05-08)
 
@@ -228,21 +232,21 @@ chmod 600 ~/.git-credentials
 
 | Beruf | Live | KI-Funktion | Game-Mode | Expertise |
 |---|---|---|---|---|
-| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ |
-| 👩‍⚕️ Arzt | Diktat · eRezept-Pilot · KIM-FHIR-Bundle | Diktat-Strukturierung | ICD-10-Sprint | — |
+| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ Heute |
+| 👩‍⚕️ Arzt | Diktat · eRezept-Pilot · KIM-FHIR-Bundle | Diktat-Strukturierung | ICD-10-Sprint | ✓ Heute |
 | 🤲 Therapie | Diktat · **Patient-Verlauf mit VAS/ROM/MRC-Sparkline** | Diktat · **Verlaufsbrief-KI** | HMV-Code-Match | ✓ Liste+Detail |
 | 📋 Sozial | Diktat · **Hilfepläne mit ICF + SMART-Zielen** | Diktat · **ICF-Vorschlag-KI** | Paragraphen-Hunt | ✓ Liste+Detail |
 | 🌱 Heilerziehung | Diktat · **Teilhabepläne BTHG + P-Budget** | Diktat | ICF-Lebenswelten | ✓ Liste+Detail |
-| 🍲 Hauswirtschaft | Diktat · **DGE-Wochenplan + Allergen-Filter** | Diktat · **Speiseplan-KI** | Kostform-Puzzle | ✓ |
+| 🍲 Hauswirtschaft | Diktat · **DGE-Wochenplan + Allergen-Filter** | Diktat · **Speiseplan-KI** | Kostform-Puzzle | ✓ Wochenplan |
 | 🌻 Erziehung | Diktat · **Carr-Lerngeschichten** | Diktat · **Lerngeschichte-Entwurf-KI** | Bildungs-Bingo | ✓ Liste+Detail |
-| 🤝 Ehrenamt | Begleit-Diktat | — | Begleit-Bingo | — |
-| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | — |
-| 💶 Krankenkasse | Bescheid-Diktat | — | — | — |
+| 🤝 Ehrenamt | Begleit-Diktat · Aufwands-Rechner | — | Begleit-Bingo | ✓ Cockpit |
+| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
+| 💶 Krankenkasse | Bescheid-Diktat · Vorgangs-Eingangskorb | — | — | ✓ Portal |
 | 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus | KI-Klartext | NBA-Sprint · Bescheid-Quiz | — |
 | 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | — |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~80 % live · 15 Mini-Games über 11 Routen verteilt, jeder Beruf hat seinen optionalen Spaß-Modus, 7 Berufe haben echte Workflow-Cockpits über das Diktat hinaus, Expertise-Modus auf 9 Cockpits eingezogen.
+**Aktueller Reifegrad gesamt:** ~82 % live · 15 Mini-Games über 11 Routen verteilt, jeder Beruf hat seinen optionalen Spaß-Modus, 7 Berufe haben echte Workflow-Cockpits über das Diktat hinaus, Expertise-Modus durchgängig auf 13 Cockpits inklusive Kasse-KasseShell.
 
 ---
 
@@ -272,7 +276,7 @@ chmod 600 ~/.git-credentials
 - [x] 15 Mini-Games hinter optionalem 🎮-Toggle
 - [x] 5 echte Beruf-Cockpits (Therapie · Sozial · HE · HW · Erz) über das Diktat hinaus
 - [x] 4 zusätzliche KI-Funktionen pro Cockpit
-- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + 9 Cockpits gewired
+- [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + KasseShell + 13 Cockpits gewired
 
 ### Priorität A · Pending User-Aktionen (organisatorisch)
 
@@ -309,9 +313,10 @@ chmod 600 ~/.git-credentials
 - [ ] Mobile-Drawer · Search-Filter wenn Sidebar > 10 Items
 - [ ] Game-Mode · Highscore-Liste pro Beruf (anonym, ohne Login)
 - [ ] Game-Mode · Lana-Phrasen je Beruf-Persönlichkeit personalisieren
-- [ ] Expertise-Modus auf restliche Cockpits ziehen (Arzt-Heute, Ehrenamt, Kasse, Lead-HUD)
-- [ ] Ehrenamt-Cockpit über das Diktat hinaus (Biographie-Box, Lebenslagen)
-- [ ] Kasse-Bescheid-Pipeline-Cockpit (Eingang → Klartext → Versand)
+- [ ] Ehrenamt-Workflow-Cockpit (Biographie-Box · Lebenslagen · Begleit-Verlauf)
+- [ ] Kasse-Bescheid-Pipeline-Cockpit (Eingang → Klartext → Versand · Versicherten-Sicht)
+- [ ] Klient:in-Expertise-Modus (eigener Pfad, evtl. „teilhabe"-Variante)
+- [ ] Genossenschaft-Expertise-Modus für Mitglied/Vorstand/Aufsichtsrat
 
 ---
 
