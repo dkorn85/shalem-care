@@ -5,6 +5,7 @@
 **Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games ·
 **Expertise-Modus** auf **20 Cockpits** durchgängig (alle Konzept-Lücken geschlossen) ·
 **Schein-Optik** für Kasse + **Versicherten-Sicht** für Klientin (gleiche Komponenten, andere Spalte) ·
+**Widerspruchs-Editor** mit KI-Vor-Formulierung + **Print-Stylesheet** (Bescheide drucken wie Briefblatt) ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
 ---
@@ -27,7 +28,9 @@
 - **🎮 Game-Mode** als optionaler Spielmodus · 15 Mini-Games über alle Berufe
 - **◯◐● Expertise-Modus** Lerne / Praxis / Profi pro Beruf · 20 Cockpits durchgängig (auch Kasse-Portal über KasseShell, auch Genossenschaft via `expertiseRolleOverride`)
 - **📜 Schein-Optik** im Kasse-Portal · Original-Look Muster 1 (gelb) / Muster 12 (rosé) / formaler Bescheid-Brief mit Briefkopf · 5 KI-generierte Stempel-/Papier-Assets via mix-blend-mode komponiert
-- **🌿 Versicherten-Sicht** `/klient/bescheide` nutzt dieselben Schein-Komponenten · klartext-orientierte Status-Sprache · Widerspruchs-Block bei Ablehnung mit § 84 SGG
+- **🌿 Versicherten-Sicht** `/klient/bescheide` nutzt dieselben Schein-Komponenten · klartext-orientierte Status-Sprache · **Aufmerksamkeits-Block** für Rückfragen/Ablehnungen mit Hub-Counter
+- **✍️ Widerspruchs-Editor** mit KI · bei Ablehnung baut Lana den § 84 SGG-Brief (Begründung + Argumente-Liste), Klientin poliert + druckt
+- **🖨 Print-Stylesheet** für alle Schein-Komponenten · A4-Briefblatt, Sidebar/FABs/Klartext-Spalte ausgeblendet, Stempel via mix-blend-mode sichtbar
 - **🤝 Ehrenamt-Begleit-Cockpit** mit Stimmungs-Sparkline 1–5 (DHPV-Curriculum), Lebenslagen-Tags, Trübe-Warnung bei 2× ≤2 in Folge, Biografie nach Schuchardt
 - **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
 - **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
@@ -103,6 +106,34 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 19 · Print-Stylesheet · Aufmerksamkeits-Filter · Widerspruchs-Editor (Session 21 · 2026-05-08)
+
+**Print-Stylesheet (`f347fb6`):** Bescheide werden als richtiges A4-Briefblatt druckbar.
+
+| Datei | Was |
+|---|---|
+| `app/globals.css` | `@media print`-Block · Sidebar/BottomNav/FAB-Stack/Klartext-Spalte ausgeblendet, mix-blend-mode bleibt damit Stempel sichtbar bleiben, A4 mit 12mm Rand |
+| `components/scheine/DruckenButton.tsx` | Client-Button triggert `window.print()` · sitzt oben rechts auf `/klient/bescheide/[id]` und `/kasse/vorgang/[id]` |
+| `.no-print` / `.print-only` | Helper-Klassen für selektives Verstecken |
+
+**Aufmerksamkeits-Block + Hub-Counter (`b68eba3`):** Vorgänge mit Status `rueckfrage`/`abgelehnt` springen ins Auge.
+
+| Stelle | Was |
+|---|---|
+| `/klient/bescheide` | rot-gerahmter Block ganz oben mit Counter „X Widerspruch möglich · Y Rückfrage" — herausgezogen aus „Entschieden" damit Ablehnungen nicht versehentlich als bewilligt durchgehen |
+| `/klient` (Hub) | Bescheid-Werkzeug-Karte wechselt automatisch auf Mon-Akzent + ⚠-Badge, sobald aufmerksamkeits-bedürftige Vorgänge da sind |
+
+**Widerspruchs-Editor mit KI (`89f71b0`):** Bei Ablehnung kann die Klientin in einem Klick einen formellen § 84 SGG-Widerspruch erstellen.
+
+| Datei | Was |
+|---|---|
+| `lib/kasse/widerspruch-ki.ts` | Server-Action mit Anthropic-Provider · 4 Heuristik-Fallbacks (HKP-Wunde, HKP-allgemein, Krankengeld § 44, Hilfsmittel § 33) — alle mit § 12 SGB V Wirtschaftlichkeits-Argument und MD-Stellungnahmen-Bezug |
+| `components/scheine/WiderspruchBrief.tsx` | Spiegelbild zum BescheidBrief — Absender = Klient:in, Empfänger = Kasse, Bezug auf Aktenzeichen + Bescheid-Datum, ausdrückliche Widerspruchs-Erklärung, Begründungs-Block, Unterschrift-Linie, optional „fristwahrender Widerspruch"-Vermerk |
+| `components/scheine/WiderspruchEntwurfBox.tsx` | Lana-Editor (client) · optional „Was siehst du anders?"-Statement · zeigt Argumente-Liste zum Polieren · Drucken-Button auf Brief-Vorschau |
+| `/klient/bescheide/[id]` | Bei abgelehntem Vorgang werden Hinweis-Block + Editor + Brief-Vorschau angezeigt, Brief-Vorschau druckt sich allein dank Print-Stylesheet |
+
+**Damit hat die Versicherten-Sicht den vollen Workflow:** Bescheid lesen → verstehen (Klartext-Spalte) → handeln (Widerspruch in einem Klick) → drucken.
 
 ### 18 · Pflege-Sub-Cockpits · Versicherten-Sicht für Bescheide (Session 20 · 2026-05-08)
 
@@ -311,10 +342,10 @@ chmod 600 ~/.git-credentials
 | 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
 | 💶 Krankenkasse | Bescheid-Diktat · Eingangskorb · **Schein-Optik Muster 1/12 + Bescheid-Brief mit KI-Stempel-Assets** | — | — | ✓ Portal + Vorgang |
 | 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | **✓ Pool + Solidartopf + Ausschüttung** |
-| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext** | KI-Klartext | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
+| 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext + Widerspruchs-Editor** | KI-Klartext · KI-Widerspruchs-Brief (§ 84 SGG) | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~88 % live · 15 Mini-Games, 8 Berufe haben echte Workflow-Cockpits über das Diktat hinaus (jetzt auch Ehrenamt), Expertise-Modus durchgängig auf **20 Cockpits** (alle Konzept-Lücken geschlossen), Schein-Optik mit Original-Look + KI-Stempeln in *Sachbearbeitung und Klient-Akte*.
+**Aktueller Reifegrad gesamt:** ~90 % live · 15 Mini-Games, 8 Berufe haben echte Workflow-Cockpits über das Diktat hinaus, Expertise-Modus durchgängig auf **20 Cockpits**, Schein-Optik in *Sachbearbeitung und Klient-Akte*, Klient hat den vollständigen Bescheid-Lese-Verstehen-Handeln-Drucken-Workflow.
 
 ---
 
@@ -347,6 +378,9 @@ chmod 600 ~/.git-credentials
 - [x] Expertise-Modus Lerne / Praxis / Profi · global im AppShell + KasseShell + 20 Cockpits gewired (inkl. Genossenschaft via override + Pflege-Sub-Cockpits)
 - [x] Schein-Optik im Kasse-Portal (Muster 1/12 + Bescheid-Brief) mit 5 KI-Bild-Assets
 - [x] Versicherten-Sicht für Bescheide (`/klient/bescheide`) · gleiche Schein-Komponenten in Klient-Akte
+- [x] Aufmerksamkeits-Filter („braucht-meine-Aufmerksamkeit"-Block + Hub-Counter)
+- [x] Widerspruchs-Editor mit KI-Vor-Formulierung (§ 84 SGG · 4 Heuristik-Fallbacks)
+- [x] Print-Stylesheet für Schein-Optik (A4-Briefblatt mit Stempel)
 - [x] Ehrenamt-Begleit-Cockpit als echtes Workflow-Cockpit (Stimmungs-Sparkline + Lebenslagen)
 - [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert (AppShell + KasseShell + KlientShell)
 - [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
@@ -386,11 +420,11 @@ chmod 600 ~/.git-credentials
 - [ ] Mobile-Drawer · Search-Filter wenn Sidebar > 10 Items
 - [ ] Game-Mode · Highscore-Liste pro Beruf (anonym, ohne Login)
 - [ ] Game-Mode · Lana-Phrasen je Beruf-Persönlichkeit personalisieren
-- [ ] Print-Stylesheet (`@media print`) für Schein-Optik · Bescheide ausdruckbar als richtiges Briefblatt (Stempel + Papier sichtbar im Druck)
-- [ ] Schein-Optik auf andere Berufe ausweiten (Therapie-Heilmittel-VO Muster 13, Sozial-Hilfeplan-Antrag, Arzt-eRezept Token-Karte)
-- [ ] Bescheid-Versand-Workflow: aus Sachbearbeitung als KIM-Mail an Versicherten-Postfach
-- [ ] Klient-Bescheide-Liste mit Filter „braucht meine Aufmerksamkeit" (Rückfrage + Ablehnung)
-- [ ] Widerspruchs-Editor im Klient-Cockpit: Vor-Formulierung + KIM-Versand
+- [ ] Schein-Optik auf andere Berufe ausweiten (Therapie-Heilmittel-VO Muster 13 gelb, Sozial-Hilfeplan-Antrag, Arzt-eRezept Token-Karte)
+- [ ] Bescheid-Versand-Workflow: aus Sachbearbeitung als KIM-Mail an Versicherten-Postfach (Phase B mit echter Krypto)
+- [ ] Widerspruchs-Status-Tracking: nach „Drucken" eine Aktion „Widerspruch eingelegt" mit Frist-Countdown
+- [ ] Bescheid-Aufmerksamkeit-Push-Notification (App-PWA · oder E-Mail-Stub)
+- [ ] Versicherten-Akte um Pflegegrad-Bescheide erweitern (eigener Schein-Typ)
 
 ---
 
@@ -490,7 +524,10 @@ apps/web/
     scheine/MusterEinsAU.tsx    AU gelb · Muster 1 KBV-Look
     scheine/MusterZwoelfHKP.tsx HKP rosé · Muster 12 KBV-Look
     scheine/KassenBescheidBrief.tsx Bescheid-Brief mit Briefkopf + Stempel
+    scheine/WiderspruchBrief.tsx Spiegel-Brief vom Versicherten zur Kasse
+    scheine/WiderspruchEntwurfBox.tsx Lana-Editor (client) mit Brief-Vorschau
     scheine/KlartextSpalte.tsx  Side-by-side Original ↔ Klartext + Glossar
+    scheine/DruckenButton.tsx   window.print() Trigger
     IcfVorschlagBox.tsx         Sozial-Bedarfs-Text → ICF-Codes (Lana)
     TherapieBriefBox.tsx        Therapie-Sitzungen → Hausarzt-Brief (Lana)
     SpeiseplanKiBox.tsx         HW-Klient + Kostform → Wochenplan-Vorschlag (Lana)
@@ -514,6 +551,7 @@ apps/web/
     erziehung/lerngeschichte-ki.ts Beobachtung → Entwurf
     ehrenamt/begleit-store.ts   3 Klient:innen · Stimmung 1–5 · Lebenslagen · Tendenz-Helper
     kasse/bescheid-daten.ts     Heuristik VorgangsTyp → Schein + Klartext-Paket
+    kasse/widerspruch-ki.ts     KI-Generator für § 84 SGG-Widerspruch · 4 Heuristik-Fallbacks
 
   public/scheine/
     stempel-praxis.png · stempel-bewilligt.png · stempel-abgelehnt.png
