@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
@@ -53,6 +55,19 @@ export default async function HauswirtschaftPage() {
       >
         {SPEISEPLAN_HEUTE.length} Mahlzeiten heute · {ROUTEN.length} Touren geplant · {HACCP_HEUTE.length} Hygiene-Checks dokumentiert.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-5">
+          <QuizHeroCard
+            href="/hauswirtschaft/quiz"
+            eyebrow="Kostform-Puzzle · 12 Klient-Situationen"
+            titel="Welche Kostform passt?"
+            beschreibung="Diabetes · Schluck/Dysphagie · Natriumarm · Vollkost · Hochkalorisch · Religiös."
+            badges={["DGE-Standards"]}
+            akzent="var(--sun)"
+          />
+        </div>
+      </GameModeOnly>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Mahlzeiten"      value={SPEISEPLAN_HEUTE.length}   farbe="var(--sun)" />

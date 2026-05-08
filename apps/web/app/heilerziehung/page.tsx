@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
@@ -41,6 +43,19 @@ export default async function HeilerziehungPage() {
       >
         {KLIENTEN.length} Klient:innen · {TEILHABEPLAN_AKTUELL.length} aktive Teilhabepläne · {KONFERENZEN.length} Hilfeplangespräche diese Woche.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-5">
+          <QuizHeroCard
+            href="/heilerziehung/quiz"
+            eyebrow="ICF-Lebenswelten · 12 Beobachtungen"
+            titel="Lebensbereich erkennen"
+            beschreibung="d1 Lernen · d3 Kommunikation · d4 Mobilität · d5 Selbstvers. · d6 Haushalt · d7 Interaktion · d9 Gemeinschaft."
+            badges={["Teilhabe-Bingo"]}
+            akzent="var(--sat)"
+          />
+        </div>
+      </GameModeOnly>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Klient:innen"   value={KLIENTEN.length}            farbe="var(--sat)" />

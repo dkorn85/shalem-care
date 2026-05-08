@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -60,6 +62,19 @@ export default async function SozialPage() {
       >
         {FAELLE.length} aktive Fälle · {akut} mit hoher Priorität · {HILFEPLAN_REVIEWS.length} Hilfeplan-Reviews stehen an.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-5">
+          <QuizHeroCard
+            href="/sozial/quiz"
+            eyebrow="Paragraphen-Hunt · 12 Lebenslagen"
+            titel="Welcher Paragraph greift?"
+            beschreibung="SGB IX · XII · VIII · WBVG · BGB-Betreuung · Pflegeberatung."
+            badges={["6 Paragraphen"]}
+            akzent="var(--tue)"
+          />
+        </div>
+      </GameModeOnly>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Aktive Fälle"  value={FAELLE.length} farbe="var(--tue)" />

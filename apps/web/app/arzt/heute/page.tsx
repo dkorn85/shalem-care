@@ -7,6 +7,8 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { generateBerufsplan } from "@/lib/berufsplan/generator";
@@ -92,6 +94,19 @@ export default async function ArztHeutePage() {
         {" "}{hausbesucheHeute.length} Hausbesuche · {klientCount} Patient:innen.
         Lana hat bereits Vorschläge pro Anfrage formuliert.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-4">
+          <QuizHeroCard
+            href="/arzt/quiz"
+            eyebrow="ICD-10-Sprint · 8 Symptom-Fälle"
+            titel="Diagnose-Gruppe erkennen"
+            beschreibung="Symptom-Beschreibung lesen, Code-Bereich treffen · 12-Sek-Timer · Combo-Punkte."
+            badges={["12 Fälle", "Timer", "Combo"]}
+            akzent="var(--vibe-profile)"
+          />
+        </div>
+      </GameModeOnly>
 
       {/* KPI-Strip */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">

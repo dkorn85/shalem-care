@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 
@@ -59,6 +61,19 @@ export default async function ErziehungPage() {
       >
         {GRUPPE.kinder} Kinder, {GRUPPE.fachkraefte} Fachkräfte heute · {LERNGESCHICHTEN_OFFEN.length} Lerngeschichten im Entwurf · Tagesplan steht.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-5">
+          <QuizHeroCard
+            href="/erziehung/quiz"
+            eyebrow="Bildungs-Bingo · 12 Beobachtungen"
+            titel="Welcher Bildungsbereich?"
+            beschreibung="Sprache · Natur · Mathe · Musik+Bewegung · Werte · Körper. Lerngeschichten richtig zuordnen."
+            badges={["BBP-Felder"]}
+            akzent="var(--wed)"
+          />
+        </div>
+      </GameModeOnly>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Kinder heute"   value={GRUPPE.kinder} farbe="var(--wed)" />

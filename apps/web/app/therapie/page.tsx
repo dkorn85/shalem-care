@@ -2,6 +2,8 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -61,6 +63,19 @@ export default async function TherapiePage() {
       >
         {HEUTE.length} Termine heute · {heuteStunden.toFixed(1)} h Therapiezeit · {VERORDNUNGEN_OFFEN.length} neue Verordnungen warten auf Erstgespräch.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-5">
+          <QuizHeroCard
+            href="/therapie/quiz"
+            eyebrow="HMV-Code-Match · 12 Indikationen"
+            titel="Heilmittel-Code zuordnen"
+            beschreibung="WS1, EX1, ZN1, SP1, PS1, Lymph · pro Indikation den richtigen Code finden."
+            badges={["Code-Sport"]}
+            akzent="var(--fri)"
+          />
+        </div>
+      </GameModeOnly>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Termine heute"  value={HEUTE.length}      farbe="var(--fri)" />

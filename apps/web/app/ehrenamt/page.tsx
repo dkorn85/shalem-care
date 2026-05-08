@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { QuizHeroCard } from "@/components/QuizHeroCard";
+import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
@@ -57,6 +59,19 @@ export default async function EhrenamtPage() {
         {BEGLEITUNG.length} Klient:innen begleitest du regelmäßig. Diese Woche{" "}
         {AUFWANDS_BUDGET.geleistetStunden} h geleistet · {AUFWANDS_BUDGET.paushaleEuro} € Aufwandsentschädigung steht zur Auszahlung.
       </RolePastelHeader>
+
+      <GameModeOnly>
+        <div className="mb-5">
+          <QuizHeroCard
+            href="/ehrenamt/quiz"
+            eyebrow="Begleit-Bingo · 12 Begegnungen"
+            titel="Was ist hier passend?"
+            beschreibung="Zuhören · Biographie · Praktisch helfen · An Pflege melden · Spirituell · Aktivieren."
+            badges={["Bauchgefühl"]}
+            akzent="var(--thu)"
+          />
+        </div>
+      </GameModeOnly>
 
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <CockpitKpi label="Begleitungen"   value={BEGLEITUNG.length} farbe="var(--thu)" />
