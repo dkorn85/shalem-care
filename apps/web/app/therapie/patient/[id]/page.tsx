@@ -4,6 +4,8 @@ import { AppShell } from "@/components/AppShell";
 import { CockpitSection } from "@/components/BerufCockpitCard";
 import { Sparkline } from "@/components/Sparkline";
 import { TherapieBriefBox } from "@/components/TherapieBriefBox";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { getTherapiePatient, listTherapiePatienten, tendenzVas } from "@/lib/therapie/verlauf";
 
 export const metadata = { title: "Therapie · Patient:in" };
@@ -59,6 +61,13 @@ export default async function TherapiePatientPage({ params }: { params: Promise<
           </div>
         </div>
       </header>
+
+      <LerneTipp rolle="therapie" titel="Was steht hier?">
+        VAS = Visual Analog Scale für Schmerz, 0 ist „kein Schmerz", 10 ist „stärkster Schmerz".
+        ROM = Range of Motion (Beweglichkeit in Grad). MRC = Muskelkraft 0–5 nach Medical Research Council.
+        ICF = Internationale Klassifikation der Funktionsfähigkeit · jeder Code beschreibt einen Aspekt
+        wie Schmerz, Beweglichkeit oder Alltags-Aktivität.
+      </LerneTipp>
 
       {/* Verlauf · Hauptpanel mit drei Sparklines */}
       <section className="surface rounded-2xl p-5 mb-5" style={{ borderLeft: `3px solid rgb(${cssRoot(patient.farbe)})` }}>
@@ -173,6 +182,17 @@ export default async function TherapiePatientPage({ params }: { params: Promise<
           </Link>
         </section>
       )}
+
+      <NurAbProfi rolle="therapie">
+        <section className="surface rounded-2xl p-4 mt-5" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-1">● Profi-Modus · Manualtherapie-Vertiefung</p>
+          <p className="text-[12px] text-mute leading-relaxed">
+            Detail-Hinweise pro Sitzung mit Querbezug zu Cyriax-Befund, neurodynamischer Mobilisation und
+            Muscle-Energy-Techniken aktiviert. Behandlungsplan-Vorschläge folgen ICF-Bewertungs-Profil
+            (siehe oben) und passen Belastungssteigerung automatisch an die Tendenz an.
+          </p>
+        </section>
+      </NurAbProfi>
 
       <TherapieBriefBox patientId={patient.id} hatTermine={patient.termine.length > 0} />
 

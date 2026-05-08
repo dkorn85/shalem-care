@@ -9,6 +9,8 @@ import { getLocale } from "@/lib/i18n/server";
 import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
 import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
+import { ExpertiseChip } from "./ExpertiseChip";
+import type { ExpertiseRolle } from "@/lib/ui/expertise";
 
 const DEMO_MODE = process.env.NEXT_PUBLIC_DEMO_MODE === "1";
 
@@ -49,6 +51,24 @@ const ROLE_LABEL: Record<Role, string> = {
   rettungsdienst: "Rettungsdienst",
   bestatter: "Bestatter",
   begleitung: "Begleitung",
+};
+
+// Mapping AppShell-Role → Expertise-Rolle. null wenn kein Expertise-Modus existiert.
+const ROLE_EXPERTISE: Record<Role, ExpertiseRolle | null> = {
+  nurse: "pflege",
+  doctor: "arzt",
+  therapie: "therapie",
+  sozial: "sozial",
+  erziehung: "erziehung",
+  ehrenamt: "ehrenamt",
+  hauswirtschaft: "hauswirtschaft",
+  heilerziehung: "heilerziehung",
+  lead: "lead",
+  apotheke: null,
+  medizintechnik: null,
+  rettungsdienst: null,
+  bestatter: null,
+  begleitung: null,
 };
 
 // Quell-Beruf für KI-Klartext (vom Brillenmodus an /api/ai/klartext)
@@ -221,6 +241,11 @@ export async function AppShell({
             </span>
             <span className="text-[12px] text-soft">· {station}</span>
           </div>
+          {ROLE_EXPERTISE[role] && (
+            <div className="mt-2 ml-9">
+              <ExpertiseChip rolle={ROLE_EXPERTISE[role]!} />
+            </div>
+          )}
           {/* PersonaSwitcher entfernt — Rollen-Wechsel laeuft jetzt zentral
               ueber das HauptMenu (UserMenu) im globalen Layout, top-right */}
         </div>
@@ -307,6 +332,7 @@ export async function AppShell({
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
+            {ROLE_EXPERTISE[role] && <ExpertiseChip rolle={ROLE_EXPERTISE[role]!} />}
             <LocaleSwitcher current={locale} />
           </div>
         </header>
