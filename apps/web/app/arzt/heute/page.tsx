@@ -9,6 +9,8 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { QuizHeroCard } from "@/components/QuizHeroCard";
 import { GameModeOnly } from "@/components/GameModeWrapper";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { getActivePersona, userPropsAus } from "@/lib/auth/active-user";
 import { generateBerufsplan } from "@/lib/berufsplan/generator";
@@ -108,6 +110,16 @@ export default async function ArztHeutePage() {
         </div>
       </GameModeOnly>
 
+      <LerneTipp rolle="arzt" titel="So liest du den Hub">
+        <strong>Anfragen-Inbox</strong> sammelt alle offenen Themen aus Pflege +
+        Therapie + Klient — Lana bewertet jede Anfrage nach Dringlichkeit
+        (akut / hoch / mittel / niedrig) und schlägt Maßnahmen vor.
+        <strong> AU</strong> = Arbeitsunfähigkeitsbescheinigung,
+        <strong> HKP</strong> = Häusliche Krankenpflege § 37 SGB V,
+        <strong> ICD</strong> = Internationale Klassifikation der Krankheiten,
+        <strong> DMP</strong> = Disease-Management-Programm § 137f SGB V.
+      </LerneTipp>
+
       {/* KPI-Strip */}
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-4">
         <Tile label="Anfragen offen" value={DEMO_ANFRAGEN.length.toString()} farbe="var(--vibe-team)" unten={`${akut.length} akut`} />
@@ -115,6 +127,36 @@ export default async function ArztHeutePage() {
         <Tile label="Patient:innen" value={klientCount.toString()} farbe="var(--vibe-profile)" unten="Caseload" />
         <Tile label="KI-Zeitersparnis" value="~ 2 h" farbe="var(--vibe-approval)" unten="vs Click-Workflow" />
       </section>
+
+      <NurAbProfi rolle="arzt">
+        <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Profi-Modus · Kennzahlen aus dem PVS</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Akut/Hoch-Quote</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {Math.round(((akut.length + hoch.length) / Math.max(1, DEMO_ANFRAGEN.length)) * 100)}%
+              </p>
+              <p className="text-[10px] text-soft">{akut.length + hoch.length} von {DEMO_ANFRAGEN.length}</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Click-Workflow Ø</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">3,2 min</p>
+              <p className="text-[10px] text-soft">CGM-Studie 2024</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Diktat-Ersparnis</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">~ 18 min/d</p>
+              <p className="text-[10px] text-soft">vs Click-Pfad</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">DALE-UV-Quote</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">—</p>
+              <p className="text-[10px] text-soft">Phase B · DGUV</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       {/* PVS-Modul-Schnellzugriff: HKP-Verordnung erstellen + DMP + eRezept */}
       <section className="surface rounded-2xl p-4 mb-4" style={{ borderLeft: "3px solid rgb(var(--vibe-team))" }}>
