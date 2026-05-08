@@ -72,13 +72,13 @@ export async function KasseShell({
       </header>
 
       <main className="flex-1">
-        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10">
+        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-48 lg:pb-32">
           <div className="rainbow-bar h-1 rounded-full mb-6 sm:mb-8 opacity-60" />
           {children}
         </div>
       </main>
 
-      <footer className="border-t border-app-soft px-4 sm:px-8 py-6">
+      <footer className="border-t border-app-soft px-4 sm:px-8 py-6 pb-24 lg:pb-10">
         <div className="max-w-screen-app mx-auto flex items-center justify-between gap-4 flex-wrap">
           <div className="flex items-center gap-2.5">
             <Logo size={18} className="accent-text" />
