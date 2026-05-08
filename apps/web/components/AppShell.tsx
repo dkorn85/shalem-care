@@ -182,11 +182,16 @@ export async function AppShell({
   user,
   station,
   children,
+  expertiseRolleOverride,
 }: {
   role: Role;
   user: { id?: string; name: string; subtitle: string; initials: string };
   station: string;
   children: React.ReactNode;
+  // Wenn gesetzt, überschreibt diese Rolle das ROLE_EXPERTISE-Mapping —
+  // z.B. damit Genossenschafts-Pages mit role="lead" trotzdem den
+  // genossenschaft-Toggle zeigen.
+  expertiseRolleOverride?: ExpertiseRolle;
 }) {
   const locale = await getLocale();
   const nav =
@@ -241,9 +246,9 @@ export async function AppShell({
             </span>
             <span className="text-[12px] text-soft">· {station}</span>
           </div>
-          {ROLE_EXPERTISE[role] && (
+          {(expertiseRolleOverride ?? ROLE_EXPERTISE[role]) && (
             <div className="mt-2 ml-9">
-              <ExpertiseChip rolle={ROLE_EXPERTISE[role]!} />
+              <ExpertiseChip rolle={(expertiseRolleOverride ?? ROLE_EXPERTISE[role])!} />
             </div>
           )}
           {/* PersonaSwitcher entfernt — Rollen-Wechsel laeuft jetzt zentral
@@ -332,7 +337,7 @@ export async function AppShell({
             </div>
           </div>
           <div className="flex items-center gap-1 shrink-0">
-            {ROLE_EXPERTISE[role] && <ExpertiseChip rolle={ROLE_EXPERTISE[role]!} />}
+            {(expertiseRolleOverride ?? ROLE_EXPERTISE[role]) && <ExpertiseChip rolle={(expertiseRolleOverride ?? ROLE_EXPERTISE[role])!} />}
             <LocaleSwitcher current={locale} />
           </div>
         </header>

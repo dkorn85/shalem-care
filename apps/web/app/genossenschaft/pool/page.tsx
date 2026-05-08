@@ -18,6 +18,8 @@ import { NumberedList } from "@/components/NumberedList";
 import { BulletList } from "@/components/BulletList";
 import { RainbowText } from "@/components/Rainbow";
 import { PoolBewerbungForm } from "@/components/PoolBewerbungForm";
+import { LerneTipp } from "@/components/LerneTipp";
+import { NurAbProfi } from "@/components/ExpertiseGate";
 import {
   listStellen, listBedarfe, poolKpis, seedPoolOnce, findeBewerbung,
   type StellenTyp,
@@ -59,6 +61,7 @@ export default async function PoolPage() {
       role="nurse"
       user={nurse ? { id: nurse.id, name: nurse.name, subtitle: "Pflegefachkraft", initials: nurse.initials } : { id: "demo", name: "Demo", subtitle: "Pflege", initials: "DM" }}
       station="Pulmologie 3B"
+      expertiseRolleOverride="genossenschaft"
     >
       <HeroBanner
         bild="/akte/header-pool.png"
@@ -75,6 +78,15 @@ export default async function PoolPage() {
         }
       />
 
+      <LerneTipp rolle="genossenschaft" titel="Was ist der Pool eigentlich?">
+        Eine <strong>eingetragene Genossenschaft (eG)</strong> nach <strong>GenG § 1</strong>
+        ist ein Zusammenschluss von Personen mit gemeinschaftlichem Geschäftsbetrieb.
+        Beim Shalem-Pool melden <em>Einrichtungen</em> Bedarfe (Schichten, Vertretungen),
+        <em>Pflegekräfte</em> sehen offene Stellen direkt — keine Honorar-Marge dazwischen.
+        Statt 30–50 % Verleih-Cut bleibt der Erlös im Mitglieder-Anteil. Die Bundesagentur
+        braucht Ø 42 Tage Vermittlungszeit, der Pool ist auf unter 30 Tage ausgelegt.
+      </LerneTipp>
+
       {/* KPIs */}
       <SmoothReveal direction="up">
         <section className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 mt-6 mb-8">
@@ -85,6 +97,40 @@ export default async function PoolPage() {
           <StatTile label="Gehalts-Plus" value={kpi.durchschnittGehaltAufschlag} unit="%" akzent="var(--mon)" hint="vs. Verleih-Tarif" trend="up" />
         </section>
       </SmoothReveal>
+
+      <NurAbProfi rolle="genossenschaft">
+        <section className="surface rounded-2xl p-4 mb-8" style={{ borderLeft: "3px solid rgb(var(--vibe-stats))" }}>
+          <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2">● Aufsichtsrat · Pool-Steuerungs-Indikatoren</p>
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 text-[12px]">
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Pool-Auslastung</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">
+                {kpi.mitgliederAktiv && kpi.einrichtungenAktiv
+                  ? Math.round((Math.min(stellen.length, bedarfe.length) / Math.max(1, stellen.length + bedarfe.length)) * 200)
+                  : 0}%
+              </p>
+              <p className="text-[10px] text-soft">Match-Reife · Bedarfe ↔ Stellen</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">offene Bedarfe</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{bedarfe.length}</p>
+              <p className="text-[10px] text-soft">Einrichtungs-Anfragen</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">aktive Stellen</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2">{stellen.length}</p>
+              <p className="text-[10px] text-soft">Pflege-Suchen aktiv</p>
+            </div>
+            <div className="surface-mute rounded-lg p-2.5">
+              <p className="font-mono text-[10px] text-soft">Marge gespart</p>
+              <p className="font-display text-[18px] font-bold tracking-tight2" style={{ color: "rgb(var(--thu))" }}>
+                {kpi.durchschnittGehaltAufschlag}%
+              </p>
+              <p className="text-[10px] text-soft">vs. Verleih-Tarif (BAP)</p>
+            </div>
+          </div>
+        </section>
+      </NurAbProfi>
 
       {/* Vergleich Arbeitsamt vs. Pool */}
       <SmoothReveal direction="up">
