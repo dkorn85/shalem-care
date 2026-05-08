@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { CockpitSection } from "@/components/BerufCockpitCard";
 import { Sparkline } from "@/components/Sparkline";
+import { TherapieBriefBox } from "@/components/TherapieBriefBox";
 import { getTherapiePatient, listTherapiePatienten, tendenzVas } from "@/lib/therapie/verlauf";
 
 export const metadata = { title: "Therapie · Patient:in" };
@@ -172,6 +173,8 @@ export default async function TherapiePatientPage({ params }: { params: Promise<
           </Link>
         </section>
       )}
+
+      <TherapieBriefBox patientId={patient.id} hatTermine={patient.termine.length > 0} />
 
       <section className="surface rounded-2xl p-5 mt-5">
         <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Aktionen</p>
