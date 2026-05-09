@@ -17,11 +17,14 @@ export default function ClaimPage() {
   return (
     <div className="min-h-screen flex flex-col">
       <header className="border-b border-app-soft bg-[rgb(var(--bg-elev))]">
-        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-4 flex items-center gap-3">
+        <div className="max-w-3xl mx-auto px-4 sm:px-8 py-4 flex items-center gap-3 flex-wrap">
           <Link href="/" className="block"><Wordmark /></Link>
           <span className="text-[12px] text-soft font-mono uppercase tracking-wider px-2 py-0.5 rounded bg-[rgb(var(--bg-mute))]">
             Identität übernehmen
           </span>
+          <Link href="/identity/anmelden" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline ml-auto">
+            Noch kein Code? → selbst anmelden
+          </Link>
         </div>
       </header>
 

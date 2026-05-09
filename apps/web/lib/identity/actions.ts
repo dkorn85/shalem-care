@@ -59,6 +59,59 @@ export async function claimAction(input: {
   };
 }
 
+// Selbst-Anlage · Person legt sich selbst an, ohne Berufsgruppe.
+// Identität wird sofort als „geclaimt" markiert (via „self") — Person ist
+// von Anfang an Datenhalterin nach DSGVO Art. 4 Nr. 1.
+export async function selbstAnlegenAction(input: {
+  art: IdentityArt;
+  name: string;
+  geburtsdatumOderPersonalnr?: string;
+  einrichtungId?: string;
+  mitarbeiterRolle?: IdentityBeruf;
+}): Promise<IdentityActionResult<{ id: string; name: string; art: IdentityArt; claimToken: string }>> {
+  if (!input.name.trim()) return { ok: false, error: "Name fehlt." };
+
+  const verifikationsArt: VerifikationsArt =
+    input.art === "klient" ? "geburtsdatum" : "personalnr";
+  const verifikationsWertNorm = (input.geburtsdatumOderPersonalnr ?? "")
+    .replace(/[\s.\-/]+/g, "")
+    .toUpperCase();
+
+  // Pflicht: Anker, weil Person ihn selbst kennt
+  if (!verifikationsWertNorm) {
+    return {
+      ok: false,
+      error: input.art === "klient" ? "Geburtsdatum fehlt." : "Personal-Nummer fehlt.",
+    };
+  }
+  if (input.art === "klient" && verifikationsWertNorm.length !== 8) {
+    return { ok: false, error: "Geburtsdatum muss 8 Stellen haben (TTMMJJJJ)." };
+  }
+
+  const e = registriere({
+    art: input.art,
+    name: input.name.trim(),
+    angelegtVon: "klient",          // selbst
+    mitarbeiterRolle: input.mitarbeiterRolle,
+    einrichtungId: input.einrichtungId,
+    verifikationsArt,
+    verifikationsWert: verifikationsWertNorm,
+  });
+
+  // Sofort als geclaimt markieren — Person ist Anlegende UND Inhaberin
+  e.claimStatus = "geclaimt";
+  e.claimedAt = new Date().toISOString();
+  e.claimedVia = "in-person";
+
+  revalidatePath("/identity");
+  revalidatePath("/identity/claim");
+  return {
+    ok: true,
+    message: `Willkommen, ${e.name}!`,
+    data: { id: e.id, name: e.name, art: e.art, claimToken: e.claimToken },
+  };
+}
+
 export async function registriereAction(input: {
   art: IdentityArt;
   name: string;
