@@ -39,13 +39,14 @@ export default async function StationenUebersichtPage() {
     (acc, r) => ({
       bettenGesamt: acc.bettenGesamt + r.stand.bettenGesamt,
       belegt: acc.belegt + r.stand.belegt,
+      reserviert: acc.reserviert + r.stand.reserviert,
       blockiert: acc.blockiert + r.stand.blockiert,
       freie: acc.freie + r.stand.freie,
     }),
-    { bettenGesamt: 0, belegt: 0, blockiert: 0, freie: 0 },
+    { bettenGesamt: 0, belegt: 0, reserviert: 0, blockiert: 0, freie: 0 },
   );
   const gesamtQuote = summen.bettenGesamt - summen.blockiert > 0
-    ? Math.round((summen.belegt / (summen.bettenGesamt - summen.blockiert)) * 100)
+    ? Math.round(((summen.belegt + summen.reserviert) / (summen.bettenGesamt - summen.blockiert)) * 100)
     : 0;
 
   return (
@@ -71,12 +72,13 @@ export default async function StationenUebersichtPage() {
         prüft personelle Mindest-Besetzung pro Belegungsklasse.
       </LerneTipp>
 
-      <div className="grid grid-cols-2 sm:grid-cols-5 gap-2.5 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-6 gap-2.5 mb-5">
         <CockpitKpi label="Stationen aktiv"  value={reihen.length}                farbe="var(--vibe-team)" />
         <CockpitKpi label="Betten gesamt"    value={summen.bettenGesamt}          farbe="var(--accent)" />
         <CockpitKpi label="Belegt"           value={summen.belegt}                farbe="var(--vibe-stats)" />
+        <CockpitKpi label="Reserviert"       value={summen.reserviert}            farbe="var(--sun)" />
         <CockpitKpi label="Frei"             value={summen.freie}                 farbe="var(--thu)" />
-        <CockpitKpi label="Belegungsquote"   value={`${gesamtQuote}%`} hint="Bundesschnitt 90 %" farbe={QUOTE_FARBE(gesamtQuote)} />
+        <CockpitKpi label="Belegungsquote"   value={`${gesamtQuote}%`} hint="inkl. Reservierungen · Schnitt 90 %" farbe={QUOTE_FARBE(gesamtQuote)} />
       </div>
 
       <NurAbProfi rolle="lead">

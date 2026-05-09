@@ -1,6 +1,7 @@
 "use client";
 
-// Wählt die passenden Forms je nach Bett-Status (frei / belegt / blockiert).
+// Wählt die passenden Forms je nach Bett-Status (frei / belegt /
+// blockiert / reserviert).
 
 import { useState } from "react";
 import {
@@ -9,19 +10,23 @@ import {
   BettVerlegenForm,
   BettBlockierenForm,
   BettFreigebenForm,
+  BettReservierenForm,
+  ReservierungStornierenForm,
 } from "./BettAktionForm";
-import type { Bett, Belegung } from "@/lib/station/betten-store";
+import type { Bett, Belegung, Reservierung } from "@/lib/station/betten-store";
 
-type Aktion = "belegen" | "entlassen" | "verlegen" | "blockieren" | "freigeben" | null;
+type Aktion = "belegen" | "entlassen" | "verlegen" | "blockieren" | "freigeben" | "reservieren" | "storno-reservierung" | null;
 
 export function BettAktionAccordion({
   bett,
   belegung,
+  reservierung,
   stationId,
   zielBetten,
 }: {
   bett: Bett;
   belegung: Belegung | null;
+  reservierung: Reservierung | null;
   stationId: string;
   zielBetten: Array<{ id: string; label: string }>;
 }) {
@@ -36,10 +41,16 @@ export function BettAktionAccordion({
           { key: "verlegen",   label: "Verlegen",   farbe: "var(--vibe-stats)" },
           { key: "entlassen",  label: "Entlassen",  farbe: "var(--vibe-team)" },
         ]
-      : [
-          { key: "belegen",    label: "Aufnehmen",  farbe: "var(--thu)" },
-          { key: "blockieren", label: "Blockieren", farbe: "var(--vibe-approval)" },
-        ];
+      : reservierung
+        ? [
+            { key: "belegen",              label: "Reservierung einlösen", farbe: "var(--thu)" },
+            { key: "storno-reservierung",  label: "Reservierung stornieren", farbe: "var(--vibe-team)" },
+          ]
+        : [
+            { key: "belegen",    label: "Aufnehmen",   farbe: "var(--thu)" },
+            { key: "reservieren", label: "Reservieren", farbe: "var(--sun)" },
+            { key: "blockieren", label: "Blockieren",  farbe: "var(--vibe-approval)" },
+          ];
 
   const close = () => setAktion(null);
 
@@ -64,6 +75,9 @@ export function BettAktionAccordion({
       {aktion === "belegen" && (
         <BettBelegenForm bettId={bett.id} stationId={stationId} bettLabel={bettLabel} onDone={close} />
       )}
+      {aktion === "reservieren" && (
+        <BettReservierenForm bettId={bett.id} stationId={stationId} bettLabel={bettLabel} onDone={close} />
+      )}
       {aktion === "entlassen" && belegung && (
         <BettEntlassenForm bettId={bett.id} stationId={stationId} bettLabel={bettLabel} klientName={belegung.klientName} onDone={close} />
       )}
@@ -79,6 +93,13 @@ export function BettAktionAccordion({
       )}
       {aktion === "freigeben" && (
         <BettFreigebenForm bettId={bett.id} stationId={stationId} bettLabel={bettLabel} onDone={close} />
+      )}
+      {aktion === "storno-reservierung" && reservierung && (
+        <ReservierungStornierenForm
+          bettId={bett.id} stationId={stationId} bettLabel={bettLabel}
+          reservierungId={reservierung.id} klientLabel={reservierung.klientName}
+          onDone={close}
+        />
       )}
     </div>
   );

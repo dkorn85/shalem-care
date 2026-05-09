@@ -10,7 +10,10 @@ import {
   bettEntlassen,
   bettBlockieren,
   bettFreigeben,
+  bettReservieren,
+  reservierungStornieren,
   klientVerlegen,
+  aktiveReservierung,
   type Belegung,
 } from "./betten-store";
 import { registriere } from "@/lib/identity/store";
@@ -43,6 +46,10 @@ export async function bettBelegenAction(input: {
     verifikationsWert: geburtNorm.length === 8 ? geburtNorm : undefined,
   });
 
+  // Reservierung automatisch einlösen, wenn der Name übereinstimmt
+  const reserv = aktiveReservierung(input.bettId);
+  const istReservierungEinloesen = reserv && reserv.klientName.trim().toLowerCase() === input.klientName.trim().toLowerCase();
+
   const r = bettBelegen({
     bettId: input.bettId,
     klientId: identity.id,
@@ -51,6 +58,7 @@ export async function bettBelegenAction(input: {
     diagnosen: input.diagnosen.split(/[,;]\s*/).map((s) => s.trim()).filter(Boolean),
     aufnahmeArt: input.aufnahmeArt,
     notiz: input.notiz?.trim() || undefined,
+    ignoreReservierung: istReservierungEinloesen ? true : false,
   });
   if (!r.ok) return { ok: false, error: r.error };
   revalidatePath(`/admin/stationen/${input.stationId}`);
@@ -58,10 +66,48 @@ export async function bettBelegenAction(input: {
   revalidatePath("/identity");
   return {
     ok: true,
-    message: `${input.klientName} liegt jetzt im Bett.`,
+    message: istReservierungEinloesen
+      ? `${input.klientName} eingezogen — Reservierung eingelöst.`
+      : `${input.klientName} liegt jetzt im Bett.`,
     claimToken: identity.claimStatus !== "geclaimt" ? identity.claimToken : undefined,
     identityId: identity.id,
   };
+}
+
+export async function bettReservierenAction(input: {
+  bettId: string;
+  stationId: string;
+  klientName: string;
+  voraussAufnahme: string;
+  pflegegradErwartet?: Pflegegrad;
+  aufnahmeArt: Belegung["aufnahmeArt"];
+  notiz?: string;
+}): Promise<ActionResult> {
+  const r = bettReservieren({
+    bettId: input.bettId,
+    klientName: input.klientName,
+    voraussAufnahme: input.voraussAufnahme,
+    pflegegradErwartet: input.pflegegradErwartet,
+    aufnahmeArt: input.aufnahmeArt,
+    notiz: input.notiz,
+    reserviertVon: "Detektiv Eins",
+  });
+  if (!r.ok) return { ok: false, error: r.error };
+  revalidatePath(`/admin/stationen/${input.stationId}`);
+  revalidatePath("/admin/stationen");
+  return { ok: true, message: `${input.klientName} reserviert für ${input.voraussAufnahme}.` };
+}
+
+export async function reservierungStornierenAction(input: {
+  reservierungId: string;
+  stationId: string;
+  grund?: string;
+}): Promise<ActionResult> {
+  const r = reservierungStornieren(input.reservierungId, input.grund?.trim() || undefined);
+  if (!r.ok) return { ok: false, error: "Reservierung nicht gefunden." };
+  revalidatePath(`/admin/stationen/${input.stationId}`);
+  revalidatePath("/admin/stationen");
+  return { ok: true, message: "Reservierung storniert." };
 }
 
 export async function bettEntlassenAction(input: {

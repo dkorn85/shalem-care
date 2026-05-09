@@ -17,6 +17,8 @@ import {
   klientVerlegenAction,
   bettBlockierenAction,
   bettFreigebenAction,
+  bettReservierenAction,
+  reservierungStornierenAction,
 } from "@/lib/station/actions";
 import type { Pflegegrad } from "@/lib/hierarchy/types";
 import { spiele } from "@/lib/sound/sound-player";
@@ -320,6 +322,140 @@ export function BettFreigebenForm(props: CommonProps) {
       <FormHeader title="Freigabe" subtitle={props.bettLabel} farbe="var(--thu)" />
       <p className="text-[12px] text-mute">Blockierung aufheben — Bett ist danach wieder für Aufnahme verfügbar.</p>
       <SubmitRow pending={pending} feedback={feedback} cta="Freigeben" farbe="var(--thu)" />
+    </form>
+  );
+}
+
+export function BettReservierenForm(props: CommonProps) {
+  const [klientName, setKlientName] = useState("");
+  const heute = new Date().toISOString().slice(0, 10);
+  const [voraussAufnahme, setVoraussAufnahme] = useState(heute);
+  const [pflegegrad, setPflegegrad] = useState<Pflegegrad>(3);
+  const [aufnahmeArt, setAufnahmeArt] = useState<"regulär" | "kurzzeit" | "verhinderung" | "tag">("regulär");
+  const [notiz, setNotiz] = useState("");
+  const [pending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setFeedback(null);
+    startTransition(async () => {
+      const r = await bettReservierenAction({
+        bettId: props.bettId,
+        stationId: props.stationId,
+        klientName,
+        voraussAufnahme,
+        pflegegradErwartet: pflegegrad,
+        aufnahmeArt,
+        notiz,
+      });
+      if (r.ok) {
+        spiele("klick");
+        notify({
+          art: "info",
+          titel: "Reservierung gesetzt",
+          beschreibung: `${klientName} · ab ${voraussAufnahme} · ${props.bettLabel}`,
+          href: `/admin/stationen/${props.stationId}`,
+        });
+        setFeedback("✓ " + r.message);
+        setKlientName(""); setNotiz("");
+        props.onDone?.();
+      } else {
+        spiele("fehler");
+        setFeedback("⚠ " + r.error);
+      }
+    });
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-2.5">
+      <FormHeader title="Reservierung" subtitle={props.bettLabel} farbe="var(--sun)" />
+
+      <Row label="Name der Klient:in" required>
+        <input
+          required value={klientName} onChange={(e) => setKlientName(e.target.value)}
+          placeholder="Hannelore Müller"
+          className="input"
+        />
+      </Row>
+
+      <Row label="Voraussichtliche Aufnahme" required>
+        <input
+          type="date" required value={voraussAufnahme}
+          onChange={(e) => setVoraussAufnahme(e.target.value)}
+          className="input font-mono"
+        />
+      </Row>
+
+      <Row label="Erwarteter Pflegegrad">
+        <select value={pflegegrad} onChange={(e) => setPflegegrad(Number(e.target.value) as Pflegegrad)} className="input">
+          {[1, 2, 3, 4, 5].map((p) => <option key={p} value={p}>PG {p}</option>)}
+        </select>
+      </Row>
+
+      <Row label="Aufnahme-Art">
+        <select value={aufnahmeArt} onChange={(e) => setAufnahmeArt(e.target.value as typeof aufnahmeArt)} className="input">
+          <option value="regulär">regulär</option>
+          <option value="kurzzeit">Kurzzeitpflege § 42 SGB XI</option>
+          <option value="verhinderung">Verhinderungspflege § 39 SGB XI</option>
+          <option value="tag">Tagespflege</option>
+        </select>
+      </Row>
+
+      <Row label="Notiz (optional)">
+        <textarea
+          value={notiz} onChange={(e) => setNotiz(e.target.value)}
+          rows={2} placeholder="z.B. Verlegung aus KH, Aufnahme-Ansprechpartner, Allergien"
+          className="input resize-y"
+        />
+      </Row>
+
+      <SubmitRow pending={pending} feedback={feedback} cta="Reservieren" farbe="var(--sun)" />
+    </form>
+  );
+}
+
+export function ReservierungStornierenForm({
+  reservierungId, klientLabel, ...props
+}: CommonProps & { reservierungId: string; klientLabel: string }) {
+  const [grund, setGrund] = useState("");
+  const [pending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<string | null>(null);
+
+  function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setFeedback(null);
+    startTransition(async () => {
+      const r = await reservierungStornierenAction({
+        reservierungId,
+        stationId: props.stationId,
+        grund,
+      });
+      if (r.ok) {
+        spiele("klick");
+        setFeedback("✓ " + r.message);
+        setGrund("");
+        props.onDone?.();
+      } else {
+        spiele("fehler");
+        setFeedback("⚠ " + r.error);
+      }
+    });
+  }
+
+  return (
+    <form onSubmit={submit} className="space-y-2.5">
+      <FormHeader title="Reservierung stornieren" subtitle={`${klientLabel} · ${props.bettLabel}`} farbe="var(--vibe-team)" />
+
+      <Row label="Grund (optional)">
+        <input
+          value={grund} onChange={(e) => setGrund(e.target.value)}
+          placeholder="z.B. Aufnahme abgesagt, Familie hat anders entschieden"
+          className="input"
+        />
+      </Row>
+
+      <SubmitRow pending={pending} feedback={feedback} cta="Stornieren" farbe="var(--vibe-team)" />
     </form>
   );
 }

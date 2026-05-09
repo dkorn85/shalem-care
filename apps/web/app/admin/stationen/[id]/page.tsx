@@ -12,6 +12,7 @@ import { listStations, listEinrichtungen } from "@/lib/hierarchy/store";
 import {
   listBetten,
   aktuelleBelegung,
+  aktiveReservierung,
   stationBelegungsstand,
   seedBettenOnce,
   type Bett,
@@ -65,9 +66,10 @@ export default async function StationenDetailPage({ params }: { params: Promise<
   });
   const zimmer = Array.from(zimmerMap.entries()).sort((a, b) => a[0].localeCompare(b[0]));
 
-  // Freie Betten als Verlegungs-Ziele (innerhalb dieser Station)
+  // Freie Betten als Verlegungs-Ziele (innerhalb dieser Station) — keine
+  // reservierten, keine blockierten, keine belegten
   const freieZielBetten = betten
-    .filter((b) => !b.istBlockiert && !aktuelleBelegung(b.id))
+    .filter((b) => !b.istBlockiert && !aktuelleBelegung(b.id) && !aktiveReservierung(b.id))
     .map((b) => ({ id: b.id, label: `Z ${b.zimmerNr} / Bett ${b.bettNr}` }));
 
   return (
@@ -146,8 +148,15 @@ export default async function StationenDetailPage({ params }: { params: Promise<
             <div className="space-y-2">
               {zBetten.map((b) => {
                 const beleg = aktuelleBelegung(b.id);
-                const farbe = b.istBlockiert ? "var(--vibe-approval)" : beleg ? "var(--vibe-stats)" : "var(--thu)";
-                const status = b.istBlockiert ? "blockiert" : beleg ? "belegt" : "frei";
+                const reserv = !beleg && !b.istBlockiert ? aktiveReservierung(b.id) : null;
+                const farbe = b.istBlockiert
+                  ? "var(--vibe-approval)"
+                  : beleg
+                    ? "var(--vibe-stats)"
+                    : reserv
+                      ? "var(--sun)"
+                      : "var(--thu)";
+                const status = b.istBlockiert ? "blockiert" : beleg ? "belegt" : reserv ? "reserviert" : "frei";
                 return (
                   <details key={b.id} className="rounded-lg" style={{ background: `rgb(${farbe} / 0.06)`, boxShadow: `inset 0 0 0 1px rgb(${farbe} / 0.30)` }}>
                     <summary className="cursor-pointer p-2.5 list-none flex items-baseline gap-2 flex-wrap">
@@ -176,6 +185,17 @@ export default async function StationenDetailPage({ params }: { params: Promise<
                       {b.istBlockiert && b.blockierungGrund && (
                         <span className="text-[10px] text-soft truncate">· {b.blockierungGrund}</span>
                       )}
+                      {reserv && (
+                        <>
+                          <span className="text-[12px] truncate min-w-0">{reserv.klientName}</span>
+                          <span className="text-[10px] text-soft font-mono">ab {reserv.voraussAufnahme}</span>
+                          {reserv.pflegegradErwartet && (
+                            <span className="chip text-[9px] font-mono shrink-0" style={{ background: `rgb(${PG_FARBE[reserv.pflegegradErwartet]} / 0.18)`, color: `rgb(${PG_FARBE[reserv.pflegegradErwartet]})` }}>
+                              PG {reserv.pflegegradErwartet}
+                            </span>
+                          )}
+                        </>
+                      )}
                     </summary>
 
                     <div className="px-3 pb-3 pt-1 border-t border-app-soft mt-1">
@@ -196,9 +216,19 @@ export default async function StationenDetailPage({ params }: { params: Promise<
                         </div>
                       )}
 
+                      {reserv && (
+                        <div className="text-[11px] text-mute mb-3">
+                          <p>Reservierung: <strong>{reserv.klientName}</strong> · ab {reserv.voraussAufnahme}</p>
+                          {reserv.notiz && <p className="mt-0.5 italic">„{reserv.notiz}"</p>}
+                          <p className="text-[10px] text-soft mt-0.5 font-mono">
+                            angelegt {reserv.reserviertAm} von {reserv.reserviertVon}
+                          </p>
+                        </div>
+                      )}
                       <BettAktionAccordion
                         bett={b}
                         belegung={beleg}
+                        reservierung={reserv}
                         stationId={id}
                         zielBetten={freieZielBetten.filter((z) => z.id !== b.id)}
                       />

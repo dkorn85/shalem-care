@@ -33,15 +33,36 @@ export type Belegung = {
   notiz?: string;
 };
 
+// Reservierung · zukünftige Aufnahme — Bett bleibt für andere blockiert,
+// am voraussichtlichen Aufnahme-Datum kann sie in eine echte Belegung
+// umgewandelt werden („einlösen").
+export type Reservierung = {
+  id: string;
+  bettId: string;
+  klientName: string;          // Vor-Reservierung kann ohne ID erfolgen
+  klientId?: string;           // wenn schon Identity angelegt
+  voraussAufnahme: string;     // ISO yyyy-mm-dd
+  pflegegradErwartet?: Pflegegrad;
+  aufnahmeArt: Belegung["aufnahmeArt"];
+  notiz?: string;
+  reserviertAm: string;        // ISO Datum
+  reserviertVon: string;       // Mitarbeiter-Name
+  status: "geplant" | "eingelöst" | "storniert";
+  beendetAm?: string;
+};
+
 type GlobalShape = {
   __shalemBetten?: Bett[];
   __shalemBelegungen?: Belegung[];
+  __shalemReservierungen?: Reservierung[];
 };
 const g = globalThis as unknown as GlobalShape;
 const betten: Bett[] = g.__shalemBetten ?? [];
 const belegungen: Belegung[] = g.__shalemBelegungen ?? [];
+const reservierungen: Reservierung[] = g.__shalemReservierungen ?? [];
 if (!g.__shalemBetten) g.__shalemBetten = betten;
 if (!g.__shalemBelegungen) g.__shalemBelegungen = belegungen;
+if (!g.__shalemReservierungen) g.__shalemReservierungen = reservierungen;
 
 // ─── Read ─────────────────────────────────────────────────────────────────
 
@@ -59,6 +80,16 @@ export function aktuelleBelegung(bettId: string): Belegung | null {
   return belegungen.find((b) => b.bettId === bettId && !b.bisDatum) ?? null;
 }
 
+export function aktiveReservierung(bettId: string): Reservierung | null {
+  return reservierungen.find((r) => r.bettId === bettId && r.status === "geplant") ?? null;
+}
+
+export function listReservierungen(stationId?: string): Reservierung[] {
+  if (!stationId) return reservierungen.slice();
+  const stationsBetten = new Set(listBetten(stationId).map((b) => b.id));
+  return reservierungen.filter((r) => stationsBetten.has(r.bettId));
+}
+
 export function belegungenFuerKlient(klientId: string): Belegung[] {
   return belegungen
     .filter((b) => b.klientId === klientId)
@@ -69,21 +100,25 @@ export function stationBelegungsstand(stationId: string): {
   bettenGesamt: number;
   belegt: number;
   blockiert: number;
+  reserviert: number;
   freie: number;
   belegungsQuote: number;
 } {
   const stationBetten = listBetten(stationId);
   const blockiert = stationBetten.filter((b) => b.istBlockiert).length;
   const belegt = stationBetten.filter((b) => !b.istBlockiert && aktuelleBelegung(b.id)).length;
+  const reserviert = stationBetten.filter((b) => !b.istBlockiert && !aktuelleBelegung(b.id) && aktiveReservierung(b.id)).length;
   const bettenGesamt = stationBetten.length;
   const verfuegbar = bettenGesamt - blockiert;
-  const freie = bettenGesamt - belegt - blockiert;
+  const freie = bettenGesamt - belegt - blockiert - reserviert;
   return {
     bettenGesamt,
     belegt,
     blockiert,
+    reserviert,
     freie,
-    belegungsQuote: verfuegbar > 0 ? Math.round((belegt / verfuegbar) * 100) : 0,
+    // Belegungs-Quote inklusive Reservierungen — die binden Kapazität
+    belegungsQuote: verfuegbar > 0 ? Math.round(((belegt + reserviert) / verfuegbar) * 100) : 0,
   };
 }
 
@@ -97,12 +132,23 @@ export function bettBelegen(input: {
   diagnosen?: string[];
   aufnahmeArt: Belegung["aufnahmeArt"];
   notiz?: string;
+  ignoreReservierung?: boolean;   // wenn man eine Reservierung „einlöst"
 }): { ok: true; belegung: Belegung } | { ok: false; error: string } {
   const bett = getBett(input.bettId);
   if (!bett) return { ok: false, error: "Bett existiert nicht." };
   if (bett.istBlockiert) return { ok: false, error: `Bett ist blockiert: ${bett.blockierungGrund ?? "—"}` };
   const aktuelle = aktuelleBelegung(input.bettId);
   if (aktuelle) return { ok: false, error: `Bett bereits belegt durch ${aktuelle.klientName}.` };
+  const reserv = aktiveReservierung(input.bettId);
+  if (reserv && !input.ignoreReservierung) {
+    return { ok: false, error: `Bett ist reserviert für ${reserv.klientName} ab ${reserv.voraussAufnahme}. Reservierung einlösen oder stornieren.` };
+  }
+
+  // Reservierung wird automatisch eingelöst, wenn die Person die gleiche ist
+  if (reserv && input.ignoreReservierung) {
+    reserv.status = "eingelöst";
+    reserv.beendetAm = new Date().toISOString().slice(0, 10);
+  }
 
   const heute = new Date().toISOString().slice(0, 10);
   const belegung: Belegung = {
@@ -118,6 +164,51 @@ export function bettBelegen(input: {
   };
   belegungen.push(belegung);
   return { ok: true, belegung };
+}
+
+export function bettReservieren(input: {
+  bettId: string;
+  klientName: string;
+  klientId?: string;
+  voraussAufnahme: string;          // ISO yyyy-mm-dd
+  pflegegradErwartet?: Pflegegrad;
+  aufnahmeArt: Belegung["aufnahmeArt"];
+  notiz?: string;
+  reserviertVon: string;
+}): { ok: true; reservierung: Reservierung } | { ok: false; error: string } {
+  const bett = getBett(input.bettId);
+  if (!bett) return { ok: false, error: "Bett existiert nicht." };
+  if (bett.istBlockiert) return { ok: false, error: "Bett ist blockiert." };
+  if (aktuelleBelegung(input.bettId)) return { ok: false, error: "Bett ist aktuell belegt." };
+  if (aktiveReservierung(input.bettId)) return { ok: false, error: "Bett hat bereits eine aktive Reservierung." };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.voraussAufnahme)) {
+    return { ok: false, error: "Voraussichtliches Datum muss yyyy-mm-dd sein." };
+  }
+
+  const r: Reservierung = {
+    id: `res-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    bettId: input.bettId,
+    klientName: input.klientName.trim(),
+    klientId: input.klientId,
+    voraussAufnahme: input.voraussAufnahme,
+    pflegegradErwartet: input.pflegegradErwartet,
+    aufnahmeArt: input.aufnahmeArt,
+    notiz: input.notiz?.trim() || undefined,
+    reserviertAm: new Date().toISOString().slice(0, 10),
+    reserviertVon: input.reserviertVon,
+    status: "geplant",
+  };
+  reservierungen.push(r);
+  return { ok: true, reservierung: r };
+}
+
+export function reservierungStornieren(reservierungId: string, grund?: string): { ok: boolean } {
+  const r = reservierungen.find((x) => x.id === reservierungId);
+  if (!r) return { ok: false };
+  r.status = "storniert";
+  r.beendetAm = new Date().toISOString().slice(0, 10);
+  if (grund) r.notiz = (r.notiz ? `${r.notiz}\n` : "") + `Storno: ${grund}`;
+  return { ok: true };
 }
 
 export function bettEntlassen(bettId: string, notiz?: string):
