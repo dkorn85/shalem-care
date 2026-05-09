@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { CockpitSubNav } from "@/components/CockpitSubNav";
 
 export const metadata = {
   title: "Bestatter · Würdiges Abschiednehmen",
@@ -55,6 +56,8 @@ export default function BestatterPage() {
       >
         {AKTUELLE_FAELLE.length} aktuelle Fälle · {VORSORGE_VEREINBARUNGEN.filter((v) => v.status === "aktiv").length} aktive Vorsorge-Vereinbarungen · {KOMMENDE_TERMINE.length} Termine die nächsten 10 Tage.
       </RolePastelHeader>
+
+      <CockpitSubNav />
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Kpi label="Aktuelle Fälle"   value={AKTUELLE_FAELLE.length} farbe="var(--vibe-profile)" icon="🌿" />

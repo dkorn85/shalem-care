@@ -97,6 +97,16 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
     ],
   },
   {
+    basis: "/bestatter",
+    eyebrow: "Bestatter",
+    items: [
+      { href: "/bestatter",                  label: "Cockpit",        vibe: "var(--vibe-profile)", glyph: "◇", hint: "Aktuelle Fälle · Vorsorge" },
+      { href: "/bestatter/versorgung",       label: "Versorgung",     vibe: "var(--thu)",          glyph: "🕊", hint: "6-Phasen · Würde · Hygiene" },
+      { href: "/bestatter/bestattungsarten", label: "Bestattungsarten", vibe: "var(--accent)",       glyph: "❀", hint: "Erd · Feuer · See · Baum · §74" },
+      { href: "/bestatter/trauerbegleitung", label: "Trauer",         vibe: "var(--vibe-team)",    glyph: "♡", hint: "4 Phasen · BVT · Notfälle" },
+    ],
+  },
+  {
     basis: "/sozial",
     eyebrow: "Sozialarbeit",
     items: [
