@@ -3,8 +3,8 @@ import { Wordmark, Logo } from "./Logo";
 import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-// PersonaSwitcher-Import entfernt — Konsolidierung im HauptMenu (siehe UserMenu.tsx)
-import { PersonAvatar } from "./Avatar";
+// PersonaSwitcher + PersonAvatar entfernt — User-Anzeige läuft zentral
+// über das UserMenu (top-right), nicht mehr in der Sidebar.
 import { getLocale } from "@/lib/i18n/server";
 import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
 import { Brillenmodus } from "./Brillenmodus";
@@ -248,13 +248,14 @@ export async function AppShell({
             </span>
             <span className="text-[12px] text-soft">· {station}</span>
           </div>
-          {(expertiseRolleOverride ?? ROLE_EXPERTISE[role]) && (
-            <div className="mt-2 ml-9">
+          <div className="mt-2 ml-9 flex items-center gap-2 flex-wrap">
+            {(expertiseRolleOverride ?? ROLE_EXPERTISE[role]) && (
               <ExpertiseChip rolle={(expertiseRolleOverride ?? ROLE_EXPERTISE[role])!} />
-            </div>
-          )}
-          {/* PersonaSwitcher entfernt — Rollen-Wechsel laeuft jetzt zentral
-              ueber das HauptMenu (UserMenu) im globalen Layout, top-right */}
+            )}
+            <LocaleSwitcher current={locale} />
+          </div>
+          {/* User-Anzeige + Rollen-Wechsel + Avatar laufen zentral
+              ueber das UserMenu im globalen Layout, top-right. */}
         </div>
 
         <div className="h-px mx-5 my-2 bg-[rgb(var(--border-soft))]" />
@@ -304,14 +305,6 @@ export async function AppShell({
           </Link>
         </div>
 
-        <div className="border-t border-app-soft px-4 py-3 flex items-center gap-2.5">
-          <PersonAvatar id={user.id ?? "—"} initials={user.initials} size={36} role={role === "doctor" ? "doctor" : role === "lead" ? "lead" : "nurse"} />
-          <div className="min-w-0 flex-1">
-            <div className="text-[13px] font-medium truncate">{user.name}</div>
-            <div className="text-[11px] text-soft truncate">{user.subtitle}</div>
-          </div>
-          <LocaleSwitcher current={locale} />
-        </div>
       </aside>
 
       <main className="flex-1 min-w-0">

@@ -3,8 +3,8 @@ import { Wordmark } from "./Logo";
 import { UndoBanner } from "./UndoBanner";
 import { BottomNav } from "./BottomNav";
 import { LocaleSwitcher } from "./LocaleSwitcher";
-// PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
-import { KlientAvatar } from "./Avatar";
+// PersonaSwitcher + KlientAvatar entfernt — User-Anzeige läuft zentral
+// über das UserMenu (top-right), nicht mehr im KlientShell-Header.
 import { getLocale } from "@/lib/i18n/server";
 import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
@@ -32,10 +32,6 @@ export async function KlientShell({
   children: React.ReactNode;
 }) {
   const locale = await getLocale();
-  const subtitle =
-    user.relation === "self" ? "Klient:in"
-    : user.relation === "angehörige" ? `für ${user.klientName ?? "Angehörige"}`
-    : `Betreuer:in für ${user.klientName ?? ""}`;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -51,12 +47,7 @@ export async function KlientShell({
           </div>
           <div className="flex items-center gap-3 flex-wrap">
             <LocaleSwitcher current={locale} />
-            <div className="text-right hidden sm:block">
-              <div className="text-[13px] font-medium">{user.name}</div>
-              <div className="text-[11px] text-soft">{subtitle}</div>
-            </div>
-            <KlientAvatar id={user.klientId ?? "—"} initials={user.initials} size={40} />
-
+            {/* User-Anzeige (Avatar + Name + Verwandtschaft) wandert ins UserMenu (top-right). */}
           </div>
         </div>
       </header>

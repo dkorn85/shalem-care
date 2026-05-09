@@ -52,16 +52,7 @@ export async function KasseShell({
           <div className="flex items-center gap-3">
             <ExpertiseChip rolle="kasse" />
             <LocaleSwitcher current={locale} />
-            <div className="text-right hidden sm:block">
-              <div className="text-[13px] font-medium">{user.name}</div>
-              <div className="text-[11px] text-soft">{ROLE_LABEL[user.role]}</div>
-            </div>
-            <div
-              className="w-10 h-10 rounded-full grid place-items-center text-[12px] font-semibold text-white shrink-0"
-              style={{ background: "linear-gradient(135deg, rgb(var(--vibe-stats)), rgb(var(--vibe-team)))" }}
-            >
-              {user.name.split(" ").map((n) => n[0]).join("").slice(0, 2)}
-            </div>
+            {/* User-Anzeige (Avatar + Name + Rolle) wandert ins UserMenu (top-right). */}
           </div>
         </div>
         <nav className="max-w-screen-app mx-auto px-4 sm:px-8 -mt-1 flex items-center gap-1 overflow-x-auto pb-2">
