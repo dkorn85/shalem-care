@@ -18,6 +18,7 @@
 **🕊 Bestatter-Vollausbau** 6-Phasen-Versorgung mit Würde-Notizen + 10 Bestattungsarten (BestG-Länder/§74 SGB XII) + Kast-4-Phasen-Trauerbegleitung mit Notfall-Kontakten ·
 **🤲 Begleitung-Vollausbau** 10-Methoden-Repertoire (Berkana/Validation/Snoezelen) + 7-Quellen-Einwilligung (BGB-Reform 2023) + Sterbe-Wachen mit Cheyne-Stokes-Doku + „Was-tun-wenn?"-Tafel ·
 **🗺 /cockpits-Karte** suchbare globale Übersicht aller 12 Familien · ~50 Reiter · auto-aktualisiert sich aus der Registry ·
+**🌉 Cross-Beruf-Brücken** klickbar in 17 Sub-Cockpits · raus/rein-Logik · verbindet Apotheke ↔ Pflege/Arzt/Klient, Bestatter ↔ Pflege/Begleitung/Rettungsdienst-Hygiene, Therapie/Psy ↔ Apotheke/BtM ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -122,6 +123,23 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 34 · Cross-Beruf-Brücken klickbar (Session 36 · 2026-05-09)
+
+Die neuen Sub-Cockpits referenzierten sich gegenseitig im Workflow-Text — ohne Sprünge. Diese Optimierung macht die Bezüge klickbar mit konkretem „was geht da rein/raus".
+
+| Datei | Was |
+|---|---|
+| `lib/cross/bruecken.ts` | Mapping pathname → { zielHref, zielLabel, was, richtung: raus/rein } · 17 Cockpits versorgt mit ~50 Brücken |
+| `components/CrossBruecken.tsx` | Server-Component · zwei Spalten (raus = ich gebe weiter / rein = ich bekomme) mit hover-translate + 3px-Akzentlinie |
+| 17 Sub-Cockpits | `<CrossBruecken pathname="…" />` als letztes Element vor `</AppShell>` |
+
+Beispiel-Brücken:
+- `/apotheke/heimversorgung` → Pflege/Heute (AMTS) · Arzt/Anfragen (Konsil) · Klient/Team
+- `/rettungsdienst/protokoll` → Arzt/Heute · Pflege/Heute · Klient/Team
+- `/bestatter/versorgung` ← Pflege/Heute · Begleitung/Sterbe-Wache · Rettungsdienst/Hygiene
+- `/begleitung/sterbewache` ← Pflege/Heute (Bedarfsmedi) · Ehrenamt/Hospiz · → Bestatter/Versorgung
+- `/therapie/psychedelika` → Apotheke/BtM · Begleitung/Sterbe-Wache
 
 ### 33 · Cockpits-Karte · globale Übersicht aller 12 Familien (Session 35 · 2026-05-09)
 
