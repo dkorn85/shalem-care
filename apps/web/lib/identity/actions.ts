@@ -66,7 +66,9 @@ export async function registriereAction(input: {
   mitarbeiterRolle?: IdentityBeruf;
   einrichtungId?: string;
   stationId?: string;
-}): Promise<IdentityActionResult<IdentityEintrag>> {
+  verifikationsArt?: VerifikationsArt;
+  verifikationsWert?: string;
+}): Promise<IdentityActionResult<IdentityEintrag & { claimToken: string }>> {
   if (!input.name.trim()) return { ok: false, error: "Name fehlt." };
   const e = registriere({
     art: input.art,
@@ -75,6 +77,8 @@ export async function registriereAction(input: {
     mitarbeiterRolle: input.mitarbeiterRolle,
     einrichtungId: input.einrichtungId,
     stationId: input.stationId,
+    verifikationsArt: input.verifikationsArt ?? (input.art === "klient" ? "geburtsdatum" : "personalnr"),
+    verifikationsWert: input.verifikationsWert,
   });
   revalidatePath("/identity");
   return { ok: true, message: "Identität angelegt.", data: e };
