@@ -182,6 +182,13 @@ export default async function StationenDetailPage({ params }: { params: Promise<
                             <p className="mt-0.5">Diagnosen: {beleg.diagnosen.join(" · ")}</p>
                           )}
                           {beleg.notiz && <p className="mt-0.5 italic">„{beleg.notiz}"</p>}
+                          <Link
+                            href={`/pflege/doku/${beleg.klientId}/diagnosen`}
+                            className="inline-block mt-2 text-[11px] px-2 py-0.5 rounded font-medium"
+                            style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))" }}
+                          >
+                            🩺 Pflegediagnosen öffnen →
+                          </Link>
                         </div>
                       )}
 
