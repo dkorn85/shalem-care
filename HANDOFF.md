@@ -1,11 +1,11 @@
 # Shalem Care · Session-Handoff
 
 **Stand:** 2026-05-09 · für die nächste Session
-**Branch:** `main` direkt · **218 Routen** · `tsc --noEmit` exit 0
+**Branch:** `main` direkt · **220 Routen** · `tsc --noEmit` exit 0
 **Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · Expertise-Modus auf 20 Cockpits ·
 **Stationsmanagement** mit Bettenraster + Aufnahme-Workflow (weg von Demo-Daten) ·
 **NANDA-I Pflegediagnosen** mit AEDS-Eingabe-Form ·
-**Identity-Registry** mit Claim-Token + zweistufigem Identitätscheck (DSGVO Art. 4 Nr. 1) ·
+**Identity-Registry** mit 5 Anlage-Wegen (Bett-Aufnahme · Personal · Klient-Direkt · Selbst-Anlage · CSV-Import) + Claim-Token + zweistufigem Identitätscheck (DSGVO Art. 4 Nr. 1) ·
 **Schein-Optik** für Kasse + Therapie (Muster 12/13/Bescheid-Brief) + Versicherten-Sicht + Widerspruchs-Editor ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -35,7 +35,7 @@
 - **🤝 Ehrenamt-Begleit-Cockpit** mit Stimmungs-Sparkline 1–5 (DHPV-Curriculum), Lebenslagen-Tags, Trübe-Warnung bei 2× ≤2 in Folge, Biografie nach Schuchardt
 - **🏨 Stationsmanagement** mit Bett+Belegung als eigene Entitäten · Aufnahme-/Verlegungs-/Entlassungs-Forms · echte Daten-Eingabe ohne Code-Edit
 - **📋 NANDA-I Pflegediagnosen** mit AEDS-Format · Default-Vorschläge aus Katalog · pro Klient eigene Akte
-- **🆔 Identity-Registry** · jede:r Klient + Mitarbeiter:in bekommt globale ID + 7-Zeichen Claim-Token + Identitätscheck (Geburtsdatum / Personal-Nr) · Person übernimmt Datenhoheit nach DSGVO Art. 4 Nr. 1
+- **🆔 Identity-Registry** · jede:r Klient + Mitarbeiter:in bekommt globale ID + 7-Zeichen Claim-Token + Identitätscheck (Geburtsdatum / Personal-Nr) · Person übernimmt Datenhoheit nach DSGVO Art. 4 Nr. 1 · 5 Anlage-Wege (Bett-Aufnahme · Personal · Klient-Direkt · **Selbst-Anlage** · **CSV-Bulk-Import**)
 - **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
 - **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
 
@@ -110,6 +110,28 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 23 · Identity · CSV-Import + Selbst-Anlage-Wizard (Session 25 · 2026-05-09)
+
+Damit ist Identity-Anlage komplett über alle Pfade verfügbar.
+
+**A · CSV-Bulk-Import (`8468000`):** Bestands-Träger zieht 10–100 Datensätze aus altem PVS in einem Rutsch.
+
+| Datei | Was |
+|---|---|
+| `lib/identity/csv-import.ts` | `importCsvAction` parsed CSV (Komma/Semikolon, Header optional), pro Zeile Validierung mit Pflicht-Identitätscheck-Anker, Trockenlauf-Modus |
+| `components/identity/CsvImportForm.tsx` (client) | Vorlage einfügen / File-Upload / direktes Einfügen, Trockenlauf-Button + Echtimport-Button, Ergebnis-Tabelle pro Zeile mit Status/ID/Code/Hinweis |
+| `/admin/import` | Migrations-Strategie-Hinweise: CSV-Export aus Vivendi/MediFox/connect-ASD, Stamm-Datenpflege, inkrementelle Updates, DSGVO-Datenanker |
+
+**B · Selbst-Anlage-Wizard (`f2c219c`):** Person ohne Berufsgruppe legt sich selbst an, ist sofort Datenhalterin.
+
+| Datei | Was |
+|---|---|
+| `selbstAnlegenAction` (in `lib/identity/actions.ts`) | registriert + claimt in einem Schritt (`claimedVia=in-person`), kein Träger als Treuhänder |
+| `components/identity/SelbstAnlegenWizard.tsx` (client) | 3-Phasen-Flow (Art wählen → Daten → Code anzeigen + Weiterleiten). Klient: Geburtsdatum-Anker, Mitarbeiter: Personal-Nr + Berufsrolle |
+| `/identity/anmelden` | öffentliche Page mit „du bist von Anfang an Datenhalterin"-Pitch + Hinweise zu Code-Aufbewahrung + Pflege-Freigabe |
+
+**Querverlinkung** zwischen `/identity/claim` (Code einlösen) und `/identity/anmelden` (Selbst-Anlage) — Person erkennt klar welcher Pfad für sie gilt.
 
 ### 22 · Identity-Registry · Claim-Token in alle Bereiche (Session 24 · 2026-05-09)
 
@@ -399,13 +421,13 @@ chmod 600 ~/.git-credentials
 | 🍲 Hauswirtschaft | Diktat · **DGE-Wochenplan + Allergen-Filter** | Diktat · **Speiseplan-KI** | Kostform-Puzzle | ✓ Wochenplan |
 | 🌻 Erziehung | Diktat · **Carr-Lerngeschichten** | Diktat · **Lerngeschichte-Entwurf-KI** | Bildungs-Bingo | ✓ Liste+Detail |
 | 🤝 Ehrenamt | Begleit-Diktat · Aufwands-Rechner · **Begleit-Cockpit mit Stimmungs-Sparkline** | — | Begleit-Bingo | ✓ Cockpit + Liste + Detail |
-| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings · **Stationsmanagement (Bett+Belegung)** · **Personal-Onboarding** · **Klienten-Direkt-Anlage** · **Identity-Registry** | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
+| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings · Stationsmanagement (Bett+Belegung) · Personal-Onboarding · Klienten-Direkt-Anlage · Identity-Registry · **CSV-Bulk-Import** · **Selbst-Anlage-Wizard** | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
 | 💶 Krankenkasse | Bescheid-Diktat · Eingangskorb · **Schein-Optik Muster 1/12 + Bescheid-Brief mit KI-Stempel-Assets** | — | — | ✓ Portal + Vorgang |
 | 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | **✓ Pool + Solidartopf + Ausschüttung** |
 | 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext + Widerspruchs-Editor** | KI-Klartext · KI-Widerspruchs-Brief (§ 84 SGG) | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~92 % live · 15 Mini-Games, 8 Berufe mit echten Workflow-Cockpits, **Stationsmanagement + NANDA-Pflegediagnosen + Identity-Registry** machen den Schritt weg von Demo-Daten — Klient:innen + Mitarbeiter:innen können live über Forms angelegt werden, Person übernimmt Datenhoheit via Claim-Token + Identitätscheck.
+**Aktueller Reifegrad gesamt:** ~93 % live · 15 Mini-Games, 8 Berufe mit echten Workflow-Cockpits, **Stationsmanagement + NANDA-Pflegediagnosen + Identity-Registry mit 5 Anlage-Wegen** machen den Schritt weg von Demo-Daten komplett — Klient:innen + Mitarbeiter:innen können einzeln (4 Wege) oder als Bulk (CSV-Import) angelegt werden, Person übernimmt Datenhoheit via Claim-Token + Identitätscheck.
 
 ---
 
@@ -448,6 +470,8 @@ chmod 600 ~/.git-credentials
 - [x] Identity-Registry mit Claim-Token + zweistufigem Identitätscheck (Geburtsdatum / Personal-Nr)
 - [x] Personal-Onboarding-Form für Mitarbeiter-Anlage
 - [x] Klienten-Direkt-Anlage-Form für ambulante Versorgung
+- [x] CSV-Bulk-Import-Maske für Bestands-Träger (10–100 Datensätze pro Lauf, Trockenlauf-Modus)
+- [x] Selbst-Anlage-Wizard (Person ohne Berufsgruppe, sofort geclaimt)
 - [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert (AppShell + KasseShell + KlientShell)
 - [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
 
@@ -492,10 +516,12 @@ chmod 600 ~/.git-credentials
 - [ ] Bescheid-Aufmerksamkeit-Push-Notification (App-PWA · oder E-Mail-Stub)
 - [ ] Lieferanten-Identity (z.B. Sanitätshaus, Apotheke) mit eigener Claim-Mechanik
 - [ ] eG-Mitglieder-Anlage mit IBAN-Endung als Identitätscheck-Anker
-- [ ] Selbst-Anlage-Wizard für Klient (Person legt sich selbst an, ohne Berufsgruppe)
 - [ ] Bett-Reservierungs-Workflow (zukünftige Aufnahme planen, Bett nicht belegt aber reserviert)
 - [ ] Pflegediagnose → Pflegeplan-Generator (NIC-Interventionen + NOC-Ziele werden in SIS-Pflegeplan gespiegelt)
-- [ ] CSV-Import-Maske für Bestands-Träger (10–100 Klient-Datensätze auf einmal einlesen)
+- [ ] Identity-Daten-Export (CSV/JSON) je Person nach DSGVO Art. 20 (Datenübertragbarkeit)
+- [ ] Identity-Lösch-Workflow nach DSGVO Art. 17 (Auslöse + Aufbewahrungs-Pflicht-Prüfung)
+- [ ] Magic-Link-Versand statt Token-Weitergabe (Phase 2 mit E-Mail-Stub)
+- [ ] QR-Code-Druck pro Identity (Code als QR auf Aufnahme-Mappe)
 
 ---
 
@@ -582,7 +608,8 @@ apps/web/
       stationen/{,[id]}/                Bettenraster + Aufnahme/Verlegung
       personal/                         Mitarbeiter-Onboarding mit Claim
       klienten/                         Klient-Direkt-Anlage (ambulant)
-    identity/{claim,[id]}/                                                Claim-Page + Identity-Detail
+      import/                           CSV-Bulk-Import für Bestands-Träger
+    identity/{claim,anmelden,[id]}/                                       Claim-Page + Selbst-Anlage + Identity-Detail
     konferenz/[id]/{live}/                                              Fallbesprechung
     pflegegrad-check/{,sprint}/                                          Pflegegrad-Quiz
     aufsicht/druck/[quartal]/                                            Bericht-Druck
@@ -612,6 +639,8 @@ apps/web/
     identity/MitarbeiterAnlegenForm.tsx Personal-Onboarding mit Code
     identity/KlientAnlegenForm.tsx Direkt-Anlage für ambulant
     identity/IdentityVerwaltungActions.tsx PDL · neuen Code, Widerruf
+    identity/CsvImportForm.tsx   CSV-Bulk-Import (Trockenlauf + Echtimport)
+    identity/SelbstAnlegenWizard.tsx 3-Phasen-Selbst-Anlage
     IcfVorschlagBox.tsx         Sozial-Bedarfs-Text → ICF-Codes (Lana)
     TherapieBriefBox.tsx        Therapie-Sitzungen → Hausarzt-Brief (Lana)
     SpeiseplanKiBox.tsx         HW-Klient + Kostform → Wochenplan-Vorschlag (Lana)
@@ -642,7 +671,8 @@ apps/web/
     pflege/pflegediagnose-store.ts AEDS-Eintrag pro Klient · Status akut/chron/risiko/geloest
     pflege/pflegediagnose-actions.ts Server-Actions
     identity/store.ts           Registry · Token-Generator · Claim mit Identitätscheck
-    identity/actions.ts         pruefeToken (Schritt 1) + claim (Schritt 2)
+    identity/actions.ts         pruefeToken (Schritt 1) + claim (Schritt 2) + selbstAnlegen
+    identity/csv-import.ts      Bulk-Import-Action mit Trockenlauf + Validierung pro Zeile
 
   public/scheine/
     stempel-praxis.png · stempel-bewilligt.png · stempel-abgelehnt.png
