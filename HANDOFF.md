@@ -11,9 +11,10 @@
 **🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
 **🌱 Naturheilkunde-Stack** 16 Verfahren über 10 Arten (Phyto · TCM · Anthropos · Homöo · Ayur · Aroma · Osteo · Akup · Kneipp) ·
 **✦ Psychedelika-Therapie** zukunftsfest · 7 Substanzen + 16-Schritt-Sitter-Protokoll (MAPS/COMPASS) + Pflege-Kompetenz-Felder ·
-**▤ Cockpit-Sub-Nav** dynamisch · 9 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
+**▤ Cockpit-Sub-Nav** dynamisch · 10 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
 **℞ Apotheke-Vollausbau** BtM-Buch + Heimversorgung (§12a ApoG/AMTS-Score) + Wechselwirkung (ABDA + ESCOP-Crossings) ·
 **▤ Medizintechnik-Vollausbau** MDR-Bestand (UDI/EUDAMED/CE) + STK/MTK-Wartung mit BfArM-Vigilanz + § 33-SGBV-Pool mit Wirtschaftlichkeit ·
+**🚑 Rettungsdienst-Vollausbau** NACA-Mind2-Protokoll + 5 SOPs (ERC/ESC/DGN/DGAKI/DGU) + RKI-Hygiene-Profile mit RTW-Aufbereitung ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -118,6 +119,21 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 30 · Rettungsdienst-Vollausbau · Protokoll + SOPs + Hygiene (Session 32 · 2026-05-09)
+
+Dritter Beruf in Folge nach Apotheke + Medizintechnik · gleicher Schnitt: 1 Hub → 4 Cockpits + Lib + ExpertiseRolle.
+
+| Datei | Was |
+|---|---|
+| `lib/rettungsdienst/naca.ts` | NACA-Score 0-7 mit Farbcodierung · 3 Demo-Einsatzprotokolle (Sturz NACA-3, COPD NACA-4, Apoplex NACA-4) inkl. Vitalwerte/Medikation/Klinik-Übergabe |
+| `lib/rettungsdienst/sop.ts` | 5 SOPs nach ERC/ESC/DGN/DGAKI/DGU · pro Algo Erkennung + Sofortmaßnahmen + Schritt-Reihenfolge mit Rang (RS/NotSan/NA) + Medikation mit Cave + Voranmeldung |
+| `lib/rettungsdienst/hygiene.ts` | 7 Erreger (MRSA, MRGN, C-diff, Noro, COVID, Influenza, Tbc) · 4 Schutzstufen · PSA-Liste · RTW-Aufbereitung mit Mittel + Einwirkzeit · IfSG-Meldepflicht · Pflege-Bezug |
+| `/rettungsdienst/protokoll` | Mind2-Doku · NACA-Schnitt + ≥5-Counter |
+| `/rettungsdienst/sop` | Algorithmus-Karten mit NotSan-vs-NA-Freigabe |
+| `/rettungsdienst/hygiene` | nach Schutzstufe geordnet · Sporozid-Hinweis bei Noro/C-diff |
+| `lib/ui/expertise.ts` | `rettungsdienst` neu in ExpertiseRolle-Union: RS-Azubi / RS-NotSan / Wachenleitung-NA |
+| `lib/cockpit-sub-nav/registry.ts` | Rettungsdienst-Familie mit 4 Reitern (◴ Protokoll, ✚ SOPs, ❀ Hygiene) |
 
 ### 29 · Medizintechnik-Vollausbau · MDR + Wartung + Pool (Session 31 · 2026-05-09)
 
