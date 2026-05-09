@@ -87,6 +87,13 @@ export const BRUECKEN: Record<string, Bruecke[]> = {
     { zielHref: "/ehrenamt",            zielLabel: "Ehrenamt · Hospiz",        was: "Schicht-Plan kann durch ausgebildete Hospiz-Ehrenamtliche ergänzt werden",    richtung: "rein" },
   ],
 
+  // ───────────── Klient ─────────────
+  "/klient/woche": [
+    { zielHref: "/klient/team",     zielLabel: "Klient · Mein Team",     was: "Wer steht hinter den Berufsgruppen meiner Woche",                              richtung: "rein" },
+    { zielHref: "/klient/holistik", zielLabel: "Klient · Holistik",      was: "Wünsche im Lebensbuch hinterlegen, sie tauchen dann hier auf",                richtung: "rein" },
+    { zielHref: "/identity",        zielLabel: "Identity-Registry",      was: "DSGVO-Export aller Termine + Wünsche · Lösch + Berichtigung",                  richtung: "raus" },
+  ],
+
   // ───────────── Therapie · neu (Naturheil + Psychedelika) ─────────────
   "/therapie/naturheil": [
     { zielHref: "/apotheke/wechselwirkung", zielLabel: "Apotheke · Wechselwirkung", was: "Phyto-Crossings (Johanniskraut, Mistel) prüfen vor Anwendung",         richtung: "raus" },
