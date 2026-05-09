@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { entscheideVorgang } from "@/lib/kostentraeger/actions";
 import type { KassenStatus } from "@/lib/kostentraeger/types";
 import { spiele } from "@/lib/sound/sound-player";
+import { notify } from "@/lib/notify/notify";
 
 export function VorgangsEntscheidung({
   vorgangId,
@@ -32,12 +33,17 @@ export function VorgangsEntscheidung({
         bearbeitetVon: bearbeiterName,
       });
       if (r.ok) {
-        // Bewilligt/Abgelehnt = stempel-Sound (organischer Aufschlag),
-        // sonst klick (Status-Wechsel ohne Stempel)
         if (status === "genehmigt" || status === "abgelehnt") spiele("stempel");
         else spiele("klick");
+        notify({
+          art: status === "genehmigt" ? "erfolg" : status === "abgelehnt" ? "warnung" : "info",
+          titel: `Bescheid · ${status}`,
+          beschreibung: notiz ? `„${notiz.slice(0, 80)}"` : "Status-Spur dokumentiert.",
+          href: `/kasse/vorgang/${vorgangId}`,
+        });
       } else {
         spiele("fehler");
+        notify({ art: "fehler", titel: "Status konnte nicht gesetzt werden", beschreibung: (r as { error: string }).error });
       }
       setFeedback(r.ok ? `✓ Status: ${status}` : `✕ ${(r as { error: string }).error}`);
     });

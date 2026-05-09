@@ -5,6 +5,8 @@ import { getLocale } from "@/lib/i18n/server";
 import { DemoBanner } from "@/components/DemoBanner";
 import { UserMenuServer } from "@/components/UserMenuServer";
 import { GlobalLiveRegion } from "@/components/GlobalLiveRegion";
+import { NotifyToastStack } from "@/components/notify/NotifyToastStack";
+import { ServiceWorkerRegistrar } from "@/components/notify/ServiceWorkerRegistrar";
 
 const jakarta = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -43,6 +45,19 @@ export const metadata: Metadata = {
     locale: "de_DE",
   },
   twitter: { card: "summary_large_image", title: SITE.name, description: SITE.description },
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    title: SITE.name,
+    statusBarStyle: "default",
+  },
+  icons: {
+    icon: [
+      { url: "/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icon-192.png", sizes: "192x192" }],
+  },
 };
 
 export const viewport: Viewport = {
@@ -63,6 +78,8 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           Zum Inhalt springen
         </a>
         <GlobalLiveRegion />
+        <NotifyToastStack />
+        <ServiceWorkerRegistrar />
         <DemoBanner />
         <div className="fixed top-2 right-2 sm:top-3 sm:right-3 z-50">
           <UserMenuServer />

@@ -51,7 +51,12 @@
       "Bash(cp -v /storage/emulated/0/Download/Papier-textur.png /root/shalem-care/apps/web/public/scheine/papier-textur.png)",
       "Bash(cp -v /storage/emulated/0/Download/Wm-eau.png /root/shalem-care/apps/web/public/scheine/wm-eau.png)",
       "Bash(chmod +x /root/shalem-care/scripts/generate-sounds.sh)",
-      "Bash(python3 -c \"import json; print\\('json ok'\\)\")"
+      "Bash(python3 -c \"import json; print\\('json ok'\\)\")",
+      "Bash(ELEVENLABS_API_KEY=\"13cbd81aee901dff63a6e14138f143689cbedd07b1ff1afc534c6c9add882537\" bash scripts/generate-sounds.sh)",
+      "Bash(identify /root/shalem-care/apps/web/public/icon-maskable.png)",
+      "Bash(convert icon-maskable.png -resize 192x192 icon-192.png)",
+      "Bash(convert icon-maskable.png -resize 512x512 icon-512.png)",
+      "Bash(convert icon-maskable.png -resize 96x96 icon-badge.png)"
     ]
   },
   "enableAllProjectMcpServers": true,

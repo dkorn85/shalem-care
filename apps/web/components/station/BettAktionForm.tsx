@@ -20,6 +20,7 @@ import {
 } from "@/lib/station/actions";
 import type { Pflegegrad } from "@/lib/hierarchy/types";
 import { spiele } from "@/lib/sound/sound-player";
+import { notify } from "@/lib/notify/notify";
 
 type ZielBett = { id: string; label: string };
 
@@ -60,6 +61,12 @@ export function BettBelegenForm(props: CommonProps) {
       });
       if (r.ok) {
         spiele("erfolg");
+        notify({
+          art: "erfolg",
+          titel: "Aufnahme dokumentiert",
+          beschreibung: `${klientName} liegt jetzt in ${props.bettLabel}.`,
+          href: `/admin/stationen/${props.stationId}`,
+        });
         setFeedback("✓ " + r.message);
         if (r.claimToken && r.identityId) {
           setNeuerClaimToken({ token: r.claimToken, identityId: r.identityId });

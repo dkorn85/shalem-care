@@ -11,6 +11,7 @@ import Link from "next/link";
 import { claimAction, pruefeTokenAction } from "@/lib/identity/actions";
 import type { VerifikationsArt } from "@/lib/identity/store";
 import { spiele } from "@/lib/sound/sound-player";
+import { notify } from "@/lib/notify/notify";
 
 type Phase =
   | { phase: "token" }
@@ -50,6 +51,7 @@ export function ClaimForm() {
         const c = await claimAction({ token, via: "code" });
         if (c.ok && c.data) {
           spiele("erfolg");
+          notify({ art: "erfolg", titel: `Willkommen, ${c.data.name}!`, beschreibung: "Dein Profil ist jetzt deins." });
           setPhase({ phase: "geclaimt", name: c.data.name, art: c.data.art, id: c.data.id });
         } else if (!c.ok) {
           spiele("fehler");
@@ -75,9 +77,11 @@ export function ClaimForm() {
       const r = await claimAction({ token, verifikation, via: "code" });
       if (r.ok && r.data) {
         spiele("erfolg");
+        notify({ art: "erfolg", titel: `Willkommen, ${r.data.name}!`, beschreibung: "Identitätscheck bestanden — Profil gehört dir." });
         setPhase({ phase: "geclaimt", name: r.data.name, art: r.data.art, id: r.data.id });
       } else if (!r.ok) {
         spiele("fehler");
+        notify({ art: "fehler", titel: "Identitätscheck nicht bestanden", beschreibung: r.error });
         setFeedback({ ok: false, text: r.error });
       }
     });
