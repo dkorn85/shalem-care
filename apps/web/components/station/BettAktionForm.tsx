@@ -60,7 +60,8 @@ export function BettBelegenForm(props: CommonProps) {
         geburtsdatum,
       });
       if (r.ok) {
-        spiele("erfolg");
+        spiele("bett-belegt");
+        setTimeout(() => spiele("erfolg"), 280);
         notify({
           art: "erfolg",
           titel: "Aufnahme dokumentiert",

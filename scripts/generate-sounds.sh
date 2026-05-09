@@ -43,6 +43,18 @@ warnung|0.5|0.6|A soft warm warning chime three quick gentle taps on a low woode
 lana|0.5|0.5|A delicate sparkling shimmer like tiny glass beads cascading. Brief ascending arpeggio of soft mallets or vibraphone three or four notes moving up gently. Magical but understated no fairy-dust cliché. Subtle warmth slight reverb. Inspired by Apple Intelligence chimes but more organic and warmer.
 stempel|0.5|0.7|The organic sound of a rubber stamp pressing onto paper a soft "thump" with a brief paper-rustle aftertone. Wooden handle ink cushion real office feel. Warm low frequency no metallic ring. Brief and satisfying like sealing an envelope. Acoustic and physical.
 konfetti|1.5|0.5|A celebratory but gentle uplifting sound soft crystalline shimmer rising with a quick warm chord at the start (major triad on a glockenspiel or music box) followed by a delicate sparkle cascade falling like confetti. Joyful but not loud like a tiny indoor party. Acoustic instruments only no synthesizer. About 1.5 seconds total.
+aufnahme-start|0.5|0.6|A soft warm pulse like a heartbeat starting up. Single low gentle tone with subtle low-frequency rumble fade-in. Calm signal that recording or capture has begun. No mechanical click no tape-deck snap. Organic and reassuring like a hand on the shoulder.
+aufnahme-stop|0.5|0.6|A soft conclusion sound short two-note descending tone like gently closing a journal. Warm wooden tonewood or marimba quality quick decay no reverb. Final but not abrupt. Inspired by old reel-to-reel tape stops but very subtle and modern.
+diagnose-set|0.5|0.6|A delicate wooden ink-pen scratch-and-stop. Very brief organic friction sound followed by a tiny resolution tone like setting a pen down on paper. Earthy warm low-mid frequencies. Documentation feeling not technological.
+konferenz-join|0.5|0.5|Two warm ascending notes a perfect fifth apart on a soft electric piano or felt piano. Welcoming and present not chimey. Brief reverb tail. Inspired by Zoom join sound but warmer more human less corporate.
+konferenz-leave|0.5|0.5|Two warm descending notes a perfect fifth apart on a soft electric piano or felt piano. Calm exit sound peaceful not sad. Mirror of the join sound. Brief reverb.
+bett-belegt|0.5|0.6|A soft wooden knock-and-settle sound like placing a small wooden box on a table. Brief tactile thud with a subtle low-frequency tail. Domestic peaceful no clinical edge.
+bett-frei|0.5|0.6|A light airy upward whoosh like opening a window in a quiet room. Soft breath-like quality very brief almost felt rather than heard. Resolution and lightness no medical sterility.
+export-fertig|0.5|0.6|Two crisp soft popping clicks in quick succession like a postal stamp twice or a paper-cutter snipping. Confident finished feeling subtle warmth. Brief and satisfying.
+swipe|0.5|0.6|A quick airy whoosh like sweeping a hand across silk. Smooth horizontal motion sound brief no echo. Light and tactile gestural.
+tick|0.5|0.7|A very short single soft wooden tick like a metronome at low intensity. Brief organic warm. Brief silence after the tick. Used for one-second timer beats — must be quiet enough to repeat without irritating.
+applaus|2.0|0.5|A small gentle indoor applause from a few people about three seconds total. Soft hand claps overlapping warm room acoustic no large crowd no whistling. Inspired by a jazz club golf clap but warmer and friendlier. Quiet and dignified.
+gong|2.0|0.5|A deep warm bronze gong struck softly with a felt mallet long resonant decay. Calm and grounded like a Buddhist meditation gong. Low frequency rumble underneath single bell tone above. Used for shift change or end of major work block. Peaceful never alarming.
 EOF
 
 # ─── Pro Sound: API-Call ────────────────────────────────────────────────
@@ -50,8 +62,15 @@ EOF
 echo "→ Generiere 8 Sounds nach $OUT_DIR/"
 echo ""
 
+FILTER="${1:-all}"   # bash scripts/generate-sounds.sh aufnahme-start,gong  →  nur diese
+
 while IFS='|' read -r NAME DURATION INFLUENCE PROMPT; do
   [[ -z "$NAME" ]] && continue
+  if [[ "$FILTER" != "all" ]]; then
+    if [[ ",$FILTER," != *",$NAME,"* ]]; then
+      continue
+    fi
+  fi
   OUTFILE="$OUT_DIR/${NAME}.mp3"
   echo "  · ${NAME}.mp3  (${DURATION}s, influence=${INFLUENCE})"
 

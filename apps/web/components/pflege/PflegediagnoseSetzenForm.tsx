@@ -8,6 +8,8 @@ import { useState, useTransition } from "react";
 import { setzeDiagnoseAction } from "@/lib/pflege/pflegediagnose-actions";
 import { NANDA_KATALOG, DOMAIN_LABEL, DOMAIN_FARBE, getDiagnose } from "@/lib/pflege/diagnose-katalog";
 import type { PflegeDiagnoseEintrag } from "@/lib/pflege/pflegediagnose-store";
+import { spiele } from "@/lib/sound/sound-player";
+import { notify } from "@/lib/notify/notify";
 
 export function PflegediagnoseSetzenForm({ klientId, klientName }: { klientId: string; klientName: string }) {
   const [nandaCode, setNandaCode] = useState("");
@@ -35,9 +37,12 @@ export function PflegediagnoseSetzenForm({ klientId, klientName }: { klientId: s
         klientId, nandaCode, einflussfaktoren, symptome, status, notiz,
       });
       if (r.ok) {
+        spiele("diagnose-set");
+        notify({ art: "erfolg", titel: "Pflegediagnose gesetzt", beschreibung: ausgewaehlt ? `${ausgewaehlt.code} · ${ausgewaehlt.label}` : nandaCode });
         setFeedback("✓ " + r.message);
         setNandaCode(""); setEinflussfaktoren(""); setSymptome(""); setNotiz("");
       } else {
+        spiele("fehler");
         setFeedback("⚠ " + r.error);
       }
     });

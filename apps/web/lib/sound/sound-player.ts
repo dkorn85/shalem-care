@@ -8,6 +8,7 @@
 import { useEffect, useState } from "react";
 
 export type SoundKey =
+  // ── Kern-Pack (8) ────────────────────────────────────────────────
   | "klick"             // 50ms tap · für sekundäre Buttons
   | "erfolg"            // 200ms warmer Glockenton · Aufnahme, Genehmigung, Claim ok
   | "fehler"            // 180ms gedämpfter Buzz · Validierungs-Fehler
@@ -15,29 +16,65 @@ export type SoundKey =
   | "warnung"           // 250ms sanfter Alarm · ⚠ Trübe-Warnung, PpUGV-Risiko
   | "lana"              // 350ms Sparkle · KI-Box öffnet, Vorschlag fertig
   | "stempel"           // 220ms organischer Stempel-Aufschlag · Bewilligt/Abgelehnt
-  | "konfetti";         // 1.2s Aufstieg · Game-Mode-Ende
+  | "konfetti"          // 1.2s Aufstieg · Game-Mode-Ende
+  // ── Erweiterungs-Pack (12, optional) ─────────────────────────────
+  | "aufnahme-start"    // Diktat / Tonaufnahme beginnt · sanftes Pulse
+  | "aufnahme-stop"     // Diktat endet · Schluss-Beat
+  | "diagnose-set"      // NANDA-Diagnose gespeichert · zarter Eintrag-Sound
+  | "konferenz-join"    // Konferenz beigetreten · zwei warmer Ton aufsteigend
+  | "konferenz-leave"   // Konferenz verlassen · gegenstück absteigend
+  | "bett-belegt"       // Bett-Status wird belegt · sanfter Klopfer
+  | "bett-frei"         // Bett-Status wird frei · luftiger Auflöse-Ton
+  | "export-fertig"     // PDF/CSV Export bereit · doppelter Klick-Pop
+  | "swipe"             // Game-Swipe links/rechts · luftiger Whoosh
+  | "tick"              // Diktat-Booster Tick · 1-Sek-Timer Tonfall
+  | "applaus"           // Game perfekt · 2s warmer Mini-Applaus
+  | "gong";             // Schicht-Wechsel / Übergabe · tiefer ruhiger Gong
 
 const DATEI_PFAD: Record<SoundKey, string> = {
-  klick:      "/sounds/klick.mp3",
-  erfolg:     "/sounds/erfolg.mp3",
-  fehler:     "/sounds/fehler.mp3",
-  navigation: "/sounds/navigation.mp3",
-  warnung:    "/sounds/warnung.mp3",
-  lana:       "/sounds/lana.mp3",
-  stempel:    "/sounds/stempel.mp3",
-  konfetti:   "/sounds/konfetti.mp3",
+  klick:           "/sounds/klick.mp3",
+  erfolg:          "/sounds/erfolg.mp3",
+  fehler:          "/sounds/fehler.mp3",
+  navigation:      "/sounds/navigation.mp3",
+  warnung:         "/sounds/warnung.mp3",
+  lana:            "/sounds/lana.mp3",
+  stempel:         "/sounds/stempel.mp3",
+  konfetti:        "/sounds/konfetti.mp3",
+  "aufnahme-start": "/sounds/aufnahme-start.mp3",
+  "aufnahme-stop":  "/sounds/aufnahme-stop.mp3",
+  "diagnose-set":   "/sounds/diagnose-set.mp3",
+  "konferenz-join": "/sounds/konferenz-join.mp3",
+  "konferenz-leave": "/sounds/konferenz-leave.mp3",
+  "bett-belegt":    "/sounds/bett-belegt.mp3",
+  "bett-frei":      "/sounds/bett-frei.mp3",
+  "export-fertig":  "/sounds/export-fertig.mp3",
+  swipe:           "/sounds/swipe.mp3",
+  tick:            "/sounds/tick.mp3",
+  applaus:         "/sounds/applaus.mp3",
+  gong:            "/sounds/gong.mp3",
 };
 
-// Lautstärke pro Sound — abgestuft, damit Erfolge nicht erschlagen.
 const VOLUME: Record<SoundKey, number> = {
-  klick:      0.18,
-  erfolg:     0.32,
-  fehler:     0.28,
-  navigation: 0.18,
-  warnung:    0.30,
-  lana:       0.26,
-  stempel:    0.34,
-  konfetti:   0.40,
+  klick:           0.18,
+  erfolg:          0.32,
+  fehler:          0.28,
+  navigation:      0.18,
+  warnung:         0.30,
+  lana:            0.26,
+  stempel:         0.34,
+  konfetti:        0.40,
+  "aufnahme-start": 0.24,
+  "aufnahme-stop":  0.24,
+  "diagnose-set":   0.26,
+  "konferenz-join": 0.30,
+  "konferenz-leave": 0.26,
+  "bett-belegt":    0.28,
+  "bett-frei":      0.22,
+  "export-fertig":  0.30,
+  swipe:           0.18,
+  tick:            0.16,
+  applaus:         0.36,
+  gong:            0.32,
 };
 
 const STORAGE_KEY = "shalem.sound-mode";

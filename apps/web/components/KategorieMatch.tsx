@@ -5,6 +5,7 @@
 // Tastatur 1-9).
 
 import { useEffect, useMemo, useState } from "react";
+import { spiele } from "@/lib/sound/sound-player";
 
 export type Kategorie = {
   id: string;
@@ -118,6 +119,11 @@ export function KategorieMatch({ konfig }: { konfig: SpielKonfig }) {
   useEffect(() => {
     if (fertig && !konfetti) {
       setKonfetti(true);
+      // Konfetti-Sound, plus Applaus wenn perfekt
+      spiele("konfetti");
+      if (richtige === runden.length) {
+        setTimeout(() => spiele("applaus"), 1100);
+      }
       window.setTimeout(() => setKonfetti(false), 5000);
     }
   }, [fertig]); // eslint-disable-line
