@@ -11,6 +11,7 @@ import { LerneTipp } from "@/components/LerneTipp";
 import { NurAbProfi } from "@/components/ExpertiseGate";
 import { PflegediagnoseSetzenForm } from "@/components/pflege/PflegediagnoseSetzenForm";
 import { PlanGenerierenButton } from "@/components/pflege/PlanGenerierenButton";
+import { PlanManuellForm } from "@/components/pflege/PlanManuellForm";
 import { getKlient } from "@/lib/hierarchy/store";
 import {
   listDiagnosen,
@@ -186,12 +187,19 @@ function DiagnoseKarte({ d, klientId }: { d: PflegeDiagnoseEintrag; klientId: st
         </p>
       )}
       {!d.beendetAm && k && (
-        <PlanGenerierenButton
-          klientId={klientId}
-          diagnoseEintragId={d.id}
-          nandaCode={d.nandaCode}
-          diagnoseLabel={k.label}
-        />
+        <div className="flex flex-wrap gap-2 items-baseline">
+          <PlanGenerierenButton
+            klientId={klientId}
+            diagnoseEintragId={d.id}
+            nandaCode={d.nandaCode}
+            diagnoseLabel={k.label}
+          />
+          <PlanManuellForm
+            klientId={klientId}
+            diagnoseEintragId={d.id}
+            nandaCode={d.nandaCode}
+          />
+        </div>
       )}
     </li>
   );
