@@ -75,9 +75,18 @@ export default async function StationenDetailPage({ params }: { params: Promise<
   return (
     <AppShell role="lead" user={{ id: "person-de1", name: "Detektiv Eins", subtitle: "Pflegedienstleitung", initials: "D1" }} station={station.name}>
       <header className="mb-5">
-        <Link href="/admin/stationen" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
-          ← Stationsmanagement
-        </Link>
+        <div className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <Link href="/admin/stationen" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1">
+            ← Stationsmanagement
+          </Link>
+          <Link
+            href={`/admin/stationen/${id}/reservierungen`}
+            className="text-[11px] px-2.5 py-1 rounded font-medium"
+            style={{ background: "rgb(var(--sun) / 0.18)", color: "rgb(var(--sun))" }}
+          >
+            🗓 Reservierungen{stand.reserviert > 0 ? ` · ${stand.reserviert}` : ""} →
+          </Link>
+        </div>
         <p className="text-[11px] uppercase tracking-wider text-soft mb-1.5 font-medium">{einrichtung?.name ?? station.einrichtungId} · {station.fachbereich}</p>
         <h1 className="font-display text-[28px] font-bold tracking-tight2">{station.name}</h1>
         <p className="text-[13px] text-mute mt-1">

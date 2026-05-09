@@ -84,10 +84,21 @@ export function aktiveReservierung(bettId: string): Reservierung | null {
   return reservierungen.find((r) => r.bettId === bettId && r.status === "geplant") ?? null;
 }
 
-export function listReservierungen(stationId?: string): Reservierung[] {
-  if (!stationId) return reservierungen.slice();
-  const stationsBetten = new Set(listBetten(stationId).map((b) => b.id));
-  return reservierungen.filter((r) => stationsBetten.has(r.bettId));
+export function listReservierungen(stationId?: string, opts?: { nurAktive?: boolean }): Reservierung[] {
+  let alle = stationId
+    ? reservierungen.filter((r) => {
+        const stationsBetten = new Set(listBetten(stationId).map((b) => b.id));
+        return stationsBetten.has(r.bettId);
+      })
+    : reservierungen.slice();
+  if (opts?.nurAktive) alle = alle.filter((r) => r.status === "geplant");
+  return alle.sort((a, b) => a.voraussAufnahme.localeCompare(b.voraussAufnahme));
+}
+
+// Tage bis voraussichtlicher Aufnahme · negativ wenn überfällig.
+export function tageBisAufnahme(r: Reservierung): number {
+  const ms = +new Date(r.voraussAufnahme) - Date.now();
+  return Math.ceil(ms / 86400000);
 }
 
 export function belegungenFuerKlient(klientId: string): Belegung[] {
