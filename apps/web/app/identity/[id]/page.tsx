@@ -9,6 +9,7 @@ import { LerneTipp } from "@/components/LerneTipp";
 import { NurAbProfi } from "@/components/ExpertiseGate";
 import { IdentityBadge, ClaimTokenAnzeige } from "@/components/identity/IdentityBadge";
 import { IdentityVerwaltungActions } from "@/components/identity/IdentityVerwaltungActions";
+import { DsgvoActions } from "@/components/identity/DsgvoActions";
 import { QrCodeKarte } from "@/components/identity/QrCodeKarte";
 import { DruckenButton } from "@/components/scheine/DruckenButton";
 import { getIdentity, seedIdentityOnce } from "@/lib/identity/store";
@@ -139,7 +140,10 @@ export default async function IdentityDetailPage({ params }: { params: Promise<{
       </section>
 
       <NurAbProfi rolle="lead">
-        <IdentityVerwaltungActions id={e.id} status={e.claimStatus} />
+        <div className="space-y-3">
+          <IdentityVerwaltungActions id={e.id} status={e.claimStatus} />
+          <DsgvoActions identityId={e.id} identityName={e.name} />
+        </div>
       </NurAbProfi>
     </AppShell>
   );
