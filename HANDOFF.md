@@ -1,11 +1,12 @@
 # Shalem Care · Session-Handoff
 
-**Stand:** 2026-05-08 · für die nächste Session
-**Branch:** `main` direkt · **210 Routen** · `tsc --noEmit` exit 0
-**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games ·
-**Expertise-Modus** auf **20 Cockpits** durchgängig (alle Konzept-Lücken geschlossen) ·
-**Schein-Optik** für Kasse + **Versicherten-Sicht** für Klientin (gleiche Komponenten, andere Spalte) ·
-**Widerspruchs-Editor** mit KI-Vor-Formulierung + **Print-Stylesheet** (Bescheide drucken wie Briefblatt) ·
+**Stand:** 2026-05-09 · für die nächste Session
+**Branch:** `main` direkt · **218 Routen** · `tsc --noEmit` exit 0
+**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · Expertise-Modus auf 20 Cockpits ·
+**Stationsmanagement** mit Bettenraster + Aufnahme-Workflow (weg von Demo-Daten) ·
+**NANDA-I Pflegediagnosen** mit AEDS-Eingabe-Form ·
+**Identity-Registry** mit Claim-Token + zweistufigem Identitätscheck (DSGVO Art. 4 Nr. 1) ·
+**Schein-Optik** für Kasse + Therapie (Muster 12/13/Bescheid-Brief) + Versicherten-Sicht + Widerspruchs-Editor ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
 ---
@@ -32,6 +33,9 @@
 - **✍️ Widerspruchs-Editor** mit KI · bei Ablehnung baut Lana den § 84 SGG-Brief (Begründung + Argumente-Liste), Klientin poliert + druckt
 - **🖨 Print-Stylesheet** für alle Schein-Komponenten · A4-Briefblatt, Sidebar/FABs/Klartext-Spalte ausgeblendet, Stempel via mix-blend-mode sichtbar
 - **🤝 Ehrenamt-Begleit-Cockpit** mit Stimmungs-Sparkline 1–5 (DHPV-Curriculum), Lebenslagen-Tags, Trübe-Warnung bei 2× ≤2 in Folge, Biografie nach Schuchardt
+- **🏨 Stationsmanagement** mit Bett+Belegung als eigene Entitäten · Aufnahme-/Verlegungs-/Entlassungs-Forms · echte Daten-Eingabe ohne Code-Edit
+- **📋 NANDA-I Pflegediagnosen** mit AEDS-Format · Default-Vorschläge aus Katalog · pro Klient eigene Akte
+- **🆔 Identity-Registry** · jede:r Klient + Mitarbeiter:in bekommt globale ID + 7-Zeichen Claim-Token + Identitätscheck (Geburtsdatum / Personal-Nr) · Person übernimmt Datenhoheit nach DSGVO Art. 4 Nr. 1
 - **5 echte Beruf-Cockpits** neu: Therapie-Patient-Verlauf · HW-Wochenplan · Sozial-Hilfepläne · HE-Teilhabe · Erz-Lerngeschichten
 - **4 zusätzliche KI-Funktionen:** Therapie-Verlaufsbrief · ICF-Vorschlag (Sozial) · DGE-Speiseplan-Vorschlag · Carr-Lerngeschichte-Entwurf
 
@@ -106,6 +110,62 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 22 · Identity-Registry · Claim-Token in alle Bereiche (Session 24 · 2026-05-09)
+
+**DSGVO-Souveränität** — jede Person bekommt eine global-eindeutige ID + 7-Zeichen Claim-Token (Format `XXX-XXXX`, Alphabet ohne 0/O/1/I/L = 32 Symbole = 34 Mrd Kombinationen). Solange unbeansprucht: Träger als Treuhänder. Nach Claim: Person ist Datenhalterin nach DSGVO Art. 4 Nr. 1.
+
+**Identitätscheck zweistufig (`13d45ae`):** Token allein reicht nicht — Person muss zusätzlich etwas wissen (Geburtsdatum bei Klient, Personal-Nr bei Mitarbeiter, Versichertennummer, IBAN-Endung). Verhindert Profil-Übernahme bei abgefangenem Code.
+
+| Datei | Was |
+|---|---|
+| `lib/identity/store.ts` | Registry mit `registriere`/`pruefeToken`/`claim`/`widerrufeClaim`/`neuerToken`. Demo-Seed mit 17 Identitäten (8 Klient:innen + 9 Mitarbeiter:innen, 3 davon vorgeclaimt). VerifikationsArt-Enum. |
+| `lib/identity/actions.ts` | Server-Actions zweistufig (`pruefeTokenAction` → `claimAction`). Auch `registriereAction` mit Verifikations-Anker. |
+| `/identity/claim` | Öffentliche Claim-Page · Phase 1 Token → Phase 2 Identitätscheck → Phase 3 Erfolg + Auto-Weiterleitung. |
+| `/identity` | PDL-Übersicht aller Identitäten mit Claim-Quote-KPI + DSGVO-Indikatoren-Block. |
+| `/identity/[id]` | Detail mit Stammdaten, Audit-Trail, Token-Anzeige (groß, kopierbar) bei unbeansprucht, „geclaimt"-Block bei übernommen, PDL-Aktionen (neuen Code, Widerruf). |
+| `components/identity/IdentityBadge.tsx` | Status-Pill ○/●/⊘ — wird überall angezeigt wo IDs auftauchen (Bett-Belegung, Klient-Akte). |
+| `components/identity/MitarbeiterAnlegenForm.tsx` | Personal-Onboarding mit Personal-Nr-Anker. |
+| `components/identity/KlientAnlegenForm.tsx` | Direkt-Anlage für ambulant ohne Bett-Bezug. |
+
+**Drei Anlage-Wege (`21a3bc0`, `0a5e899`, `4d9220e`):**
+
+| Wo | Wann |
+|---|---|
+| `/admin/stationen/[id]` (Bett-Aufnahme) | stationäre Aufnahme — Bett + Identität gleichzeitig, Geburtsdatum-Anker |
+| `/admin/personal` | Personal-Onboarding — Berufsrolle (11 Optionen) + Personal-Nr-Anker, Onboarding-Code „auf Vertrag drucken" |
+| `/admin/klienten` | Klient-Direkt-Anlage — ambulant zu Hause oder vor Aufnahme, Geburtsdatum-Anker |
+
+Alle Pfade nutzen die gleiche Mechanik: globale ID + Claim-Token + Identitätscheck-Anker + zweistufiger Claim-Workflow auf `/identity/claim`.
+
+### 21 · Stationsmanagement · Bettenraster + Pflegediagnosen (Session 23 · 2026-05-09)
+
+Erste echte **Daten-Eingabe-Strecke** ohne Demo-Daten-Edit — PDL kann Klient:innen via Form aufnehmen, verlegen, entlassen, Pflegediagnosen setzen.
+
+**A · Datenmodell + Übersicht (`c65835a`):**
+
+- `lib/station/betten-store.ts` · Bett + Belegung als eigene Entitäten (statt nur `bedCount`-Zahl). Demo-Seed mit 30 Betten in 2 Stationen (Pulmo-3B Essen + Annahof Bochum), 8 Belegungen, 1 blockiertes Bett. `bettBelegen`/`bettEntlassen`/`klientVerlegen`/`bettBlockieren`/`bettFreigeben` mit Validierung.
+- `lib/station/actions.ts` · Server-Actions mit `revalidatePath`.
+- `/admin/stationen` · Stations-Übersicht mit Quote-Tile pro Station (Farb-Skala: >95 % rot, >85 % gold, >70 % grün), PDL-Profi-Block mit PpUGV-Klassifikation + Aufnahme-Reserve.
+
+**B · Bettenraster + Forms (`a83aabe`):**
+
+- `/admin/stationen/[id]` · Karte pro Zimmer mit Betten als kollabierbares `<details>`. Status-Farbe: grün=frei, magenta=belegt, gold=blockiert. Pro belegtes Bett: PG-Chip + Aufnahme-Art-Chip (Kurzzeit/Verhinderung/Tag) + Diagnosen + Notiz.
+- `components/station/BettAktionAccordion.tsx` (client) · wählt je Bett-Status passende Aktions-Buttons.
+- `components/station/BettAktionForm.tsx` (client) · 5 Forms (Belegen / Entlassen / Verlegen / Blockieren / Freigeben). Aufnahme-Form fragt Klient-Name + ID + Pflegegrad + Aufnahmeart + Diagnosen + Geburtsdatum (Identitätscheck) + Notiz ab.
+
+**C · NANDA-I Pflegediagnosen (`266fbf4`):**
+
+- `lib/pflege/diagnose-katalog.ts` · ~16 alltagsrelevante NANDA-I Diagnosen über 7 Domänen, jede mit Default-Vorschlägen für Einflussfaktoren+Symptome + empfohlene NIC/NOC-Interventionen+Ziele.
+- `lib/pflege/pflegediagnose-store.ts` · AEDS-Format pro Klient (Status: akut/chronisch/risiko/geloest), `setzeDiagnose`/`loese`/`evaluiere`-Helper.
+- `components/pflege/PflegediagnoseSetzenForm.tsx` (client) · NANDA-Auswahl mit Domain-Anzeige + Default-Vorschläge-Übernahme-Button.
+- `/pflege/doku/[klientId]/diagnosen` · Aktive + historische Liste, KPIs, Profi-Block (betroffene Domänen, Akut-Anteil, Evaluations-Stand). Vom Bett-Detail aus direkter Link „🩺 Pflegediagnosen öffnen".
+
+### 20 · Schein-Optik auf Therapie · Muster 13 HMV (Session 22 · 2026-05-08)
+
+`components/scheine/MusterDreizehnHMV.tsx` (`13186e9`) · pastell-blau-graue Heilmittel-Verordnung nach HeilM-RL § 32 SGB V. Therapieart-Checkboxen (Physio aktiv), Diagnosegruppe-Code (WS1a/EX1c/ZN1b), Leitsymptomatik, Therapieziele, Behandlungs-Pos.-Tabelle mit Doppelbehandlung, Frequenz-Box, Praxis-Stempel via mix-blend-mode.
+
+`/therapie/patient/[id]` zeigt Aktuelle HMV in Original-Optik mit „🖨 HMV drucken"-Button. Helper `baueMusterDreizehn()` mappt `TherapiePatient` → `MusterDreizehnDaten` (HMV-Code → Diagnosegruppe, ICF-Codes → Leitsymptomatik, smartZiele → Therapieziele).
 
 ### 19 · Print-Stylesheet · Aufmerksamkeits-Filter · Widerspruchs-Editor (Session 21 · 2026-05-08)
 
@@ -331,21 +391,21 @@ chmod 600 ~/.git-credentials
 
 | Beruf | Live | KI-Funktion | Game-Mode | Expertise |
 |---|---|---|---|---|
-| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ Heute + Wunde + Assessment + Tour |
+| 🩺 Pflege | SIS · Tour · Assessment · Wundmanagement · Quartalsabrechnung · Pflegegrad-Pipeline · **NANDA-Pflegediagnosen** | Diktat · Akte-verstehen · Frag-Lana | Diktat-Booster · Wund-Tendenz-Quiz | ✓ Heute + Wunde + Assessment + Tour |
 | 👩‍⚕️ Arzt | Diktat · eRezept-Pilot · KIM-FHIR-Bundle | Diktat-Strukturierung | ICD-10-Sprint | ✓ Heute |
-| 🤲 Therapie | Diktat · **Patient-Verlauf mit VAS/ROM/MRC-Sparkline** | Diktat · **Verlaufsbrief-KI** | HMV-Code-Match | ✓ Liste+Detail |
+| 🤲 Therapie | Diktat · Patient-Verlauf mit VAS/ROM/MRC-Sparkline · **Muster 13 HMV in Original-Optik** | Diktat · Verlaufsbrief-KI | HMV-Code-Match | ✓ Liste+Detail |
 | 📋 Sozial | Diktat · **Hilfepläne mit ICF + SMART-Zielen** | Diktat · **ICF-Vorschlag-KI** | Paragraphen-Hunt | ✓ Liste+Detail |
 | 🌱 Heilerziehung | Diktat · **Teilhabepläne BTHG + P-Budget** | Diktat | ICF-Lebenswelten | ✓ Liste+Detail |
 | 🍲 Hauswirtschaft | Diktat · **DGE-Wochenplan + Allergen-Filter** | Diktat · **Speiseplan-KI** | Kostform-Puzzle | ✓ Wochenplan |
 | 🌻 Erziehung | Diktat · **Carr-Lerngeschichten** | Diktat · **Lerngeschichte-Entwurf-KI** | Bildungs-Bingo | ✓ Liste+Detail |
 | 🤝 Ehrenamt | Begleit-Diktat · Aufwands-Rechner · **Begleit-Cockpit mit Stimmungs-Sparkline** | — | Begleit-Bingo | ✓ Cockpit + Liste + Detail |
-| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
+| 🗂 Stationsleitung | HUD · Konferenz · Cross-Beruf-Termine · TI-Cockpits · SFU-Setup · Cloud-Recordings · **Stationsmanagement (Bett+Belegung)** · **Personal-Onboarding** · **Klienten-Direkt-Anlage** · **Identity-Registry** | KI-Dienstplan-HUD | Dienstplan-Arena · Genehmigungs-Sprint · Audit-Hunt · Wirtschaft-Sandbox | ✓ HUD |
 | 💶 Krankenkasse | Bescheid-Diktat · Eingangskorb · **Schein-Optik Muster 1/12 + Bescheid-Brief mit KI-Stempel-Assets** | — | — | ✓ Portal + Vorgang |
 | 🏛 Genossenschaft | Pool · Solidartopf · Quartal-Ausschüttung · Aufsichtsrats-PDF + eIDAS | — | — | **✓ Pool + Solidartopf + Ausschüttung** |
 | 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext + Widerspruchs-Editor** | KI-Klartext · KI-Widerspruchs-Brief (§ 84 SGG) | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~90 % live · 15 Mini-Games, 8 Berufe haben echte Workflow-Cockpits über das Diktat hinaus, Expertise-Modus durchgängig auf **20 Cockpits**, Schein-Optik in *Sachbearbeitung und Klient-Akte*, Klient hat den vollständigen Bescheid-Lese-Verstehen-Handeln-Drucken-Workflow.
+**Aktueller Reifegrad gesamt:** ~92 % live · 15 Mini-Games, 8 Berufe mit echten Workflow-Cockpits, **Stationsmanagement + NANDA-Pflegediagnosen + Identity-Registry** machen den Schritt weg von Demo-Daten — Klient:innen + Mitarbeiter:innen können live über Forms angelegt werden, Person übernimmt Datenhoheit via Claim-Token + Identitätscheck.
 
 ---
 
@@ -382,6 +442,12 @@ chmod 600 ~/.git-credentials
 - [x] Widerspruchs-Editor mit KI-Vor-Formulierung (§ 84 SGG · 4 Heuristik-Fallbacks)
 - [x] Print-Stylesheet für Schein-Optik (A4-Briefblatt mit Stempel)
 - [x] Ehrenamt-Begleit-Cockpit als echtes Workflow-Cockpit (Stimmungs-Sparkline + Lebenslagen)
+- [x] Schein-Optik auf Therapie ausgeweitet (Muster 13 HMV)
+- [x] Stationsmanagement mit Bett+Belegung als eigene Entitäten + 5 Aktions-Forms (Aufnahme/Verlegung/Entlassung/Blockierung/Freigabe)
+- [x] NANDA-I Pflegediagnosen-Modul mit AEDS-Eingabe-Form + Default-Vorschlägen aus Katalog
+- [x] Identity-Registry mit Claim-Token + zweistufigem Identitätscheck (Geburtsdatum / Personal-Nr)
+- [x] Personal-Onboarding-Form für Mitarbeiter-Anlage
+- [x] Klienten-Direkt-Anlage-Form für ambulante Versorgung
 - [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert (AppShell + KasseShell + KlientShell)
 - [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
 
@@ -420,11 +486,16 @@ chmod 600 ~/.git-credentials
 - [ ] Mobile-Drawer · Search-Filter wenn Sidebar > 10 Items
 - [ ] Game-Mode · Highscore-Liste pro Beruf (anonym, ohne Login)
 - [ ] Game-Mode · Lana-Phrasen je Beruf-Persönlichkeit personalisieren
-- [ ] Schein-Optik auf andere Berufe ausweiten (Therapie-Heilmittel-VO Muster 13 gelb, Sozial-Hilfeplan-Antrag, Arzt-eRezept Token-Karte)
+- [ ] Schein-Optik auf weitere Berufe (Sozial-Hilfeplan-Antrag, Arzt-eRezept Token-Karte, Pflegegrad-Bescheid)
 - [ ] Bescheid-Versand-Workflow: aus Sachbearbeitung als KIM-Mail an Versicherten-Postfach (Phase B mit echter Krypto)
 - [ ] Widerspruchs-Status-Tracking: nach „Drucken" eine Aktion „Widerspruch eingelegt" mit Frist-Countdown
 - [ ] Bescheid-Aufmerksamkeit-Push-Notification (App-PWA · oder E-Mail-Stub)
-- [ ] Versicherten-Akte um Pflegegrad-Bescheide erweitern (eigener Schein-Typ)
+- [ ] Lieferanten-Identity (z.B. Sanitätshaus, Apotheke) mit eigener Claim-Mechanik
+- [ ] eG-Mitglieder-Anlage mit IBAN-Endung als Identitätscheck-Anker
+- [ ] Selbst-Anlage-Wizard für Klient (Person legt sich selbst an, ohne Berufsgruppe)
+- [ ] Bett-Reservierungs-Workflow (zukünftige Aufnahme planen, Bett nicht belegt aber reserviert)
+- [ ] Pflegediagnose → Pflegeplan-Generator (NIC-Interventionen + NOC-Ziele werden in SIS-Pflegeplan gespiegelt)
+- [ ] CSV-Import-Maske für Bestands-Träger (10–100 Klient-Datensätze auf einmal einlesen)
 
 ---
 
@@ -508,6 +579,10 @@ apps/web/
       genehmigungen/{,sprint}/ · verordnungen/ · abrechnung/[id]/[rId]/
       pflegegrad/[id]/ · ti/{konnektoren,karten,sfu}/
       recordings/ · audit/hunt/ · wirtschaft/sandbox/
+      stationen/{,[id]}/                Bettenraster + Aufnahme/Verlegung
+      personal/                         Mitarbeiter-Onboarding mit Claim
+      klienten/                         Klient-Direkt-Anlage (ambulant)
+    identity/{claim,[id]}/                                                Claim-Page + Identity-Detail
     konferenz/[id]/{live}/                                              Fallbesprechung
     pflegegrad-check/{,sprint}/                                          Pflegegrad-Quiz
     aufsicht/druck/[quartal]/                                            Bericht-Druck
@@ -523,11 +598,20 @@ apps/web/
     Sparkline.tsx               Mini-Chart für VAS/ROM/MRC + Stimmung 1–5
     scheine/MusterEinsAU.tsx    AU gelb · Muster 1 KBV-Look
     scheine/MusterZwoelfHKP.tsx HKP rosé · Muster 12 KBV-Look
+    scheine/MusterDreizehnHMV.tsx HMV blau-grau · Muster 13 KBV-Look
     scheine/KassenBescheidBrief.tsx Bescheid-Brief mit Briefkopf + Stempel
     scheine/WiderspruchBrief.tsx Spiegel-Brief vom Versicherten zur Kasse
     scheine/WiderspruchEntwurfBox.tsx Lana-Editor (client) mit Brief-Vorschau
     scheine/KlartextSpalte.tsx  Side-by-side Original ↔ Klartext + Glossar
     scheine/DruckenButton.tsx   window.print() Trigger
+    station/BettAktionForm.tsx  5 Forms: Belegen/Entlassen/Verlegen/Blockieren/Freigeben
+    station/BettAktionAccordion.tsx wählt je Bett-Status passende Aktions-Buttons
+    pflege/PflegediagnoseSetzenForm.tsx NANDA-Auswahl + AEDS-Format
+    identity/IdentityBadge.tsx   Status-Pill ○/●/⊘ + Token-Anzeige
+    identity/ClaimForm.tsx       zweistufiger Claim-Workflow (Token → Identitätscheck)
+    identity/MitarbeiterAnlegenForm.tsx Personal-Onboarding mit Code
+    identity/KlientAnlegenForm.tsx Direkt-Anlage für ambulant
+    identity/IdentityVerwaltungActions.tsx PDL · neuen Code, Widerruf
     IcfVorschlagBox.tsx         Sozial-Bedarfs-Text → ICF-Codes (Lana)
     TherapieBriefBox.tsx        Therapie-Sitzungen → Hausarzt-Brief (Lana)
     SpeiseplanKiBox.tsx         HW-Klient + Kostform → Wochenplan-Vorschlag (Lana)
@@ -552,6 +636,13 @@ apps/web/
     ehrenamt/begleit-store.ts   3 Klient:innen · Stimmung 1–5 · Lebenslagen · Tendenz-Helper
     kasse/bescheid-daten.ts     Heuristik VorgangsTyp → Schein + Klartext-Paket
     kasse/widerspruch-ki.ts     KI-Generator für § 84 SGG-Widerspruch · 4 Heuristik-Fallbacks
+    station/betten-store.ts     Bett+Belegung Entitäten · Belegen/Verlegen/Entlassen
+    station/actions.ts          Server-Actions für Bett-Forms
+    pflege/diagnose-katalog.ts  NANDA-I 2024–2026 · ~16 Diagnosen · 7 Domänen
+    pflege/pflegediagnose-store.ts AEDS-Eintrag pro Klient · Status akut/chron/risiko/geloest
+    pflege/pflegediagnose-actions.ts Server-Actions
+    identity/store.ts           Registry · Token-Generator · Claim mit Identitätscheck
+    identity/actions.ts         pruefeToken (Schritt 1) + claim (Schritt 2)
 
   public/scheine/
     stempel-praxis.png · stempel-bewilligt.png · stempel-abgelehnt.png
