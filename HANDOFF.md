@@ -11,7 +11,8 @@
 **🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
 **🌱 Naturheilkunde-Stack** 16 Verfahren über 10 Arten (Phyto · TCM · Anthropos · Homöo · Ayur · Aroma · Osteo · Akup · Kneipp) ·
 **✦ Psychedelika-Therapie** zukunftsfest · 7 Substanzen + 16-Schritt-Sitter-Protokoll (MAPS/COMPASS) + Pflege-Kompetenz-Felder ·
-**▤ Cockpit-Sub-Nav** dynamisch · 7 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
+**▤ Cockpit-Sub-Nav** dynamisch · 8 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
+**℞ Apotheke-Vollausbau** BtM-Buch + Heimversorgung (§12a ApoG/AMTS-Score) + Wechselwirkung (ABDA + ESCOP-Crossings) ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -116,6 +117,21 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 28 · Apotheke-Vollausbau · BtM + Heimversorgung + Wechselwirkung (Session 30 · 2026-05-09)
+
+Apotheke war mit 1 Page der dünnste Beruf · jetzt 4 Cockpits + eigene Lib + ExpertiseRolle.
+
+| Datei | Was |
+|---|---|
+| `lib/apotheke/btm-buch.ts` | BtMG-Anlagen I/II/III · 5 Demo-Buchungen (Tilidin, Cannabis Bedrocan, Spravato, Morphin, Fentanyl-Vernichtung) · Doppel-Sig-Pflicht |
+| `lib/apotheke/heimversorgung.ts` | 3 Heim-Bewohner mit Stellplan + Diagnosen + AMTS-Score (PRISCUS/FORTA/STOPP-START) + patientenspez. Hinweisen |
+| `lib/apotheke/wechselwirkung.ts` | 8 Crossings Schul-/Naturheil-/BtM-Medizin · 4 Schweregrade · Beispiel Johanniskraut↔Marcumar, Spravato↔MAO, Cannabis↔Phenprocoumon |
+| `/apotheke/btm` | BtM-Buch-Cockpit · KPIs Zugänge/Abgaben/Vernichtungen · Doku-Lücken-Counter |
+| `/apotheke/heimversorgung` | Verblisterungs-Cockpit · § 12a ApoG · pro Bewohner:in vollständiger Tagesrhythmus + AMTS-Hinweise |
+| `/apotheke/wechselwirkung` | Check-Cockpit · ABDA-CAVE-Stub mit ESCOP-Crossings |
+| `lib/ui/expertise.ts` | `apotheke` neu in ExpertiseRolle-Union: PKA / PTA / Apothekenleitung |
+| `lib/cockpit-sub-nav/registry.ts` | Apotheke-Familie mit 4 Reitern |
 
 ### 27 · Naturheil + Psychedelika + Cockpit-Sub-Nav + Kompetenz-Tracker (Session 29 · 2026-05-09)
 
