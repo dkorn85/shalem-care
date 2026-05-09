@@ -426,6 +426,29 @@
   to { transform: translateY(120vh) rotate(360deg); }
 }
 
+/* ──────────────────────────────────────────────────────────────────────
+ * Globaler FAB-Stack-Bottom-Padding
+ * ──────────────────────────────────────────────────────────────────────
+ *
+ * 5 fixed FABs rechts unten (Brillenmodus, GameMode, Sound, Notify,
+ * Expertise) plus BottomNav auf Mobile fressen unten Platz weg. Statt
+ * jede Shell + Marketing-Page mit pb-72 zu manage, setzen wir GLOBAL
+ * ein body-padding-bottom — das erfasst auch Pages ohne Shell.
+ *
+ * Mobile: 18rem = 288px reicht für 5 FABs (jeweils 40-48px) + BottomNav (64px) + Puffer.
+ * Desktop: 14rem = 224px (keine BottomNav).
+ *
+ * Mit max(env(safe-area-inset-bottom)) zusätzlich iOS-Notch-sicher.
+ */
+body {
+  padding-bottom: max(env(safe-area-inset-bottom, 0px), 18rem);
+}
+@media (min-width: 1024px) {
+  body {
+    padding-bottom: max(env(safe-area-inset-bottom, 0px), 14rem);
+  }
+}
+
 /* Apple-Style Toast Spring-Slide-In */
 @keyframes toastIn {
   from {

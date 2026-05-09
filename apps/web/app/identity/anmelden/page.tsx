@@ -29,7 +29,7 @@ export default function AnmeldenPage() {
       </header>
 
       <main className="flex-1">
-        <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10 pb-32">
+        <div className="max-w-2xl mx-auto px-4 sm:px-8 py-10">
           <header className="mb-6">
             <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">DSGVO Art. 4 Nr. 1 · Datenhoheit</p>
             <h1 className="font-display text-[32px] font-bold tracking-tight2 leading-[1.05]">

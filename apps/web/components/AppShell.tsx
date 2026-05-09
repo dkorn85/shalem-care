@@ -350,7 +350,7 @@ export async function AppShell({
           style={{ background: `linear-gradient(90deg, rgb(${rolePrimaer}) 0%, rgb(${rolePrimaer} / 0.4) 60%, transparent 100%)` }}
         />
 
-        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-72 lg:pb-56">
+        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10">
           {children}
         </div>
       </main>
