@@ -19,6 +19,7 @@
 **🤲 Begleitung-Vollausbau** 10-Methoden-Repertoire (Berkana/Validation/Snoezelen) + 7-Quellen-Einwilligung (BGB-Reform 2023) + Sterbe-Wachen mit Cheyne-Stokes-Doku + „Was-tun-wenn?"-Tafel ·
 **🗺 /cockpits-Karte** suchbare globale Übersicht aller 12 Familien · ~50 Reiter · auto-aktualisiert sich aus der Registry ·
 **🌉 Cross-Beruf-Brücken** klickbar in 17 Sub-Cockpits · raus/rein-Logik · verbindet Apotheke ↔ Pflege/Arzt/Klient, Bestatter ↔ Pflege/Begleitung/Rettungsdienst-Hygiene, Therapie/Psy ↔ Apotheke/BtM ·
+**◐ /klient/woche** Klient-Wochenübersicht alle 11 Berufsgruppen mit dokumentierten Wünschen + Sprung ins Profi-Cockpit je Termin ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -123,6 +124,22 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 35 · Klient-Wochenübersicht · alle Berufe in einer Sicht (Session 37 · 2026-05-09)
+
+Dritter Kreis nach Berufe-Vollausbau + Cross-Brücken: die Klient:in sieht alles, was diese Woche bei ihr passiert, quer durch alle 11 möglichen Berufsgruppen — inkl. dokumentierter Wünsche.
+
+| Datei | Was |
+|---|---|
+| `lib/klient/woche.ts` | `WocheTermin`-Typ · 16 Demo-Termine über 7 Tage für Helga Reinhardt · Quellen Pflege/Therapie/Apotheke/Medizintechnik/Begleitung/Arzt/Sozial/Bestatter/Ehrenamt/Küche · `wocheFuerKlient` + `termineProTag` + `berufeImEinsatz` |
+| `app/klient/woche/page.tsx` | Cockpit · Tag-Blöcke mit sticky-Header · Beruf-Akzentfarbe · Wunsch-Hervorhebung · Sprung ins Profi-Cockpit je Termin · Aufklär-Block über DSGVO Art. 4 |
+| `lib/cockpit-sub-nav/registry.ts` | Klient-Familie um „Meine Woche"-Reiter (◐ wed-Akzent) erweitert |
+| `lib/cross/bruecken.ts` | Brücken /klient/woche → Mein Team · Holistik (Wünsche-Quelle) · Identity (DSGVO-Export) |
+
+Beispiel-Termine mit Wünschen:
+- Berkana-Berührung mit „keine Füße bitte (Lymph-OP)"
+- Apotheke-Verblisterung mit „weiße Tabletten bitte mit Wasserschluck-Karte"
+- Bestatter-Vorsorge mit „lila Strickjacke + Perlohrringe (wie Mama auch)"
 
 ### 34 · Cross-Beruf-Brücken klickbar (Session 36 · 2026-05-09)
 
