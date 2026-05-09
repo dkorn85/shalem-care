@@ -11,11 +11,12 @@
 **🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
 **🌱 Naturheilkunde-Stack** 16 Verfahren über 10 Arten (Phyto · TCM · Anthropos · Homöo · Ayur · Aroma · Osteo · Akup · Kneipp) ·
 **✦ Psychedelika-Therapie** zukunftsfest · 7 Substanzen + 16-Schritt-Sitter-Protokoll (MAPS/COMPASS) + Pflege-Kompetenz-Felder ·
-**▤ Cockpit-Sub-Nav** dynamisch · 11 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
+**▤ Cockpit-Sub-Nav** dynamisch · 12 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
 **℞ Apotheke-Vollausbau** BtM-Buch + Heimversorgung (§12a ApoG/AMTS-Score) + Wechselwirkung (ABDA + ESCOP-Crossings) ·
 **▤ Medizintechnik-Vollausbau** MDR-Bestand (UDI/EUDAMED/CE) + STK/MTK-Wartung mit BfArM-Vigilanz + § 33-SGBV-Pool mit Wirtschaftlichkeit ·
 **🚑 Rettungsdienst-Vollausbau** NACA-Mind2-Protokoll + 5 SOPs (ERC/ESC/DGN/DGAKI/DGU) + RKI-Hygiene-Profile mit RTW-Aufbereitung ·
 **🕊 Bestatter-Vollausbau** 6-Phasen-Versorgung mit Würde-Notizen + 10 Bestattungsarten (BestG-Länder/§74 SGB XII) + Kast-4-Phasen-Trauerbegleitung mit Notfall-Kontakten ·
+**🤲 Begleitung-Vollausbau** 10-Methoden-Repertoire (Berkana/Validation/Snoezelen) + 7-Quellen-Einwilligung (BGB-Reform 2023) + Sterbe-Wachen mit Cheyne-Stokes-Doku + „Was-tun-wenn?"-Tafel ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -120,6 +121,23 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 32 · Begleitung-Vollausbau · Repertoire + Einwilligung + Sterbe-Wache (Session 34 · 2026-05-09)
+
+Fünfter Beruf in Folge · damit alle dünnen Berufe (Apotheke, Medizintechnik, Rettungsdienst, Bestatter, Begleitung) auf gleichem Schnitt-Niveau.
+
+| Datei | Was |
+|---|---|
+| `lib/begleitung/methoden.ts` | 10 Methoden (Berkana, Basale Stimulation, Validation Feil, Snoezelen, Bio-Erzählen, Vorlesen, Schweige-Präsenz, Musik, Aroma, Tier) über 3 Ausbildungs-Stufen mit Indi/KontraIndi/Doku-Pflicht |
+| `lib/begleitung/einwilligung.ts` | 7 Einwilligungs-Quellen (selbst, mündl-Zeuge, VV, Betreuung, PV § 1901a, Pflegeplan, Notfall) · 6 Demo-Vereinbarungen · 5 Eskalations-Regeln · Betreuungsrechts-Reform 2023 |
+| `lib/begleitung/sterbewache.ts` | 2 aktive Vigilien mit Schicht-Plan + Atmungsmuster + 10 terminale Zeichen + Bedarfsmedi · 8-Punkte „Was tun wenn?"-Tafel mit Zuständigkeit |
+| `/begleitung/repertoire` | Methoden-Karten je Stufe casual/zertifiziert/fachkraft |
+| `/begleitung/einwilligung` | Status-Dashboard + Eskalations-Regeln · Reform 2023 dokumentiert |
+| `/begleitung/sterbewache` | Vigilie-Karten + Was-Tun-Wenn-Tafel mit Zuständigkeits-Routing |
+| `lib/ui/expertise.ts` | `begleitung` neu in ExpertiseRolle-Union: Casual / Begleiter:in / Hospiz-Koordin. |
+| `lib/cockpit-sub-nav/registry.ts` | Begleitung-Familie mit 4 Reitern (🤲 Repertoire, ✓ Einwilligung, 🕊 Sterbe-Wache) |
+
+Bilanz dünne-Berufe-Aufbau: Apotheke + Medizintechnik + Rettungsdienst + Bestatter + Begleitung — jeweils 1 Hub → 4 Cockpits + Lib + ExpertiseRolle. ExpertiseRolle-Union umfasst jetzt 16 Rollen, CockpitSubNav-Registry 12 Familien.
 
 ### 31 · Bestatter-Vollausbau · Versorgung + Bestattungsarten + Trauer (Session 33 · 2026-05-09)
 
