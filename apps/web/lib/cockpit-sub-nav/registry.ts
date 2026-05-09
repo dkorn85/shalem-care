@@ -87,6 +87,16 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
     ],
   },
   {
+    basis: "/rettungsdienst",
+    eyebrow: "Rettungsdienst",
+    items: [
+      { href: "/rettungsdienst",           label: "Cockpit",     vibe: "var(--mon)",           glyph: "◇", hint: "Disposition · Fahrzeuge" },
+      { href: "/rettungsdienst/protokoll", label: "Protokoll",   vibe: "var(--vibe-team)",     glyph: "◴", hint: "NACA · Mind2 · IVENA" },
+      { href: "/rettungsdienst/sop",       label: "SOPs",        vibe: "var(--vibe-stats)",    glyph: "✚", hint: "ERC · ESC · DGN · DGAKI" },
+      { href: "/rettungsdienst/hygiene",   label: "Hygiene",     vibe: "var(--accent)",        glyph: "❀", hint: "RKI · IfSG · TRBA 250" },
+    ],
+  },
+  {
     basis: "/sozial",
     eyebrow: "Sozialarbeit",
     items: [

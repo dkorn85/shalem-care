@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { CockpitSubNav } from "@/components/CockpitSubNav";
 
 export const metadata = {
   title: "Rettungsdienst · Cockpit",
@@ -58,6 +59,8 @@ export default function RettungsdienstPage() {
       >
         {EINSAETZE_HEUTE.length} Einsätze heute · {FAHRZEUGE.filter((f) => f.status === "im_einsatz" || f.status === "ankunft_klinik").length}/{FAHRZEUGE.length} Fahrzeuge im Einsatz · {ANFORDERUNGEN_OFFEN.length} Anforderungen offen.
       </RolePastelHeader>
+
+      <CockpitSubNav />
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Kpi label="Einsätze heute"   value={EINSAETZE_HEUTE.length} farbe="var(--mon)" icon="🚨" />

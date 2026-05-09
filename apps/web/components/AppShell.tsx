@@ -68,7 +68,7 @@ const ROLE_EXPERTISE: Record<Role, ExpertiseRolle | null> = {
   lead: "lead",
   apotheke: "apotheke",
   medizintechnik: "medizintechnik",
-  rettungsdienst: null,
+  rettungsdienst: "rettungsdienst",
   bestatter: null,
   begleitung: null,
 };
