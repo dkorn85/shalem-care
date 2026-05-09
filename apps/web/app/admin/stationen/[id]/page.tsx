@@ -18,6 +18,8 @@ import {
   type Belegung,
 } from "@/lib/station/betten-store";
 import { BettAktionAccordion } from "@/components/station/BettAktionAccordion";
+import { IdentityBadge } from "@/components/identity/IdentityBadge";
+import { seedIdentityOnce } from "@/lib/identity/store";
 
 export const metadata = { title: "Stationsmanagement · Bettenraster" };
 
@@ -45,6 +47,7 @@ const AUFNAHME_LABEL: Record<Belegung["aufnahmeArt"], string> = {
 
 export default async function StationenDetailPage({ params }: { params: Promise<{ id: string }> }) {
   seedBettenOnce();
+  seedIdentityOnce();
   const { id } = await params;
   const station = listStations().find((s) => s.id === id);
   if (!station) notFound();
@@ -156,6 +159,7 @@ export default async function StationenDetailPage({ params }: { params: Promise<
                       {beleg && (
                         <>
                           <span className="text-[12px] truncate min-w-0">{beleg.klientName}</span>
+                          <IdentityBadge id={beleg.klientId} size="xs" klickbar={false} />
                           <span
                             className="chip text-[9px] font-mono shrink-0"
                             style={{ background: `rgb(${PG_FARBE[beleg.pflegegrad]} / 0.18)`, color: `rgb(${PG_FARBE[beleg.pflegegrad]})` }}

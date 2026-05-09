@@ -13,10 +13,11 @@ import {
   klientVerlegen,
   type Belegung,
 } from "./betten-store";
+import { registriere } from "@/lib/identity/store";
 import type { Pflegegrad } from "@/lib/hierarchy/types";
 
 export type ActionResult =
-  | { ok: true; message: string }
+  | { ok: true; message: string; claimToken?: string; identityId?: string }
   | { ok: false; error: string };
 
 export async function bettBelegenAction(input: {
@@ -29,10 +30,19 @@ export async function bettBelegenAction(input: {
   aufnahmeArt: Belegung["aufnahmeArt"];
   notiz?: string;
 }): Promise<ActionResult> {
+  // Identity zuerst registrieren · gibt eine global-eindeutige ID + Claim-Token
+  const identity = registriere({
+    art: "klient",
+    name: input.klientName.trim(),
+    bekannteId: input.klientId.trim() || undefined,
+    angelegtVon: "lead",
+    angelegtVonPersonId: "person-de1",
+  });
+
   const r = bettBelegen({
     bettId: input.bettId,
-    klientId: input.klientId.trim(),
-    klientName: input.klientName.trim(),
+    klientId: identity.id,
+    klientName: identity.name,
     pflegegrad: input.pflegegrad,
     diagnosen: input.diagnosen.split(/[,;]\s*/).map((s) => s.trim()).filter(Boolean),
     aufnahmeArt: input.aufnahmeArt,
@@ -41,7 +51,13 @@ export async function bettBelegenAction(input: {
   if (!r.ok) return { ok: false, error: r.error };
   revalidatePath(`/admin/stationen/${input.stationId}`);
   revalidatePath("/admin/stationen");
-  return { ok: true, message: `${input.klientName} liegt jetzt im Bett.` };
+  revalidatePath("/identity");
+  return {
+    ok: true,
+    message: `${input.klientName} liegt jetzt im Bett.`,
+    claimToken: identity.claimStatus !== "geclaimt" ? identity.claimToken : undefined,
+    identityId: identity.id,
+  };
 }
 
 export async function bettEntlassenAction(input: {

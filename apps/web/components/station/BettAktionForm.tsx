@@ -38,15 +38,17 @@ export function BettBelegenForm(props: CommonProps) {
   const [notiz, setNotiz] = useState("");
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [neuerClaimToken, setNeuerClaimToken] = useState<{ token: string; identityId: string } | null>(null);
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
     setFeedback(null);
+    setNeuerClaimToken(null);
     startTransition(async () => {
       const r = await bettBelegenAction({
         bettId: props.bettId,
         stationId: props.stationId,
-        klientId: klientId || `klient-neu-${Date.now()}`,
+        klientId: klientId,
         klientName,
         pflegegrad,
         diagnosen,
@@ -55,8 +57,11 @@ export function BettBelegenForm(props: CommonProps) {
       });
       if (r.ok) {
         setFeedback("✓ " + r.message);
+        if (r.claimToken && r.identityId) {
+          setNeuerClaimToken({ token: r.claimToken, identityId: r.identityId });
+        }
         setKlientId(""); setKlientName(""); setDiagnosen(""); setNotiz("");
-        props.onDone?.();
+        // onDone NICHT sofort aufrufen, damit der Token sichtbar bleibt
       } else {
         setFeedback("⚠ " + r.error);
       }
@@ -123,6 +128,28 @@ export function BettBelegenForm(props: CommonProps) {
       </Row>
 
       <SubmitRow pending={pending} feedback={feedback} cta="Aufnehmen" farbe="var(--thu)" />
+
+      {neuerClaimToken && (
+        <div
+          className="mt-3 rounded-lg p-3"
+          style={{
+            background: "rgb(var(--vibe-approval) / 0.10)",
+            boxShadow: "inset 0 0 0 1.5px rgb(var(--vibe-approval) / 0.40)",
+          }}
+        >
+          <p className="text-[10px] uppercase tracking-wider font-mono font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>
+            ⚠ Diesen Code an die Klient:in oder Angehörige weitergeben
+          </p>
+          <code className="block font-mono text-[22px] font-bold tracking-wider mt-1.5" style={{ color: "rgb(var(--vibe-approval))" }}>
+            {neuerClaimToken.token}
+          </code>
+          <p className="text-[11px] text-mute mt-2 leading-relaxed">
+            Mit diesem Code kann die Person ihr Profil unter
+            {" "}<code className="font-mono text-[10px]">/identity/claim</code> übernehmen.
+            {" "}Code geht verloren? In der Identity-Verwaltung neuen erzeugen.
+          </p>
+        </div>
+      )}
     </form>
   );
 }
