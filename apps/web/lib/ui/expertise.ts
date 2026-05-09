@@ -25,7 +25,8 @@ export type ExpertiseRolle =
   | "ehrenamt"
   | "kasse"
   | "lead"
-  | "genossenschaft";
+  | "genossenschaft"
+  | "apotheke";
 
 // Pro Rolle eigene Labels für die Stufen — Pflege nennt sich anders als Therapie.
 type RolleLabels = { lerne: string; praxis: string; profi: string; beschreibung: string };
@@ -42,6 +43,7 @@ export const EXPERTISE_LABELS: Record<ExpertiseRolle, RolleLabels> = {
   kasse:          { lerne: "Casual",         praxis: "Sachbearbeitung", profi: "Spezialist:in",      beschreibung: "Kasse" },
   lead:           { lerne: "Stations-WL",    praxis: "Stationsleitung", profi: "PDL",                beschreibung: "Stationsleitung" },
   genossenschaft: { lerne: "Mitglied",       praxis: "Vorstand",        profi: "Aufsichtsrat",       beschreibung: "Genossenschaft" },
+  apotheke:       { lerne: "PKA",            praxis: "PTA",             profi: "Apothekenleitung",   beschreibung: "Apotheke" },
 };
 
 export const LEVEL_RANK: Record<ExpertiseLevel, number> = {

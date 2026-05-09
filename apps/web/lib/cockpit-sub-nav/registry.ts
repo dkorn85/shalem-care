@@ -67,6 +67,16 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
     ],
   },
   {
+    basis: "/apotheke",
+    eyebrow: "Apotheke",
+    items: [
+      { href: "/apotheke",                label: "Cockpit",        vibe: "var(--vibe-team)",     glyph: "◇", hint: "eRezept · Lager" },
+      { href: "/apotheke/heimversorgung", label: "Heimversorgung", vibe: "var(--accent)",        glyph: "▤", hint: "§ 12a ApoG · Stellplan" },
+      { href: "/apotheke/btm",            label: "BtM-Buch",       vibe: "var(--vibe-profile)",  glyph: "℞", hint: "§ 13 BtMG · Doppel-Sig" },
+      { href: "/apotheke/wechselwirkung", label: "Wechselw.",      vibe: "var(--mon)",           glyph: "⚠", hint: "ABDA + ESCOP-Crossings" },
+    ],
+  },
+  {
     basis: "/sozial",
     eyebrow: "Sozialarbeit",
     items: [

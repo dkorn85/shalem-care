@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { CockpitSubNav } from "@/components/CockpitSubNav";
 
 export const metadata = {
   title: "Apotheke · Bestellung + Verwaltung",
@@ -63,6 +64,8 @@ export default function ApothekePage() {
       >
         {E_REZEPTE_OFFEN.length} eRezepte heute · {BESTELLUNGEN.filter((b) => b.status !== "geliefert").length} offene Bestellungen · {LAGER_TIEF.length} Artikel unter Mindestbestand.
       </RolePastelHeader>
+
+      <CockpitSubNav />
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Kpi label="eRezepte heute"  value={E_REZEPTE_OFFEN.length} farbe="var(--vibe-team)" icon="℞" />
