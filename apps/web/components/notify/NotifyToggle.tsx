@@ -6,6 +6,7 @@
 
 import { useState } from "react";
 import { aktiviereOS, deaktiviere, notify, useNotifyMode, type NotifyModus } from "@/lib/notify/notify";
+import { subscribePush } from "@/lib/notify/push-client";
 
 const GLYPH: Record<NotifyModus, string> = {
   aus:    "🔕",
@@ -31,6 +32,11 @@ export function NotifyToggle() {
     try {
       if (modus === "aus") {
         const next = await aktiviereOS();
+        // Wenn OS-Permission da: zusätzlich Server-Push abonnieren
+        // damit auch Tab-zu-Notifications ankommen.
+        if (next === "os") {
+          subscribePush().catch(() => {});
+        }
         // Demo-Toast nach Aktivierung
         setTimeout(() => {
           notify({

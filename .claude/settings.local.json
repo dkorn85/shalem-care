@@ -56,7 +56,8 @@
       "Bash(identify /root/shalem-care/apps/web/public/icon-maskable.png)",
       "Bash(convert icon-maskable.png -resize 192x192 icon-192.png)",
       "Bash(convert icon-maskable.png -resize 512x512 icon-512.png)",
-      "Bash(convert icon-maskable.png -resize 96x96 icon-badge.png)"
+      "Bash(convert icon-maskable.png -resize 96x96 icon-badge.png)",
+      "Bash(chmod +x /root/shalem-care/scripts/generate-vapid-keys.sh)"
     ]
   },
   "enableAllProjectMcpServers": true,
