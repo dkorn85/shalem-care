@@ -59,7 +59,11 @@
       "Bash(convert icon-maskable.png -resize 96x96 icon-badge.png)",
       "Bash(chmod +x /root/shalem-care/scripts/generate-vapid-keys.sh)",
       "Bash(ELEVENLABS_API_KEY=\"13cbd81aee901dff63a6e14138f143689cbedd07b1ff1afc534c6c9add882537\" bash scripts/generate-sounds.sh \"aufnahme-start,aufnahme-stop,diagnose-set,konferenz-join,konferenz-leave,bett-belegt,bett-frei,export-fertig,swipe,tick,applaus,gong\")",
-      "Bash(bash scripts/generate-vapid-keys.sh)"
+      "Bash(bash scripts/generate-vapid-keys.sh)",
+      "mcp__claude_ai_Higgsfield__models_explore",
+      "mcp__claude_ai_Higgsfield__generate_image",
+      "mcp__claude_ai_Higgsfield__job_status",
+      "Bash(curl -sS -o hero.png \"https://d8j0ntlcm91z4.cloudfront.net/user_34p0E7VkeEYFsXe2RmvBUfLs6s2/hf_20260509_123737_48e67b13-34f5-4c71-971f-cc8617b4215e.png\")"
     ]
   },
   "enableAllProjectMcpServers": true,
