@@ -11,10 +11,11 @@
 **🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
 **🌱 Naturheilkunde-Stack** 16 Verfahren über 10 Arten (Phyto · TCM · Anthropos · Homöo · Ayur · Aroma · Osteo · Akup · Kneipp) ·
 **✦ Psychedelika-Therapie** zukunftsfest · 7 Substanzen + 16-Schritt-Sitter-Protokoll (MAPS/COMPASS) + Pflege-Kompetenz-Felder ·
-**▤ Cockpit-Sub-Nav** dynamisch · 10 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
+**▤ Cockpit-Sub-Nav** dynamisch · 11 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
 **℞ Apotheke-Vollausbau** BtM-Buch + Heimversorgung (§12a ApoG/AMTS-Score) + Wechselwirkung (ABDA + ESCOP-Crossings) ·
 **▤ Medizintechnik-Vollausbau** MDR-Bestand (UDI/EUDAMED/CE) + STK/MTK-Wartung mit BfArM-Vigilanz + § 33-SGBV-Pool mit Wirtschaftlichkeit ·
 **🚑 Rettungsdienst-Vollausbau** NACA-Mind2-Protokoll + 5 SOPs (ERC/ESC/DGN/DGAKI/DGU) + RKI-Hygiene-Profile mit RTW-Aufbereitung ·
+**🕊 Bestatter-Vollausbau** 6-Phasen-Versorgung mit Würde-Notizen + 10 Bestattungsarten (BestG-Länder/§74 SGB XII) + Kast-4-Phasen-Trauerbegleitung mit Notfall-Kontakten ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -119,6 +120,21 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 31 · Bestatter-Vollausbau · Versorgung + Bestattungsarten + Trauer (Session 33 · 2026-05-09)
+
+Vierter Beruf in Folge · 1 Hub → 4 Cockpits + Lib + ExpertiseRolle.
+
+| Datei | Was |
+|---|---|
+| `lib/bestatter/versorgung.ts` | 6-Phasen-Workflow Eingang→Überführung · 5 Demo-Fälle mit Würde-Notizen + 6 Sonderlage-Typen (Infekt-RKI, StA, Religion, Kindstod, No-Touch) |
+| `lib/bestatter/bestattungsarten.ts` | 10 Bestattungsformen mit Kostenspanne + Recht + Bundesland-Hinweis + Öko-Note · § 74 SGB XII Sozialhilfe-Bestattung |
+| `lib/bestatter/trauerbegleitung.ts` | Kast-4-Phasen-Modell · 5 laufende Begleitungen mit besonderen Lagen (Kindstod, Suizid) · 7 Notfall-Kontakte (Telefonseelsorge, AGUS, AETAS, Verwaiste Eltern) |
+| `/bestatter/versorgung` | Phasen-Karte + Sonderlage-Counter · § 168 StGB · § 31 PStG · DBV-Standes |
+| `/bestatter/bestattungsarten` | Karten je Variante · Friedhofszwang-Lockerungen Bremen/NRW/HH/SH |
+| `/bestatter/trauerbegleitung` | 4-Phasen-Erklärblock · Kontakte mit Telefon-Nummern · Brücken zu Fachstellen |
+| `lib/ui/expertise.ts` | `bestatter` neu in ExpertiseRolle-Union: Auszubildende / Bestattungsfachkraft / Bestattermeister:in |
+| `lib/cockpit-sub-nav/registry.ts` | Bestatter-Familie mit 4 Reitern (🕊 Versorgung, ❀ Arten, ♡ Trauer) |
 
 ### 30 · Rettungsdienst-Vollausbau · Protokoll + SOPs + Hygiene (Session 32 · 2026-05-09)
 
