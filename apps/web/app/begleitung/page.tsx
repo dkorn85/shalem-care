@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { CockpitSubNav } from "@/components/CockpitSubNav";
 
 export const metadata = {
   title: "Würde-Begleitung · Berührung + Nähe",
@@ -44,6 +45,8 @@ export default function BegleitungPage() {
         {BEGLEITUNGEN.length} aktive Begleitungen · {ANGEFRAGT.length} Anfragen offen.
         Jeder Auftrag mit dokumentierter Einwilligung der Klient:in oder gesetzlichen Betreuung.
       </RolePastelHeader>
+
+      <CockpitSubNav />
 
       <section className="surface rounded-2xl p-5 mb-5">
         <p className="text-[11px] uppercase tracking-wider font-medium mb-2" style={{ color: "rgb(var(--wed))" }}>

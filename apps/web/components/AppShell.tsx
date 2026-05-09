@@ -70,7 +70,7 @@ const ROLE_EXPERTISE: Record<Role, ExpertiseRolle | null> = {
   medizintechnik: "medizintechnik",
   rettungsdienst: "rettungsdienst",
   bestatter: "bestatter",
-  begleitung: null,
+  begleitung: "begleitung",
 };
 
 // Quell-Beruf für KI-Klartext (vom Brillenmodus an /api/ai/klartext)

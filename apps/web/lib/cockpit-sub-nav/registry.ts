@@ -107,6 +107,16 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
     ],
   },
   {
+    basis: "/begleitung",
+    eyebrow: "Würde-Begleitung",
+    items: [
+      { href: "/begleitung",              label: "Cockpit",      vibe: "var(--wed)",          glyph: "◇", hint: "Aktive Begleitungen · Anfragen" },
+      { href: "/begleitung/repertoire",   label: "Repertoire",   vibe: "var(--vibe-team)",    glyph: "🤲", hint: "Berkana · Validation · Snoezelen" },
+      { href: "/begleitung/einwilligung", label: "Einwilligung", vibe: "var(--accent)",       glyph: "✓", hint: "BGB §1814 · § 1901a · DSGVO" },
+      { href: "/begleitung/sterbewache",  label: "Sterbe-Wache", vibe: "var(--vibe-profile)", glyph: "🕊", hint: "Vigilie · Cheyne-Stokes · DGP" },
+    ],
+  },
+  {
     basis: "/sozial",
     eyebrow: "Sozialarbeit",
     items: [
