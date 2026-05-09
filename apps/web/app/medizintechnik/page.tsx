@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
+import { CockpitSubNav } from "@/components/CockpitSubNav";
 
 export const metadata = {
   title: "Medizintechnik · Geräte + Versorgung",
@@ -57,6 +58,8 @@ export default function MedizintechnikPage() {
       >
         {GERAETE_VERSORGUNG.length} aktive Versorgungen · {SERVICE_TICKETS.length} Service-Tickets · {SERVICE_TICKETS.filter((t) => t.prio === "hoch").length} mit hoher Priorität · {VERORDNUNGS_PIPELINE.length} VOs in Bearbeitung.
       </RolePastelHeader>
+
+      <CockpitSubNav />
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Kpi label="Geräte aktiv"     value={GERAETE_VERSORGUNG.length} farbe="var(--vibe-stats)" icon="🩻" />

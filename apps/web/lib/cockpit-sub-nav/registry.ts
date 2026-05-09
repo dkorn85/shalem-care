@@ -77,6 +77,16 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
     ],
   },
   {
+    basis: "/medizintechnik",
+    eyebrow: "Medizintechnik",
+    items: [
+      { href: "/medizintechnik",         label: "Cockpit",      vibe: "var(--vibe-stats)",   glyph: "◇", hint: "Geräte · Service · VOs" },
+      { href: "/medizintechnik/mdr",     label: "MDR-Bestand",  vibe: "var(--vibe-team)",    glyph: "▤", hint: "EU 2017/745 · UDI · CE" },
+      { href: "/medizintechnik/wartung", label: "Wartung",      vibe: "var(--mon)",          glyph: "⏰", hint: "STK · MTK · Vorkommnisse" },
+      { href: "/medizintechnik/pool",    label: "Pool",         vibe: "var(--accent)",       glyph: "♻", hint: "§ 33 SGB V · Wiedereinsatz" },
+    ],
+  },
+  {
     basis: "/sozial",
     eyebrow: "Sozialarbeit",
     items: [
