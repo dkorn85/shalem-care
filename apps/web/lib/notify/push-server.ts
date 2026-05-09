@@ -19,18 +19,29 @@ function init() {
 }
 
 export async function sendePush(input: {
-  identityId?: string;          // wenn null → Broadcast an alle
+  // Empfänger-Filter (alle optional, leer = Broadcast):
+  identityId?: string;
+  rolle?: string;             // z.B. „pflege" → alle Pflegekräfte
+  stationId?: string;         // z.B. „st-keme-pulmo-3b"
+  einrichtungId?: string;
+  // Inhalt
   titel: string;
   beschreibung?: string;
   href?: string;
   art?: "info" | "erfolg" | "warnung" | "fehler" | "lana";
-}): Promise<{ versandt: number; verworfen: number }> {
+}): Promise<{ versandt: number; verworfen: number; empfaenger: number }> {
   init();
   const pub = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY;
   const priv = process.env.VAPID_PRIVATE_KEY;
-  if (!pub || !priv) return { versandt: 0, verworfen: 0 };
+  if (!pub || !priv) return { versandt: 0, verworfen: 0, empfaenger: 0 };
 
-  const abos = listAbos(input.identityId ? { identityId: input.identityId } : undefined);
+  const filter = {
+    identityId: input.identityId,
+    rolle: input.rolle,
+    stationId: input.stationId,
+    einrichtungId: input.einrichtungId,
+  };
+  const abos = listAbos(filter);
   let versandt = 0, verworfen = 0;
   const payload = JSON.stringify({
     titel: input.titel,
@@ -58,5 +69,5 @@ export async function sendePush(input: {
     }),
   );
 
-  return { versandt, verworfen };
+  return { versandt, verworfen, empfaenger: abos.length };
 }

@@ -13,7 +13,13 @@ function urlBase64ToUint8Array(base64String: string): Uint8Array {
   return arr;
 }
 
-export async function subscribePush(identityId: string = "anonym"): Promise<{ ok: boolean; reason?: string }> {
+export async function subscribePush(input: {
+  identityId?: string;
+  rolle?: string;
+  stationId?: string;
+  einrichtungId?: string;
+} = {}): Promise<{ ok: boolean; reason?: string }> {
+  const identityId = input.identityId ?? "anonym";
   if (typeof window === "undefined") return { ok: false, reason: "kein-browser" };
   if (!("serviceWorker" in navigator) || !("PushManager" in window)) {
     return { ok: false, reason: "browser-unsupported" };
@@ -37,6 +43,9 @@ export async function subscribePush(identityId: string = "anonym"): Promise<{ ok
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         identityId,
+        rolle: input.rolle,
+        stationId: input.stationId,
+        einrichtungId: input.einrichtungId,
         endpoint: sub.endpoint,
         keys: {
           p256dh: arrayBufferToBase64(sub.getKey("p256dh")),

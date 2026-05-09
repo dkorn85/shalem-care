@@ -64,7 +64,7 @@ export async function KlientShell({
       <Brillenmodus beruf="klient" rolePrimaer={KLIENT_PRIMAER} roleLabel={KLIENT_LABEL} />
       <GameModeToggle />
       <SoundToggle />
-      <NotifyToggle />
+      <NotifyToggle identityId={user.klientId} rolle="klient" />
     </div>
   );
 }

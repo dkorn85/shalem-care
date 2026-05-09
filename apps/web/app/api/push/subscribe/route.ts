@@ -12,6 +12,9 @@ export async function POST(req: Request) {
     }
     const a = speichereAbo({
       identityId: body.identityId ?? "anonym",
+      rolle: body.rolle ?? undefined,
+      stationId: body.stationId ?? undefined,
+      einrichtungId: body.einrichtungId ?? undefined,
       endpoint: body.endpoint,
       keys: { p256dh: body.keys.p256dh, auth: body.keys.auth },
       userAgent: req.headers.get("user-agent") ?? undefined,

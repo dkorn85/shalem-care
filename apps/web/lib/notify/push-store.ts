@@ -15,6 +15,11 @@ export type PushAbo = {
   keys: { p256dh: string; auth: string };
   userAgent?: string;
   abonniertAm: string;        // ISO
+  // Optional · vom Identity-Registry beim Subscribe befüllt für
+  // gezielten Empfänger-Filter (Berufsgruppe, Station, Einrichtung).
+  rolle?: string;
+  stationId?: string;
+  einrichtungId?: string;
 };
 
 type GlobalShape = { __shalemPushAbos?: PushAbo[] };
@@ -22,9 +27,17 @@ const g = globalThis as unknown as GlobalShape;
 const abos: PushAbo[] = g.__shalemPushAbos ?? [];
 if (!g.__shalemPushAbos) g.__shalemPushAbos = abos;
 
-export function listAbos(filter?: { identityId?: string }): PushAbo[] {
+export function listAbos(filter?: {
+  identityId?: string;
+  rolle?: string;
+  stationId?: string;
+  einrichtungId?: string;
+}): PushAbo[] {
   return abos
-    .filter((a) => !filter?.identityId || a.identityId === filter.identityId)
+    .filter((a) => !filter?.identityId    || a.identityId === filter.identityId)
+    .filter((a) => !filter?.rolle         || a.rolle === filter.rolle)
+    .filter((a) => !filter?.stationId     || a.stationId === filter.stationId)
+    .filter((a) => !filter?.einrichtungId || a.einrichtungId === filter.einrichtungId)
     .slice();
 }
 
@@ -35,6 +48,9 @@ export function speichereAbo(input: Omit<PushAbo, "abonniertAm">): PushAbo {
     existiert.identityId = input.identityId;
     existiert.keys = input.keys;
     existiert.userAgent = input.userAgent;
+    existiert.rolle = input.rolle;
+    existiert.stationId = input.stationId;
+    existiert.einrichtungId = input.einrichtungId;
     return existiert;
   }
   const a: PushAbo = { ...input, abonniertAm: new Date().toISOString() };

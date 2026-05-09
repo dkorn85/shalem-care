@@ -9,6 +9,9 @@ export async function POST(req: Request) {
     const body = await req.json().catch(() => ({}));
     const r = await sendePush({
       identityId: body.identityId,
+      rolle: body.rolle,
+      stationId: body.stationId,
+      einrichtungId: body.einrichtungId,
       titel: body.titel ?? "Test-Push von Shalem Care",
       beschreibung: body.beschreibung ?? "Diese Notification kommt aus dem Server.",
       href: body.href ?? "/",

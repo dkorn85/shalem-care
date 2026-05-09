@@ -353,7 +353,11 @@ export async function AppShell({
       <Brillenmodus beruf={ROLE_KLARTEXT[role]} rolePrimaer={rolePrimaer} roleLabel={roleLabel} />
       <GameModeToggle />
       <SoundToggle />
-      <NotifyToggle />
+      <NotifyToggle
+        identityId={user.id}
+        rolle={ROLE_KLARTEXT[role]}
+        stationId={undefined}
+      />
     </div>
   );
 }

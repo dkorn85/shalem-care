@@ -20,7 +20,17 @@ const TITLE: Record<NotifyModus, string> = {
   os:     "OS-Notifications an · klicken zum Stummschalten",
 };
 
-export function NotifyToggle() {
+export function NotifyToggle({
+  identityId,
+  rolle,
+  stationId,
+  einrichtungId,
+}: {
+  identityId?: string;
+  rolle?: string;
+  stationId?: string;
+  einrichtungId?: string;
+} = {}) {
   const { modus, mounted } = useNotifyMode();
   const [pending, setPending] = useState(false);
 
@@ -33,9 +43,11 @@ export function NotifyToggle() {
       if (modus === "aus") {
         const next = await aktiviereOS();
         // Wenn OS-Permission da: zusätzlich Server-Push abonnieren
-        // damit auch Tab-zu-Notifications ankommen.
+        // damit auch Tab-zu-Notifications ankommen — Empfänger-Filter
+        // (Identity, Rolle, Station, Einrichtung) wird mitgegeben für
+        // gezielte Push-Sendungen.
         if (next === "os") {
-          subscribePush().catch(() => {});
+          subscribePush({ identityId, rolle, stationId, einrichtungId }).catch(() => {});
         }
         // Demo-Toast nach Aktivierung
         setTimeout(() => {

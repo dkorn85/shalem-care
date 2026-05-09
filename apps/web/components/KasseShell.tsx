@@ -85,7 +85,7 @@ export async function KasseShell({
       <Brillenmodus beruf="lead" rolePrimaer={KASSE_PRIMAER} roleLabel={KASSE_LABEL} />
       <GameModeToggle />
       <SoundToggle />
-      <NotifyToggle />
+      <NotifyToggle rolle="kasse" />
     </div>
   );
 }
