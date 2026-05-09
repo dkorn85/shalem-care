@@ -9,6 +9,9 @@
 **Schein-Optik** Kasse + Therapie + Versicherten-Sicht + Widerspruchs-Editor ·
 **🔊 Sound-System** 20 ElevenLabs-Sounds · **🔔 Notify-System** Apple-Toast + OS-Push + VAPID mit **Empfänger-Gruppen-Filter** · **📱 PWA** Service-Worker + Manifest ·
 **🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
+**🌱 Naturheilkunde-Stack** 16 Verfahren über 10 Arten (Phyto · TCM · Anthropos · Homöo · Ayur · Aroma · Osteo · Akup · Kneipp) ·
+**✦ Psychedelika-Therapie** zukunftsfest · 7 Substanzen + 16-Schritt-Sitter-Protokoll (MAPS/COMPASS) + Pflege-Kompetenz-Felder ·
+**▤ Cockpit-Sub-Nav** dynamisch · 7 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -113,6 +116,35 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 27 · Naturheil + Psychedelika + Cockpit-Sub-Nav + Kompetenz-Tracker (Session 29 · 2026-05-09)
+
+Multidisziplinäre Aufstellung „auf Augenhöhe" gemäß WHO/EU-Recht plus Gesundheits-Erweiterung um Komplementär- und Psychedelika-Medizin.
+
+**A · Kompetenz-Tracker (`88f3fb1`)** · 24 Kompetenzen aus EU-Direktive 2005/36/EG + WHO European Strategic Directions for Nursing 2021-2025 + DBfK + DNQP. `lib/kompetenz/{katalog,store}.ts` mit Status-Berechnung pro Mitarbeiter. Admin-Cockpit `/admin/kompetenz` + Detail-Seite `/admin/kompetenz/[mitarbeiterId]` + `NachweisEintragenForm`.
+
+**B · Team-um-Klient + ICNP-Mapping (`008d018`)** · 30 NANDA-Diagnosen mit ICNP-Codes (WHO-Klassifikation). Neue Cockpit-Page `/klient/team` zeigt alle beteiligten Berufsgruppen pro Klient.
+
+**C · Naturheilkunde-Stack (`bc034d5`-A)**
+
+| Datei | Was |
+|---|---|
+| `lib/naturheil/katalog.ts` | 16 Verfahren · 10 NaturheilArt · Status (Apo/OTC/HP/Arzt/Pflege) · Evidenz · ESCOP/EMA-HMPC/SPICE/G-BA-Quellen |
+| `/therapie/naturheil` | gruppiert nach Art · Pflege-integrierbar-Marker · HeilprG-Klartext · Evidenz-Bar-Chart (Profi) |
+
+Beispiele: PHYTO-MELISSE (ESCOP), PHYTO-WEISSDORN (SPICE), ANTHRO-MISTEL (Iscador), HOMOEO-ARNICA-D6, TCM-AKUPUNKTUR-LWS (G-BA), KNEIPP-WICKEL-WADE, AROMA-LAVENDEL.
+
+**D · Psychedelika-Therapie + Trip-Sitting (`bc034d5`-B)**
+
+| Datei | Was |
+|---|---|
+| `lib/psychedelika/katalog.ts` | 7 Substanzen · Esketamin (EMA), Cannabis BtM-III, off-label Ketamin, Pipeline-Phase-3: Psilocybin/MDMA/LSD/Ibogain |
+| `lib/psychedelika/sitter-protokoll.ts` | 16-Schritt-Protokoll über Vorbereitung/Sitzung/Integration · `PFLEGE_KOMPETENZ_FELD` mit ja/nein/Krisenfall-Listen |
+| `/therapie/psychedelika` | Verfügbar-heute + Pipeline · Set/Setting/Sitter-Modell · Pflege-vs-Therapeut-Trennlinie |
+
+Standards: MAPS-PTBS-Trial, COMPASS Pathways COMP360, EMA Scientific Advice 2024 (dual-experienced therapist model).
+
+**E · Cockpit-Sub-Nav (`bc034d5`-C)** · neue Komponente `components/CockpitSubNav.tsx` rendert horizontale Reiter direkt unter dem AppShell-Header der jeweiligen Page. Erkennt aktive Gruppe automatisch per pathname (längster Treffer gewinnt). 7 Cockpit-Familien in `lib/cockpit-sub-nav/registry.ts`: Therapie · Pflege · Arzt · Sozial · Admin · Klient · Genossenschaft. Sticky + scroll-snap + auto-center auf aktiven Reiter.
 
 ### 26 · Pflegeplan + DSGVO + QR + Bett-Reservierung + Broschüren (Session 28 · 2026-05-09)
 
