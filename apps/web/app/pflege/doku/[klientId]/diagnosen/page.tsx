@@ -160,7 +160,12 @@ function DiagnoseKarte({ d, klientId }: { d: PflegeDiagnoseEintrag; klientId: st
             {DOMAIN_LABEL[k.domain]}
           </span>
         )}
-        <span className="font-mono text-[11px] text-soft">{d.nandaCode}</span>
+        <span className="font-mono text-[11px] text-soft" title="NANDA-I Code">NANDA {d.nandaCode}</span>
+        {k?.icnpCodes && k.icnpCodes.length > 0 && (
+          <span className="font-mono text-[10px] text-soft" title="ICNP · WHO-Standard für Pflege-Diagnostik">
+            ICNP {k.icnpCodes.join(" · ")}
+          </span>
+        )}
         <span className="text-[13px] font-medium">{k?.label ?? d.nandaCode}</span>
         <span className="text-[10px] text-soft font-mono ml-auto">
           seit {d.begonnenAm}{d.beendetAm && <> · bis {d.beendetAm}</>}

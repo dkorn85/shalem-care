@@ -65,6 +65,10 @@ export type NandaDiagnose = {
   defaultSymptome: string[];
   empfohleneInterventionen: string[];   // NIC-orientiert (kurze Stichworte)
   empfohleneZiele: string[];            // NOC-orientiert
+  // ICNP-Mapping (International Classification for Nursing Practice)
+  // WHO-Familie der Klassifikationen · Standard in EU, ergänzt NANDA
+  // für internationale Lesbarkeit. Phase 2: vollständiges ICNP-7-Mapping.
+  icnpCodes?: string[];                 // z.B. ["10023606"] (Acute Pain)
 };
 
 export const NANDA_KATALOG: NandaDiagnose[] = [
@@ -117,6 +121,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["eingeschränktes Gangbild", "Hilfe bei Transfer notwendig", "Tinetti ≤ 19"],
     empfohleneInterventionen: ["Bewegungsübungen 2×/d", "Konsil Physiotherapie", "Hilfsmittel anpassen", "Sturzprophylaxe"],
     empfohleneZiele: ["Tinetti ≥ 22 in 4 Wochen", "selbstständiger Toilettengang", "Transfer mit ≤ 1 Person"],
+    icnpCodes: ["10001219"],   // Impaired Physical Mobility
   },
   {
     code: "00198",
@@ -146,6 +151,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["Orientierungsstörung", "Gedächtnislücken", "kein Erkennen vertrauter Personen"],
     empfohleneInterventionen: ["Validation nach Feil", "10-min-Aktivierung", "Biographie-Arbeit", "Tagesstruktur"],
     empfohleneZiele: ["emotionales Wohlbefinden tagsüber", "Erhalt der vorhandenen Ressourcen"],
+    icnpCodes: ["10000615"],   // Chronic Confusion
   },
 
   // Domain 6 · Selbstwahrnehmung
@@ -168,6 +174,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["Unruhe", "schnelle Atmung", "Schlafstörungen", "Klient verbalisiert Angst"],
     empfohleneInterventionen: ["aktives Zuhören", "Atemübungen", "Bezugspflege", "ggf. Konsil Hospiz / Seelsorge"],
     empfohleneZiele: ["Klient berichtet von Erleichterung", "Schlaf wieder mind. 6 h"],
+    icnpCodes: ["10000477"],   // Anxiety
   },
 
   // Domain 11 · Sicherheit / Schutz
@@ -179,6 +186,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["Schwindel", "frühere Stürze in Anamnese", "unsicheres Gangbild"],
     empfohleneInterventionen: ["Sturzprotokoll", "Hüftprotektoren", "Anti-Rutsch-Socken", "Nachtbeleuchtung", "Klingel in Reichweite"],
     empfohleneZiele: ["sturzfrei 90 Tage", "Tinetti ≥ 22"],
+    icnpCodes: ["10015122"],   // Risk for Falls
   },
   {
     code: "00046",
@@ -188,6 +196,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["Rötung über Knochenvorsprüngen", "Hautmazeration", "Wundgrund", "Braden ≤ 18"],
     empfohleneInterventionen: ["2-h-Mobilisations-Plan", "Druck-entlastende Auflage", "Hautpflege täglich", "Wunddoku ICW-Standard"],
     empfohleneZiele: ["keine Druckläsion neu in 30 Tagen", "Braden ≥ 19"],
+    icnpCodes: ["10001290", "10001000"],   // Impaired Skin Integrity, Risk for Pressure Ulcer
   },
   {
     code: "00004",
@@ -208,6 +217,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["NRS ≥ 4", "Schonhaltung", "Schwitzen", "Klient verbalisiert Schmerz"],
     empfohleneInterventionen: ["NRS 1×/Schicht erfassen", "Bedarfsmedikation prüfen", "Lagerungswechsel", "ablenkende Aktivierung"],
     empfohleneZiele: ["NRS ≤ 3 binnen 2 h nach Bedarfsgabe", "Schlaf nicht gestört"],
+    icnpCodes: ["10023606"],   // Acute Pain
   },
   {
     code: "00133",
@@ -217,6 +227,7 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     defaultSymptome: ["NRS dauerhaft ≥ 3", "Schlafstörung", "Verzicht auf Aktivitäten"],
     empfohleneInterventionen: ["Schmerz-Tagebuch", "Bedarfs- + Basis-Medi prüfen", "Konsil Schmerzambulanz", "nicht-medikamentöse Optionen"],
     empfohleneZiele: ["NRS ≤ 4 dauerhaft", "Teilnahme an mind. 2 Aktivitäten/Wo"],
+    icnpCodes: ["10023130"],   // Chronic Pain
   },
 
   // ─── Erweiterung · weitere alltagsrelevante Diagnosen ──────────────────
