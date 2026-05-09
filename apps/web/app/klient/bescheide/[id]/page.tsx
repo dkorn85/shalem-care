@@ -13,6 +13,8 @@ import { KassenBescheidBrief } from "@/components/scheine/KassenBescheidBrief";
 import { KlartextSpalte } from "@/components/scheine/KlartextSpalte";
 import { DruckenButton } from "@/components/scheine/DruckenButton";
 import { WiderspruchEntwurfBox } from "@/components/scheine/WiderspruchEntwurfBox";
+import { WiderspruchStatusKarte } from "@/components/scheine/WiderspruchStatusKarte";
+import { getWiderspruchFuerVorgang } from "@/lib/kasse/widerspruch-store";
 import { getVorgang, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
 import { seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
 import { seedAnfragenOnce } from "@/lib/verordnung/store";
@@ -149,6 +151,17 @@ export default async function KlientBescheidDetailPage({ params }: { params: Pro
             klientAnrede="Frau"
             klientAnschrift={"Pulmologie 3B\nGutleutstraße 88\n45128 Essen"}
             ortAusstellung="Essen"
+          />
+
+          <WiderspruchStatusKarte
+            vorgang={{
+              id: v.id,
+              klientId: KLIENT_ID,
+              klientName: KLIENT_NAME,
+              bearbeitetAm: v.bearbeitetAm,
+              eingegangenAm: v.eingegangenAm,
+            }}
+            bestehend={getWiderspruchFuerVorgang(v.id)}
           />
         </>
       )}

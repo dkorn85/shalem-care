@@ -11,6 +11,7 @@ import Link from "next/link";
 import { KlientShell } from "@/components/KlientShell";
 import { listVorgaenge, seedKostentraegerOnce } from "@/lib/kostentraeger/store";
 import { VORGANGS_LABEL, type KassenStatus } from "@/lib/kostentraeger/types";
+import { listWiderspruecheFuerKlient, widerspruchKpis, tageBisFrist } from "@/lib/kasse/widerspruch-store";
 import { seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
 import { seedAnfragenOnce } from "@/lib/verordnung/store";
 import { format } from "date-fns";
@@ -54,6 +55,11 @@ export default async function KlientBescheidePage() {
   const aktiv = meine.filter((v) => v.status === "eingegangen" || v.status === "in_pruefung");
   const entschieden = meine.filter((v) => v.status === "genehmigt");
 
+  // Widerspruchs-Status-Übersicht
+  const widerspruechen = listWiderspruecheFuerKlient(KLIENT_ID);
+  const wspKpi = widerspruchKpis(KLIENT_ID);
+  const widerspruechenLaufend = widerspruechen.filter((w) => w.status === "geplant" || w.status === "abgeschickt" || w.status === "bestaetigt");
+
   return (
     <KlientShell user={{ name: KLIENT_NAME, initials: "HR", relation: "self", klientId: KLIENT_ID }}>
       <header className="mb-5">
@@ -67,6 +73,40 @@ export default async function KlientBescheidePage() {
           daneben in Klartext, was er bedeutet und was als nächstes passiert.
         </p>
       </header>
+
+      {/* Widersprüche · läuft jetzt */}
+      {widerspruechenLaufend.length > 0 && (
+        <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--vibe-team))" }}>
+          <header className="flex items-baseline justify-between gap-2 mb-2 flex-wrap">
+            <p className="text-[10px] uppercase tracking-wider font-mono font-medium" style={{ color: "rgb(var(--vibe-team))" }}>
+              ✉ Widersprüche · läuft jetzt · {widerspruechenLaufend.length}
+            </p>
+            {wspKpi.fristKritisch > 0 && (
+              <span className="chip text-[10px]" style={{ background: "rgb(var(--mon) / 0.18)", color: "rgb(var(--mon))" }}>
+                ⚠ {wspKpi.fristKritisch} Frist ≤ 3 Tage
+              </span>
+            )}
+          </header>
+          <ul className="space-y-1.5">
+            {widerspruechenLaufend.map((w) => {
+              const tage = tageBisFrist(w);
+              const farbe = tage < 0 ? "var(--fg-mute)" : tage <= 3 ? "var(--mon)" : tage <= 14 ? "var(--vibe-approval)" : "var(--thu)";
+              return (
+                <li key={w.id} className="text-[12px] flex items-baseline gap-2 flex-wrap">
+                  <Link href={`/klient/bescheide/${w.vorgangId}`} className="font-medium hover:underline">{w.klientName}</Link>
+                  <span className="text-mute">· Bescheid {w.bescheidDatum}</span>
+                  <span className="chip text-[10px] font-mono" style={{ background: `rgb(${farbe} / 0.15)`, color: `rgb(${farbe})` }}>
+                    {tage < 0 ? `Frist abgelaufen` : tage === 0 ? "Frist heute" : `noch ${tage} Tage`}
+                  </span>
+                  <span className="chip text-[10px]" style={{ background: "rgb(var(--bg-mute))", color: "rgb(var(--fg-mute))" }}>
+                    {w.status}
+                  </span>
+                </li>
+              );
+            })}
+          </ul>
+        </section>
+      )}
 
       {/* Aufmerksamkeits-Block · prominent oben, wenn etwas zu tun ist */}
       {aufmerksam.length > 0 && (
