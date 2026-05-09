@@ -1,15 +1,15 @@
 # Shalem Care · Session-Handoff
 
 **Stand:** 2026-05-09 · für die nächste Session
-**Branch:** `main` direkt · **220 Routen** · `tsc --noEmit` exit 0
-**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · Expertise-Modus auf 20 Cockpits ·
-**Stationsmanagement** mit Bettenraster + Aufnahme-Workflow (weg von Demo-Daten) ·
-**NANDA-I Pflegediagnosen** mit AEDS-Eingabe-Form ·
-**Identity-Registry** mit 5 Anlage-Wegen + Claim-Token + zweistufigem Identitätscheck (DSGVO Art. 4 Nr. 1) ·
-**Schein-Optik** für Kasse + Therapie + Versicherten-Sicht + Widerspruchs-Editor ·
-**🔊 Sound-System** mit 20 ElevenLabs-Sounds (Kern + Erweiterung) opt-in ·
-**🔔 Notify-System** Apple-Style Glas-Toast + OS-Notifications + Phase-B Web-Push (VAPID) ·
-**📱 PWA** mit Service-Worker + Manifest (Add-to-Home-Screen) ·
+**Branch:** `main` direkt · **225 Routen** · `tsc --noEmit` exit 0
+**Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · Expertise auf 20 Cockpits ·
+**Stationsmanagement** mit Bettenraster + Aufnahme + **Reservierung** ·
+**NANDA-Pflegediagnosen** + **NIC/NOC-Pflegeplan-Generator** (NNN-Triade) ·
+**Identity-Registry** mit 5 Anlage-Wegen + Claim-Token + zweistufigem Identitätscheck + **QR-Code-Karte** + **DSGVO Art. 15/17/20 Workflow** ·
+**Schein-Optik** Kasse + Therapie + Versicherten-Sicht + Widerspruchs-Editor ·
+**🔊 Sound-System** 20 ElevenLabs-Sounds · **🔔 Notify-System** Apple-Toast + OS-Push + VAPID mit **Empfänger-Gruppen-Filter** · **📱 PWA** Service-Worker + Manifest ·
+**🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
+**🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
 ---
@@ -113,6 +113,46 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 26 · Pflegeplan + DSGVO + QR + Bett-Reservierung + Broschüren (Session 28 · 2026-05-09)
+
+Sieben Mini-Module + 3 Broschüren mit 18 KI-Aquarell-Bildern.
+
+**A · NANDA → Pflegeplan-Generator (`8960723`)** · NNN-Triade geschlossen.
+
+| Datei | Was |
+|---|---|
+| `lib/pflege/pflegeplan-store.ts` | PflegeplanEintrag (art: intervention\|ziel · status: 4 Stufen · quelle: katalog\|manuell) · idempotente Generierung pro Diagnose |
+| `lib/pflege/pflegeplan-actions.ts` | Server-Actions: generieren · manuell ergänzen · Status setzen |
+| `components/pflege/PlanGenerierenButton.tsx` | ✦-Button auf jeder aktiven Diagnose-Karte |
+| `components/pflege/PlanStatusChip.tsx` | Klick-Wechsel: geplant → läuft → erreicht → abgesetzt |
+| `/pflege/doku/[klientId]/plan` | Plan gruppiert nach Diagnose, Profi-Block mit NNN-Reife-Indikatoren |
+
+**B · QR-Code-Karte (`bbdda22`)** · `qrcode`-Lib · Server-Component generiert SVG-QR mit URL `?token=…` · ClaimForm liest URL-Token automatisch · Apple-Wallet-Look mit Wordmark, Mono-Code, Verifikations-Hinweis · druckbar via Print-Stylesheet.
+
+**C · DSGVO-Workflow Art. 15/17/20 (`1862483`)** · `lib/identity/dsgvo.ts` · Export sammelt Identity + Pflegediagnosen + Plan + Belegungen + Kassen-Vorgänge als JSON-Download · Lösch mit Bestätigungs-Text „ICH BESTAETIGE LOESCHUNG" · listet Aufbewahrungs-Pflichten (BGB § 630f / SGB V § 305 / AO § 147 / WBVG / ArbZG § 16) · `components/identity/DsgvoActions.tsx` im Profi-Modus auf `/identity/[id]`.
+
+**D · User-Anzeige bereinigt (`85e8f46`)** · Sidebar-Footer-Box (Avatar+Name+LocaleSwitcher) raus aus AppShell · KasseShell-Header-User-Block raus · KlientShell-Header-User-Block raus · LocaleSwitcher wandert in den Sidebar-Header neben den ExpertiseChip · UserMenu (top-right) ist einzige Quelle.
+
+**E · Bett-Reservierung (`b02db9a`)** · 4. Bett-Status (Sun-Farbe) neben frei/belegt/blockiert · Reservierungs-Form mit voraussAufnahme + erwarteter PG + Aufnahme-Art + Notiz · automatisches Einlösen wenn Aufnahme-Name == Reservierungs-Name · Quote zählt Reservierungen als gebundene Kapazität.
+
+**F · Push pro Identity + Empfänger-Gruppen-Filter (`b27570a`)** · `PushAbo` mit rolle/stationId/einrichtungId · `sendePush()` filtert mehrdimensional · NotifyToggle gibt Identity-Daten an `subscribePush()` weiter. Test gezielt:
+```
+curl -X POST https://shalem.de/api/push/test -d '{"rolle":"pflege","stationId":"st-keme-pulmo-3b","titel":"Sturz Z 102"}'
+```
+
+**G · 3 Falt-Broschüren (`71e94eb`, `dfe2ea1`)** · DIN A4 quer · Mittelfalz · 4 Felder.
+
+| Variante | Akzent | Hero-Claim |
+|---|---|---|
+| `/broschuere/klient` | sage-green | „Pflege, die zu dir gehört" |
+| `/broschuere/pflege` | mon-rot | „Du pflegst. Wir nehmen dir das Tippen ab" |
+| `/broschuere/traeger` | petrol | „Vom Verwalter zum Vermehrer" |
+| `/broschuere` (Index) | accent | 3 Karten + Druck-Hinweis-Box |
+
+`components/broschuere/BroschuereLayout.tsx` als gemeinsames Layout (Slot-Props) mit FeatureItem/Schritt/MagicBox/RueckseiteBlock-Bausteinen. Sticky Drucken-Toolbar (im Print ausgeblendet). Pro Variante 5 Features + 4-Schritte-Onboarding + 1 Hinweis-Box + 1 Genossenschafts-MagicBox.
+
+**18 Aquarell-Bilder via Higgsfield `nano_banana_2`** · einheitlicher Stil-Prompt (sage-green/dusty-terracotta/cream Palette · window light from upper left · no faces · hand-painted feel). Klient: hero/akte/bescheid/pflegeplan/buchen/genossenschaft. Pflege: diktat/tour/wunde/uebergabe/genossenschaft. Träger: hero/betten/personal/bescheid/eg/finanzen/registry.
 
 ### 25 · Notify-System · OS-Push + Web-Push (VAPID) + Layout-Fix (Session 27 · 2026-05-09)
 
@@ -509,7 +549,7 @@ chmod 600 ~/.git-credentials
 | 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext + Widerspruchs-Editor** | KI-Klartext · KI-Widerspruchs-Brief (§ 84 SGG) | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~94 % live · 15 Mini-Games, 8 Berufe mit echten Workflow-Cockpits, Stationsmanagement + NANDA-Pflegediagnosen + Identity-Registry mit 5 Anlage-Wegen, **Sound-System** mit 20 ElevenLabs-Sounds, **Notify-System** mit OS-Push + Web-Push (VAPID) + PWA, **Layout-Bug global gefixt** (body-pb statt per-Shell).
+**Aktueller Reifegrad gesamt:** ~96 % live · 15 Mini-Games · 8 Berufe mit Workflow-Cockpits · 20 Cockpits Expertise · **NNN-Pflegeplan-Generator** · **DSGVO Art. 15/17/20** komplett · **QR-Code-Karte** für Identity · **Bett-Reservierung** · **Push pro Identity mit Empfänger-Filter** · **3 druckbare Aquarell-Broschüren** pro Nutzungsebene · 20 ElevenLabs-Sounds · OS-Push + VAPID · PWA · Layout-Bug global gefixt.
 
 ---
 
@@ -561,6 +601,13 @@ chmod 600 ~/.git-credentials
 - [x] Layout-Bug global gefixt — body-pb statt per-Shell, greift auch ohne Shell
 - [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert (AppShell + KasseShell + KlientShell)
 - [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
+- [x] NANDA → NIC/NOC Pflegeplan-Generator (NNN-Triade, Status-Chip, Profi-NNN-Reife-Indikatoren)
+- [x] QR-Code-Karte für Identity (Apple-Wallet-Look, druckbar, ?token=…-Auto-Fill)
+- [x] DSGVO-Workflow Art. 15+20 Export (JSON-Download) + Art. 17 Lösch (Aufbewahrungs-Pflicht-Prüfung)
+- [x] User-Anzeige in Shells entfernt — UserMenu top-right ist einzige Quelle
+- [x] Bett-Reservierung mit voraussAufnahme + Auto-Einlösen
+- [x] Push-Subscription pro Identity + Empfänger-Gruppen-Filter (rolle/stationId/einrichtungId)
+- [x] 3 Falt-Broschüren pro Nutzungsebene (Klient/Pflege/Träger) mit 18 Aquarell-Bildern + Drucken-Button
 
 ### Priorität A · Pending User-Aktionen (organisatorisch)
 
@@ -606,12 +653,13 @@ chmod 600 ~/.git-credentials
 - [ ] **VAPID-ENV-Vars in Hostinger eintragen** (3 Werte aus `bash scripts/generate-vapid-keys.sh`) damit Server-Push live geht
 - [ ] Push-Subscription pro Identity speichern (statt anonym) wenn der User schon geclaimt ist
 - [ ] Lana-Lautstärke-Slider im Sound-Toggle (Klick auf 🔊 hold = Slider)
-- [ ] Bett-Reservierungs-Workflow (zukünftige Aufnahme planen, Bett nicht belegt aber reserviert)
-- [ ] Pflegediagnose → Pflegeplan-Generator (NIC-Interventionen + NOC-Ziele werden in SIS-Pflegeplan gespiegelt)
-- [ ] Identity-Daten-Export (CSV/JSON) je Person nach DSGVO Art. 20 (Datenübertragbarkeit)
-- [ ] Identity-Lösch-Workflow nach DSGVO Art. 17 (Auslöse + Aufbewahrungs-Pflicht-Prüfung)
-- [ ] Magic-Link-Versand statt Token-Weitergabe (Phase 2 mit E-Mail-Stub)
-- [ ] QR-Code-Druck pro Identity (Code als QR auf Aufnahme-Mappe)
+- [ ] Magic-Link-Versand als E-Mail-Stub (Phase 2 mit echtem SMTP)
+- [ ] DSGVO-Pseudonymisierung der verbundenen Datensätze beim Identity-Lösch (Phase B des Lösch-Workflows)
+- [ ] Cron-Trigger für automatische Aufbewahrungs-Pflicht-Lösch-Auslösung (BGB § 630f Frist-Ablauf)
+- [ ] Sound-Lautstärke-Slider im SoundToggle-FAB (statt fixer Lautstärke pro Sound)
+- [ ] Pflegeplan-Eintrag · manuelle Ergänzung (Form für „eigene Intervention/Ziel hinzufügen")
+- [ ] Bett-Reservierungs-Übersicht pro Station mit Frist-Countdown
+- [ ] Pflegediagnose-Vollkatalog (statt ~16 alle ~250 NANDA-I Diagnosen aus DB)
 - [ ] Push-Notifications an konkrete Empfänger-Gruppen (z.B. „alle Pflegekräfte einer Station") statt nur Self-Test
 
 ---
@@ -766,9 +814,12 @@ apps/web/
     pflege/diagnose-katalog.ts  NANDA-I 2024–2026 · ~16 Diagnosen · 7 Domänen
     pflege/pflegediagnose-store.ts AEDS-Eintrag pro Klient · Status akut/chron/risiko/geloest
     pflege/pflegediagnose-actions.ts Server-Actions
+    pflege/pflegeplan-store.ts  PflegeplanEintrag · Status (geplant/läuft/erreicht/abgesetzt) · Quelle (katalog/manuell)
+    pflege/pflegeplan-actions.ts Server-Actions: generieren/manuell/Status setzen
     identity/store.ts           Registry · Token-Generator · Claim mit Identitätscheck
     identity/actions.ts         pruefeToken (Schritt 1) + claim (Schritt 2) + selbstAnlegen
     identity/csv-import.ts      Bulk-Import-Action mit Trockenlauf + Validierung pro Zeile
+    identity/dsgvo.ts           DSGVO Art. 15+20 Export (JSON) + Art. 17 Lösch (Aufbewahrungs-Pflicht-Liste)
     sound/sound-player.ts       20 SoundKey · Audio-Cache · Lautstärke-Map · localStorage
     notify/notify.ts            3-Modus-Notify (aus/in-app/os) · Toast-Queue-Hook
     notify/push-store.ts        Web-Push-Subscription-Registry
@@ -780,6 +831,16 @@ apps/web/
     sw.js                       Service-Worker (push/click-Handler)
     manifest.webmanifest        PWA mit 4 Shortcuts
     icon-192.png · icon-512.png · icon-badge.png  PWA-Icons
+    broschuere/                 18 Aquarell-Bilder (Higgsfield) für 3 Falt-Flyer
+
+  app/
+    broschuere/{page,klient,pflege,traeger}/                              Index + 3 Falt-Broschüren druckbar A4 quer
+  components/
+    broschuere/BroschuereLayout.tsx  Wiederverwendbares Mittelfalz-Layout + FeatureItem/Schritt/MagicBox
+    pflege/PlanGenerierenButton.tsx  ✦-Button auf Diagnose-Karte
+    pflege/PlanStatusChip.tsx        Klick-Status-Wechsel
+    identity/QrCodeKarte.tsx         Apple-Wallet-QR-Karte mit Code + Verifikations-Hinweis
+    identity/DsgvoActions.tsx        Profi · JSON-Export + Lösch mit Bestätigungs-Text
 
   public/scheine/
     stempel-praxis.png · stempel-bewilligt.png · stempel-abgelehnt.png
