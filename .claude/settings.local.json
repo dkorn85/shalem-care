@@ -58,7 +58,8 @@
       "Bash(convert icon-maskable.png -resize 512x512 icon-512.png)",
       "Bash(convert icon-maskable.png -resize 96x96 icon-badge.png)",
       "Bash(chmod +x /root/shalem-care/scripts/generate-vapid-keys.sh)",
-      "Bash(ELEVENLABS_API_KEY=\"13cbd81aee901dff63a6e14138f143689cbedd07b1ff1afc534c6c9add882537\" bash scripts/generate-sounds.sh \"aufnahme-start,aufnahme-stop,diagnose-set,konferenz-join,konferenz-leave,bett-belegt,bett-frei,export-fertig,swipe,tick,applaus,gong\")"
+      "Bash(ELEVENLABS_API_KEY=\"13cbd81aee901dff63a6e14138f143689cbedd07b1ff1afc534c6c9add882537\" bash scripts/generate-sounds.sh \"aufnahme-start,aufnahme-stop,diagnose-set,konferenz-join,konferenz-leave,bett-belegt,bett-frei,export-fertig,swipe,tick,applaus,gong\")",
+      "Bash(bash scripts/generate-vapid-keys.sh)"
     ]
   },
   "enableAllProjectMcpServers": true,

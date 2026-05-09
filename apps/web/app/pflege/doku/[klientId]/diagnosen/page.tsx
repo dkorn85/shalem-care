@@ -10,6 +10,7 @@ import { CockpitSection, CockpitKpi } from "@/components/BerufCockpitCard";
 import { LerneTipp } from "@/components/LerneTipp";
 import { NurAbProfi } from "@/components/ExpertiseGate";
 import { PflegediagnoseSetzenForm } from "@/components/pflege/PflegediagnoseSetzenForm";
+import { PlanGenerierenButton } from "@/components/pflege/PlanGenerierenButton";
 import { getKlient } from "@/lib/hierarchy/store";
 import {
   listDiagnosen,
@@ -47,9 +48,18 @@ export default async function PflegediagnosenPage({ params }: { params: Promise<
   return (
     <AppShell role="nurse" user={{ id: "person-dr", name: "Dennis Reuter", subtitle: "Pflegefachkraft P7", initials: "DR" }} station="Pulmologie 3B">
       <header className="mb-5">
-        <Link href={`/pflege/doku/${klientId}`} className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
-          ← {klient.name} · Pflegedoku
-        </Link>
+        <div className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+          <Link href={`/pflege/doku/${klientId}`} className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1">
+            ← {klient.name} · Pflegedoku
+          </Link>
+          <Link
+            href={`/pflege/doku/${klientId}/plan`}
+            className="text-[11px] px-2.5 py-1 rounded font-medium"
+            style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))" }}
+          >
+            🩺 Pflegeplan öffnen →
+          </Link>
+        </div>
         <p className="text-[11px] uppercase tracking-wider text-soft mb-1.5 font-medium">NANDA-I 2024–2026 · AEDS</p>
         <h1 className="font-display text-[28px] font-bold tracking-tight2">Pflegediagnosen</h1>
         <p className="text-[13px] text-mute mt-2 max-w-prose">
@@ -117,7 +127,7 @@ export default async function PflegediagnosenPage({ params }: { params: Promise<
       {aktiv.length > 0 && (
         <CockpitSection eyebrow="Aktive Diagnosen" title="In Bearbeitung" count={aktiv.length}>
           <ul className="space-y-2">
-            {aktiv.map((d) => <DiagnoseKarte key={d.id} d={d} />)}
+            {aktiv.map((d) => <DiagnoseKarte key={d.id} d={d} klientId={klientId} />)}
           </ul>
         </CockpitSection>
       )}
@@ -125,7 +135,7 @@ export default async function PflegediagnosenPage({ params }: { params: Promise<
       {historisch.length > 0 && (
         <CockpitSection eyebrow="Historisch · gelöst oder beendet" title="Verlauf" count={historisch.length}>
           <ul className="space-y-2">
-            {historisch.map((d) => <DiagnoseKarte key={d.id} d={d} />)}
+            {historisch.map((d) => <DiagnoseKarte key={d.id} d={d} klientId={klientId} />)}
           </ul>
         </CockpitSection>
       )}
@@ -135,7 +145,7 @@ export default async function PflegediagnosenPage({ params }: { params: Promise<
   );
 }
 
-function DiagnoseKarte({ d }: { d: PflegeDiagnoseEintrag }) {
+function DiagnoseKarte({ d, klientId }: { d: PflegeDiagnoseEintrag; klientId: string }) {
   const k = getDiagnose(d.nandaCode);
   const farbe = STATUS_FARBE[d.status];
   return (
@@ -174,6 +184,14 @@ function DiagnoseKarte({ d }: { d: PflegeDiagnoseEintrag }) {
         <p className="text-[10px] text-soft mt-1 font-mono">
           ⌥ Evaluation {d.evaluiertAm} · {d.evaluiertVon ?? ""}
         </p>
+      )}
+      {!d.beendetAm && k && (
+        <PlanGenerierenButton
+          klientId={klientId}
+          diagnoseEintragId={d.id}
+          nandaCode={d.nandaCode}
+          diagnoseLabel={k.label}
+        />
       )}
     </li>
   );
