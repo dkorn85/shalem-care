@@ -5,8 +5,11 @@
 **Phase:** PVS-Reife-Aufbau · 13 Berufe · 15 Mini-Games · Expertise-Modus auf 20 Cockpits ·
 **Stationsmanagement** mit Bettenraster + Aufnahme-Workflow (weg von Demo-Daten) ·
 **NANDA-I Pflegediagnosen** mit AEDS-Eingabe-Form ·
-**Identity-Registry** mit 5 Anlage-Wegen (Bett-Aufnahme · Personal · Klient-Direkt · Selbst-Anlage · CSV-Import) + Claim-Token + zweistufigem Identitätscheck (DSGVO Art. 4 Nr. 1) ·
-**Schein-Optik** für Kasse + Therapie (Muster 12/13/Bescheid-Brief) + Versicherten-Sicht + Widerspruchs-Editor ·
+**Identity-Registry** mit 5 Anlage-Wegen + Claim-Token + zweistufigem Identitätscheck (DSGVO Art. 4 Nr. 1) ·
+**Schein-Optik** für Kasse + Therapie + Versicherten-Sicht + Widerspruchs-Editor ·
+**🔊 Sound-System** mit 20 ElevenLabs-Sounds (Kern + Erweiterung) opt-in ·
+**🔔 Notify-System** Apple-Style Glas-Toast + OS-Notifications + Phase-B Web-Push (VAPID) ·
+**📱 PWA** mit Service-Worker + Manifest (Add-to-Home-Screen) ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
 ---
@@ -110,6 +113,85 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 25 · Notify-System · OS-Push + Web-Push (VAPID) + Layout-Fix (Session 27 · 2026-05-09)
+
+Drei-Stufen-Stack für Benachrichtigungen + globaler pb-Bugfix.
+
+**A · OS-Push + Apple-Style Toast (`60de02c`):**
+
+| Datei | Was |
+|---|---|
+| `lib/notify/notify.ts` | `notify({art, titel, beschreibung, href})` · 3 Modi (aus / in-app / os) in localStorage + Custom-Event-Sync · sendet OS-Notification UND In-App-Toast parallel |
+| `components/notify/NotifyToastStack.tsx` | Glas-Toast oben mittig, `backdrop-filter: blur(20px) saturate(160%)`, 5 Art-Glyphs (ⓘ/✓/⚠/✕/✦), max 5 stack, auto-dismiss 4.5s, Klick öffnet href |
+| `components/notify/NotifyToggle.tsx` | 5. FAB (🔕→📱/🔔→🔕), erste Aktivierung fragt OS-Permission, Demo-Toast nach Aktivierung |
+| `components/notify/ServiceWorkerRegistrar.tsx` | registriert `/sw.js` passiv |
+| `public/sw.js` | install/activate/push/click-Handler · empfängt Server-Pushes wenn Tab zu |
+| `public/manifest.webmanifest` | PWA mit 4 Shortcuts · standalone display |
+| `globals.css` | `@keyframes toastIn` Spring 480ms |
+| `app/layout.tsx` | NotifyToastStack + ServiceWorkerRegistrar + manifest + apple-Touch-Icon |
+
+**B · Layout-Fix global (`cfa85e5`):** Body-pb statt Per-Shell-pb — greift überall (auch Marketing + Identity-Pages ohne Shell). 18rem mobile / 14rem desktop mit `env(safe-area-inset-bottom)` für iOS-Notch.
+
+**C · Server-Push mit VAPID (`bfb6c26`):** Notifications kommen auch wenn Tab geschlossen.
+
+| Datei | Was |
+|---|---|
+| `npm install web-push @types/web-push` | Server-Push-Lib |
+| `lib/notify/push-store.ts` | Subscription-Registry (Phase 2: Supabase) · `speichereAbo`/`loescheAbo`/`listAbos` |
+| `lib/notify/push-server.ts` | `sendePush({identityId?, titel, …})` · web-push mit VAPID-Keys aus ENV · 404/410-Status löscht totes Abo automatisch |
+| `lib/notify/push-client.ts` | `subscribePush()` abonniert PushManager + schickt an Server |
+| `/api/push/subscribe` POST/DELETE | Abo speichern/löschen |
+| `/api/push/test` POST | Demo-Push an alle (oder eine Identity) |
+| `scripts/generate-vapid-keys.sh` | einmalige Key-Generierung mit `npx web-push` |
+| NotifyToggle | ruft nach OS-Grant `subscribePush()` auf — Server-Abo automatisch |
+
+**Setup-Schritte für Hostinger (3 ENV-Vars):**
+- `NEXT_PUBLIC_VAPID_PUBLIC_KEY` (client-OK)
+- `VAPID_PRIVATE_KEY` (nur server)
+- `VAPID_SUBJECT=mailto:hallo@shalem.de`
+
+Test: `curl -X POST https://shalem.de/api/push/test -d '{"titel":"Hi"}'`
+
+### 24 · Sound-System · 20 ElevenLabs-Sounds (Session 26 · 2026-05-09)
+
+Subtile UI-Sounds opt-in über Toggle, generiert via ElevenLabs Sound Effects API.
+
+**A · Infrastruktur (`aa0684c`):**
+- `lib/sound/sound-player.ts` · 20 SoundKey-Enum, HTMLAudio-Cache, localStorage-Persistenz, Custom-Event-Sync, Lautstärke pro Sound (0.16 tick bis 0.40 konfetti)
+- `components/SoundToggle.tsx` · 4. FAB neben Brillenmodus/GameMode/Expertise · klick aktiviert + spielt sofort `erfolg`-Sound zur Demo
+- 5 Hot-Stellen verkabelt: Bett-Aufnahme · Claim · Bescheid-Stempel · Lana-Vorschlag · Selbst-Anlage
+
+**B · Generierungs-Script + 8 Kern-Sounds (`3200e43`, `3385cc2`):**
+
+| Sound | Charakter |
+|---|---|
+| `klick` | 0.5s soft tap, glass-fingertip |
+| `erfolg` | 0.5s warmer Glockenton, perfect-fourth ascending |
+| `fehler` | 0.5s gedämpfter Holz-Buzz, minor-third descending |
+| `navigation` | 0.5s Whoosh wie Buchseite |
+| `warnung` | 0.5s Mokugyō-Tap, drei sanfte Holz-Klopfer |
+| `lana` | 0.5s Vibraphone-Sparkle, magical-organic |
+| `stempel` | 0.5s Rubber-Stamp-Thump auf Papier |
+| `konfetti` | 1.5s Glockenspiel-Cascade |
+
+**C · Erweiterungs-Pack 12 weitere Sounds (`2457d14`):**
+
+| Sound | Trigger |
+|---|---|
+| `aufnahme-start`/`aufnahme-stop` | Diktat beginnt/endet |
+| `diagnose-set` | NANDA-Diagnose dokumentiert (Pen-Scratch) |
+| `konferenz-join`/`konferenz-leave` | Konferenz-Eintritt/-Austritt |
+| `bett-belegt`/`bett-frei` | Wood-Knock vs. Window-Open |
+| `export-fertig` | doppelter Pop wie Stempel-Stempel |
+| `swipe` | Silk-Whoosh für Game-Gesten |
+| `tick` | leiser Wood-Tick für Sek-Timer |
+| `applaus` | 2s warmer Mini-Applaus (Jazz-Club) |
+| `gong` | 2s tiefer Bronze-Gong für Schicht-Ende |
+
+`scripts/generate-sounds.sh` mit Filter-Argument: `bash scripts/generate-sounds.sh aufnahme-start,gong` generiert nur die genannten. Voraussetzung: `ELEVENLABS_API_KEY` als Env. Free-Tier reicht (10k Credits/Monat, 20 Sounds = ~200).
+
+Wires: Bett-Aufnahme spielt jetzt `bett-belegt` + `erfolg` in Sequenz, Pflegediagnose-Form `diagnose-set`, KategorieMatch-Quiz `konfetti` am Ende + `applaus` bei perfektem Score.
 
 ### 23 · Identity · CSV-Import + Selbst-Anlage-Wizard (Session 25 · 2026-05-09)
 
@@ -427,7 +509,7 @@ chmod 600 ~/.git-credentials
 | 🌿 Klient:in | Akte-verstehen · Live-Demo · Wundverlauf · Brillenmodus · **Bescheide in Original-Optik + Klartext + Widerspruchs-Editor** | KI-Klartext · KI-Widerspruchs-Brief (§ 84 SGG) | NBA-Sprint · Bescheid-Quiz | (Sonderfall · feste „teilhabe") |
 | 📦 Lieferanten | GWÖ-Onboarding · Pool · 4 Diktate | — | — | — |
 
-**Aktueller Reifegrad gesamt:** ~93 % live · 15 Mini-Games, 8 Berufe mit echten Workflow-Cockpits, **Stationsmanagement + NANDA-Pflegediagnosen + Identity-Registry mit 5 Anlage-Wegen** machen den Schritt weg von Demo-Daten komplett — Klient:innen + Mitarbeiter:innen können einzeln (4 Wege) oder als Bulk (CSV-Import) angelegt werden, Person übernimmt Datenhoheit via Claim-Token + Identitätscheck.
+**Aktueller Reifegrad gesamt:** ~94 % live · 15 Mini-Games, 8 Berufe mit echten Workflow-Cockpits, Stationsmanagement + NANDA-Pflegediagnosen + Identity-Registry mit 5 Anlage-Wegen, **Sound-System** mit 20 ElevenLabs-Sounds, **Notify-System** mit OS-Push + Web-Push (VAPID) + PWA, **Layout-Bug global gefixt** (body-pb statt per-Shell).
 
 ---
 
@@ -472,6 +554,11 @@ chmod 600 ~/.git-credentials
 - [x] Klienten-Direkt-Anlage-Form für ambulante Versorgung
 - [x] CSV-Bulk-Import-Maske für Bestands-Träger (10–100 Datensätze pro Lauf, Trockenlauf-Modus)
 - [x] Selbst-Anlage-Wizard (Person ohne Berufsgruppe, sofort geclaimt)
+- [x] Sound-System mit 20 ElevenLabs-Sounds (8 Kern + 12 Erweiterung) opt-in via FAB-Toggle
+- [x] OS-Push-Notifications mit Apple-Style Glas-Toast (in-app) + native Tray (granted Permission)
+- [x] PWA-Setup: manifest.webmanifest + Service-Worker + 4 Home-Screen-Shortcuts
+- [x] Phase-B Server-Push mit VAPID + web-push + Subscribe-Endpoint + Test-Trigger
+- [x] Layout-Bug global gefixt — body-pb statt per-Shell, greift auch ohne Shell
 - [x] Layout-Bug: Bottom-Padding für FAB-Stack korrigiert (AppShell + KasseShell + KlientShell)
 - [x] Expertise-Konzept-Doc als Maßstab für künftige Cockpits
 
@@ -516,12 +603,16 @@ chmod 600 ~/.git-credentials
 - [ ] Bescheid-Aufmerksamkeit-Push-Notification (App-PWA · oder E-Mail-Stub)
 - [ ] Lieferanten-Identity (z.B. Sanitätshaus, Apotheke) mit eigener Claim-Mechanik
 - [ ] eG-Mitglieder-Anlage mit IBAN-Endung als Identitätscheck-Anker
+- [ ] **VAPID-ENV-Vars in Hostinger eintragen** (3 Werte aus `bash scripts/generate-vapid-keys.sh`) damit Server-Push live geht
+- [ ] Push-Subscription pro Identity speichern (statt anonym) wenn der User schon geclaimt ist
+- [ ] Lana-Lautstärke-Slider im Sound-Toggle (Klick auf 🔊 hold = Slider)
 - [ ] Bett-Reservierungs-Workflow (zukünftige Aufnahme planen, Bett nicht belegt aber reserviert)
 - [ ] Pflegediagnose → Pflegeplan-Generator (NIC-Interventionen + NOC-Ziele werden in SIS-Pflegeplan gespiegelt)
 - [ ] Identity-Daten-Export (CSV/JSON) je Person nach DSGVO Art. 20 (Datenübertragbarkeit)
 - [ ] Identity-Lösch-Workflow nach DSGVO Art. 17 (Auslöse + Aufbewahrungs-Pflicht-Prüfung)
 - [ ] Magic-Link-Versand statt Token-Weitergabe (Phase 2 mit E-Mail-Stub)
 - [ ] QR-Code-Druck pro Identity (Code als QR auf Aufnahme-Mappe)
+- [ ] Push-Notifications an konkrete Empfänger-Gruppen (z.B. „alle Pflegekräfte einer Station") statt nur Self-Test
 
 ---
 
@@ -610,6 +701,7 @@ apps/web/
       klienten/                         Klient-Direkt-Anlage (ambulant)
       import/                           CSV-Bulk-Import für Bestands-Träger
     identity/{claim,anmelden,[id]}/                                       Claim-Page + Selbst-Anlage + Identity-Detail
+    api/push/{subscribe,test}/                                            Web-Push Subscribe + Test-Trigger
     konferenz/[id]/{live}/                                              Fallbesprechung
     pflegegrad-check/{,sprint}/                                          Pflegegrad-Quiz
     aufsicht/druck/[quartal]/                                            Bericht-Druck
@@ -641,6 +733,10 @@ apps/web/
     identity/IdentityVerwaltungActions.tsx PDL · neuen Code, Widerruf
     identity/CsvImportForm.tsx   CSV-Bulk-Import (Trockenlauf + Echtimport)
     identity/SelbstAnlegenWizard.tsx 3-Phasen-Selbst-Anlage
+    SoundToggle.tsx              4. FAB · UI-Sounds opt-in
+    notify/NotifyToastStack.tsx  Apple-Glas-Toast oben mittig (backdrop-filter)
+    notify/NotifyToggle.tsx      5. FAB · 3-Status (aus/in-app/os)
+    notify/ServiceWorkerRegistrar.tsx registriert /sw.js passiv
     IcfVorschlagBox.tsx         Sozial-Bedarfs-Text → ICF-Codes (Lana)
     TherapieBriefBox.tsx        Therapie-Sitzungen → Hausarzt-Brief (Lana)
     SpeiseplanKiBox.tsx         HW-Klient + Kostform → Wochenplan-Vorschlag (Lana)
@@ -673,6 +769,17 @@ apps/web/
     identity/store.ts           Registry · Token-Generator · Claim mit Identitätscheck
     identity/actions.ts         pruefeToken (Schritt 1) + claim (Schritt 2) + selbstAnlegen
     identity/csv-import.ts      Bulk-Import-Action mit Trockenlauf + Validierung pro Zeile
+    sound/sound-player.ts       20 SoundKey · Audio-Cache · Lautstärke-Map · localStorage
+    notify/notify.ts            3-Modus-Notify (aus/in-app/os) · Toast-Queue-Hook
+    notify/push-store.ts        Web-Push-Subscription-Registry
+    notify/push-server.ts       sendePush({...}) mit web-push + VAPID
+    notify/push-client.ts       subscribePush() für PushManager-Browser-Abo
+
+  public/
+    sounds/                     20 ElevenLabs-MP3s (klick.mp3 bis gong.mp3)
+    sw.js                       Service-Worker (push/click-Handler)
+    manifest.webmanifest        PWA mit 4 Shortcuts
+    icon-192.png · icon-512.png · icon-badge.png  PWA-Icons
 
   public/scheine/
     stempel-praxis.png · stempel-bewilligt.png · stempel-abgelehnt.png
@@ -702,10 +809,11 @@ Hosting:    Hostinger Node.js (Auto-Deploy via GitHub-Push auf main)
 Repo:       github.com/dkorn85/shalem-care
 DB:         gpchwlqeqejxvynewjns.supabase.co
 ENV:        NEXT_PUBLIC_SUPABASE_URL · NEXT_PUBLIC_SUPABASE_ANON_KEY
-            ANTHROPIC_API_KEY · ELEVENLABS_API_KEY (TTS, optional)
+            ANTHROPIC_API_KEY · ELEVENLABS_API_KEY (Sound-Generierung)
             SHALEM_SITE_URL (für metadataBase, optional)
             NEXT_PUBLIC_TURN_URL · NEXT_PUBLIC_TURN_USER · NEXT_PUBLIC_TURN_CREDENTIAL (TURN, optional)
             LIVEKIT_URL · LIVEKIT_API_KEY · LIVEKIT_API_SECRET (Phase 2 SFU, optional)
+            NEXT_PUBLIC_VAPID_PUBLIC_KEY · VAPID_PRIVATE_KEY · VAPID_SUBJECT (Web-Push)
 ```
 
 ---
