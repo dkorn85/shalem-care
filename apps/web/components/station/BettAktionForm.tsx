@@ -32,6 +32,7 @@ type CommonProps = {
 export function BettBelegenForm(props: CommonProps) {
   const [klientId, setKlientId] = useState("");
   const [klientName, setKlientName] = useState("");
+  const [geburtsdatum, setGeburtsdatum] = useState("");
   const [pflegegrad, setPflegegrad] = useState<Pflegegrad>(3);
   const [diagnosen, setDiagnosen] = useState("");
   const [aufnahmeArt, setAufnahmeArt] = useState<"regulär" | "kurzzeit" | "verhinderung" | "tag">("regulär");
@@ -54,13 +55,14 @@ export function BettBelegenForm(props: CommonProps) {
         diagnosen,
         aufnahmeArt,
         notiz,
+        geburtsdatum,
       });
       if (r.ok) {
         setFeedback("✓ " + r.message);
         if (r.claimToken && r.identityId) {
           setNeuerClaimToken({ token: r.claimToken, identityId: r.identityId });
         }
-        setKlientId(""); setKlientName(""); setDiagnosen(""); setNotiz("");
+        setKlientId(""); setKlientName(""); setGeburtsdatum(""); setDiagnosen(""); setNotiz("");
         // onDone NICHT sofort aufrufen, damit der Token sichtbar bleibt
       } else {
         setFeedback("⚠ " + r.error);
@@ -85,6 +87,15 @@ export function BettBelegenForm(props: CommonProps) {
           value={klientId} onChange={(e) => setKlientId(e.target.value)}
           placeholder="klient-hm-2026"
           className="input font-mono text-[12px]"
+        />
+      </Row>
+
+      <Row label="Geburtsdatum (TTMMJJJJ · für Identitätscheck beim Claim)">
+        <input
+          value={geburtsdatum} onChange={(e) => setGeburtsdatum(e.target.value)}
+          placeholder="z.B. 12041948"
+          maxLength={10}
+          className="input font-mono"
         />
       </Row>
 
@@ -146,7 +157,9 @@ export function BettBelegenForm(props: CommonProps) {
           <p className="text-[11px] text-mute mt-2 leading-relaxed">
             Mit diesem Code kann die Person ihr Profil unter
             {" "}<code className="font-mono text-[10px]">/identity/claim</code> übernehmen.
-            {" "}Code geht verloren? In der Identity-Verwaltung neuen erzeugen.
+            Beim Übernehmen wird zusätzlich das <strong>Geburtsdatum</strong> geprüft
+            (Identitätscheck) — wenn du oben ein Geburtsdatum eingegeben hast.
+            Code geht verloren? In der Identity-Verwaltung neuen erzeugen.
           </p>
         </div>
       )}

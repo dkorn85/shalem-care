@@ -29,14 +29,18 @@ export async function bettBelegenAction(input: {
   diagnosen: string;     // Komma-separiert
   aufnahmeArt: Belegung["aufnahmeArt"];
   notiz?: string;
+  geburtsdatum?: string; // optional · Verifikations-Anker für Claim
 }): Promise<ActionResult> {
   // Identity zuerst registrieren · gibt eine global-eindeutige ID + Claim-Token
+  const geburtNorm = input.geburtsdatum?.replace(/[\s.\-/]+/g, "") ?? "";
   const identity = registriere({
     art: "klient",
     name: input.klientName.trim(),
     bekannteId: input.klientId.trim() || undefined,
     angelegtVon: "lead",
     angelegtVonPersonId: "person-de1",
+    verifikationsArt: geburtNorm.length === 8 ? "geburtsdatum" : "kein",
+    verifikationsWert: geburtNorm.length === 8 ? geburtNorm : undefined,
   });
 
   const r = bettBelegen({

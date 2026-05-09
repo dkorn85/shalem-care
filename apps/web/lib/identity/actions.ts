@@ -3,23 +3,52 @@
 import { revalidatePath } from "next/cache";
 import {
   claim,
+  pruefeToken,
   registriere,
   widerrufeClaim,
   neuerToken,
   type IdentityArt,
   type IdentityBeruf,
   type IdentityEintrag,
+  type VerifikationsArt,
 } from "./store";
 
 export type IdentityActionResult<T = void> =
   | { ok: true; message: string; data?: T }
   | { ok: false; error: string };
 
+// Schritt 1 · Token prüfen, sagen welche Verifikation kommt
+export async function pruefeTokenAction(token: string): Promise<
+  IdentityActionResult<{
+    name: string;
+    art: IdentityArt;
+    brauchtVerifikation: boolean;
+    verifikationsArt: VerifikationsArt;
+    verifikationsHinweis?: string;
+  }>
+> {
+  const r = pruefeToken(token);
+  if (!r.ok) return { ok: false, error: r.error };
+  return {
+    ok: true,
+    message: `Code anerkannt für ${r.identity.name}.`,
+    data: {
+      name: r.identity.name,
+      art: r.identity.art,
+      brauchtVerifikation: r.brauchtVerifikation,
+      verifikationsArt: r.identity.verifikationsArt,
+      verifikationsHinweis: r.identity.verifikationsHinweis,
+    },
+  };
+}
+
+// Schritt 2 (oder direkt) · claimen mit optionalem Verifikations-Wert
 export async function claimAction(input: {
   token: string;
+  verifikation?: string;
   via?: "code" | "qr" | "magic-link" | "in-person";
 }): Promise<IdentityActionResult<{ id: string; name: string; art: IdentityArt }>> {
-  const r = claim({ token: input.token, via: input.via ?? "code" });
+  const r = claim({ token: input.token, verifikation: input.verifikation, via: input.via ?? "code" });
   if (!r.ok) return { ok: false, error: r.error };
   revalidatePath("/identity/claim");
   revalidatePath("/identity");

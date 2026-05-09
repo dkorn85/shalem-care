@@ -20,6 +20,16 @@ export type IdentityBeruf =
   | "ehrenamt" | "kasse" | "lead" | "verwaltung"
   | "klient" /* selbst */;
 
+// Verifikations-Anker — die zweite Sicherheits-Stufe beim Claim.
+// Token allein wäre wie ein Magic-Link der bei Verlust übernommen werden kann.
+// Mit Anker (z.B. Geburtsdatum) muss die Person etwas wissen, was nur sie kennt.
+export type VerifikationsArt =
+  | "geburtsdatum"        // Format TTMMJJJJ — z.B. „12041948"
+  | "versichertennr"      // Krankenkassen-Nummer
+  | "personalnr"          // Personal-Nummer (Mitarbeiter)
+  | "iban-letzte-4"       // letzte 4 Stellen der IBAN (eG-Mitglieder)
+  | "kein";               // Demo-Modus, Token reicht
+
 export type IdentityEintrag = {
   id: string;                    // global-unique, z.B. "klient-2026-h7r3pq"
   art: IdentityArt;
@@ -32,6 +42,11 @@ export type IdentityEintrag = {
   claimedAt?: string;            // ISO-Datum
   claimedVia?: "code" | "qr" | "magic-link" | "in-person";
 
+  // Identitätscheck (zweite Stufe vor Claim)
+  verifikationsArt: VerifikationsArt;
+  verifikationsWert?: string;    // im Demo unverschlüsselt, in Prod hashen
+  verifikationsHinweis?: string; // z.B. „Geb.-Datum TTMMJJJJ", für Person-Lesbarkeit
+
   // Audit
   angelegtAm: string;            // ISO-Datum
   angelegtVon: IdentityBeruf;    // Berufsgruppe der erstellenden Person
@@ -41,6 +56,14 @@ export type IdentityEintrag = {
   mitarbeiterRolle?: IdentityBeruf;
   einrichtungId?: string;
   stationId?: string;
+};
+
+export const VERIFIKATIONS_LABEL: Record<VerifikationsArt, string> = {
+  "geburtsdatum":     "Geburtsdatum (TTMMJJJJ)",
+  "versichertennr":   "Versicherten-Nr.",
+  "personalnr":       "Personal-Nr.",
+  "iban-letzte-4":    "IBAN · letzte 4 Stellen",
+  "kein":             "kein Identitätscheck",
 };
 
 type GlobalShape = { __shalemIdentity?: IdentityEintrag[] };
@@ -128,6 +151,8 @@ export function registriere(input: {
   mitarbeiterRolle?: IdentityBeruf;
   einrichtungId?: string;
   stationId?: string;
+  verifikationsArt?: VerifikationsArt;
+  verifikationsWert?: string;
 }): IdentityEintrag {
   // Wenn bekannteId schon im Registry ist → einfach zurückgeben
   if (input.bekannteId) {
@@ -137,6 +162,7 @@ export function registriere(input: {
 
   const id = input.bekannteId ?? eindeutigerId(input.art);
   const initials = ableiteInitialen(input.name);
+  const verifikationsArt = input.verifikationsArt ?? "kein";
   const eintrag: IdentityEintrag = {
     id,
     art: input.art,
@@ -144,6 +170,9 @@ export function registriere(input: {
     initials,
     claimToken: eindeutigerToken(),
     claimStatus: "unbeansprucht",
+    verifikationsArt,
+    verifikationsWert: input.verifikationsWert ? input.verifikationsWert.replace(/\s+/g, "").toUpperCase() : undefined,
+    verifikationsHinweis: VERIFIKATIONS_LABEL[verifikationsArt],
     angelegtAm: new Date().toISOString().slice(0, 10),
     angelegtVon: input.angelegtVon,
     angelegtVonPersonId: input.angelegtVonPersonId,
@@ -155,14 +184,40 @@ export function registriere(input: {
   return eintrag;
 }
 
-export function claim(input: {
-  token: string;
-  via: IdentityEintrag["claimedVia"];
-}): { ok: true; identity: IdentityEintrag } | { ok: false; error: string } {
-  const e = findByToken(input.token);
+// Schritt 1 des Claim · prüft Token, gibt zurück welche Verifikation nötig ist
+export function pruefeToken(token: string):
+  | { ok: true; identity: IdentityEintrag; brauchtVerifikation: boolean }
+  | { ok: false; error: string } {
+  const e = findByToken(token);
   if (!e) return { ok: false, error: "Code unbekannt." };
   if (e.claimStatus === "geclaimt") return { ok: false, error: "Diese Identität ist bereits geclaimt." };
   if (e.claimStatus === "widerrufen") return { ok: false, error: "Code wurde widerrufen — bitte einen neuen Code anfordern." };
+  return {
+    ok: true,
+    identity: e,
+    brauchtVerifikation: e.verifikationsArt !== "kein" && Boolean(e.verifikationsWert),
+  };
+}
+
+// Schritt 2 · Token + Verifikation prüfen, dann claimen
+export function claim(input: {
+  token: string;
+  verifikation?: string;            // Geburtsdatum etc.
+  via: IdentityEintrag["claimedVia"];
+}): { ok: true; identity: IdentityEintrag } | { ok: false; error: string } {
+  const pruef = pruefeToken(input.token);
+  if (!pruef.ok) return pruef;
+  const e = pruef.identity;
+
+  if (pruef.brauchtVerifikation) {
+    if (!input.verifikation?.trim()) {
+      return { ok: false, error: `Identitätscheck nötig: ${VERIFIKATIONS_LABEL[e.verifikationsArt]}` };
+    }
+    const norm = input.verifikation.replace(/[\s.\-/]+/g, "").toUpperCase();
+    if (norm !== e.verifikationsWert) {
+      return { ok: false, error: "Identitätscheck nicht bestanden — Wert stimmt nicht. Bei Unsicherheit Pflege oder PDL fragen." };
+    }
+  }
 
   e.claimStatus = "geclaimt";
   e.claimedAt = new Date().toISOString();
@@ -209,26 +264,29 @@ export function seedIdentityOnce() {
   if (eintraege.length > 0) return;
 
   // Demo: vorhandene Klient:innen + Mitarbeiter:innen werden registriert.
-  // Helga ist als Test-Account schon "geclaimt", die anderen sind noch frei.
+  // Helga + 2 Mitarbeitende sind schon "geclaimt", die anderen brauchen noch Code+Identitätscheck.
+  // Verifikations-Anker pro Eintrag:
+  //   Klient → Geburtsdatum (TTMMJJJJ)
+  //   Mitarbeiter → Personal-Nr.
   const demo: Array<Parameters<typeof registriere>[0] & { claimNow?: boolean }> = [
-    { art: "klient", name: "Helga Reinhardt",   bekannteId: "klient-hr",       angelegtVon: "pflege", claimNow: true },
-    { art: "klient", name: "Wilhelm Brand",     bekannteId: "klient-wb",       angelegtVon: "pflege" },
-    { art: "klient", name: "Erika Gärtner",     bekannteId: "klient-eg",       angelegtVon: "lead" },
-    { art: "klient", name: "Otto Tannenberger", bekannteId: "klient-ot",       angelegtVon: "pflege" },
-    { art: "klient", name: "Gertrud Hopfauf",   bekannteId: "klient-gh",       angelegtVon: "pflege" },
-    { art: "klient", name: "Bertha Schäffer",   bekannteId: "klient-bs",       angelegtVon: "pflege" },
-    { art: "klient", name: "Peter Niedermeier", bekannteId: "klient-pn",       angelegtVon: "lead" },
-    { art: "klient", name: "Alma Schober",      bekannteId: "klient-as-77",    angelegtVon: "lead" },
-    { art: "mitarbeiter", name: "Dennis Reuter",     bekannteId: "person-dr",            angelegtVon: "lead", mitarbeiterRolle: "pflege", claimNow: true },
-    { art: "mitarbeiter", name: "Detektiv Eins",     bekannteId: "person-de1",           angelegtVon: "verwaltung", mitarbeiterRolle: "lead", claimNow: true },
-    { art: "mitarbeiter", name: "Susanne Hartmann",  bekannteId: "person-arzt-001",      angelegtVon: "lead", mitarbeiterRolle: "arzt" },
-    { art: "mitarbeiter", name: "Sebastian Rauer",   bekannteId: "person-therapeut-001", angelegtVon: "lead", mitarbeiterRolle: "therapie" },
-    { art: "mitarbeiter", name: "Mira Wagner",       bekannteId: "person-sozial-001",    angelegtVon: "lead", mitarbeiterRolle: "sozial" },
-    { art: "mitarbeiter", name: "Anika Stein",       bekannteId: "person-as-005",        angelegtVon: "lead", mitarbeiterRolle: "heilerziehung" },
-    { art: "mitarbeiter", name: "Helmut Brandt",     bekannteId: "hwf-001",              angelegtVon: "lead", mitarbeiterRolle: "hauswirtschaft" },
-    { art: "mitarbeiter", name: "Yvonne Berger",     bekannteId: "erzieher-001",         angelegtVon: "lead", mitarbeiterRolle: "erziehung" },
-    { art: "mitarbeiter", name: "Rita Schöndorf",    bekannteId: "person-ehrenamt-001",  angelegtVon: "lead", mitarbeiterRolle: "ehrenamt" },
-    { art: "mitarbeiter", name: "Sandra Lehmann",    bekannteId: "person-kasse-001",     angelegtVon: "verwaltung", mitarbeiterRolle: "kasse" },
+    { art: "klient", name: "Helga Reinhardt",   bekannteId: "klient-hr",       angelegtVon: "pflege",     verifikationsArt: "geburtsdatum", verifikationsWert: "12041948", claimNow: true },
+    { art: "klient", name: "Wilhelm Brand",     bekannteId: "klient-wb",       angelegtVon: "pflege",     verifikationsArt: "geburtsdatum", verifikationsWert: "07111942" },
+    { art: "klient", name: "Erika Gärtner",     bekannteId: "klient-eg",       angelegtVon: "lead",       verifikationsArt: "geburtsdatum", verifikationsWert: "23061945" },
+    { art: "klient", name: "Otto Tannenberger", bekannteId: "klient-ot",       angelegtVon: "pflege",     verifikationsArt: "geburtsdatum", verifikationsWert: "30031939" },
+    { art: "klient", name: "Gertrud Hopfauf",   bekannteId: "klient-gh",       angelegtVon: "pflege",     verifikationsArt: "geburtsdatum", verifikationsWert: "15091946" },
+    { art: "klient", name: "Bertha Schäffer",   bekannteId: "klient-bs",       angelegtVon: "pflege",     verifikationsArt: "geburtsdatum", verifikationsWert: "02021935" },
+    { art: "klient", name: "Peter Niedermeier", bekannteId: "klient-pn",       angelegtVon: "lead",       verifikationsArt: "geburtsdatum", verifikationsWert: "11071941" },
+    { art: "klient", name: "Alma Schober",      bekannteId: "klient-as-77",    angelegtVon: "lead",       verifikationsArt: "geburtsdatum", verifikationsWert: "25101944" },
+    { art: "mitarbeiter", name: "Dennis Reuter",     bekannteId: "person-dr",            angelegtVon: "lead",       mitarbeiterRolle: "pflege",        verifikationsArt: "personalnr", verifikationsWert: "P7-2019-0042", claimNow: true },
+    { art: "mitarbeiter", name: "Detektiv Eins",     bekannteId: "person-de1",           angelegtVon: "verwaltung", mitarbeiterRolle: "lead",          verifikationsArt: "personalnr", verifikationsWert: "L1-2018-0001", claimNow: true },
+    { art: "mitarbeiter", name: "Susanne Hartmann",  bekannteId: "person-arzt-001",      angelegtVon: "lead",       mitarbeiterRolle: "arzt",          verifikationsArt: "personalnr", verifikationsWert: "A1-2020-0007" },
+    { art: "mitarbeiter", name: "Sebastian Rauer",   bekannteId: "person-therapeut-001", angelegtVon: "lead",       mitarbeiterRolle: "therapie",      verifikationsArt: "personalnr", verifikationsWert: "T1-2021-0014" },
+    { art: "mitarbeiter", name: "Mira Wagner",       bekannteId: "person-sozial-001",    angelegtVon: "lead",       mitarbeiterRolle: "sozial",        verifikationsArt: "personalnr", verifikationsWert: "S1-2022-0008" },
+    { art: "mitarbeiter", name: "Anika Stein",       bekannteId: "person-as-005",        angelegtVon: "lead",       mitarbeiterRolle: "heilerziehung", verifikationsArt: "personalnr", verifikationsWert: "H1-2020-0011" },
+    { art: "mitarbeiter", name: "Helmut Brandt",     bekannteId: "hwf-001",              angelegtVon: "lead",       mitarbeiterRolle: "hauswirtschaft",verifikationsArt: "personalnr", verifikationsWert: "HW-2017-0003" },
+    { art: "mitarbeiter", name: "Yvonne Berger",     bekannteId: "erzieher-001",         angelegtVon: "lead",       mitarbeiterRolle: "erziehung",     verifikationsArt: "personalnr", verifikationsWert: "E1-2019-0023" },
+    { art: "mitarbeiter", name: "Rita Schöndorf",    bekannteId: "person-ehrenamt-001",  angelegtVon: "lead",       mitarbeiterRolle: "ehrenamt",     verifikationsArt: "personalnr", verifikationsWert: "EA-2021-0036" },
+    { art: "mitarbeiter", name: "Sandra Lehmann",    bekannteId: "person-kasse-001",     angelegtVon: "verwaltung", mitarbeiterRolle: "kasse",        verifikationsArt: "personalnr", verifikationsWert: "K1-2018-0019" },
   ];
 
   for (const d of demo) {

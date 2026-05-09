@@ -97,6 +97,18 @@ export default async function IdentityDetailPage({ params }: { params: Promise<{
           <Row label="Angelegt am"    value={e.angelegtAm} mono />
           <Row label="Angelegt von"   value={BERUF_LABEL[e.angelegtVon] ?? e.angelegtVon} />
           {e.angelegtVonPersonId && <Row label="durch"   value={e.angelegtVonPersonId} mono />}
+          <Row label="Identitätscheck" value={e.verifikationsHinweis ?? "kein"} />
+          {e.verifikationsWert && (
+            <Row
+              label="Anker (maskiert)"
+              value={
+                e.verifikationsArt === "geburtsdatum"
+                  ? `${e.verifikationsWert.slice(0, 4)}****`
+                  : `${e.verifikationsWert.slice(0, 3)}***${e.verifikationsWert.slice(-2)}`
+              }
+              mono
+            />
+          )}
           {e.claimedAt && <Row label="Geclaimt am"        value={e.claimedAt.slice(0, 10)} mono />}
           {e.claimedVia && <Row label="Claim-Methode"     value={e.claimedVia} />}
         </dl>
