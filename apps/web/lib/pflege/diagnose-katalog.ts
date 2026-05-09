@@ -218,6 +218,150 @@ export const NANDA_KATALOG: NandaDiagnose[] = [
     empfohleneInterventionen: ["Schmerz-Tagebuch", "Bedarfs- + Basis-Medi prüfen", "Konsil Schmerzambulanz", "nicht-medikamentöse Optionen"],
     empfohleneZiele: ["NRS ≤ 4 dauerhaft", "Teilnahme an mind. 2 Aktivitäten/Wo"],
   },
+
+  // ─── Erweiterung · weitere alltagsrelevante Diagnosen ──────────────────
+
+  // Domain 1 · Gesundheitsförderung
+  {
+    code: "00078",
+    label: "Beeinträchtigtes Gesundheitsverhalten",
+    domain: 1,
+    defaultEinflussfaktoren: ["Wissensdefizit", "geringes Selbstwirksamkeits-Gefühl", "fehlende soziale Unterstützung"],
+    defaultSymptome: ["Therapie-Plan wird nicht eingehalten", "Vermeidung von Vorsorge-Terminen", "Verharmlosung"],
+    empfohleneInterventionen: ["Motivierende Gesprächsführung", "kleine erreichbare Ziele setzen", "Angehörige einbeziehen"],
+    empfohleneZiele: ["1 verlässliches Gesundheits-Routine-Element pro Tag", "Termin-Treue ≥ 80 %"],
+  },
+
+  // Domain 4 · Aktivität / Ruhe (mehr Tiefe)
+  {
+    code: "00088",
+    label: "Beeinträchtigtes Gehen",
+    domain: 4,
+    defaultEinflussfaktoren: ["Schmerzen", "Gleichgewichts-Störung", "Hilfsmittel ungenügend angepasst", "Angst zu fallen"],
+    defaultSymptome: ["maximale Strecke < 50 m", "Stop-and-rest beim Gehen", "Begleiter:in nötig"],
+    empfohleneInterventionen: ["Gehübungen 2×/d mit Steigerung", "Gehhilfe anpassen", "Konsil Physiotherapie", "Sturzprophylaxe-Bündel"],
+    empfohleneZiele: ["Strecke 100 m in 4 Wochen", "selbstständiger Gang mit Hilfsmittel"],
+  },
+  {
+    code: "00091",
+    label: "Beeinträchtigte Bett-Mobilität",
+    domain: 4,
+    defaultEinflussfaktoren: ["Muskelschwäche", "Schmerzen", "Adipositas", "Sedierung"],
+    defaultSymptome: ["braucht Hilfe beim Drehen", "rutscht ans Fußende", "Druckstellen-Risiko"],
+    empfohleneInterventionen: ["2-h-Lagerungs-Plan", "Kinaesthetics-Bewegungs-Anleitung", "Hilfsmittel (Rutschtuch)", "Kraftaufbau Oberkörper"],
+    empfohleneZiele: ["selbstständige Seitlage in 3 Wochen", "Druckläsion-frei"],
+  },
+  {
+    code: "00097",
+    label: "Defizitäre Freizeit-Aktivitäten",
+    domain: 4,
+    defaultEinflussfaktoren: ["langfristige Hospitalisierung", "Verlust sozialer Rolle", "Mobilitäts-Einschränkung"],
+    defaultSymptome: ["Klient verbalisiert Langeweile", "Rückzug ins Bett", "Schlaf-Wach-Umkehr"],
+    empfohleneInterventionen: ["Biographie-Aktivitäten anbieten (Kreuzwort, Vorlesen, Musik)", "Garten-Besuch täglich", "Ehrenamtliche Begleitung anbinden"],
+    empfohleneZiele: ["Teilnahme an mind. 1 Aktivität/Tag", "Klient berichtet Freude"],
+  },
+
+  // Domain 5 · Wahrnehmung / Kognition
+  {
+    code: "00126",
+    label: "Wissensdefizit",
+    domain: 5,
+    defaultEinflussfaktoren: ["neue Diagnose", "Sprach-Barriere", "kognitive Einschränkung"],
+    defaultSymptome: ["Klient stellt häufig dieselben Fragen", "Fehlversorgung durch Falsch-Verständnis"],
+    empfohleneInterventionen: ["Brillenmodus + Klartext-Erklärung", "schriftliche Übersicht im Klient-Cockpit", "Angehörige einbeziehen"],
+    empfohleneZiele: ["Klient erklärt Eckpunkte in eigenen Worten", "weniger Wiederhol-Fragen"],
+  },
+
+  // Domain 7 · Rolle / Beziehung
+  {
+    code: "00052",
+    label: "Beeinträchtigte soziale Interaktion",
+    domain: 7,
+    defaultEinflussfaktoren: ["Sprache eingeschränkt (z.B. nach Apoplex)", "Hörminderung", "Demenz-Progredienz"],
+    defaultSymptome: ["Kontakt-Vermeidung", "missverständliche Reaktionen", "Klient verbalisiert Einsamkeit"],
+    empfohleneInterventionen: ["Kommunikationshilfen (Bildkarten, Schreibtafel)", "Hör-Geräte-Check", "Bezugspflege fest"],
+    empfohleneZiele: ["1 spontane positive Interaktion/d", "Klient sucht Kontakt zu Mitbewohner:in"],
+  },
+  {
+    code: "00060",
+    label: "Beeinträchtigte Familien-Prozesse",
+    domain: 7,
+    defaultEinflussfaktoren: ["Pflegelast einer Angehörigen", "Erkrankung verändert Rollenerwartungen", "räumliche Trennung"],
+    defaultSymptome: ["Konflikte bei Visite", "Familie überfordert", "Klient klagt Vereinsamung"],
+    empfohleneInterventionen: ["Angehörigen-Gespräch (Sozialdienst)", "Pflegekurs § 45 SGB XI vermitteln", "Hospiz-Begleitung anbieten"],
+    empfohleneZiele: ["Angehörige berichten Entlastung", "regelmäßige Besuche etablieren"],
+  },
+
+  // Domain 9 · Coping / Stresstoleranz (mehr Tiefe)
+  {
+    code: "00051",
+    label: "Beeinträchtigte verbale Kommunikation",
+    domain: 9,
+    defaultEinflussfaktoren: ["Aphasie nach Apoplex", "Demenz", "Tracheostoma"],
+    defaultSymptome: ["Wortfindungs-Störung", "Kommunikation nur über Gesten", "Frustration"],
+    empfohleneInterventionen: ["Logopädie-Konsil", "AAC-Bildkarten", "ruhige Sprache + Wartezeit beim Klient", "Validation"],
+    empfohleneZiele: ["Klient nutzt 1 Kommunikations-Hilfe selbstständig", "weniger Frustrations-Episoden"],
+  },
+  {
+    code: "00069",
+    label: "Ineffektives Coping",
+    domain: 9,
+    defaultEinflussfaktoren: ["chronische Belastung", "Verlust nahestehender Person", "wenig soziale Unterstützung"],
+    defaultSymptome: ["Schlafstörung", "Klient verbalisiert Überforderung", "Selbst-Vernachlässigung"],
+    empfohleneInterventionen: ["Bezugspflege fest", "psychologische Begleitung anbieten", "Atem-/Entspannungs-Techniken einüben"],
+    empfohleneZiele: ["Klient nennt 2 eigene Bewältigungs-Strategien", "Schlaf wieder ≥ 6 h"],
+  },
+  {
+    code: "00135",
+    label: "Komplizierte Trauer",
+    domain: 9,
+    defaultEinflussfaktoren: ["Tod nahestehender Person < 6 Mo", "fehlende Trauerbegleitung", "ungelöste Konflikte"],
+    defaultSymptome: ["anhaltende Sehnsucht", "Vermeidung von Erinnerungen", "Schuld-Gefühle", "depressive Symptome"],
+    empfohleneInterventionen: ["Trauergruppe vermitteln (Hospiz)", "Konsil Psychologie/Seelsorge", "Erinnerungs-Rituale ermöglichen"],
+    empfohleneZiele: ["Klient schließt mind. 1 Erinnerungs-Ritual pro Wo. ein", "weniger Schuld-Verbalisierungen"],
+  },
+
+  // Domain 11 · Sicherheit / Schutz (mehr Tiefe)
+  {
+    code: "00103",
+    label: "Beeinträchtigtes Schluckvermögen",
+    domain: 11,
+    defaultEinflussfaktoren: ["Z.n. Apoplex", "Demenz Spätstadium", "Z.n. Bestrahlung Hals/Rachen"],
+    defaultSymptome: ["Husten beim Trinken", "Aspirations-Hinweise", "Gewichtsabnahme"],
+    empfohleneInterventionen: ["IDDSI-Konsistenz-Stufe festlegen", "Logopädie-Konsil", "Ess-Begleitung mit Aspirations-Beobachtung"],
+    empfohleneZiele: ["aspirations-frei 14 Tage", "Gewicht stabil"],
+  },
+  {
+    code: "00078b",
+    label: "Risiko Aspiration",
+    domain: 11,
+    defaultEinflussfaktoren: ["Bewusstseins-Störung", "PEG-Sonde", "GERD"],
+    defaultSymptome: ["—"],
+    empfohleneInterventionen: ["Oberkörper 30° hochlagern bei PEG-Pflege", "Mund-pflege 4×/d", "Esstraining mit Logopädie"],
+    empfohleneZiele: ["keine Aspirations-Pneumonie in 90 Tagen"],
+  },
+
+  // Domain 12 · Wohlbefinden (zusätzliche Tiefe)
+  {
+    code: "00214",
+    label: "Beeinträchtigtes Wohlbefinden",
+    domain: 12,
+    defaultEinflussfaktoren: ["chronische Krankheit", "Lärm/Lichtbelästigung", "Trennung von vertrauten Bezügen"],
+    defaultSymptome: ["Klient klagt Unruhe", "verminderte Lebensfreude", "Reizbarkeit"],
+    empfohleneInterventionen: ["Bezugspflege", "Lieblings-Musik anbieten", "Foto-Album aus Biographie zugänglich machen"],
+    empfohleneZiele: ["Klient nennt mind. 1 wohltuendes Element pro Tag"],
+  },
+
+  // Domain 6 · Selbstwahrnehmung (zusätzlich)
+  {
+    code: "00153",
+    label: "Risiko situativ niedriges Selbstwertgefühl",
+    domain: 6,
+    defaultEinflussfaktoren: ["Verlust der Selbstständigkeit", "Inkontinenz", "Pflegebedürftigkeit"],
+    defaultSymptome: ["—"],
+    empfohleneInterventionen: ["Würde-bewahrende Körperpflege", "Wahlmöglichkeiten anbieten", "Erfolgs-Erlebnisse ermöglichen"],
+    empfohleneZiele: ["Klient nimmt Wahlangebote an", "keine selbstabwertenden Aussagen"],
+  },
 ];
 
 export function getDiagnose(code: string): NandaDiagnose | undefined {
