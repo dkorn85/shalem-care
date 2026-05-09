@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { CrossBruecken } from "@/components/CrossBruecken";
 import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { CockpitKpi } from "@/components/BerufCockpitCard";
 import { LerneTipp } from "@/components/LerneTipp";
@@ -99,6 +100,7 @@ export default function WwPage() {
           </section>
         );
       })}
+      <CrossBruecken pathname="/apotheke/wechselwirkung" />
     </AppShell>
   );
 }

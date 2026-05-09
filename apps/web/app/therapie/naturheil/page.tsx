@@ -6,6 +6,7 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { CrossBruecken } from "@/components/CrossBruecken";
 import { CockpitSection, CockpitKpi } from "@/components/BerufCockpitCard";
 import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { LerneTipp } from "@/components/LerneTipp";
@@ -155,6 +156,7 @@ export default function NaturheilPage() {
           </ul>
         </CockpitSection>
       ))}
+      <CrossBruecken pathname="/therapie/naturheil" />
     </AppShell>
   );
 }

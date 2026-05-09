@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
+import { CrossBruecken } from "@/components/CrossBruecken";
 import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { CockpitKpi } from "@/components/BerufCockpitCard";
 import { LerneTipp } from "@/components/LerneTipp";
@@ -77,6 +78,7 @@ export default function SopPage() {
       <div className="space-y-4">
         {SOPS.map((sop) => <SopKarte key={sop.id} sop={sop} />)}
       </div>
+      <CrossBruecken pathname="/rettungsdienst/sop" />
     </AppShell>
   );
 }
