@@ -5,8 +5,11 @@
 // Schritt 2: Verifikations-Wert (z.B. Geburtsdatum) eingeben → übernehmen.
 // Wenn Identität keine Verifikation verlangt (verifikationsArt = "kein"),
 // wird Schritt 2 übersprungen.
+//
+// Token-Vorbefüllung: wenn URL-Parameter ?token=ABC-D34 (vom QR-Scan)
+// → direkt im Token-Feld, Person muss nur noch Verifikation tippen.
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 import Link from "next/link";
 import { claimAction, pruefeTokenAction } from "@/lib/identity/actions";
 import type { VerifikationsArt } from "@/lib/identity/store";
@@ -38,6 +41,14 @@ export function ClaimForm() {
   const [verifikation, setVerifikation] = useState("");
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<{ ok: boolean; text: string } | null>(null);
+
+  // QR-Scan füllt ?token=… in URL → einlesen, ins Token-Feld
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const t = params.get("token");
+    if (t) setToken(t.toUpperCase());
+  }, []);
 
   function pruefen(e: React.FormEvent) {
     e.preventDefault();

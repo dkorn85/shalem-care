@@ -9,6 +9,8 @@ import { LerneTipp } from "@/components/LerneTipp";
 import { NurAbProfi } from "@/components/ExpertiseGate";
 import { IdentityBadge, ClaimTokenAnzeige } from "@/components/identity/IdentityBadge";
 import { IdentityVerwaltungActions } from "@/components/identity/IdentityVerwaltungActions";
+import { QrCodeKarte } from "@/components/identity/QrCodeKarte";
+import { DruckenButton } from "@/components/scheine/DruckenButton";
 import { getIdentity, seedIdentityOnce } from "@/lib/identity/store";
 
 const BERUF_LABEL: Record<string, string> = {
@@ -50,23 +52,45 @@ export default async function IdentityDetailPage({ params }: { params: Promise<{
 
       {/* Claim-Token sichtbar wenn unbeansprucht oder widerrufen */}
       {e.claimStatus !== "geclaimt" && (
-        <section className="surface rounded-2xl p-5 mb-5" style={{ borderLeft: "3px solid rgb(var(--vibe-approval))" }}>
-          <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
-            <p className="text-[10px] uppercase tracking-wider font-mono font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>
-              Claim-Code · zur Übergabe an die Person
+        <>
+          <section className="surface rounded-2xl p-5 mb-5 no-print" style={{ borderLeft: "3px solid rgb(var(--vibe-approval))" }}>
+            <header className="flex items-baseline justify-between gap-2 mb-3 flex-wrap">
+              <p className="text-[10px] uppercase tracking-wider font-mono font-medium" style={{ color: "rgb(var(--vibe-approval))" }}>
+                Claim-Code · zur Übergabe an die Person
+              </p>
+              <div className="flex gap-2 items-baseline">
+                <Link href="/identity/claim" className="text-[11px] text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
+                  Claim-Page öffnen →
+                </Link>
+                <DruckenButton label="🖨 QR-Karte drucken" />
+              </div>
+            </header>
+            <ClaimTokenAnzeige token={e.claimToken} />
+            <p className="text-[12px] text-mute leading-relaxed mt-3">
+              Diesen Code mündlich, ausgedruckt oder per <strong>QR-Scan</strong> an {e.name}
+              weitergeben. Sobald der Code auf
+              {" "}<code className="font-mono text-[11px]">/identity/claim</code> eingegeben
+              (oder QR gescannt) wird, ist {e.name === "Helga Reinhardt" ? "sie" : "die Person"}
+              Inhaber:in des Profils.
             </p>
-            <Link href="/identity/claim" className="text-[11px] text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline">
-              Claim-Page öffnen →
-            </Link>
-          </header>
-          <ClaimTokenAnzeige token={e.claimToken} />
-          <p className="text-[12px] text-mute leading-relaxed mt-3">
-            Diesen Code mündlich, ausgedruckt oder per QR (Phase 2) an {e.name} weitergeben.
-            Sobald der Code auf <code className="font-mono text-[11px]">/identity/claim</code>
-            eingegeben wird, ist {e.name === "Helga Reinhardt" ? "sie" : "die Person"}
-            Inhaber:in des Profils und kann sich selbst einloggen.
-          </p>
-        </section>
+          </section>
+
+          {/* QR-Karte · druckbar als Aufnahme-Ausweis */}
+          <section className="mb-5">
+            <p className="text-[10px] uppercase tracking-wider text-soft font-mono mb-2 no-print">
+              Druckbare QR-Karte · auf Aufnahme-Mappe oder Vertrag
+            </p>
+            <QrCodeKarte
+              daten={{
+                identityId: e.id,
+                name: e.name,
+                art: e.art,
+                claimToken: e.claimToken,
+                verifikationsHinweis: e.verifikationsHinweis,
+              }}
+            />
+          </section>
+        </>
       )}
 
       {e.claimStatus === "geclaimt" && (

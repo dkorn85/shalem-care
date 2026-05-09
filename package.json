@@ -7,9 +7,13 @@
     "node": ">=20.10.0"
   },
   "scripts": {
-    "// note":             "Hostinger setzt NODE_ENV=production, deshalb erzwingen wir --include=dev — ohne tailwindcss/postcss/typescript scheitert next build. NODE_OPTIONS hebt den V8-Heap auf 2 GB an, weil 166 MB public-assets + tracing den Default-512-MB-Heap auf Hostinger sonst sprengen.",
-    "build":               "cd apps/web && npm install --include=dev && NODE_OPTIONS=--max-old-space-size=2048 npm run build && node ../../scripts/post-build.mjs",
-    "start":               "node apps/web/.next/standalone/apps/web/server.js",
-    "postinstall":         "cd apps/web && npm install --include=dev"
+    "// note": "Hostinger setzt NODE_ENV=production, deshalb erzwingen wir --include=dev — ohne tailwindcss/postcss/typescript scheitert next build. NODE_OPTIONS hebt den V8-Heap auf 2 GB an, weil 166 MB public-assets + tracing den Default-512-MB-Heap auf Hostinger sonst sprengen.",
+    "build": "cd apps/web && npm install --include=dev && NODE_OPTIONS=--max-old-space-size=2048 npm run build && node ../../scripts/post-build.mjs",
+    "start": "node apps/web/.next/standalone/apps/web/server.js",
+    "postinstall": "cd apps/web && npm install --include=dev"
+  },
+  "dependencies": {
+    "@types/qrcode": "^1.5.6",
+    "qrcode": "^1.5.4"
   }
 }
