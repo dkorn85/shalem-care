@@ -63,7 +63,8 @@
       "mcp__claude_ai_Higgsfield__models_explore",
       "mcp__claude_ai_Higgsfield__generate_image",
       "mcp__claude_ai_Higgsfield__job_status",
-      "Bash(curl -sS -o hero.png \"https://d8j0ntlcm91z4.cloudfront.net/user_34p0E7VkeEYFsXe2RmvBUfLs6s2/hf_20260509_123737_48e67b13-34f5-4c71-971f-cc8617b4215e.png\")"
+      "Bash(curl -sS -o hero.png \"https://d8j0ntlcm91z4.cloudfront.net/user_34p0E7VkeEYFsXe2RmvBUfLs6s2/hf_20260509_123737_48e67b13-34f5-4c71-971f-cc8617b4215e.png\")",
+      "Bash(curl -sS -o pflege-diktat.png       \"https://d8j0ntlcm91z4.cloudfront.net/user_34p0E7VkeEYFsXe2RmvBUfLs6s2/hf_20260509_125222_93b1f33d-0c33-44bc-a02e-b432ffcf5898.png\")"
     ]
   },
   "enableAllProjectMcpServers": true,
