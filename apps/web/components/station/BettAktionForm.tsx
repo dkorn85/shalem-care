@@ -19,6 +19,7 @@ import {
   bettFreigebenAction,
 } from "@/lib/station/actions";
 import type { Pflegegrad } from "@/lib/hierarchy/types";
+import { spiele } from "@/lib/sound/sound-player";
 
 type ZielBett = { id: string; label: string };
 
@@ -58,6 +59,7 @@ export function BettBelegenForm(props: CommonProps) {
         geburtsdatum,
       });
       if (r.ok) {
+        spiele("erfolg");
         setFeedback("✓ " + r.message);
         if (r.claimToken && r.identityId) {
           setNeuerClaimToken({ token: r.claimToken, identityId: r.identityId });
@@ -65,6 +67,7 @@ export function BettBelegenForm(props: CommonProps) {
         setKlientId(""); setKlientName(""); setGeburtsdatum(""); setDiagnosen(""); setNotiz("");
         // onDone NICHT sofort aufrufen, damit der Token sichtbar bleibt
       } else {
+        spiele("fehler");
         setFeedback("⚠ " + r.error);
       }
     });

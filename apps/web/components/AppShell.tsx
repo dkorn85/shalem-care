@@ -9,6 +9,7 @@ import { getLocale } from "@/lib/i18n/server";
 import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
 import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
+import { SoundToggle } from "./SoundToggle";
 import { ExpertiseChip } from "./ExpertiseChip";
 import type { ExpertiseRolle } from "@/lib/ui/expertise";
 
@@ -348,7 +349,7 @@ export async function AppShell({
           style={{ background: `linear-gradient(90deg, rgb(${rolePrimaer}) 0%, rgb(${rolePrimaer} / 0.4) 60%, transparent 100%)` }}
         />
 
-        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-48 lg:pb-32">
+        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-56 lg:pb-40">
           {children}
         </div>
       </main>
@@ -357,6 +358,7 @@ export async function AppShell({
       <BottomNav role={mapRoleForBottomNav(role)} rolePrimaer={rolePrimaer} />
       <Brillenmodus beruf={ROLE_KLARTEXT[role]} rolePrimaer={rolePrimaer} roleLabel={roleLabel} />
       <GameModeToggle />
+      <SoundToggle />
     </div>
   );
 }

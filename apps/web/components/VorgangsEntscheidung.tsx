@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 import { entscheideVorgang } from "@/lib/kostentraeger/actions";
 import type { KassenStatus } from "@/lib/kostentraeger/types";
+import { spiele } from "@/lib/sound/sound-player";
 
 export function VorgangsEntscheidung({
   vorgangId,
@@ -19,6 +20,7 @@ export function VorgangsEntscheidung({
 
   const decide = (status: KassenStatus, requireNote = false) => {
     if (requireNote && !notiz.trim()) {
+      spiele("fehler");
       setFeedback("✕ Begründung erforderlich.");
       return;
     }
@@ -29,6 +31,14 @@ export function VorgangsEntscheidung({
         notiz: notiz || undefined,
         bearbeitetVon: bearbeiterName,
       });
+      if (r.ok) {
+        // Bewilligt/Abgelehnt = stempel-Sound (organischer Aufschlag),
+        // sonst klick (Status-Wechsel ohne Stempel)
+        if (status === "genehmigt" || status === "abgelehnt") spiele("stempel");
+        else spiele("klick");
+      } else {
+        spiele("fehler");
+      }
       setFeedback(r.ok ? `✓ Status: ${status}` : `✕ ${(r as { error: string }).error}`);
     });
   };

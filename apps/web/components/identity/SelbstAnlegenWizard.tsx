@@ -8,6 +8,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { selbstAnlegenAction } from "@/lib/identity/actions";
 import type { IdentityArt, IdentityBeruf } from "@/lib/identity/store";
+import { spiele } from "@/lib/sound/sound-player";
 
 type Phase =
   | { phase: "art" }
@@ -52,6 +53,7 @@ export function SelbstAnlegenWizard() {
         mitarbeiterRolle: phase.art === "mitarbeiter" ? rolle : undefined,
       });
       if (r.ok && r.data) {
+        spiele("erfolg");
         setPhase({
           phase: "fertig",
           id: r.data.id,
@@ -60,6 +62,7 @@ export function SelbstAnlegenWizard() {
           claimToken: r.data.claimToken,
         });
       } else if (!r.ok) {
+        spiele("fehler");
         setFeedback("⚠ " + r.error);
       }
     });

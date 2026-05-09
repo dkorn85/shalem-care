@@ -6,6 +6,7 @@
 
 import { useState, useTransition } from "react";
 import { generiereWiderspruch } from "@/lib/kasse/widerspruch-ki";
+import { spiele } from "@/lib/sound/sound-player";
 import { WiderspruchBrief, type WiderspruchBriefDaten } from "./WiderspruchBrief";
 import { DruckenButton } from "./DruckenButton";
 import type { KassenVorgang } from "@/lib/kostentraeger/types";
@@ -38,8 +39,10 @@ export function WiderspruchEntwurfBox({
     startTransition(async () => {
       const r = await generiereWiderspruch({ vorgang, klientStatement: statement.trim() || undefined });
       if (r.ok) {
+        spiele("lana");
         setEntwurf({ begruendung: r.entwurf.begruendung, argumente: r.entwurf.argumente, source: r.source });
       } else {
+        spiele("fehler");
         setFehler(r.error);
       }
     });

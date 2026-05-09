@@ -10,6 +10,7 @@ import { useState, useTransition } from "react";
 import Link from "next/link";
 import { claimAction, pruefeTokenAction } from "@/lib/identity/actions";
 import type { VerifikationsArt } from "@/lib/identity/store";
+import { spiele } from "@/lib/sound/sound-player";
 
 type Phase =
   | { phase: "token" }
@@ -42,17 +43,20 @@ export function ClaimForm() {
     setFeedback(null);
     startTransition(async () => {
       const r = await pruefeTokenAction(token);
-      if (!r.ok) { setFeedback({ ok: false, text: r.error }); return; }
+      if (!r.ok) { spiele("fehler"); setFeedback({ ok: false, text: r.error }); return; }
       const d = r.data!;
       if (!d.brauchtVerifikation) {
         // Direkt claimen
         const c = await claimAction({ token, via: "code" });
         if (c.ok && c.data) {
+          spiele("erfolg");
           setPhase({ phase: "geclaimt", name: c.data.name, art: c.data.art, id: c.data.id });
         } else if (!c.ok) {
+          spiele("fehler");
           setFeedback({ ok: false, text: c.error });
         }
       } else {
+        spiele("klick");
         setPhase({
           phase: "verifikation",
           name: d.name,
@@ -70,8 +74,10 @@ export function ClaimForm() {
     startTransition(async () => {
       const r = await claimAction({ token, verifikation, via: "code" });
       if (r.ok && r.data) {
+        spiele("erfolg");
         setPhase({ phase: "geclaimt", name: r.data.name, art: r.data.art, id: r.data.id });
       } else if (!r.ok) {
+        spiele("fehler");
         setFeedback({ ok: false, text: r.error });
       }
     });

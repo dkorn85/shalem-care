@@ -5,6 +5,7 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 import { getLocale } from "@/lib/i18n/server";
 import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
+import { SoundToggle } from "./SoundToggle";
 import { ExpertiseChip } from "./ExpertiseChip";
 
 const KASSE_PRIMAER = "var(--vibe-approval)";
@@ -72,7 +73,7 @@ export async function KasseShell({
       </header>
 
       <main className="flex-1">
-        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-48 lg:pb-32">
+        <div className="max-w-screen-app mx-auto px-4 sm:px-8 py-6 sm:py-10 pb-56 lg:pb-40">
           <div className="rainbow-bar h-1 rounded-full mb-6 sm:mb-8 opacity-60" />
           {children}
         </div>
@@ -91,6 +92,7 @@ export async function KasseShell({
       </footer>
       <Brillenmodus beruf="lead" rolePrimaer={KASSE_PRIMAER} roleLabel={KASSE_LABEL} />
       <GameModeToggle />
+      <SoundToggle />
     </div>
   );
 }
