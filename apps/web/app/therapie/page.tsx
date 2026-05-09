@@ -5,6 +5,7 @@ import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { QuizHeroCard } from "@/components/QuizHeroCard";
 import { GameModeOnly } from "@/components/GameModeWrapper";
 import { CockpitKpi, CockpitListItem, CockpitSection } from "@/components/BerufCockpitCard";
+import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { MeineKlienten } from "@/components/MeineKlienten";
@@ -63,6 +64,8 @@ export default async function TherapiePage() {
       >
         {HEUTE.length} Termine heute · {heuteStunden.toFixed(1)} h Therapiezeit · {VERORDNUNGEN_OFFEN.length} neue Verordnungen warten auf Erstgespräch.
       </RolePastelHeader>
+
+      <CockpitSubNav />
 
       <GameModeOnly>
         <div className="mb-5">
