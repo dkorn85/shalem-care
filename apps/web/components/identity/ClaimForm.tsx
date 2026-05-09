@@ -21,17 +21,18 @@ type Phase =
   | {
       phase: "verifikation";
       name: string;
-      art: "klient" | "mitarbeiter";
+      art: "klient" | "mitarbeiter" | "lieferant" | "mitglied";
       verifikationsArt: VerifikationsArt;
       verifikationsHinweis?: string;
     }
-  | { phase: "geclaimt"; name: string; art: "klient" | "mitarbeiter"; id: string };
+  | { phase: "geclaimt"; name: string; art: "klient" | "mitarbeiter" | "lieferant" | "mitglied"; id: string };
 
 const PLATZHALTER: Record<VerifikationsArt, string> = {
   "geburtsdatum":     "z.B. 12041948",
   "versichertennr":   "z.B. A123456789",
   "personalnr":       "z.B. P7-2019-0042",
   "iban-letzte-4":    "letzte 4 Ziffern",
+  "ust-id":           "z.B. DE123456789",
   "kein":             "",
 };
 
@@ -73,7 +74,7 @@ export function ClaimForm() {
         setPhase({
           phase: "verifikation",
           name: d.name,
-          art: d.art as "klient" | "mitarbeiter",
+          art: d.art,
           verifikationsArt: d.verifikationsArt,
           verifikationsHinweis: d.verifikationsHinweis,
         });

@@ -54,10 +54,12 @@ export default function IdentityRegistryPage() {
         Datenhalterin nach DSGVO Art. 4 Nr. 1, der Träger ist nur noch Verarbeiter.
       </LerneTipp>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
-        <CockpitKpi label="Identitäten gesamt" value={kpi.gesamt}            farbe="var(--accent)" />
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-2.5 mb-5">
+        <CockpitKpi label="Gesamt"             value={kpi.gesamt}            farbe="var(--accent)" />
         <CockpitKpi label="Klient:innen"       value={kpi.klienten}          farbe="var(--wed)" />
         <CockpitKpi label="Mitarbeiter:innen"  value={kpi.mitarbeiter}       farbe="var(--vibe-team)" />
+        <CockpitKpi label="Lieferanten"        value={kpi.lieferanten}       farbe="var(--vibe-stats)" />
+        <CockpitKpi label="eG-Mitglieder"      value={kpi.mitglieder}        farbe="var(--vibe-approval)" />
         <CockpitKpi label="Claim-Quote"        value={`${claimQuote}%`} hint={`${kpi.geclaimt} / ${kpi.gesamt}`} farbe="var(--thu)" />
       </div>
 

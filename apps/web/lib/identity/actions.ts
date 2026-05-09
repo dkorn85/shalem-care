@@ -121,8 +121,19 @@ export async function registriereAction(input: {
   stationId?: string;
   verifikationsArt?: VerifikationsArt;
   verifikationsWert?: string;
+  firmenName?: string;
+  ustId?: string;
+  branche?: string;
+  geschaeftsanteile?: number;
+  ibanLetzte4?: string;
+  beitrittsdatum?: string;
 }): Promise<IdentityActionResult<IdentityEintrag & { claimToken: string }>> {
   if (!input.name.trim()) return { ok: false, error: "Name fehlt." };
+  const defaultVerifikation: VerifikationsArt =
+    input.art === "klient"     ? "geburtsdatum" :
+    input.art === "lieferant"  ? "ust-id" :
+    input.art === "mitglied"   ? "iban-letzte-4" :
+                                 "personalnr";
   const e = registriere({
     art: input.art,
     name: input.name.trim(),
@@ -130,8 +141,14 @@ export async function registriereAction(input: {
     mitarbeiterRolle: input.mitarbeiterRolle,
     einrichtungId: input.einrichtungId,
     stationId: input.stationId,
-    verifikationsArt: input.verifikationsArt ?? (input.art === "klient" ? "geburtsdatum" : "personalnr"),
+    verifikationsArt: input.verifikationsArt ?? defaultVerifikation,
     verifikationsWert: input.verifikationsWert,
+    firmenName: input.firmenName,
+    ustId: input.ustId,
+    branche: input.branche,
+    geschaeftsanteile: input.geschaeftsanteile,
+    ibanLetzte4: input.ibanLetzte4,
+    beitrittsdatum: input.beitrittsdatum,
   });
   revalidatePath("/identity");
   return { ok: true, message: "Identität angelegt.", data: e };

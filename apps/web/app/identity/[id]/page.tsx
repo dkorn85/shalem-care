@@ -122,6 +122,12 @@ export default async function IdentityDetailPage({ params }: { params: Promise<{
           <Row label="Angelegt am"    value={e.angelegtAm} mono />
           <Row label="Angelegt von"   value={BERUF_LABEL[e.angelegtVon] ?? e.angelegtVon} />
           {e.angelegtVonPersonId && <Row label="durch"   value={e.angelegtVonPersonId} mono />}
+          {e.firmenName && <Row label="Firmen-Name"     value={e.firmenName} />}
+          {e.ustId && <Row label="USt-ID"               value={e.ustId} mono />}
+          {e.branche && <Row label="Branche"            value={e.branche} />}
+          {e.geschaeftsanteile != null && <Row label="Geschäftsanteile" value={String(e.geschaeftsanteile)} />}
+          {e.ibanLetzte4 && <Row label="IBAN-Endung"    value={`····${e.ibanLetzte4}`} mono />}
+          {e.beitrittsdatum && <Row label="Beigetreten" value={e.beitrittsdatum} mono />}
           <Row label="Identitätscheck" value={e.verifikationsHinweis ?? "kein"} />
           {e.verifikationsWert && (
             <Row

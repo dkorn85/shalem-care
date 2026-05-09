@@ -12,7 +12,7 @@
 // legt ihn ins Bett, am nächsten Tag bekommt er den Code übergeben und
 // claimt ihn — z.B. damit Angehörige Zugriff auf die Akte bekommen.
 
-export type IdentityArt = "klient" | "mitarbeiter";
+export type IdentityArt = "klient" | "mitarbeiter" | "lieferant" | "mitglied";
 
 export type IdentityBeruf =
   | "pflege" | "arzt" | "therapie" | "sozial"
@@ -28,6 +28,7 @@ export type VerifikationsArt =
   | "versichertennr"      // Krankenkassen-Nummer
   | "personalnr"          // Personal-Nummer (Mitarbeiter)
   | "iban-letzte-4"       // letzte 4 Stellen der IBAN (eG-Mitglieder)
+  | "ust-id"              // Umsatzsteuer-ID (Lieferanten/Firmen)
   | "kein";               // Demo-Modus, Token reicht
 
 export type IdentityEintrag = {
@@ -56,6 +57,16 @@ export type IdentityEintrag = {
   mitarbeiterRolle?: IdentityBeruf;
   einrichtungId?: string;
   stationId?: string;
+
+  // Optional: Lieferanten-Felder (art="lieferant")
+  firmenName?: string;
+  ustId?: string;                // wird auch als Verifikations-Anker genutzt
+  branche?: string;              // Apotheke, Medizintechnik, Bestatter, …
+
+  // Optional: eG-Mitglied-Felder (art="mitglied")
+  geschaeftsanteile?: number;    // Anzahl der gehaltenen Anteile · 1 Anteil = 1 Stimme
+  ibanLetzte4?: string;          // letzte 4 Ziffern der IBAN für SEPA-Sammler
+  beitrittsdatum?: string;       // ISO yyyy-mm-dd
 };
 
 export const VERIFIKATIONS_LABEL: Record<VerifikationsArt, string> = {
@@ -63,6 +74,7 @@ export const VERIFIKATIONS_LABEL: Record<VerifikationsArt, string> = {
   "versichertennr":   "Versicherten-Nr.",
   "personalnr":       "Personal-Nr.",
   "iban-letzte-4":    "IBAN · letzte 4 Stellen",
+  "ust-id":           "USt-ID-Nummer",
   "kein":             "kein Identitätscheck",
 };
 
@@ -128,15 +140,19 @@ export function identityKpis(): {
   gesamt: number;
   klienten: number;
   mitarbeiter: number;
+  lieferanten: number;
+  mitglieder: number;
   unbeansprucht: number;
   geclaimt: number;
 } {
   return {
     gesamt: eintraege.length,
-    klienten: eintraege.filter((e) => e.art === "klient").length,
+    klienten:    eintraege.filter((e) => e.art === "klient").length,
     mitarbeiter: eintraege.filter((e) => e.art === "mitarbeiter").length,
+    lieferanten: eintraege.filter((e) => e.art === "lieferant").length,
+    mitglieder:  eintraege.filter((e) => e.art === "mitglied").length,
     unbeansprucht: eintraege.filter((e) => e.claimStatus === "unbeansprucht").length,
-    geclaimt: eintraege.filter((e) => e.claimStatus === "geclaimt").length,
+    geclaimt:      eintraege.filter((e) => e.claimStatus === "geclaimt").length,
   };
 }
 
@@ -153,6 +169,12 @@ export function registriere(input: {
   stationId?: string;
   verifikationsArt?: VerifikationsArt;
   verifikationsWert?: string;
+  firmenName?: string;
+  ustId?: string;
+  branche?: string;
+  geschaeftsanteile?: number;
+  ibanLetzte4?: string;
+  beitrittsdatum?: string;
 }): IdentityEintrag {
   // Wenn bekannteId schon im Registry ist → einfach zurückgeben
   if (input.bekannteId) {
@@ -179,6 +201,12 @@ export function registriere(input: {
     mitarbeiterRolle: input.mitarbeiterRolle,
     einrichtungId: input.einrichtungId,
     stationId: input.stationId,
+    firmenName: input.firmenName,
+    ustId: input.ustId,
+    branche: input.branche,
+    geschaeftsanteile: input.geschaeftsanteile,
+    ibanLetzte4: input.ibanLetzte4,
+    beitrittsdatum: input.beitrittsdatum,
   };
   eintraege.push(eintrag);
   return eintrag;
@@ -287,6 +315,14 @@ export function seedIdentityOnce() {
     { art: "mitarbeiter", name: "Yvonne Berger",     bekannteId: "erzieher-001",         angelegtVon: "lead",       mitarbeiterRolle: "erziehung",     verifikationsArt: "personalnr", verifikationsWert: "E1-2019-0023" },
     { art: "mitarbeiter", name: "Rita Schöndorf",    bekannteId: "person-ehrenamt-001",  angelegtVon: "lead",       mitarbeiterRolle: "ehrenamt",     verifikationsArt: "personalnr", verifikationsWert: "EA-2021-0036" },
     { art: "mitarbeiter", name: "Sandra Lehmann",    bekannteId: "person-kasse-001",     angelegtVon: "verwaltung", mitarbeiterRolle: "kasse",        verifikationsArt: "personalnr", verifikationsWert: "K1-2018-0019" },
+    // Lieferanten · firmenName + USt-ID
+    { art: "lieferant", name: "Bio-Hof Ahrendt", bekannteId: "lief-bio-001",   angelegtVon: "verwaltung", verifikationsArt: "ust-id", verifikationsWert: "DE298765432", firmenName: "Bio-Hof Ahrendt GmbH", ustId: "DE298765432", branche: "Lebensmittel" },
+    { art: "lieferant", name: "Apotheke am Park", bekannteId: "lief-apo-001",  angelegtVon: "verwaltung", verifikationsArt: "ust-id", verifikationsWert: "DE315467822", firmenName: "Apotheke am Park OHG", ustId: "DE315467822", branche: "Apotheke" },
+    { art: "lieferant", name: "Sanitätshaus Lebenshilfe", bekannteId: "lief-san-001", angelegtVon: "verwaltung", verifikationsArt: "ust-id", verifikationsWert: "DE412339876", firmenName: "Sanitätshaus Lebenshilfe e.V.", ustId: "DE412339876", branche: "Sanitätshaus" },
+    // eG-Mitglieder · Geschäftsanteile + IBAN-Endung
+    { art: "mitglied", name: "Helga Reinhardt",   bekannteId: "mitg-hr",       angelegtVon: "verwaltung", verifikationsArt: "iban-letzte-4", verifikationsWert: "0042", geschaeftsanteile: 1, ibanLetzte4: "0042", beitrittsdatum: "2025-09-15" },
+    { art: "mitglied", name: "Dennis Reuter",     bekannteId: "mitg-dr",       angelegtVon: "verwaltung", verifikationsArt: "iban-letzte-4", verifikationsWert: "1198", geschaeftsanteile: 5, ibanLetzte4: "1198", beitrittsdatum: "2025-04-08" },
+    { art: "mitglied", name: "Detektiv Eins",     bekannteId: "mitg-de1",      angelegtVon: "verwaltung", verifikationsArt: "iban-letzte-4", verifikationsWert: "8800", geschaeftsanteile: 25, ibanLetzte4: "8800", beitrittsdatum: "2025-01-20" },
   ];
 
   for (const d of demo) {

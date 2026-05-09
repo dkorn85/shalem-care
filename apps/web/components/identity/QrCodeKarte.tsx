@@ -13,10 +13,17 @@ import { Logo } from "@/components/Logo";
 export type QrCodeKarteDaten = {
   identityId: string;
   name: string;
-  art: "klient" | "mitarbeiter";
+  art: "klient" | "mitarbeiter" | "lieferant" | "mitglied";
   claimToken: string;
   verifikationsHinweis?: string;
   baseUrl?: string;             // Default https://shalem.de
+};
+
+const ART_LABEL: Record<QrCodeKarteDaten["art"], string> = {
+  klient: "Klient-Akte",
+  mitarbeiter: "Mitarbeiter",
+  lieferant: "Lieferant",
+  mitglied: "eG-Mitglied",
 };
 
 export async function QrCodeKarte({ daten }: { daten: QrCodeKarteDaten }) {
@@ -50,7 +57,7 @@ export async function QrCodeKarte({ daten }: { daten: QrCodeKarteDaten }) {
           <span className="font-display font-bold text-[14px] tracking-tight">Shalem Care</span>
         </div>
         <span className="text-[10px] uppercase tracking-wider font-mono text-black/55">
-          {daten.art === "klient" ? "Klient-Akte" : "Mitarbeiter"}
+          {ART_LABEL[daten.art]}
         </span>
       </header>
 
