@@ -11,8 +11,9 @@
 **🌿 3 Falt-Broschüren** (Klient · Pflege · Träger) mit 18 Aquarell-Bildern (Higgsfield) + Drucken-Button ·
 **🌱 Naturheilkunde-Stack** 16 Verfahren über 10 Arten (Phyto · TCM · Anthropos · Homöo · Ayur · Aroma · Osteo · Akup · Kneipp) ·
 **✦ Psychedelika-Therapie** zukunftsfest · 7 Substanzen + 16-Schritt-Sitter-Protokoll (MAPS/COMPASS) + Pflege-Kompetenz-Felder ·
-**▤ Cockpit-Sub-Nav** dynamisch · 8 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
+**▤ Cockpit-Sub-Nav** dynamisch · 9 Cockpit-Familien · sticky horizontaler Reiter-Stack mit pathname-Erkennung ·
 **℞ Apotheke-Vollausbau** BtM-Buch + Heimversorgung (§12a ApoG/AMTS-Score) + Wechselwirkung (ABDA + ESCOP-Crossings) ·
+**▤ Medizintechnik-Vollausbau** MDR-Bestand (UDI/EUDAMED/CE) + STK/MTK-Wartung mit BfArM-Vigilanz + § 33-SGBV-Pool mit Wirtschaftlichkeit ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -117,6 +118,21 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 29 · Medizintechnik-Vollausbau · MDR + Wartung + Pool (Session 31 · 2026-05-09)
+
+Spiegel zum Apotheke-Aufbau · 1 Hub-Page → 4 Cockpits + eigene Lib + ExpertiseRolle.
+
+| Datei | Was |
+|---|---|
+| `lib/medizintechnik/mdr.ts` | EU 2017/745 · 7 Demo-Produkte über alle Risikoklassen I/Is/Im/IIa/IIb/III · UDI-DI · CE/Benannte Stelle · EUDAMED-SRN · PMS-Termin |
+| `lib/medizintechnik/wartung.ts` | MPBetreibV § 11 STK / § 14 MTK · 6 Prüfungen mit Status faellig/ueberfaellig/geplant/erledigt · 2 Vorkommnisse mit BfArM-Aktenzeichen + MPSV-Meldefristen |
+| `lib/medizintechnik/pool.ts` | § 33 Abs. 6 SGB V Wiedereinsatz · 6 Hilfsmittel mit KRINKO-Aufbereitungs-Kategorien · Ersparnis + LCA-CO₂-Schätzung |
+| `/medizintechnik/mdr` | Bestandsverzeichnis nach Risikoklasse · Zert-/PMS-Auslauf-Counter |
+| `/medizintechnik/wartung` | Prüfungen + Vigilanz · BfArM-Frist-Countdown |
+| `/medizintechnik/pool` | Wiedereinsatz-Pool · Wirtschaftlichkeit + Hygiene-Kategorie |
+| `lib/ui/expertise.ts` | `medizintechnik` neu in ExpertiseRolle-Union: Auszubildende / Servicetechnik / Versorgungsleitung |
+| `lib/cockpit-sub-nav/registry.ts` | Medizintechnik-Familie mit 4 Reitern (♻ Pool, ⏰ Wartung, ▤ MDR) |
 
 ### 28 · Apotheke-Vollausbau · BtM + Heimversorgung + Wechselwirkung (Session 30 · 2026-05-09)
 
