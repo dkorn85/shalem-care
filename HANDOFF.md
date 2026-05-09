@@ -17,6 +17,7 @@
 **🚑 Rettungsdienst-Vollausbau** NACA-Mind2-Protokoll + 5 SOPs (ERC/ESC/DGN/DGAKI/DGU) + RKI-Hygiene-Profile mit RTW-Aufbereitung ·
 **🕊 Bestatter-Vollausbau** 6-Phasen-Versorgung mit Würde-Notizen + 10 Bestattungsarten (BestG-Länder/§74 SGB XII) + Kast-4-Phasen-Trauerbegleitung mit Notfall-Kontakten ·
 **🤲 Begleitung-Vollausbau** 10-Methoden-Repertoire (Berkana/Validation/Snoezelen) + 7-Quellen-Einwilligung (BGB-Reform 2023) + Sterbe-Wachen mit Cheyne-Stokes-Doku + „Was-tun-wenn?"-Tafel ·
+**🗺 /cockpits-Karte** suchbare globale Übersicht aller 12 Familien · ~50 Reiter · auto-aktualisiert sich aus der Registry ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -121,6 +122,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 33 · Cockpits-Karte · globale Übersicht aller 12 Familien (Session 35 · 2026-05-09)
+
+UX-Optimierung nach 5 Berufs-Aufbauten in Folge: bei nun ~50 Sub-Reitern brauchte es eine durchsuchbare Single-Source-of-Truth-Übersicht.
+
+| Datei | Was |
+|---|---|
+| `app/cockpits/page.tsx` | Server-Component · Karten-Grid sm:2 / lg:3 · liest direkt aus CockpitSubNav-Registry |
+| `lib/cockpits/karte.ts` | Anreicherung Registry um Akzentfarbe + ExpertiseStufen-Labels · server-safe |
+| `components/cockpits/CockpitsSearch.tsx` | Client-Component · Live-Such-Filter mit Match-Hervorhebung in Eyebrow/Label/Hint/Href · Treffer-Counter |
+| `components/SiteFooter.tsx` | Link "Cockpits-Karte · alle 12 Familien" unter Plattform-Spalte |
+
+Effekt: Bei neuem Sub-Reiter in der Registry erscheint dieser **automatisch** auf /cockpits, ohne Extra-Pflege. Suche findet quer durch alle Berufe — z.B. „BtM"→Apotheke, „Wechselwirkung"→Apotheke, „Naturheil"→Therapie, „Sterbe-Wache"→Begleitung, „Hilfeplan"→Sozial, „Pool"→Medizintechnik.
 
 ### 32 · Begleitung-Vollausbau · Repertoire + Einwilligung + Sterbe-Wache (Session 34 · 2026-05-09)
 
