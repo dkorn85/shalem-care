@@ -78,8 +78,35 @@ const VOLUME: Record<SoundKey, number> = {
 };
 
 const STORAGE_KEY = "shalem.sound-mode";
+const VOLUME_KEY = "shalem.sound-volume";
 
 const cache = new Map<SoundKey, HTMLAudioElement>();
+
+// Master-Lautstärke 0..1 — Multiplikator über die Sound-spezifische
+// Lautstärke-Map. Default 1.0 = unveränderter Mix.
+function leseMasterVolume(): number {
+  if (typeof window === "undefined") return 1;
+  try {
+    const raw = localStorage.getItem(VOLUME_KEY);
+    if (raw == null) return 1;
+    const v = Number(raw);
+    if (!isFinite(v)) return 1;
+    return Math.max(0, Math.min(1, v));
+  } catch {
+    return 1;
+  }
+}
+
+function schreibeMasterVolume(v: number) {
+  if (typeof window === "undefined") return;
+  const norm = Math.max(0, Math.min(1, v));
+  try {
+    localStorage.setItem(VOLUME_KEY, String(norm));
+    window.dispatchEvent(new CustomEvent("shalem-sound-volume", { detail: { volume: norm } }));
+    // Live-Update für gecachte Audios
+    cache.forEach((a, k) => { a.volume = VOLUME[k] * norm; });
+  } catch {}
+}
 
 function holeAudio(key: SoundKey): HTMLAudioElement | null {
   if (typeof window === "undefined") return null;
@@ -88,7 +115,7 @@ function holeAudio(key: SoundKey): HTMLAudioElement | null {
     try {
       a = new Audio(DATEI_PFAD[key]);
       a.preload = "auto";
-      a.volume = VOLUME[key];
+      a.volume = VOLUME[key] * leseMasterVolume();
       cache.set(key, a);
     } catch {
       return null;
@@ -155,4 +182,28 @@ export function useSoundMode(): { an: boolean; setAn: (next: boolean) => void; m
 // macht wenn Sound aus.
 export function useSpiele(): (key: SoundKey) => void {
   return spiele;
+}
+
+// Master-Volume-Hook für SoundToggle-Slider.
+export function useMasterVolume(): { volume: number; setVolume: (v: number) => void; mounted: boolean } {
+  const [volume, setVolumeState] = useState<number>(1);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    setVolumeState(leseMasterVolume());
+    function onChange(e: Event) {
+      const ev = e as CustomEvent<{ volume: number }>;
+      setVolumeState(ev.detail.volume);
+    }
+    window.addEventListener("shalem-sound-volume", onChange);
+    return () => window.removeEventListener("shalem-sound-volume", onChange);
+  }, []);
+
+  function setVolume(v: number) {
+    setVolumeState(v);
+    schreibeMasterVolume(v);
+  }
+
+  return { volume, setVolume, mounted };
 }

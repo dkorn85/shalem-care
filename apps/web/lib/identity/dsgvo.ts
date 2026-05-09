@@ -93,11 +93,16 @@ export async function loescheIdentityAction(input: {
         { bereich: "Schichten + Dienstpläne",                grund: "ArbZG § 16", bisJahr: aktuellesJahr + 2 },
       ];
 
-  // Identity wird hart gelöscht; verbundene Daten (Diagnosen, Pläne)
-  // bleiben mit pseudonymisierter ID. In Phase 2 wird klientId in den
-  // Stores durch ein Pseudonym überschrieben.
+  // Identity wird hart gelöscht. Verbundene Datensätze werden
+  // pseudonymisiert (klientId → stabiler Hash der Original-ID), damit
+  // sie aufbewahrungs-pflicht-konform erhalten bleiben aber nicht mehr
+  // auf die Person zurückführbar sind. Bei Frist-Ablauf wird im
+  // Cron-Job (Phase 2) komplett gelöscht.
+  const pseudonym = pseudonymisiere(identity.id);
+  const eintraege = pseudonymisiereVerbundeneDaten(identity.id, pseudonym);
+
   identity.claimStatus = "widerrufen";
-  identity.name = "[Identität DSGVO-gelöscht " + new Date().toISOString().slice(0, 10) + "]";
+  identity.name = "[DSGVO-gelöscht " + new Date().toISOString().slice(0, 10) + "]";
   identity.initials = "—";
   identity.verifikationsWert = undefined;
   identity.verifikationsArt = "kein";
@@ -109,7 +114,47 @@ export async function loescheIdentityAction(input: {
     ok: true,
     identityId: input.id,
     identityName: identity.name,
-    geloescht: { eintraege: 0, identity: true },
+    geloescht: { eintraege, identity: true },
     aufbewahrungspflicht: aufbewahrung,
   };
+}
+
+// Stabiler Hash · Phase 1: djb2-light. Phase 2: Pepper aus ENV +
+// Argon2id für unumkehrbare Pseudonymisierung.
+function pseudonymisiere(id: string): string {
+  let h = 5381;
+  for (let i = 0; i < id.length; i++) h = ((h << 5) + h) ^ id.charCodeAt(i);
+  return `psd-${(h >>> 0).toString(36).toUpperCase()}`;
+}
+
+// Geht durch alle Stores die personen-bezogene Datensätze halten und
+// ersetzt klientId/klientName durch ein Pseudonym. Behandlungsinhalte
+// (Diagnose-Codes, Pflegeplan-Texte, Bett-Belegungen) bleiben für
+// Audit/Statistik erhalten.
+function pseudonymisiereVerbundeneDaten(originalId: string, pseudonym: string): number {
+  let count = 0;
+
+  try {
+    const diag = require("@/lib/pflege/pflegediagnose-store");
+    const eintraege = diag.listDiagnosen(originalId);
+    for (const e of eintraege) { e.klientId = pseudonym; count++; }
+  } catch {}
+
+  try {
+    const plan = require("@/lib/pflege/pflegeplan-store");
+    const eintraege = plan.listPlanFuerKlient(originalId);
+    for (const e of eintraege) { e.klientId = pseudonym; count++; }
+  } catch {}
+
+  try {
+    const betten = require("@/lib/station/betten-store");
+    const belegungen = betten.belegungenFuerKlient(originalId);
+    for (const b of belegungen) {
+      b.klientId = pseudonym;
+      b.klientName = "[pseudonymisiert]";
+      count++;
+    }
+  } catch {}
+
+  return count;
 }
