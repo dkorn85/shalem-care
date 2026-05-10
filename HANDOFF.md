@@ -32,6 +32,7 @@
 **📋 Expertenteam-Evaluierung** 7-Perspektiven-Audit als `docs/EXPERTENTEAM_EVALUIERUNG.md` mit Prio-Matrix für nächste Phasen ·
 **🗄 Supabase-Migration Phase 2 · Schritt 1** Hybrid-Store für Wünsche (klient_wunsch + klient_wunsch_verlauf mit RLS + Verlauf-Trigger) · fail-soft auf Memory ohne ENVs ·
 **🗄 Supabase-Migration 0002** Tausch-Markt persistent (swap_offer + swap_offer_history mit RLS + state-change-Trigger) · Hybrid via syncOfferZuSupabase + ladeAusSupabase ·
+**🗄 Supabase-Migration 0003** care_team-Tabelle + profiles-Bridge · aktiviert die Stub-Policies aus 0001+0002 · Hybrid-Store mit transitiver Member-Sicht ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -136,6 +137,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 47 · Supabase-Migration 0003 · care_team + profiles-Bridge (Session 49 · 2026-05-10)
+
+Aktiviert die Stub-Policies aus 0001 + 0002 durch die echte Brücken-Tabelle. Care-Team aus `/klient/team` ist jetzt persistierbar.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0003_care_team.sql` | profiles + person_id + klient_id · care_team mit 13-Berufe-Check · 4 RLS-Policies (Klient-Self, Member-transitive, Self-Update, service_role-Insert/Delete) · idempotenter Demo-Seed für Helga (9 Mitglieder) |
+| `lib/care-team/store.ts` | Hybrid-Store · CareTeamBeruf-Union 13 Werte · Sync-API (careTeamFuerKlient, klientenFuerUser) + Async-API (ladeCareTeamFuerKlient) · Memory-Demo-Seed · berufFarbe/berufLabel Helper |
+| `/klient/team` | statische Liste raus, async Loader mit Hybrid-Hydration · 9 statt 7 Personen (jetzt mit Begleitung + Apotheke) |
+| `docs/SUPABASE_MIGRATION.md` | 0003-Sektion mit Hybrid-Erklärung · Roadmap 0004-0006 |
+
+User-Aktion: SQL aus `0003_care_team.sql` im Dashboard ausführen, dann profiles per UI mit person_id/klient_id verknüpfen.
 
 ### 46 · Supabase-Migration 0002 · Tausch-Markt persistent (Session 48 · 2026-05-10)
 
