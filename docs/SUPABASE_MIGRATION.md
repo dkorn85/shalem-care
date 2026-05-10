@@ -29,7 +29,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0001_klient_wunsch.sql` | Wunsch-Tabellen + RLS + Verlauf-Trigger | bereit zum Ausführen |
 | `supabase/migrations/0002_swap_offer.sql` | Tausch-Markt-Tabellen + RLS + state-change-Trigger | bereit zum Ausführen |
 | `supabase/migrations/0003_care_team.sql` | profiles-Bridge + care_team-Tabelle + RLS · aktiviert die Stub-Policies aus 0001+0002 | bereit zum Ausführen |
-| `supabase/migrations/0004_vollmachten.sql` | Vorsorge-Vollmachten + Betreuungen | offen |
+| `supabase/migrations/0004_vollmachten.sql` | Vorsorge/Betreuung/PV/Angehörigen-Vollmachten + RLS-Erweiterung klient_wunsch | bereit zum Ausführen |
 
 ---
 
@@ -232,11 +232,53 @@ dem Memory-Cache.
 
 ---
 
+## Migration 0004 · Vollmachten
+
+Bringt Vorsorge/Betreuung/Patientenverfügung/Angehörigen-Vereinbarungen
+in eine echte Tabelle und gibt Bevollmächtigten via SQL-Helper-Function
+echten RLS-Schreib-Zugriff auf klient_wunsch (mit Aufgabenkreis-Check).
+
+### Was passiert
+1. `vollmacht`-Tabelle mit 5 Vollmachts-Arten + 6 Aufgabenkreisen
+   (gesundheit, aufenthalt, vermoegen, behoerden, wohnung, post)
+2. SQL-Function `darf_im_namen_handeln(klient_id, aufgabe)`:
+   - prüft user_id, Aktivität, Widerruf, Gültigkeitsdatum
+   - 6-Monate-Frist bei Ehegatten-Notvertretung BGB § 1358
+3. RLS-Policies auf `vollmacht`:
+   - Klient:in selbst: SELECT/INSERT/UPDATE
+   - Bevollmächtigte:r: SELECT eigener Vollmachten
+   - Care-Team mit Aufgabenkreis 'gesundheit': SELECT (für Pflege-Notfall)
+4. **Erweiterung der klient_wunsch-Policies** um den Vollmachts-Pfad:
+   - Bevollmächtigte:r mit 'gesundheit' darf SELECT/INSERT/UPDATE/DELETE
+     auf Wünsche der Klient:in (genau wie sie selbst)
+   - Verlauf: SELECT für Bevollmächtigte
+5. Idempotenter Demo-Seed: 3 Vollmachten für Helga
+   (Tochter Liane, eigene PV, Schwester Heike)
+
+### Hybrid-Layer
+
+`lib/vollmacht/store.ts`:
+- VollmachtArt-Union (vorsorge/betreuung/patientenverfuegung/angehoerige/ehegatten-notvertretung)
+- Aufgabenkreis-Union (6 Werte)
+- ART_LABEL + ART_FARBE + AUFGABENKREIS_LABEL für UI
+- Sync-API (`vollmachtenFuerKlient`, `vollmachtenFuerBevollmaechtigten`,
+  `darfImNamenHandeln`)
+- Async-API (`ladeVollmachtenFuerKlient`)
+- Demo-Seed in `globalThis.__SHALEM_VOLLMACHT__`
+
+### UI-Integration
+
+- `/klient/daten` zeigt neue Sektion "Vollmachten + Patientenverfügung"
+  mit Art-Chip, Bevollmächtigtem, Aufgabenkreisen, Beglaubigung
+- `lib/identity/dsgvo.ts` exportiert Vollmachten im DSGVO-Art-15-JSON
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0004** `vollmachten` für Vorsorge-Bevollmächtigte, die
-   im Namen der Klient:in Wünsche editieren dürfen
-2. **Migration 0005** `audit_log` für Lese-Zugriffe (Befund #3 aus
-   Expertenteam-Audit)
-3. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
+1. **Migration 0005** `audit_log` für Lese-Zugriffe (Befund #3 aus
+   Expertenteam-Audit · Wer hat wann welche Klient-Daten gesehen)
+2. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
    noch in-memory)
+3. **Migration 0007** Realtime-Channels für Wunsch-Spiegel (Pflege
+   sieht Wunsch-Änderung sofort)

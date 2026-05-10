@@ -23,6 +23,7 @@ import { listDiagnosen } from "@/lib/pflege/pflegediagnose-store";
 import { listPlanFuerKlient } from "@/lib/pflege/pflegeplan-store";
 import { belegungenFuerKlient } from "@/lib/station/betten-store";
 import { listVorgaenge } from "@/lib/kostentraeger/store";
+import { ladeVollmachtenFuerKlient, vollmachtenFuerKlient, ART_LABEL, ART_FARBE, AUFGABENKREIS_LABEL } from "@/lib/vollmacht/store";
 
 export const metadata = {
   title: "Meine Daten · Klient · DSGVO Art. 15",
@@ -33,7 +34,12 @@ const KLIENT_ID = "klient-hr";
 const KLIENT_NAME = "Helga Reinhardt";
 const IDENTITY_ID = "ident-helga-001";
 
-export default function KlientDatenPage() {
+export default async function KlientDatenPage() {
+  // Hybrid-Hydration aus Supabase wenn konfiguriert
+  await Promise.all([
+    ladeVollmachtenFuerKlient(KLIENT_ID),
+  ]);
+
   const termine = wocheFuerKlient(KLIENT_ID);
   const wuensche = alleWuenscheFuerKlient(KLIENT_ID);
   const verlauf = vollerVerlaufFuerKlient(KLIENT_ID);
@@ -42,6 +48,7 @@ export default function KlientDatenPage() {
   const plaene = listPlanFuerKlient(KLIENT_ID);
   const belegungen = belegungenFuerKlient(KLIENT_ID);
   const vorgaenge = listVorgaenge().filter((v) => v.klientId === KLIENT_ID || v.versicherterName === KLIENT_NAME);
+  const vollmachten = vollmachtenFuerKlient(KLIENT_ID);
 
   return (
     <KlientShell user={{ name: KLIENT_NAME, initials: "HR", relation: "self", klientId: KLIENT_ID }}>
@@ -148,6 +155,41 @@ export default function KlientDatenPage() {
                 {" · PG "}{b.pflegegrad}
               </li>
             ))}
+          </ul>
+        )}
+      </Block>
+
+      {/* Vollmachten-Block */}
+      <Block titel="Vollmachten + Patientenverfügung" eyebrow={`${vollmachten.length} aktiv · BGB §§ 1814/1827/1358`}>
+        {vollmachten.length === 0 ? (
+          <p className="text-[11px] italic text-soft">Keine Vollmachten hinterlegt — du entscheidest alles selbst.</p>
+        ) : (
+          <ul className="space-y-2">
+            {vollmachten.map((v, i) => {
+              const farbe = ART_FARBE[v.art].replace("var(", "").replace(")", "");
+              return (
+                <li key={i} className="surface-mute rounded-lg p-2.5" style={{ borderLeft: `2px solid rgb(${farbe})` }}>
+                  <div className="flex items-baseline gap-2 flex-wrap mb-1">
+                    <span className="chip text-[10px]" style={{ background: `rgb(${farbe} / 0.18)`, color: `rgb(${farbe})` }}>
+                      {ART_LABEL[v.art]}
+                    </span>
+                    <span className="text-[12px] font-semibold">{v.bevollmaechtigterName}</span>
+                    {v.beziehung && <span className="text-[11px] text-mute">· {v.beziehung}</span>}
+                    <span className="text-[10px] font-mono text-soft ml-auto">gültig ab {v.gueltigVon}{v.gueltigBis ? ` bis ${v.gueltigBis}` : ""}</span>
+                  </div>
+                  <p className="text-[11px] text-mute">
+                    <strong>Aufgabenkreise:</strong> {v.aufgabenkreise.map((a) => AUFGABENKREIS_LABEL[a]).join(" · ")}
+                  </p>
+                  {v.beglaubigtDurch && (
+                    <p className="text-[11px] text-mute">
+                      <strong>Beglaubigt:</strong> {v.beglaubigtDurch}
+                      {v.beglaubigtAm && <> · {v.beglaubigtAm}</>}
+                    </p>
+                  )}
+                  {v.notizen && <p className="text-[11px] mt-1 italic text-soft">↳ {v.notizen}</p>}
+                </li>
+              );
+            })}
           </ul>
         )}
       </Block>
