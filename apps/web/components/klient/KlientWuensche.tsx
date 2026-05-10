@@ -12,6 +12,7 @@ import Link from "next/link";
 import { wocheFuerKlient, WOCHE_BERUF_LABEL, WOCHE_BERUF_FARBE, WOCHE_BERUF_GLYPH } from "@/lib/klient/woche";
 import { alleWuenscheFuerKlient, type WunschQuelle } from "@/lib/klient/wunsch-store";
 import { auditLog } from "@/lib/audit/store";
+import { WunschLiveBadge } from "./WunschLiveBadge";
 
 type AggregierterWunsch = {
   terminId:    string;
@@ -85,12 +86,15 @@ export async function KlientWuensche({
         <p className="text-[10px] uppercase tracking-wider text-soft font-mono font-medium" style={{ color: "rgb(var(--wed))" }}>
           Wünsche{klientName ? ` von ${klientName}` : ""} · DSGVO Art. 4
         </p>
-        <Link
-          href="/klient/woche"
-          className="text-[10px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline"
-        >
-          → eigene Sicht der Klient:in
-        </Link>
+        <div className="flex items-baseline gap-3">
+          <WunschLiveBadge klientId={klientId} />
+          <Link
+            href="/klient/woche"
+            className="text-[10px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline"
+          >
+            → eigene Sicht der Klient:in
+          </Link>
+        </div>
       </header>
 
       <p className="text-[12px] text-mute mb-3">

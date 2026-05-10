@@ -32,6 +32,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0004_vollmachten.sql` | Vorsorge/Betreuung/PV/Angehörigen-Vollmachten + RLS-Erweiterung klient_wunsch | bereit zum Ausführen |
 | `supabase/migrations/0005_audit_log.sql` | Lese-+Schreibe-Spur aller sensiblen Klient-Daten · DSGVO Art. 30 + Klient-Transparenz | bereit zum Ausführen |
 | `supabase/migrations/0006_shift_slot.sql` | FHIR-Slot-Persistierung · ablöst Memory-Map · komplettiert Tausch-Markt | bereit zum Ausführen |
+| `supabase/migrations/0007_realtime.sql` | Realtime-Publication für Wunsch + Tausch · live-Updates ohne Reload | bereit zum Ausführen |
 
 ---
 
@@ -367,12 +368,55 @@ Damit ist die Tausch-Markt-Kette vollständig persistierbar:
 
 ---
 
+## Migration 0007 · Realtime-Channels
+
+Pflege/Therapie/Apotheke sehen Wunsch-Änderungen jetzt **live**, ohne
+Page-Reload. Auch Tausch-Markt-Vorgänge propagieren live (PDL sieht
+neue „matched"-Vorgänge sofort).
+
+### Was passiert
+1. `supabase_realtime`-Publication wird um 4 Tabellen erweitert:
+   - klient_wunsch + klient_wunsch_verlauf
+   - swap_offer + swap_offer_history
+2. `REPLICA IDENTITY FULL` für reichere UPDATE/DELETE-Payloads
+3. Custom NOTIFY-Function `notify_wunsch_change` mit Trigger auf
+   klient_wunsch — sendet pg_notify an Channel `wunsch_<klient_id>`
+   mit JSON-Payload (op, klient_id, termin_id, wunsch, quelle, at)
+   für direkten LISTEN-Use ohne Realtime-WAL
+
+### Sicherheit
+
+RLS aus 0001/0002/0004 gilt auch für Realtime-Events — jede:r
+Subscriber:in bekommt nur die Events, die sie via SELECT-RLS auch
+lesen dürfte. Pflege/Therapie/Apotheke sieht Wünsche nur via
+care_team-Policy aus 0003 oder Vollmacht-Policy aus 0004.
+
+### Client-Layer
+
+`lib/realtime/wunsch-channel.ts`:
+- `subscribeWunschChannel(klientId, callback)` mit serverseitigem
+  Filter `klient_id=eq.<id>` für minimalen Traffic
+- Fail-soft: wenn Supabase nicht konfiguriert, gibt no-op-unsub zurück
+
+`components/klient/WunschLiveBadge.tsx`:
+- Zeigt minimalen Live-Indikator (Punkt + „live"-Label)
+- Bei Event blinkt 2.4s + triggert `router.refresh()` für SSR-Update
+  des Spiegels
+- Eingebaut in `KlientWuensche` — alle 4 Profi-Cockpits bekommen
+  damit automatisch die Live-Verbindung
+
+### Limits (Free-Plan)
+
+200 concurrent connections, 100k messages/day. Für Produktion auf
+Pro/Team-Plan upgraden.
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0007** Realtime-Channels für Wunsch-Spiegel (Pflege
-   sieht Wunsch-Änderung sofort, ohne Reload)
-2. **Migration 0008** `nachfolgevollmacht` als Rollen-Übergang bei
+1. **Migration 0008** `nachfolgevollmacht` als Rollen-Übergang bei
    Tod der/des Bevollmächtigten
-3. **Migration 0009** `pflegediagnose` + `pflegeplan` als
+2. **Migration 0009** `pflegediagnose` + `pflegeplan` als
    eigenständige Tabellen (heute noch in `pflege/diagnose-store.ts`
    in-memory)
+3. **Migration 0010** `belegung` für Stationsmanagement-Persistierung
