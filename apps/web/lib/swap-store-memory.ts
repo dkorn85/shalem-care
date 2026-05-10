@@ -1,5 +1,6 @@
 import type { Slot } from "@medplum/fhirtypes";
 import type { SwapStore, SwapOffer, Person, SeedData } from "./swap-store";
+import { syncOfferZuSupabase, ladeOffersAusSupabase } from "./swap-store-supabase-sync";
 
 export class InMemorySwapStore implements SwapStore {
   private offers = new Map<string, SwapOffer>();
@@ -33,6 +34,8 @@ export class InMemorySwapStore implements SwapStore {
       history: [{ event: "offer", at: input.offeredAt, actor: input.offeredBy }],
     };
     this.offers.set(id, offer);
+    // Supabase-Sync · fail-soft, Memory bleibt Wahrheit
+    syncOfferZuSupabase(offer).catch(() => {});
     return offer;
   }
 
@@ -45,7 +48,18 @@ export class InMemorySwapStore implements SwapStore {
       history: [...existing.history, historyEntry],
     };
     this.offers.set(id, updated);
+    // Supabase-Sync (Trigger schreibt history-Zeile beim state-Wechsel)
+    syncOfferZuSupabase(updated).catch(() => {});
     return updated;
+  }
+
+  /** Hydriert den Memory-Store aus Supabase (idempotent · Memory wins). */
+  async ladeAusSupabase(): Promise<void> {
+    const offers = await ladeOffersAusSupabase();
+    for (const o of offers) {
+      // Nur einsetzen, wenn Memory noch keinen Eintrag hat — Memory ist Wahrheit
+      if (!this.offers.has(o.id)) this.offers.set(o.id, o);
+    }
   }
 
   async listSlots() { return Array.from(this.slots.values()); }

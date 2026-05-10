@@ -41,6 +41,9 @@ const STATE_FARBE: Record<SwapState, string> = {
 
 export default async function MeinTauschPage() {
   seedOnce();
+  if ("ladeAusSupabase" in store && typeof (store as { ladeAusSupabase?: () => Promise<void> }).ladeAusSupabase === "function") {
+    await (store as { ladeAusSupabase: () => Promise<void> }).ladeAusSupabase();
+  }
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
   const offers = await store.listOffers();
   const slotsById = new Map((await store.listSlots()).map((s) => [s.id!, s]));

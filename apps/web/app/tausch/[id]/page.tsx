@@ -47,6 +47,9 @@ const EVENT_LABEL: Record<string, string> = {
 
 export default async function TauschDetailPage({ params }: { params: Promise<{ id: string }> }) {
   seedOnce();
+  if ("ladeAusSupabase" in store && typeof (store as { ladeAusSupabase?: () => Promise<void> }).ladeAusSupabase === "function") {
+    await (store as { ladeAusSupabase: () => Promise<void> }).ladeAusSupabase();
+  }
   const { id } = await params;
   const offer = await store.getOffer(id);
   if (!offer) notFound();

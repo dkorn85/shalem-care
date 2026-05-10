@@ -27,7 +27,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | Datei | Inhalt | Status |
 |---|---|---|
 | `supabase/migrations/0001_klient_wunsch.sql` | Wunsch-Tabellen + RLS + Verlauf-Trigger | bereit zum Ausführen |
-| `supabase/migrations/0002_swap_offer.sql` | Tausch-Markt-Tabellen | offen |
+| `supabase/migrations/0002_swap_offer.sql` | Tausch-Markt-Tabellen + RLS + state-change-Trigger | bereit zum Ausführen |
 | `supabase/migrations/0003_care_team.sql` | Care-Team für RLS-Policies | offen |
 | `supabase/migrations/0004_vollmachten.sql` | Vorsorge-Vollmachten + Betreuungen | offen |
 
@@ -168,12 +168,44 @@ Hybrid-Store fängt fehlende Tabellen catch-und-fail-soft.
 
 ---
 
+## Migration 0002 · Tausch-Markt
+
+Gleicher Workflow wie 0001:
+
+1. SQL aus `supabase/migrations/0002_swap_offer.sql` im Dashboard → SQL Editor → Run
+2. Im Table Editor prüfen: `swap_offer` + `swap_offer_history` (beide mit RLS-Padlock)
+3. App startet automatisch im Hybrid-Modus, sobald Supabase-ENVs gesetzt sind
+
+### Hybrid-Logik im swap-store
+
+`InMemorySwapStore.createOffer` und `.updateOffer` rufen
+`syncOfferZuSupabase()` (fail-soft) — Memory bleibt Wahrheit, Supabase
+spiegelt. Beim Page-Render hydriert `store.ladeAusSupabase()` die
+Memory-Map mit Offers aus Supabase, die nach einem Server-Restart
+sonst verloren wären.
+
+Pro Verlauf-Eintrag muss die App nichts tun — der DB-Trigger
+`swap_offer_log_state_change` schreibt automatisch in
+`swap_offer_history` bei jedem state-Wechsel.
+
+### Eingebaut in Pages
+
+- `/tausch` (Hub)
+- `/tausch/mein` (persönliche Sicht)
+- `/tausch/[id]` (Detail mit Verlauf)
+
+Alle drei rufen `store.ladeAusSupabase()` als ersten Schritt im
+Page-Loader.
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0002** für `swap_offer` + `swap_offer_history` mit RLS
-   nach Mitgliedschaft in der Station
-2. **Migration 0003** `care_team` als Brücke User↔Klient für die
-   Read-Policies in 0001
-3. **Migration 0004** `vollmachten` für Vorsorge-Bevollmächtigte, die
+1. **Migration 0003** `care_team` als Brücke User↔Klient für die
+   Read-Policies in 0001 + 0002
+2. **Migration 0004** `vollmachten` für Vorsorge-Bevollmächtigte, die
    im Namen der Klient:in Wünsche editieren dürfen
-4. **Audit-Log** Lese-Zugriffe (Befund #3 aus Expertenteam-Audit)
+3. **Migration 0005** `audit_log` für Lese-Zugriffe (Befund #3 aus
+   Expertenteam-Audit)
+4. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
+   noch in-memory)

@@ -9,6 +9,10 @@ import { seedOnce, CURRENT_USER_ID } from "@/lib/seed";
 
 export default async function TauschPage() {
   seedOnce();
+  // Supabase-Hydration · fail-soft, Memory wins bei Konflikt
+  if ("ladeAusSupabase" in store && typeof (store as { ladeAusSupabase?: () => Promise<void> }).ladeAusSupabase === "function") {
+    await (store as { ladeAusSupabase: () => Promise<void> }).ladeAusSupabase();
+  }
   const nurse = (await store.getPerson(CURRENT_USER_ID))!;
   const offers = await store.listOffers();
   const allSlots = new Map((await store.listSlots()).map((s) => [s.id!, s]));
