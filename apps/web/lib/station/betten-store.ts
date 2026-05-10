@@ -9,6 +9,10 @@
 // anderen Stores (lib/medikation, lib/pflege/diagnose-store, …).
 
 import type { Pflegegrad } from "@/lib/hierarchy/types";
+import {
+  syncBettZuSupabase, syncBelegungZuSupabase, syncReservierungZuSupabase,
+  ladeBettenAusSupabase, ladeBelegungenAusSupabase, ladeReservierungenAusSupabase,
+} from "./supabase-sync";
 
 export type Bett = {
   id: string;             // "bett-pulmo-3b-101a"
@@ -159,6 +163,7 @@ export function bettBelegen(input: {
   if (reserv && input.ignoreReservierung) {
     reserv.status = "eingelöst";
     reserv.beendetAm = new Date().toISOString().slice(0, 10);
+    syncReservierungZuSupabase(reserv).catch(() => {});
   }
 
   const heute = new Date().toISOString().slice(0, 10);
@@ -174,6 +179,7 @@ export function bettBelegen(input: {
     notiz: input.notiz,
   };
   belegungen.push(belegung);
+  syncBelegungZuSupabase(belegung).catch(() => {});
   return { ok: true, belegung };
 }
 
@@ -210,6 +216,7 @@ export function bettReservieren(input: {
     status: "geplant",
   };
   reservierungen.push(r);
+  syncReservierungZuSupabase(r).catch(() => {});
   return { ok: true, reservierung: r };
 }
 
@@ -219,6 +226,7 @@ export function reservierungStornieren(reservierungId: string, grund?: string): 
   r.status = "storniert";
   r.beendetAm = new Date().toISOString().slice(0, 10);
   if (grund) r.notiz = (r.notiz ? `${r.notiz}\n` : "") + `Storno: ${grund}`;
+  syncReservierungZuSupabase(r).catch(() => {});
   return { ok: true };
 }
 
@@ -229,7 +237,20 @@ export function bettEntlassen(bettId: string, notiz?: string):
   if (!aktuelle) return { ok: false, error: "Bett ist nicht belegt." };
   aktuelle.bisDatum = new Date().toISOString().slice(0, 10);
   if (notiz) aktuelle.notiz = (aktuelle.notiz ? `${aktuelle.notiz}\n` : "") + `Entlassung: ${notiz}`;
+  syncBelegungZuSupabase(aktuelle).catch(() => {});
   return { ok: true, belegung: aktuelle };
+}
+
+/** Async-Hydration aus Supabase · Memory wins. */
+export async function ladeStationsdatenFuerKlient(klientId?: string): Promise<void> {
+  const [b, bel, res] = await Promise.all([
+    ladeBettenAusSupabase(),
+    ladeBelegungenAusSupabase(klientId),
+    ladeReservierungenAusSupabase(),
+  ]);
+  for (const x of b)   if (!betten.find((e) => e.id === x.id)) betten.push(x);
+  for (const x of bel) if (!belegungen.find((e) => e.id === x.id)) belegungen.push(x);
+  for (const x of res) if (!reservierungen.find((e) => e.id === x.id)) reservierungen.push(x);
 }
 
 export function klientVerlegen(input: {
@@ -247,6 +268,7 @@ export function klientVerlegen(input: {
   // Alte Belegung schließen
   alt.bisDatum = new Date().toISOString().slice(0, 10);
   if (input.notiz) alt.notiz = (alt.notiz ? `${alt.notiz}\n` : "") + `Verlegung → ${ziel.zimmerNr}/${ziel.bettNr}: ${input.notiz}`;
+  syncBelegungZuSupabase(alt).catch(() => {});
 
   // Neue Belegung anlegen
   const neu = bettBelegen({
@@ -268,6 +290,7 @@ export function bettBlockieren(bettId: string, grund: string): { ok: boolean } {
   bett.istBlockiert = true;
   bett.blockierungGrund = grund;
   bett.blockiertSeit = new Date().toISOString().slice(0, 10);
+  syncBettZuSupabase(bett).catch(() => {});
   return { ok: true };
 }
 
@@ -277,6 +300,7 @@ export function bettFreigeben(bettId: string): { ok: boolean } {
   bett.istBlockiert = false;
   bett.blockierungGrund = undefined;
   bett.blockiertSeit = undefined;
+  syncBettZuSupabase(bett).catch(() => {});
   return { ok: true };
 }
 

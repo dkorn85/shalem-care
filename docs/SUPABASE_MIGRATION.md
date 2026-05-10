@@ -35,6 +35,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0007_realtime.sql` | Realtime-Publication für Wunsch + Tausch · live-Updates ohne Reload | bereit zum Ausführen |
 | `supabase/migrations/0008_vollmacht_nachfolge.sql` | Nachfolge-Kette + Übergangs-Function bei Tod/Krankheit/Niederlegung | bereit zum Ausführen |
 | `supabase/migrations/0009_pflege.sql` | pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform | bereit zum Ausführen |
+| `supabase/migrations/0010_belegung.sql` | bett + belegung + reservierung persistent · Stationsmanagement | bereit zum Ausführen |
 
 ---
 
@@ -496,9 +497,47 @@ beiden Memory-Stores aus `lib/pflege/`.
 
 ---
 
+## Migration 0010 · Stationsmanagement
+
+Bett + Belegung + Reservierung als drei Tabellen — Pflichtdaten für jede
+echte Pflegeeinrichtung. War in `lib/station/betten-store.ts` als
+globalThis-Map.
+
+### Was passiert
+1. `bett`-Tabelle (Stationszuordnung, Zimmer-/Bett-Nr., Blockierung)
+2. `belegung`-Tabelle mit FK auf bett (restrict-delete) + Pflegegrad-Check
+   + diagnosen-Array + von/bis-Daten + Aufnahme-Art
+3. `reservierung`-Tabelle mit FK auf bett + Status-Workflow
+   (geplant/eingelöst/storniert)
+4. **Unique-Index** `belegung_eine_aktive_pro_bett` — pro Bett darf
+   nur eine Belegung mit `bis_datum=null` aktiv sein (DB-garantiert,
+   nicht nur Memory-Check)
+5. RLS-Policies:
+   - bett: alle authenticated SELECT (Stationsplan offen)
+   - belegung: Klient-Self · Care-Team-SELECT · Pflege-Beruf
+     INSERT+UPDATE · Bevollmächtigte SELECT
+   - reservierung: alle authenticated SELECT
+6. Realtime aus 0007 erweitert + REPLICA IDENTITY FULL
+
+### Hybrid-Layer
+
+`lib/station/supabase-sync.ts` (neu):
+- 3× sync-Functions (bett/belegung/reservierung)
+- 3× lade-Functions
+- camelCase ↔ snake_case Mapper
+
+`lib/station/betten-store.ts`:
+- `bettBelegen`, `bettReservieren`, `reservierungStornieren`,
+  `bettEntlassen`, `klientVerlegen`, `bettBlockieren`,
+  `bettFreigeben` syncen alle fail-soft
+- Neue `ladeStationsdatenFuerKlient` für Page-Loader-Hydration
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0010** `belegung` für Stationsmanagement-Persistierung
-2. **Migration 0011** `klient_termin` für die Wochen-Termine
+1. **Migration 0011** `klient_termin` für die Wochen-Termine
    (heute statisch in `klient/woche.ts`)
-3. **Migration 0012** `kassen_vorgang` für die Kostenträger-Anträge
+2. **Migration 0012** `kassen_vorgang` für die Kostenträger-Anträge
+3. **Migration 0013** Storage-Bucket-Policies (Identity-Dokumente,
+   Vollmachts-Scans)
