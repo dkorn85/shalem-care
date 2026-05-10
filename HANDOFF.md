@@ -33,6 +33,7 @@
 **🗄 Supabase-Migration Phase 2 · Schritt 1** Hybrid-Store für Wünsche (klient_wunsch + klient_wunsch_verlauf mit RLS + Verlauf-Trigger) · fail-soft auf Memory ohne ENVs ·
 **🗄 Supabase-Migration 0002** Tausch-Markt persistent (swap_offer + swap_offer_history mit RLS + state-change-Trigger) · Hybrid via syncOfferZuSupabase + ladeAusSupabase ·
 **🗄 Supabase-Migration 0003** care_team-Tabelle + profiles-Bridge · aktiviert die Stub-Policies aus 0001+0002 · Hybrid-Store mit transitiver Member-Sicht ·
+**🗄 Supabase-Migration 0004** Vollmachten (Vorsorge/Betreuung/PV/Angehörige) + SQL-Helper darf_im_namen_handeln() + Erweiterung klient_wunsch-RLS ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -137,6 +138,20 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 48 · Supabase-Migration 0004 · Vollmachten (Session 50 · 2026-05-10)
+
+Bringt Vorsorge/Betreuung/PV/Angehörigen-Vollmachten in eine echte Tabelle. Bevollmächtigte mit Aufgabenkreis 'gesundheit' bekommen via SQL-Helper-Function `darf_im_namen_handeln()` echten RLS-Schreib-Zugriff auf klient_wunsch.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0004_vollmachten.sql` | vollmacht-Tabelle · 5 Vollmachts-Arten · 6 Aufgabenkreise als text[] mit GIN-Index · darf_im_namen_handeln() als Helper-Function (respektiert 6-Monate-Frist BGB § 1358) · 3 Self-Policies + 4 erweiterte klient_wunsch-Policies via Helper · Demo-Seed Helga (Tochter Liane, PV, Schwester Heike) |
+| `lib/vollmacht/store.ts` | VollmachtArt-Union · Aufgabenkreis-Union · Sync + Async-API · Demo-Seed in globalThis |
+| `/klient/daten` | async Loader · neue Sektion "Vollmachten + PV" mit Art-Chip + Aufgabenkreisen + Beglaubigung |
+| `lib/identity/dsgvo.ts` | DsgvoExportPaket erweitert um vollmachten · Art. 15 vollständig |
+| `docs/SUPABASE_MIGRATION.md` | 0004-Sektion + Roadmap 0005 audit_log, 0006 shift_slot, 0007 Realtime |
+
+User-Aktion: SQL aus `0004_vollmachten.sql` im Dashboard ausführen. Bevollmächtigte:r per UI mit `bevollmaechtigter_user_id = profiles.user_id` verknüpfen — dann greift sofort der Helper-Function-RLS-Pfad.
 
 ### 47 · Supabase-Migration 0003 · care_team + profiles-Bridge (Session 49 · 2026-05-10)
 
