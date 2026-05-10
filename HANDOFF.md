@@ -27,6 +27,7 @@
 **🖨 Wochenplan drucken** A4-Druck der Klient-Wochenübersicht mit Druckdatum + Übergabe-Hinweis für Pflege/Familie ·
 **⚙ Werkzeuge-Menü** Brillenmodus + Sound + Game-Mode + Benachrichtigungen + Cmd-K in einem zentralen FAB-Dropdown statt 5 gestapelter Floater ·
 **📜 Wunsch-Verlauf** DSGVO Art. 16 Berichtigungs-Spur · jede Änderung mit Datum/Quelle dokumentiert · klappbar im WunschEditor ·
+**🔒 /klient/daten** Klient-Selbst-Auskunft DSGVO Art. 15 · 5 Datenblöcke (Identität · Wünsche · Pflege · Aufenthalt · Kasse) + Aktion-Pfade Art. 15/16/17/20 · Wünsche im JSON-Export ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -131,6 +132,17 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 43 · /klient/daten · DSGVO Art. 15 Selbst-Auskunft (Session 45 · 2026-05-10)
+
+Wünsche fehlten im DSGVO-Export, und es gab keine Klient-eigene Auskunfts-Sicht. Beides gefixt — schließt den DSGVO-Bogen aus den letzten Sessions ab (Editor → Spiegel → Verlauf → Auskunft).
+
+| Datei | Was |
+|---|---|
+| `lib/identity/dsgvo.ts` | DsgvoExportPaket erweitert um `wuensche` + `wunschVerlauf` · vollerVerlaufFuerKlient() landet im JSON-Export |
+| `app/klient/daten/page.tsx` | Selbst-Auskunfts-Page · KPIs (Termine, eigene Wünsche, Verlauf-Änderungen, Pflege-Diagnosen) · 5 Datensicht-Blöcke (Identität, Wünsche, Pflege, Aufenthalt, Kasse) · DSGVO-Action-Block mit Art. 15/16/17/20-Pfaden |
+| `lib/cockpit-sub-nav/registry.ts` | Klient-Familie um „Meine Daten 🔒"-Reiter erweitert |
+| `lib/cross/bruecken.ts` | /klient/daten → Woche · Bescheide · Identity |
 
 ### 42 · Wunsch-Verlauf · DSGVO Art. 16 Berichtigungs-Spur (Session 44 · 2026-05-10)
 
