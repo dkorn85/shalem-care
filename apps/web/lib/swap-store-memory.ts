@@ -1,6 +1,6 @@
 import type { Slot } from "@medplum/fhirtypes";
 import type { SwapStore, SwapOffer, Person, SeedData } from "./swap-store";
-import { syncOfferZuSupabase, ladeOffersAusSupabase } from "./swap-store-supabase-sync";
+import { syncOfferZuSupabase, ladeOffersAusSupabase, syncSlotZuSupabase, ladeSlotsAusSupabase, syncSlotOwnerZuSupabase } from "./swap-store-supabase-sync";
 
 export class InMemorySwapStore implements SwapStore {
   private offers = new Map<string, SwapOffer>();
@@ -55,10 +55,19 @@ export class InMemorySwapStore implements SwapStore {
 
   /** Hydriert den Memory-Store aus Supabase (idempotent · Memory wins). */
   async ladeAusSupabase(): Promise<void> {
-    const offers = await ladeOffersAusSupabase();
+    // Offers + Slots parallel laden
+    const [offers, slots] = await Promise.all([
+      ladeOffersAusSupabase(),
+      ladeSlotsAusSupabase(),
+    ]);
     for (const o of offers) {
-      // Nur einsetzen, wenn Memory noch keinen Eintrag hat — Memory ist Wahrheit
       if (!this.offers.has(o.id)) this.offers.set(o.id, o);
+    }
+    for (const { slot, ownerId } of slots) {
+      if (!this.slots.has(slot.id!)) {
+        this.slots.set(slot.id!, slot);
+        this.slotOwner.set(slot.id!, ownerId);
+      }
     }
   }
 
@@ -69,6 +78,8 @@ export class InMemorySwapStore implements SwapStore {
     if (!slot.id) throw new Error("Slot needs an id");
     this.slots.set(slot.id, slot);
     this.slotOwner.set(slot.id, ownerId);
+    // Supabase-Sync · fail-soft
+    syncSlotZuSupabase(slot, ownerId).catch(() => {});
     return slot;
   }
 
@@ -80,6 +91,9 @@ export class InMemorySwapStore implements SwapStore {
   async swapSlotOwners(slotIdA: string, slotIdB: string | undefined, newOwner: string, originalOwner: string) {
     this.slotOwner.set(slotIdA, newOwner);
     if (slotIdB) this.slotOwner.set(slotIdB, originalOwner);
+    // Supabase-Sync der Owner-Wechsel · fail-soft
+    syncSlotOwnerZuSupabase(slotIdA, newOwner).catch(() => {});
+    if (slotIdB) syncSlotOwnerZuSupabase(slotIdB, originalOwner).catch(() => {});
   }
 
   async listPeople() { return Array.from(this.people.values()); }
@@ -92,6 +106,7 @@ export class InMemorySwapStore implements SwapStore {
       this.slotOwner.delete(slotId);
     } else {
       this.slotOwner.set(slotId, newOwnerId);
+      syncSlotOwnerZuSupabase(slotId, newOwnerId).catch(() => {});
     }
     return slot;
   }

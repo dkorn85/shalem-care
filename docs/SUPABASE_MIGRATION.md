@@ -31,6 +31,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0003_care_team.sql` | profiles-Bridge + care_team-Tabelle + RLS · aktiviert die Stub-Policies aus 0001+0002 | bereit zum Ausführen |
 | `supabase/migrations/0004_vollmachten.sql` | Vorsorge/Betreuung/PV/Angehörigen-Vollmachten + RLS-Erweiterung klient_wunsch | bereit zum Ausführen |
 | `supabase/migrations/0005_audit_log.sql` | Lese-+Schreibe-Spur aller sensiblen Klient-Daten · DSGVO Art. 30 + Klient-Transparenz | bereit zum Ausführen |
+| `supabase/migrations/0006_shift_slot.sql` | FHIR-Slot-Persistierung · ablöst Memory-Map · komplettiert Tausch-Markt | bereit zum Ausführen |
 
 ---
 
@@ -323,11 +324,55 @@ DSGVO-Export-Paket erweitert um `audit` (bis 500 Einträge).
 
 ---
 
+## Migration 0006 · shift_slot
+
+Komplettiert die Tausch-Markt-Persistenz nach 0002. Bisher leben
+Schichten ausschließlich in der Memory-Map aus `swap-store-memory.ts`
++ `seed-rolling.ts`. Nach Server-Restart wurde neu gesäht.
+
+### Was passiert
+1. `shift_slot`-Tabelle mit FHIR-kompatiblen Feldern denormalisiert:
+   - id, start_at, end_at, shift_type (early/late/night/intermediate)
+   - status (5 FHIR-Slot-Werte als check)
+   - owner_user_id (FK auth.users) + owner_person_id (Demo-Bridge)
+   - station_id, einrichtung_id, service_type
+   - **fhir_blob jsonb** für volle Round-Trip-Kompatibilität mit Medplum
+2. 5 Indexe (owner-user, owner-person partial, station+start, start, status+start)
+3. updated_at-Trigger (wiederverwendet aus 0002)
+4. RLS-Policies:
+   - SELECT: alle authenticated (Station-Plan ist intern offen)
+   - INSERT/UPDATE/DELETE: Owner über profiles.person_id ODER service_role
+   - Stationsleitung-Pfad: Stub für Phase 2.5
+5. SQL-Helper `shifts_ueberlappend(owner, start, end)` mit `tstzrange`
+   für ArbZG-Validierung in Server-Actions
+
+### Hybrid-Layer
+
+`lib/swap-store-supabase-sync.ts` erweitert um:
+- `syncSlotZuSupabase(slot, ownerId)` · Upsert mit on_conflict=id +
+  fhir_blob als jsonb-Spiegel
+- `syncSlotOwnerZuSupabase(slotId, newOwnerId)` · PATCH-only für
+  Tausch-Übergaben
+- `ladeSlotsAusSupabase()` · liest alle + mapped auf {slot, ownerId}
+
+`InMemorySwapStore` (memory-Backend):
+- `createSlot` syncht beim Anlegen
+- `swapSlotOwners` syncht beide Owner-Patches (für Direkt-Tausch)
+- `reassignSlot` syncht bei Wieder-Zuordnung
+- `ladeAusSupabase` lädt jetzt parallel Offers + Slots, hydriert
+  beides ins Memory (Memory wins bei Konflikt)
+
+Damit ist die Tausch-Markt-Kette vollständig persistierbar:
+**shift_slot ← swap_offer (slot_id text-Ref) ← swap_offer_history**
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
-   noch in-memory) · komplettiert die Tausch-Markt-Persistenz
-2. **Migration 0007** Realtime-Channels für Wunsch-Spiegel (Pflege
-   sieht Wunsch-Änderung sofort)
-3. **Migration 0008** `nachfolgevollmacht` als Rollen-Übergang bei
+1. **Migration 0007** Realtime-Channels für Wunsch-Spiegel (Pflege
+   sieht Wunsch-Änderung sofort, ohne Reload)
+2. **Migration 0008** `nachfolgevollmacht` als Rollen-Übergang bei
    Tod der/des Bevollmächtigten
+3. **Migration 0009** `pflegediagnose` + `pflegeplan` als
+   eigenständige Tabellen (heute noch in `pflege/diagnose-store.ts`
+   in-memory)

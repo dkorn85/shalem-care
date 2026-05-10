@@ -9,9 +9,11 @@
 // Alle Funktionen swallow-en Netzwerkfehler — der Memory-Store ist die
 // Quelle der Wahrheit, Supabase ist Persistenz für Server-Restart.
 
+import type { Slot } from "@medplum/fhirtypes";
 import { isSupabaseConfigured, supabaseSelect } from "@/lib/db/supabase";
 import type { SwapOffer } from "./swap-store";
 import type { SwapState } from "./swap-machine";
+import { getShiftType } from "./fhir";
 
 type SupabaseRow = {
   id:                 string;
@@ -115,4 +117,102 @@ export async function ladeOffersAusSupabase(): Promise<SwapOffer[]> {
   } catch {
     return [];
   }
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// Migration 0006 · shift_slot Sync + Hydration
+// ─────────────────────────────────────────────────────────────────────
+
+type SlotRow = {
+  id:               string;
+  start_at:         string;
+  end_at:           string;
+  shift_type:       string | null;
+  status:           string;
+  owner_user_id:    string | null;
+  owner_person_id:  string | null;
+  station_id:       string | null;
+  einrichtung_id:   string | null;
+  service_type:     string | null;
+  fhir_blob:        Slot | null;
+};
+
+function slotZuRow(slot: Slot, ownerId: string): Partial<SlotRow> {
+  return {
+    id:              slot.id!,
+    start_at:        slot.start!,
+    end_at:          slot.end!,
+    shift_type:      getShiftType(slot) ?? null,
+    status:          slot.status ?? "busy",
+    owner_person_id: ownerId,
+    service_type:    slot.serviceType?.[0]?.coding?.[0]?.code ?? null,
+    fhir_blob:       slot,
+  };
+}
+
+function slotAusRow(r: SlotRow): { slot: Slot; ownerId: string } {
+  // Wenn fhir_blob da ist, nutze das als Basis · sonst minimal rekonstruieren.
+  const slot: Slot = r.fhir_blob ?? {
+    resourceType: "Slot",
+    id:        r.id,
+    start:     r.start_at,
+    end:       r.end_at,
+    status:    (r.status as Slot["status"]),
+    schedule:  { reference: "Schedule/unknown" },
+  };
+  // start/end aus Row als Quelle der Wahrheit überschreiben
+  slot.id = r.id;
+  slot.start = r.start_at;
+  slot.end = r.end_at;
+  const ownerId = r.owner_person_id ?? r.owner_user_id ?? "unknown";
+  return { slot, ownerId };
+}
+
+/** Synct einen Slot fail-soft zu Supabase. */
+export async function syncSlotZuSupabase(slot: Slot, ownerId: string): Promise<void> {
+  const c = envCreds();
+  if (!c) return;
+  try {
+    await fetch(`${c.url}/rest/v1/shift_slot?on_conflict=id`, {
+      method: "POST",
+      headers: {
+        apikey:        c.key,
+        Authorization: `Bearer ${c.key}`,
+        "Content-Type": "application/json",
+        Prefer:        "resolution=merge-duplicates,return=minimal",
+      },
+      body: JSON.stringify(slotZuRow(slot, ownerId)),
+      cache: "no-store",
+    });
+  } catch {/* fail-soft */}
+}
+
+/** Lädt alle Slots aus Supabase + mappt auf Slot + ownerId. */
+export async function ladeSlotsAusSupabase(): Promise<{ slot: Slot; ownerId: string }[]> {
+  if (!isSupabaseConfigured()) return [];
+  try {
+    const rows = await supabaseSelect<SlotRow[]>(`shift_slot?select=*&order=start_at.asc`);
+    return rows.map(slotAusRow);
+  } catch {
+    return [];
+  }
+}
+
+/** Synct die Owner-Änderung nach Tausch. */
+export async function syncSlotOwnerZuSupabase(slotId: string, newOwnerId: string): Promise<void> {
+  const c = envCreds();
+  if (!c) return;
+  try {
+    await fetch(`${c.url}/rest/v1/shift_slot?id=eq.${slotId}`, {
+      method: "PATCH",
+      headers: {
+        apikey:        c.key,
+        Authorization: `Bearer ${c.key}`,
+        "Content-Type": "application/json",
+        Prefer:        "return=minimal",
+      },
+      body: JSON.stringify({ owner_person_id: newOwnerId }),
+      cache: "no-store",
+    });
+  } catch {/* fail-soft */}
 }
