@@ -39,6 +39,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0011_klient_termin.sql` | Wochen-Termine persistent · Brücke zu klient_wunsch über termin_id · 16 Demo-Termine Helga | bereit zum Ausführen |
 | `supabase/migrations/0012_kassen_vorgang.sql` | Kostenträger-Anträge + Widerspruch-Verlauf · § 13 Abs 3a SGB V · § 84 SGG-Frist-Helper | bereit zum Ausführen |
 | `supabase/migrations/0013_storage_buckets.sql` | 3 private Klient-Buckets + Storage-RLS · audit_log um storage-Ressourcen erweitert | bereit zum Ausführen |
+| `supabase/migrations/0014_messenger.sql` | messages + message_reactions idempotent + neue care_team-aware RLS · 2 Voicemail-/Attachment-Buckets | bereit zum Ausführen |
 
 ---
 
@@ -657,9 +658,43 @@ Beispiele:
 
 ---
 
+## Migration 0014 · Messenger
+
+Der Messenger nutzt bereits Supabase (`messages`, `message_reactions`),
+aber das Schema lebt nur im Dashboard, nicht im Repo. Diese Migration
+holt es nach + härtet die RLS auf das neue care_team-Modell.
+
+### Was passiert
+1. `messages` mit allen 13 Feldern aus dem `Message`-Type:
+   - body 4000-Zeichen-Limit, voicemail_dauer 1-600s
+   - mentions/hashtags als text[] mit GIN-Indexen
+   - dm_participants als uuid[] mit GIN-Index für DM-Suche
+   - parent_id mit cascade-delete für Thread-Kollaps
+2. `message_reactions` mit unique-Constraint pro
+   (message_id, user_id, emoji)
+3. RLS auf messages — drei Lese-Wege:
+   - DM: nur Beteiligte (`auth.uid() = any(dm_participants)`)
+   - Klient-Bezug: Self · Care-Team · Bevollmächtigte mit gesundheit
+   - offene Kanäle: alle authenticated
+4. RLS auf reactions transitiv über messages-Policy
+5. 2 neue Storage-Buckets:
+   - `messenger-voicemail` (10 MB · audio/mpeg, mp4, wav, webm)
+   - `messenger-attachment` (25 MB · jpeg, png, webp, pdf)
+6. Pfad-Konvention: `<user_id>/<datei>` · Owner-Self-RLS auf storage
+7. Realtime-Pub erweitert + REPLICA IDENTITY FULL
+
+### Sicherheits-Härtung gegenüber dem alten Stand
+
+Vorher (vermutet) war messages-SELECT vermutlich offener. Mit der
+neuen Policy sieht eine Pflegekraft Klient-bezogene Nachrichten
+nur, wenn sie im care_team der Klient:in ist — sonst nicht. Das
+ist die saubere DSGVO-Linie.
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0014** `messenger_message` für die Pflege-Chat-Persistenz
-2. **Migration 0015** `aktivitaet_feed` für die System-Live-Aktivität
-3. **Migration 0016** `klient_notiz` für freie Notizen
+1. **Migration 0015** `aktivitaet_feed` für die System-Live-Aktivität
+2. **Migration 0016** `klient_notiz` für freie Notizen
    (heute in `klient/notizen/page.tsx` rein UI)
+3. **Migration 0017** `kompetenz_nachweis` für Mitarbeiter-Curriculum
