@@ -20,6 +20,7 @@
 **🗺 /cockpits-Karte** suchbare globale Übersicht aller 12 Familien · ~50 Reiter · auto-aktualisiert sich aus der Registry ·
 **🌉 Cross-Beruf-Brücken** klickbar in 17 Sub-Cockpits · raus/rein-Logik · verbindet Apotheke ↔ Pflege/Arzt/Klient, Bestatter ↔ Pflege/Begleitung/Rettungsdienst-Hygiene, Therapie/Psy ↔ Apotheke/BtM ·
 **◐ /klient/woche** Klient-Wochenübersicht alle 11 Berufsgruppen mit dokumentierten Wünschen + Sprung ins Profi-Cockpit je Termin ·
+**⌘K Cmd-K-Launcher** überall aufrufbar in 3 Shells · Tastatur-Navigation durch alle ~50 Cockpit-Reiter · Trigger-Chip bottom-left ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -124,6 +125,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 36 · Cmd-K-Launcher · globale Tastatur-Suche (Session 38 · 2026-05-10)
+
+Bei ~50 Sub-Reitern in 12 Familien war Klick-Navigation der Engpass. Cmd-K-Launcher als Standard-UX-Pattern (Linear/GitHub/Notion) macht alles in einem Tastendruck erreichbar.
+
+| Datei | Was |
+|---|---|
+| `components/CmdK.tsx` | Modal-Overlay-Launcher · ⌘K / Ctrl-K / "/" zum Öffnen · ↑↓ Navigation · Enter öffnet · Esc schließt · Hover synchron mit Tastatur · auto-scroll-into-view · Score-Sort nach Match-Position |
+| Trigger-Chip | bottom-left als Button (⌘K · suchen) wenn Modal zu |
+| Datenquelle | COCKPIT_SUB_NAV-Registry · 12 Beruf-Hubs + ~50 Sub-Reiter |
+| AppShell + KlientShell + KasseShell | CmdK in alle drei Hauptshells eingebunden |
+
+Beispiel-Suchen: "btm"→Apotheke/BtM, "naturheil"→Therapie, "sterbe"→Begleitung/Sterbe-Wache, "hilfeplan"→Sozial, "wartung"→Medizintechnik.
 
 ### 35 · Klient-Wochenübersicht · alle Berufe in einer Sicht (Session 37 · 2026-05-09)
 
