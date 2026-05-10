@@ -30,6 +30,7 @@
 **🔒 /klient/daten** Klient-Selbst-Auskunft DSGVO Art. 15 · 5 Datenblöcke (Identität · Wünsche · Pflege · Aufenthalt · Kasse) + Aktion-Pfade Art. 15/16/17/20 · Wünsche im JSON-Export ·
 **⇆ Tausch-Markt vollwertig** Detail-Page mit Verlauf · Mein-Tausch-Sicht · TauschAktionen mit Akzept/Genehm/Ablehn-Begründung/Zurückzieh · eigene Sub-Nav-Familie ·
 **📋 Expertenteam-Evaluierung** 7-Perspektiven-Audit als `docs/EXPERTENTEAM_EVALUIERUNG.md` mit Prio-Matrix für nächste Phasen ·
+**🗄 Supabase-Migration Phase 2 · Schritt 1** Hybrid-Store für Wünsche (klient_wunsch + klient_wunsch_verlauf mit RLS + Verlauf-Trigger) · fail-soft auf Memory ohne ENVs ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -134,6 +135,20 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 45 · Supabase-Migration Phase 2 · Wunsch-Tabellen + Hybrid-Store (Session 47 · 2026-05-10)
+
+Top-1-Empfehlung aus dem Expertenteam-Audit gestartet.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0001_klient_wunsch.sql` | Tabellen + RLS · 4 Self-Policies · Care-Team-Stub-Policy · Trigger `klient_wunsch_log_change` schreibt Verlauf automatisch (security definer) |
+| `lib/klient/wunsch-store.ts` | Hybrid-Store · WunschQuelle um 'pflege' erweitert · Sync-API bleibt für Cache · Async-API neu (`ladeWuenscheFuerKlient`, `ladeVerlaufFuerTermin`) · Mutationen async, Memory-zuerst + Supabase-fail-soft |
+| `lib/klient/wunsch-actions.ts` | setze/loesche jetzt awaitable |
+| `/klient/woche` | async Page-Loader · hydriert via ladeWuenscheFuerKlient |
+| `docs/SUPABASE_MIGRATION.md` | komplette Anleitung · Hybrid-Ansatz · ENV · RLS-Tabelle · Trigger-SQL-Beispiel · Test-Plan + Rollback · Roadmap 0002-0004 |
+
+User-Aktion: SQL aus `0001_klient_wunsch.sql` im Supabase-Dashboard ausführen, dann ENV-Vars in Hostinger setzen → Restart-Verluste sind erledigt.
 
 ### 44 · Tausch-Markt-Ausbau + Debug + Expertenteam-Evaluierung (Session 46 · 2026-05-10)
 
