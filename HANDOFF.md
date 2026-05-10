@@ -26,6 +26,7 @@
 **🔎 Cmd-K als Universal-Suche** durchsucht zusätzlich Wirkstoffe, Methoden, SOPs, Erreger, Bewohner, Wochen-Termine quer durch alle Demo-Kataloge ·
 **🖨 Wochenplan drucken** A4-Druck der Klient-Wochenübersicht mit Druckdatum + Übergabe-Hinweis für Pflege/Familie ·
 **⚙ Werkzeuge-Menü** Brillenmodus + Sound + Game-Mode + Benachrichtigungen + Cmd-K in einem zentralen FAB-Dropdown statt 5 gestapelter Floater ·
+**📜 Wunsch-Verlauf** DSGVO Art. 16 Berichtigungs-Spur · jede Änderung mit Datum/Quelle dokumentiert · klappbar im WunschEditor ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -130,6 +131,17 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 42 · Wunsch-Verlauf · DSGVO Art. 16 Berichtigungs-Spur (Session 44 · 2026-05-10)
+
+Bisher speicherte der wunsch-store nur den letzten Stand. Eine Verlaufsliste pro Termin macht das Recht auf Berichtigung nachvollziehbar — wer hat wann was geändert.
+
+| Datei | Was |
+|---|---|
+| `lib/klient/wunsch-store.ts` | Bestand = `{ aktuell, verlauf[] }` · `VerlaufEintrag = { wunsch, art: 'gesetzt'\|'geloescht', geaendertAm, geaendertVon }` · setzen/löschen hängen automatisch an · neue Funktionen `getVerlauf()` + `vollerVerlaufFuerKlient()` für DSGVO Art. 15 |
+| `lib/klient/wunsch-actions.ts` | WunschQuelle als Type re-exportiert · loescheWunschAction nimmt optional geaendertVon entgegen |
+| `components/klient/WunschEditor.tsx` | klappbarer „Verlauf · n Änderungen"-Bereich unter dem Wunsch · neueste Änderung oben mit Datum, Quelle, Diff-Text · no-print |
+| `/klient/woche` | reicht Verlauf via getVerlauf() durch |
 
 ### 41 · Werkzeuge-Menü · 5 FABs in einem (Session 43 · 2026-05-10)
 
