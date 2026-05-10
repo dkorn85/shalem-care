@@ -22,6 +22,7 @@
 **◐ /klient/woche** Klient-Wochenübersicht alle 11 Berufsgruppen mit dokumentierten Wünschen + Sprung ins Profi-Cockpit je Termin ·
 **⌘K Cmd-K-Launcher** überall aufrufbar in 3 Shells · Tastatur-Navigation durch alle ~50 Cockpit-Reiter · Trigger-Chip bottom-left ·
 **✎ Wunsch-Editor in /klient/woche** Klient pflegt eigene Wünsche per Server-Action · 240-Zeichen-Limit · Override > Default mit Lösch-Fallback · DSGVO Art. 4 konkret ·
+**🪞 Wunsch-Spiegel in Profi-Cockpits** Pflege/Therapie/Apotheke/Begleitung sehen die dokumentierten Wünsche mit Quelle 'von selbst/betreuer/angehörige' — schließt den DSGVO-Kreislauf ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -126,6 +127,20 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 38 · Wunsch-Spiegel in Profi-Cockpits · DSGVO-Kreislauf geschlossen (Session 40 · 2026-05-10)
+
+Sessions 37 + 38 sind ein Paar: Klient pflegt Wünsche · Profis sehen sie. Beide Seiten gleichzeitig live, sonst ist DSGVO Art. 4 nur halb gelebt.
+
+| Datei | Was |
+|---|---|
+| `components/klient/KlientWuensche.tsx` | Server-Component aggregiert Default-Wünsche (`woche.ts`) + Override-Wünsche (`wunsch-store`) · Beruf-Akzentfarbe + Glyph · 'von …'-Chip wenn Override · Link zurück zur Klient-Sicht |
+| `/pflege/heute` | Spiegel nach `MeineKlienten` |
+| `/therapie` | Spiegel nach `MeineKlienten` |
+| `/apotheke/heimversorgung` | Spiegel vor Bewohner-Karten |
+| `/begleitung` | Spiegel direkt nach Würde-Standard-Block |
+
+Effekt: schreibt der Klient in /klient/woche „bitte erst Tee, dann waschen", erscheint dieser Wunsch beim nächsten Page-Reload in den vier obigen Profi-Cockpits — mit Chip „von selbst", damit klar ist: das ist kein Routine-Stand, sondern Selbst-Eintrag.
 
 ### 37 · Klient pflegt Wünsche selbst · DSGVO Art. 4 konkret (Session 39 · 2026-05-10)
 
