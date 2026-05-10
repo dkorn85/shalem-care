@@ -34,6 +34,7 @@
 **🗄 Supabase-Migration 0002** Tausch-Markt persistent (swap_offer + swap_offer_history mit RLS + state-change-Trigger) · Hybrid via syncOfferZuSupabase + ladeAusSupabase ·
 **🗄 Supabase-Migration 0003** care_team-Tabelle + profiles-Bridge · aktiviert die Stub-Policies aus 0001+0002 · Hybrid-Store mit transitiver Member-Sicht ·
 **🗄 Supabase-Migration 0004** Vollmachten (Vorsorge/Betreuung/PV/Angehörige) + SQL-Helper darf_im_namen_handeln() + Erweiterung klient_wunsch-RLS ·
+**🗄 Supabase-Migration 0005** audit_log für Lese-Zugriffe · DSGVO Art. 30 + Klient-Transparenz · Hooks in 4 Profi-Cockpits · Sektion „Wer hat auf meine Daten geschaut" auf /klient/daten ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -138,6 +139,22 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 49 · Supabase-Migration 0005 · audit_log (Session 51 · 2026-05-10)
+
+Schließt Befund #3 aus dem Expertenteam-Audit: zentrale Lese-/Schreibe-Spur aller sensiblen Klient-Daten · DSGVO Art. 30 + Klient-Transparenz Art. 15.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0005_audit_log.sql` | audit_log mit 14 Ressource- + 7 Aktion-Typen · 3 RLS-Policies (Klient-Self · Bevollmächtigte via 0004-Helper · Mitarbeiter-Self) · INSERT nur service_role · 7 Demo-Zugriffe Helga |
+| `lib/audit/store.ts` | universeller `auditLog()` Hook · Sync + Async-API · MAX_MEMORY 500 · RESSOURCE_LABEL + AKTION_LABEL + AKTION_FARBE |
+| `KlientWuensche` (Component) | async Server-Component · neue Props zugriffVon/Rolle/Kontext · loggt jeden Spiegel-Aufruf fail-soft |
+| `/pflege`, `/therapie`, `/apotheke/heimversorgung`, `/begleitung` | übergeben Audit-Props mit Beruf-Kontext (schichtbriefing, behandlungs-vorbereitung, verblisterung-check, vor sitzung) |
+| `/klient/daten` | async Loader mit ladeAuditFuerKlient · neue Sektion "Wer hat auf meine Daten geschaut" mit 12 jüngsten Einträgen |
+| `lib/identity/dsgvo.ts` | DsgvoExportPaket erweitert um audit (bis 500 Einträge) |
+| `docs/SUPABASE_MIGRATION.md` | 0005-Sektion + Roadmap 0006 shift_slot, 0007 Realtime, 0008 nachfolgevollmacht |
+
+User-Aktion: SQL aus `0005_audit_log.sql` im Dashboard ausführen. Reihenfolge wichtig: 0001→0002→0003→0004→0005, weil 0005 die `darf_im_namen_handeln()`-Function aus 0004 nutzt.
 
 ### 48 · Supabase-Migration 0004 · Vollmachten (Session 50 · 2026-05-10)
 
