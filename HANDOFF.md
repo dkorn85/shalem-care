@@ -35,6 +35,7 @@
 **🗄 Supabase-Migration 0003** care_team-Tabelle + profiles-Bridge · aktiviert die Stub-Policies aus 0001+0002 · Hybrid-Store mit transitiver Member-Sicht ·
 **🗄 Supabase-Migration 0004** Vollmachten (Vorsorge/Betreuung/PV/Angehörige) + SQL-Helper darf_im_namen_handeln() + Erweiterung klient_wunsch-RLS ·
 **🗄 Supabase-Migration 0005** audit_log für Lese-Zugriffe · DSGVO Art. 30 + Klient-Transparenz · Hooks in 4 Profi-Cockpits · Sektion „Wer hat auf meine Daten geschaut" auf /klient/daten ·
+**🗄 Supabase-Migration 0006** shift_slot mit FHIR-Round-Trip + ArbZG-Helper · komplettiert Tausch-Markt-Persistenz (Slots + Offers + History) ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -139,6 +140,21 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 50 · Supabase-Migration 0006 · shift_slot · FHIR-Slot persistent (Session 52 · 2026-05-10)
+
+Komplettiert die Tausch-Markt-Persistenz nach 0002 — Schichten leben jetzt auch in der DB, Server-Restart verliert sie nicht mehr.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0006_shift_slot.sql` | FHIR-kompatible flache Felder + fhir_blob jsonb Round-Trip · 5 Indexe + check end_at > start_at · 4 RLS-Policies (SELECT-all-authenticated, Owner-Mutationen) · SQL-Helper `shifts_ueberlappend()` mit tstzrange für ArbZG-Check |
+| `lib/swap-store-supabase-sync.ts` | syncSlotZuSupabase + syncSlotOwnerZuSupabase + ladeSlotsAusSupabase mit Mapper-Funktionen |
+| `lib/swap-store-memory.ts` | createSlot/swapSlotOwners/reassignSlot syncht fail-soft · ladeAusSupabase lädt parallel Offers+Slots |
+| `docs/SUPABASE_MIGRATION.md` | 0006-Sektion · Roadmap 0007 Realtime, 0008 nachfolgevollmacht, 0009 pflegediagnose+plan |
+
+Damit ist die Tausch-Markt-Kette vollständig persistierbar: **shift_slot ← swap_offer (text-Ref slot_id) ← swap_offer_history**.
+
+User-Aktion: SQL aus `0006_shift_slot.sql` im Dashboard ausführen. Reihenfolge weiter wichtig — 0002 → 0006, weil 0006 den `swap_offer_touch_updated`-Trigger aus 0002 wiederverwendet.
 
 ### 49 · Supabase-Migration 0005 · audit_log (Session 51 · 2026-05-10)
 
