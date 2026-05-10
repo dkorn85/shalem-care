@@ -135,3 +135,39 @@ select * from (values
   ('klient-hr', 'apotheke',       'Lukas Faber',            'Apothekenleitung',      'Wochen-Verblisterung + AMTS-Check',              '/apotheke/heimversorgung', true)
 ) as v (klient_id, beruf, person_name, rolle, was, link_cockpit, primaer)
 where not exists (select 1 from care_team where klient_id = 'klient-hr');
+
+-- ─────────────────────────────────────────────────────────────────────
+-- Nachgeholte Policies aus 0001/0002 (jetzt funktional, weil
+-- care_team + profiles.person_id existieren)
+-- ─────────────────────────────────────────────────────────────────────
+
+-- klient_wunsch · Care-Team SELECT
+drop policy if exists "klient_wunsch_care_team_select" on klient_wunsch;
+create policy "klient_wunsch_care_team_select"
+  on klient_wunsch
+  for select
+  using (
+    klient_id in (
+      select klient_id from care_team
+      where user_id = auth.uid() and aktiv = true
+    )
+  );
+
+-- swap_offer · Owner-Update/Delete jetzt mit person_id-Bridge
+drop policy if exists "swap_offer_owner_update" on swap_offer;
+create policy "swap_offer_owner_update"
+  on swap_offer
+  for update
+  using (
+    offered_by = auth.uid()::text
+    or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
+  );
+
+drop policy if exists "swap_offer_owner_delete" on swap_offer;
+create policy "swap_offer_owner_delete"
+  on swap_offer
+  for delete
+  using (
+    offered_by = auth.uid()::text
+    or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
+  );

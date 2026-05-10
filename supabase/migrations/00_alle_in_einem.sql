@@ -1,8 +1,7 @@
 -- ╔══════════════════════════════════════════════════════════════════════════╗
--- ║  Shalem Care · alle Supabase-Migrationen 0001-0014 in einer Datei         ║
+-- ║  Shalem Care · alle Supabase-Migrationen in einer Datei                   ║
 -- ║                                                                            ║
--- ║  GENERIERT — nicht direkt editieren. Quelle: supabase/migrations/0*.sql   ║
--- ║  Regenerieren: scripts/build-all-in-one.sh                                 ║
+-- ║  GENERIERT von scripts/build-all-in-one.sh — nicht direkt editieren.     ║
 -- ║                                                                            ║
 -- ║  Verwendung:                                                                ║
 -- ║    1. Inhalt komplett kopieren                                              ║
@@ -11,11 +10,15 @@
 -- ║                                                                            ║
 -- ║  Idempotent: kann mehrfach ausgeführt werden, alle CREATEs sind            ║
 -- ║  if-not-exists, alle Policies drop-if-exists.                              ║
+-- ║                                                                            ║
+-- ║  Bei Fehlern bricht das Run beim Punkt ab und zeigt die Zeilennummer —    ║
+-- ║  scroll dorthin, lies die Meldung, fix manuell oder schick mir die         ║
+-- ║  Zeile zum Debug.                                                           ║
 -- ╚══════════════════════════════════════════════════════════════════════════╝
 
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0001_klient_wunsch.sql
+-- ║ 0001_klient_wunsch.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0001 · klient_wunsch + klient_wunsch_verlauf
@@ -136,25 +139,11 @@ create policy "klient_wunsch_verlauf_self_select"
 
 -- ─────────────────────────────────────────────────────────────────────
 -- Policy 2 · Care-Team Read-Access
--- (care_team muss bestehen, aktuell als Stub — wenn die Tabelle nicht
---  existiert, greift die Policy nicht. Migration 0003 ergänzt sie.)
+-- → Wird in Migration 0003 nachgeholt, sobald die care_team-Tabelle
+-- existiert. Hier kein Stub mehr, weil Postgres beim CREATE POLICY
+-- die Referenz strikt prüft (information_schema-Wrapper schützt nur
+-- zur Laufzeit, nicht beim Anlegen).
 -- ─────────────────────────────────────────────────────────────────────
-
-drop policy if exists "klient_wunsch_care_team_select" on klient_wunsch;
-create policy "klient_wunsch_care_team_select"
-  on klient_wunsch
-  for select
-  using (
-    exists (
-      select 1
-      from information_schema.tables
-      where table_schema = 'public' and table_name = 'care_team'
-    ) and klient_id in (
-      select klient_id
-      from care_team
-      where user_id = auth.uid() and aktiv = true
-    )
-  );
 
 -- ─────────────────────────────────────────────────────────────────────
 -- service_role · voller Zugriff für Server-Actions
@@ -191,7 +180,7 @@ create trigger klient_wunsch_log_trigger
   for each row execute function klient_wunsch_log_change();
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0002_swap_offer.sql
+-- ║ 0002_swap_offer.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0002 · swap_offer + swap_offer_history
@@ -364,9 +353,9 @@ create policy "swap_offer_owner_update"
   using (
     -- Eigentümer ist immer berechtigt; andere Aktionen (accept/approve)
     -- laufen via Server-Action mit service_role (umgeht RLS).
-    offered_by in (
-      select coalesce(person_id, user_id::text) from profiles where user_id = auth.uid()
-    )
+    -- Bridge-Policy auf profiles.person_id wird in Migration 0003
+    -- als ALTER POLICY nachgereicht (sobald person_id existiert).
+    offered_by = auth.uid()::text
   );
 
 drop policy if exists "swap_offer_owner_delete" on swap_offer;
@@ -374,9 +363,7 @@ create policy "swap_offer_owner_delete"
   on swap_offer
   for delete
   using (
-    offered_by in (
-      select coalesce(person_id, user_id::text) from profiles where user_id = auth.uid()
-    )
+    offered_by = auth.uid()::text
   );
 
 -- ─────────────────────────────────────────────────────────────────────
@@ -400,7 +387,7 @@ create policy "swap_offer_history_authenticated_select"
 -- ─────────────────────────────────────────────────────────────────────
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0003_care_team.sql
+-- ║ 0003_care_team.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0003 · care_team + profiles-Bridge
@@ -541,8 +528,44 @@ select * from (values
 ) as v (klient_id, beruf, person_name, rolle, was, link_cockpit, primaer)
 where not exists (select 1 from care_team where klient_id = 'klient-hr');
 
+-- ─────────────────────────────────────────────────────────────────────
+-- Nachgeholte Policies aus 0001/0002 (jetzt funktional, weil
+-- care_team + profiles.person_id existieren)
+-- ─────────────────────────────────────────────────────────────────────
+
+-- klient_wunsch · Care-Team SELECT
+drop policy if exists "klient_wunsch_care_team_select" on klient_wunsch;
+create policy "klient_wunsch_care_team_select"
+  on klient_wunsch
+  for select
+  using (
+    klient_id in (
+      select klient_id from care_team
+      where user_id = auth.uid() and aktiv = true
+    )
+  );
+
+-- swap_offer · Owner-Update/Delete jetzt mit person_id-Bridge
+drop policy if exists "swap_offer_owner_update" on swap_offer;
+create policy "swap_offer_owner_update"
+  on swap_offer
+  for update
+  using (
+    offered_by = auth.uid()::text
+    or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
+  );
+
+drop policy if exists "swap_offer_owner_delete" on swap_offer;
+create policy "swap_offer_owner_delete"
+  on swap_offer
+  for delete
+  using (
+    offered_by = auth.uid()::text
+    or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
+  );
+
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0004_vollmachten.sql
+-- ║ 0004_vollmachten.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0004 · vollmachten
@@ -750,7 +773,7 @@ select * from (values
 where not exists (select 1 from vollmacht where klient_id = 'klient-hr');
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0005_audit_log.sql
+-- ║ 0005_audit_log.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0005 · audit_log für Lese-Zugriffe
@@ -849,7 +872,7 @@ select * from (values
 where not exists (select 1 from audit_log where klient_id = 'klient-hr');
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0006_shift_slot.sql
+-- ║ 0006_shift_slot.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0006 · shift_slot für FHIR-Slot-Persistierung
@@ -982,7 +1005,7 @@ $$;
 comment on function shifts_ueberlappend is 'Prüft Überlappung zweier Schicht-Zeiträume für ArbZG-Validierung.';
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0007_realtime.sql
+-- ║ 0007_realtime.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0007 · Realtime-Channels für Live-Updates
@@ -1078,7 +1101,7 @@ create trigger klient_wunsch_notify_trigger
 -- ─────────────────────────────────────────────────────────────────────
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0008_vollmacht_nachfolge.sql
+-- ║ 0008_vollmacht_nachfolge.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0008 · vollmacht_nachfolge
@@ -1341,7 +1364,7 @@ where v.klient_id = 'klient-hr'
   and not exists (select 1 from vollmacht_nachfolge where vollmacht_id = v.id);
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0009_pflege.sql
+-- ║ 0009_pflege.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0009 · pflegediagnose + pflegeplan persistent
@@ -1541,7 +1564,7 @@ alter table pflegediagnose replica identity full;
 alter table pflegeplan      replica identity full;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0010_belegung.sql
+-- ║ 0010_belegung.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0010 · bett + belegung + reservierung persistent
@@ -1727,7 +1750,7 @@ alter table belegung     replica identity full;
 alter table reservierung replica identity full;
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0011_klient_termin.sql
+-- ║ 0011_klient_termin.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0011 · klient_termin · die Wochen-Termine persistent
@@ -1878,7 +1901,7 @@ select * from (values
 where not exists (select 1 from klient_termin where klient_id = 'klient-hr');
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0012_kassen_vorgang.sql
+-- ║ 0012_kassen_vorgang.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0012 · kassen_vorgang · Kostenträger-Anträge persistent
@@ -2078,7 +2101,7 @@ comment on function frist_dreizehn_dreia is '§ 13 Abs 3a SGB V · 3-Wochen-Gene
 comment on function frist_paragraph_84_sgg is '§ 84 SGG · 1-Monats-Frist für Widerspruch ab Bescheid-Erhalt.';
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0013_storage_buckets.sql
+-- ║ 0013_storage_buckets.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0013 · Storage-Buckets + Policies
@@ -2288,7 +2311,7 @@ alter table audit_log
   ));
 
 -- ════════════════════════════════════════════════════════════════════════════
--- ║ supabase/migrations/0014_messenger.sql
+-- ║ 0014_messenger.sql
 -- ════════════════════════════════════════════════════════════════════════════
 
 -- Migration 0014 · Messenger · messages + message_reactions

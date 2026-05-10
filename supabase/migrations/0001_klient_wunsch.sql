@@ -116,25 +116,11 @@ create policy "klient_wunsch_verlauf_self_select"
 
 -- ─────────────────────────────────────────────────────────────────────
 -- Policy 2 · Care-Team Read-Access
--- (care_team muss bestehen, aktuell als Stub — wenn die Tabelle nicht
---  existiert, greift die Policy nicht. Migration 0003 ergänzt sie.)
+-- → Wird in Migration 0003 nachgeholt, sobald die care_team-Tabelle
+-- existiert. Hier kein Stub mehr, weil Postgres beim CREATE POLICY
+-- die Referenz strikt prüft (information_schema-Wrapper schützt nur
+-- zur Laufzeit, nicht beim Anlegen).
 -- ─────────────────────────────────────────────────────────────────────
-
-drop policy if exists "klient_wunsch_care_team_select" on klient_wunsch;
-create policy "klient_wunsch_care_team_select"
-  on klient_wunsch
-  for select
-  using (
-    exists (
-      select 1
-      from information_schema.tables
-      where table_schema = 'public' and table_name = 'care_team'
-    ) and klient_id in (
-      select klient_id
-      from care_team
-      where user_id = auth.uid() and aktiv = true
-    )
-  );
 
 -- ─────────────────────────────────────────────────────────────────────
 -- service_role · voller Zugriff für Server-Actions

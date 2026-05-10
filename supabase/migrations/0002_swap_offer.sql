@@ -168,9 +168,9 @@ create policy "swap_offer_owner_update"
   using (
     -- Eigentümer ist immer berechtigt; andere Aktionen (accept/approve)
     -- laufen via Server-Action mit service_role (umgeht RLS).
-    offered_by in (
-      select coalesce(person_id, user_id::text) from profiles where user_id = auth.uid()
-    )
+    -- Bridge-Policy auf profiles.person_id wird in Migration 0003
+    -- als ALTER POLICY nachgereicht (sobald person_id existiert).
+    offered_by = auth.uid()::text
   );
 
 drop policy if exists "swap_offer_owner_delete" on swap_offer;
@@ -178,9 +178,7 @@ create policy "swap_offer_owner_delete"
   on swap_offer
   for delete
   using (
-    offered_by in (
-      select coalesce(person_id, user_id::text) from profiles where user_id = auth.uid()
-    )
+    offered_by = auth.uid()::text
   );
 
 -- ─────────────────────────────────────────────────────────────────────
