@@ -28,6 +28,8 @@
 **⚙ Werkzeuge-Menü** Brillenmodus + Sound + Game-Mode + Benachrichtigungen + Cmd-K in einem zentralen FAB-Dropdown statt 5 gestapelter Floater ·
 **📜 Wunsch-Verlauf** DSGVO Art. 16 Berichtigungs-Spur · jede Änderung mit Datum/Quelle dokumentiert · klappbar im WunschEditor ·
 **🔒 /klient/daten** Klient-Selbst-Auskunft DSGVO Art. 15 · 5 Datenblöcke (Identität · Wünsche · Pflege · Aufenthalt · Kasse) + Aktion-Pfade Art. 15/16/17/20 · Wünsche im JSON-Export ·
+**⇆ Tausch-Markt vollwertig** Detail-Page mit Verlauf · Mein-Tausch-Sicht · TauschAktionen mit Akzept/Genehm/Ablehn-Begründung/Zurückzieh · eigene Sub-Nav-Familie ·
+**📋 Expertenteam-Evaluierung** 7-Perspektiven-Audit als `docs/EXPERTENTEAM_EVALUIERUNG.md` mit Prio-Matrix für nächste Phasen ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -132,6 +134,28 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 44 · Tausch-Markt-Ausbau + Debug + Expertenteam-Evaluierung (Session 46 · 2026-05-10)
+
+Drei zusammenhängende Blöcke:
+
+**A · Tausch-Markt vollwertig** (`a33b7af`)
+
+| Datei | Was |
+|---|---|
+| `app/tausch/page.tsx` | Hub-Page mit KPIs (Offen/Bei PDL/Meine/Abgeschlossen) + CockpitSubNav + CrossBruecken |
+| `app/tausch/mein/page.tsx` | 4 Sektionen (Offen/Bei PDL/Übernommen/Abgeschlossen) · richtungs-Pfeil + Status-Chip + Detail-Link |
+| `app/tausch/[id]/page.tsx` | Detail-Page mit Status, Schicht-Wert (calculateBreakdown), Beteiligten, Verlauf-Liste |
+| `components/tausch/TauschAktionen.tsx` | Client-Component mit rollen-/status-abhängigen Buttons (Akzept/Genehm/Ablehn/Zurückzieh) |
+| `lib/cockpit-sub-nav/registry.ts` | Tausch-Familie mit 3 Reitern |
+| `lib/cockpits/karte.ts` | Tausch in Karte + Expertise-Mapping (pflege) |
+| `lib/cross/bruecken.ts` | Brücken /tausch ↔ /pflege/admin/mein |
+
+**B · Debugging** · `npm run build` exit 0, 237 Pages, `tsc --noEmit` exit 0. ENOENT bei Trace-Sammlung (Next.js-bekanntes Issue, nicht funktional kritisch). ESLint nicht konfiguriert (`next lint` interaktive Eingabe).
+
+**C · Expertenteam-Evaluierung** (`e7bb71c`) · `docs/EXPERTENTEAM_EVALUIERUNG.md` · 7-Perspektiven-Audit (Pflege, DSGVO, Security, UX, Wirtschaft, Recht, EG) mit 5 Querschnitts-Befunden + 8-Punkte-Prio-Matrix.
+
+Top-3-Befunde: (1) Phase-1-globalThis-Persistenz blockiert Echtbetrieb → Supabase, (2) `CURRENT_USER_ID`-Hardcode raus, `getServerUser()` rein, (3) Lese-Audit-Log fehlt für DSGVO Art. 30.
 
 ### 43 · /klient/daten · DSGVO Art. 15 Selbst-Auskunft (Session 45 · 2026-05-10)
 
