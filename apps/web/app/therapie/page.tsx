@@ -9,6 +9,7 @@ import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { MeineKlienten } from "@/components/MeineKlienten";
+import { KlientWuensche } from "@/components/klient/KlientWuensche";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { listInbox, inboxKpi, seedInboxOnce } from "@/lib/inbox/store";
 import { seedAktivitaetOnce } from "@/lib/aktivitaet/feed";
@@ -120,6 +121,8 @@ export default async function TherapiePage() {
       </section>
 
       <MeineKlienten personId="person-therapeut-001" beruf="therapie" />
+
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="therapie" eigenePersonId="person-therapeut-001" />}
 

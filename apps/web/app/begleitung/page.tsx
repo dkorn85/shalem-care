@@ -3,6 +3,7 @@ import Link from "next/link";
 import { AppShell } from "@/components/AppShell";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
 import { CockpitSubNav } from "@/components/CockpitSubNav";
+import { KlientWuensche } from "@/components/klient/KlientWuensche";
 
 export const metadata = {
   title: "Würde-Begleitung · Berührung + Nähe",
@@ -61,6 +62,8 @@ export default function BegleitungPage() {
           Eskalations-Kette der Stationsleitung.
         </p>
       </section>
+
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Kpi label="Aktive Begleitungen" value={BEGLEITUNGEN.filter((b) => b.letzte !== "abgeschlossen").length} farbe="var(--wed)" icon="🤲" />

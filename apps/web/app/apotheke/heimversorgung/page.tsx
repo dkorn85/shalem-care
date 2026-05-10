@@ -10,6 +10,7 @@ import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { CockpitKpi } from "@/components/BerufCockpitCard";
 import { LerneTipp } from "@/components/LerneTipp";
 import { NurAbProfi } from "@/components/ExpertiseGate";
+import { KlientWuensche } from "@/components/klient/KlientWuensche";
 import { HEIM_BEWOHNER, type HeimBewohner } from "@/lib/apotheke/heimversorgung";
 
 export const metadata = {
@@ -66,6 +67,8 @@ export default function HeimversorgungPage() {
           </p>
         </section>
       </NurAbProfi>
+
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
 
       <section className="space-y-3">
         {HEIM_BEWOHNER.map((b) => <BewohnerKarte key={b.id} b={b} />)}

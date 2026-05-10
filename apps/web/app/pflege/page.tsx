@@ -16,6 +16,7 @@ import { findActiveShift } from "@/lib/dienst/active-shift";
 import { KonferenzCard } from "@/components/KonferenzCard";
 import { AndereBegleiter } from "@/components/AndereBegleiter";
 import { MeineKlienten } from "@/components/MeineKlienten";
+import { KlientWuensche } from "@/components/klient/KlientWuensche";
 import { CrossProfessionInbox } from "@/components/CrossProfessionInbox";
 import { SchichtBriefingClient } from "@/components/SchichtBriefingClient";
 import { RolePastelHeader } from "@/components/RolePastelHeader";
@@ -160,6 +161,8 @@ export default async function PflegeHome() {
       <CrossProfessionInbox beruf="pflege" items={pflegeInbox} kpi={pflegeInboxKpi} zugewiesenAn={nurse.name} />
 
       <MeineKlienten personId={personId} beruf="pflege" />
+
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="pflege" eigenePersonId="person-dr" />}
       <AndereBegleiter eigenerBeruf="pflege" />
