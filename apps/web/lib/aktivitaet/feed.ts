@@ -103,6 +103,35 @@ export function listEvents(limit = 50): AktivitaetEvent[] {
     .slice(0, limit);
 }
 
+/**
+ * Neuen Event in den Feed schreiben.
+ * Wird bei vorhandener Supabase-Konfig parallel persistiert (fail-soft).
+ */
+export function addEvent(input: Omit<AktivitaetEvent, "id" | "zeitstempel">): AktivitaetEvent {
+  const eintrag: AktivitaetEvent = {
+    ...input,
+    id:          `ae-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+    zeitstempel: new Date().toISOString(),
+  };
+  s.events.push(eintrag);
+  // dynamisches Import vermeidet circular dep — sync-store erst zur Laufzeit holen
+  import("./supabase-sync").then(({ syncEventZuSupabase }) =>
+    syncEventZuSupabase(eintrag).catch(() => {/* fail-soft */}),
+  );
+  return eintrag;
+}
+
+/** Async-Hydration aus Supabase · Memory wins bei Konflikt. */
+export async function ladeEventsFuerKlient(klientId?: string, limit = 50): Promise<AktivitaetEvent[]> {
+  const { ladeEventsAusSupabase } = await import("./supabase-sync");
+  const fromDb = await ladeEventsAusSupabase(limit);
+  for (const e of fromDb) {
+    if (!s.events.find((x) => x.id === e.id)) s.events.push(e);
+  }
+  if (klientId) return listEvents(limit).filter((e) => e.klientId === klientId);
+  return listEvents(limit);
+}
+
 // Aktive Edges der letzten 5 Minuten (für Pulse-Anzeige im Netz-Diagramm)
 export function aktiveEdges(): { vonBeruf: Berufsfeld; zielBeruf: Berufsfeld; count: number; letzterEvent: string }[] {
   const fenster = new Date(Date.now() - 5 * 60_000).toISOString();

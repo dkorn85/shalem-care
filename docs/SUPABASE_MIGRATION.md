@@ -40,6 +40,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0012_kassen_vorgang.sql` | Kostenträger-Anträge + Widerspruch-Verlauf · § 13 Abs 3a SGB V · § 84 SGG-Frist-Helper | bereit zum Ausführen |
 | `supabase/migrations/0013_storage_buckets.sql` | 3 private Klient-Buckets + Storage-RLS · audit_log um storage-Ressourcen erweitert | bereit zum Ausführen |
 | `supabase/migrations/0014_messenger.sql` | messages + message_reactions idempotent + neue care_team-aware RLS · 2 Voicemail-/Attachment-Buckets | bereit zum Ausführen |
+| `supabase/migrations/0015_aktivitaet_feed.sql` | Cross-Beruf Event-Stream persistent · 16 Event-Typen · Realtime + Auto-Cleanup-Function | bereit zum Ausführen |
 
 ---
 
@@ -710,9 +711,40 @@ ist die saubere DSGVO-Linie.
 
 ---
 
+## Migration 0015 · aktivitaet_feed
+
+Cross-Beruf-Event-Stream — Pflege-Doku, Verordnungs-Anfragen,
+Therapie-Termine, Konferenz-Beschlüsse, Schmerz-NRS-Eingaben usw.
+Bisher in `lib/aktivitaet/feed.ts` als globalThis-Array.
+
+### Was passiert
+1. `aktivitaet_feed`-Tabelle mit allen Feldern aus `AktivitaetEvent`-Type
+2. 16 Event-Typen als check (doku/wundverband/vergabe/.../balance_check)
+3. 4 Indexe (zeit desc, klient+zeit, von_beruf+zeit, typ+zeit)
+4. RLS-Policies:
+   - Klient-Self SELECT + INSERT (nur 3 Self-Events erlaubt:
+     schmerz_nrs, balance_check, buchung)
+   - Care-Team SELECT + INSERT
+   - Bevollmächtigte mit gesundheit SELECT
+5. Realtime-Pub erweitert + REPLICA IDENTITY FULL
+6. SQL-Function `aktivitaet_feed_aufraumen(tage)` für manuelles Cleanup
+   (Default 90 Tage · Pflicht-Doku liegt eh in pflegeplan/-diagnose)
+
+### Hybrid-Layer
+
+`lib/aktivitaet/supabase-sync.ts` (neu):
+- syncEventZuSupabase + ladeEventsAusSupabase
+
+`lib/aktivitaet/feed.ts`:
+- neue `addEvent()` für Schreib-API · syncht parallel
+- neue `ladeEventsFuerKlient(klientId?, limit?)` für Hydration
+- dynamic-import auf supabase-sync vermeidet circular dep
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0015** `aktivitaet_feed` für die System-Live-Aktivität
-2. **Migration 0016** `klient_notiz` für freie Notizen
+1. **Migration 0016** `klient_notiz` für freie Notizen
    (heute in `klient/notizen/page.tsx` rein UI)
-3. **Migration 0017** `kompetenz_nachweis` für Mitarbeiter-Curriculum
+2. **Migration 0017** `kompetenz_nachweis` für Mitarbeiter-Curriculum
+3. **Migration 0018** `dienstplan_slot` für Dienstplan-Persistenz
