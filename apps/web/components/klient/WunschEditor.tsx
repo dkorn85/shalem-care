@@ -69,7 +69,7 @@ export function WunschEditor({
 
   if (editiert) {
     return (
-      <div className="surface-mute rounded-lg p-2.5 mt-2" style={{ borderLeft: "2px solid rgb(var(--wed))" }}>
+      <div className="surface-mute rounded-lg p-2.5 mt-2 no-print" style={{ borderLeft: "2px solid rgb(var(--wed))" }}>
         <p className="text-[10px] uppercase tracking-wider font-mono mb-1.5" style={{ color: "rgb(var(--wed))" }}>
           Mein Wunsch · bearbeiten
         </p>
@@ -125,7 +125,7 @@ export function WunschEditor({
         </p>
         <button
           type="button" onClick={() => setEditiert(true)}
-          className="text-[10px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline"
+          className="text-[10px] text-mute hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline no-print"
         >
           {angezeigt ? "bearbeiten" : "+ Wunsch ergänzen"}
         </button>

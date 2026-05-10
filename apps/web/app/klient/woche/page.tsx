@@ -12,6 +12,7 @@ import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { CockpitKpi } from "@/components/BerufCockpitCard";
 import { CrossBruecken } from "@/components/CrossBruecken";
 import { WunschEditor } from "@/components/klient/WunschEditor";
+import { DruckenButton } from "@/components/scheine/DruckenButton";
 import {
   WOCHE_BERUF_LABEL,
   WOCHE_BERUF_FARBE,
@@ -42,23 +43,36 @@ export default function KlientWochePage() {
   const meineWuensche = termine.filter((t) => t.meinWunsch).length;
   const stundenGesamt = termine.reduce((s, t) => s + t.dauerMin, 0) / 60;
 
+  const druckDatum = format(new Date(), "d. MMMM yyyy · HH:mm", { locale: de });
+
   return (
     <KlientShell user={{ name: KLIENT_NAME, initials: "HR", relation: "self", klientId: KLIENT_ID }}>
       <CockpitSubNav />
+
+      {/* Print-Header · nur sichtbar im Druck */}
+      <div className="hidden print:block mb-4 pb-3" style={{ borderBottom: "2px solid #000" }}>
+        <p className="font-mono text-[10px] uppercase tracking-wider">Shalem Care · Klient-Wochenplan</p>
+        <h1 className="font-display text-[20px] font-bold tracking-tight2">Wochenplan für {KLIENT_NAME}</h1>
+        <p className="text-[11px]">Druckdatum: {druckDatum} · 7-Tage-Übersicht aller Termine quer durch alle Berufsgruppen</p>
+      </div>
+
       <header className="mb-5">
-        <Link href="/klient" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">
-          ← Mein Bereich
-        </Link>
+        <div className="flex items-baseline justify-between gap-2 flex-wrap mb-3 no-print">
+          <Link href="/klient" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1">
+            ← Mein Bereich
+          </Link>
+          <DruckenButton label="🖨 Wochenplan drucken" />
+        </div>
         <p className="text-[11px] uppercase tracking-wider text-soft mb-1.5 font-medium">7 Tage · alle Berufe · meine Wünsche · DSGVO Art. 4 Identitätshoheit</p>
-        <h1 className="font-display text-[28px] font-bold tracking-tight2">Meine Woche</h1>
-        <p className="text-[13px] text-mute mt-2 max-w-prose">
+        <h1 className="font-display text-[28px] font-bold tracking-tight2 no-print">Meine Woche</h1>
+        <p className="text-[13px] text-mute mt-2 max-w-prose no-print">
           Alles was bei mir passiert in den nächsten 7 Tagen — Pflege, Therapie,
           Apotheke, Begleitung, Arzt, Sozialarbeit, Bestatter-Vorsorge, Hospiz-Ehrenamt,
           Medizintechnik, Küche. Mit den Wünschen, die ich dokumentiert habe.
         </p>
       </header>
 
-      <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--wed))" }}>
+      <section className="surface rounded-2xl p-4 mb-5 no-print" style={{ borderLeft: "3px solid rgb(var(--wed))" }}>
         <p className="text-[11px] leading-relaxed text-pretty">
           Diese Übersicht ist <strong>für dich</strong>. Du kannst hier sehen, wer wann zu dir
           kommt — und du kannst <strong>jeden Wunsch direkt ergänzen oder ändern</strong>.
@@ -68,7 +82,7 @@ export default function KlientWochePage() {
         </p>
       </section>
 
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-5 no-print">
         <CockpitKpi label="Termine 7 T"     value={termine.length} farbe="var(--wed)" />
         <CockpitKpi label="Heute"           value={heuteCount}     farbe="var(--accent)" />
         <CockpitKpi label="Berufsgruppen"   value={berufe.length}  hint="kümmern sich um mich" farbe="var(--vibe-team)" />
@@ -98,15 +112,28 @@ export default function KlientWochePage() {
         {tage.map(({ datum, termine }) => <TagBlock key={datum} datum={datum} termine={termine} heuteIso={heute} />)}
       </div>
 
-      <CrossBruecken pathname="/klient/woche" />
+      <div className="no-print">
+        <CrossBruecken pathname="/klient/woche" />
+      </div>
 
-      <footer className="mt-8 surface rounded-2xl p-4 text-[12px] text-mute leading-relaxed">
+      <footer className="mt-8 surface rounded-2xl p-4 text-[12px] text-mute leading-relaxed no-print">
         <p className="font-mono text-[10px] uppercase tracking-wider text-soft mb-2">Hinweise</p>
         <ul className="space-y-1">
           <li>› Du kannst jeden Termin verschieben oder absagen — sprich mit der angegebenen Person oder deiner Pflegekraft.</li>
           <li>› Deine dokumentierten Wünsche stehen mit · einem · Punkt davor und gelten bis du sie änderst.</li>
           <li>› Diese Daten gehören dir nach DSGVO Art. 4. Export + Lösch findest du unter <Link href="/identity" className="underline-offset-2 hover:underline">/identity</Link>.</li>
         </ul>
+      </footer>
+
+      {/* Print-Footer · Übergabe-Hinweis für Pflege/Familie */}
+      <footer className="hidden print:block mt-6 pt-3 text-[10px]" style={{ borderTop: "1.5px dashed #888" }}>
+        <p>
+          <strong>Übergabe-Hinweis</strong>: Dieser Wochenplan wurde am {druckDatum} aus dem Shalem-Care-System
+          gedruckt. Wünsche sind verbindlich · Quelle „selbst" = von der/dem Klient:in selbst eingetragen,
+          „betreuer" = Vorsorge-Bevollmächtigte:r, „angehoerige" = Familie. Termine können jederzeit verschoben
+          werden — bitte mit der jeweiligen Person absprechen.
+        </p>
+        <p className="mt-1">DSGVO Art. 4: Diese Daten gehören der/dem Klient:in. Auskunft + Lösch unter shalem.de/identity.</p>
       </footer>
     </KlientShell>
   );
@@ -119,7 +146,7 @@ function TagBlock({ datum, termine, heuteIso }: { datum: string; termine: WocheT
 
   return (
     <section>
-      <header className="flex items-baseline gap-2 mb-2 sticky top-12 z-10 backdrop-blur surface rounded-lg px-3 py-2" style={{ background: "rgb(var(--bg-elev) / 0.92)" }}>
+      <header className="flex items-baseline gap-2 mb-2 sticky top-12 z-10 backdrop-blur surface rounded-lg px-3 py-2 print:static print:bg-white print:border-b print:border-black print:rounded-none print:px-0" style={{ background: "rgb(var(--bg-elev) / 0.92)" }}>
         <span className="font-display text-[15px] font-bold tracking-tight2">{istHeute ? "Heute" : tag}</span>
         <span className="text-[12px] text-soft">· {formatiert}</span>
         <span className="ml-auto text-[10px] font-mono text-soft">{termine.length} Termin{termine.length === 1 ? "" : "e"}</span>
@@ -163,7 +190,7 @@ function TerminKarte({ t }: { t: WocheTermin }) {
 
       <Link
         href={t.linkCockpit}
-        className="text-[11px] text-mute hover:text-[rgb(var(--fg))] mt-2 inline-flex items-center gap-1 underline-offset-2 hover:underline"
+        className="text-[11px] text-mute hover:text-[rgb(var(--fg))] mt-2 inline-flex items-center gap-1 underline-offset-2 hover:underline no-print"
       >
         → Profi-Cockpit ansehen
       </Link>
