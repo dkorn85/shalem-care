@@ -88,6 +88,11 @@ export const BRUECKEN: Record<string, Bruecke[]> = {
   ],
 
   // ───────────── Klient ─────────────
+  "/klient/daten": [
+    { zielHref: "/klient/woche",   zielLabel: "Klient · Meine Woche",   was: "Wünsche pflegen + Verlauf einsehen je Termin",                                    richtung: "raus" },
+    { zielHref: "/klient/bescheide", zielLabel: "Klient · Bescheide",    was: "Kassen-Vorgänge + Widerspruchs-Workflow",                                          richtung: "raus" },
+    { zielHref: "/identity",       zielLabel: "Identity-Registry",       was: "Vollen JSON-Export + Lösch + Berichtigung über die Identitäts-Seite",            richtung: "raus" },
+  ],
   "/klient/woche": [
     { zielHref: "/klient/team",     zielLabel: "Klient · Mein Team",     was: "Wer steht hinter den Berufsgruppen meiner Woche",                              richtung: "rein" },
     { zielHref: "/klient/holistik", zielLabel: "Klient · Holistik",      was: "Wünsche im Lebensbuch hinterlegen, sie tauchen dann hier auf",                richtung: "rein" },

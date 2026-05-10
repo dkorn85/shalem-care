@@ -151,6 +151,7 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
       { href: "/klient/woche",    label: "Meine Woche", vibe: "var(--wed)",        glyph: "◐", hint: "7 Tage · alle Berufe" },
       { href: "/klient/team",     label: "Mein Team", vibe: "var(--vibe-team)",    glyph: "◌", hint: "Wer kümmert sich" },
       { href: "/klient/bescheide",label: "Bescheide", vibe: "var(--vibe-approval)",glyph: "✉", hint: "Kasse + Widerspruch" },
+      { href: "/klient/daten",    label: "Meine Daten", vibe: "var(--accent)",     glyph: "🔒", hint: "DSGVO Art. 15 · Auskunft" },
       { href: "/klient/familie",  label: "Familie",   vibe: "var(--fri)",           glyph: "♡" },
     ],
   },

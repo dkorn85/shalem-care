@@ -18,6 +18,7 @@ import { listDiagnosen } from "@/lib/pflege/pflegediagnose-store";
 import { listPlanFuerKlient } from "@/lib/pflege/pflegeplan-store";
 import { belegungenFuerKlient } from "@/lib/station/betten-store";
 import { listVorgaenge } from "@/lib/kostentraeger/store";
+import { alleWuenscheFuerKlient, vollerVerlaufFuerKlient } from "@/lib/klient/wunsch-store";
 
 export type DsgvoExportPaket = {
   exportiertAm: string;
@@ -26,6 +27,8 @@ export type DsgvoExportPaket = {
   pflegeplan: ReturnType<typeof listPlanFuerKlient>;
   belegungen: ReturnType<typeof belegungenFuerKlient>;
   kassenVorgaenge: ReturnType<typeof listVorgaenge>;
+  wuensche:        ReturnType<typeof alleWuenscheFuerKlient>;
+  wunschVerlauf:   ReturnType<typeof vollerVerlaufFuerKlient>;
   hinweis: string;
 };
 
@@ -47,6 +50,8 @@ export async function exportiereIdentity(id: string): Promise<
     kassenVorgaenge: identity.art === "klient"
       ? listVorgaenge().filter((v) => v.klientId === id || v.versicherterName === identity.name)
       : [],
+    wuensche:        identity.art === "klient" ? alleWuenscheFuerKlient(id) : [],
+    wunschVerlauf:   identity.art === "klient" ? vollerVerlaufFuerKlient(id) : [],
     hinweis:
       "Dieses Paket umfasst die im System verfügbaren Person-Daten zum Zeitpunkt des Exports. " +
       "Weitere Daten (Diktate, Konferenz-Aufzeichnungen, Medikations-Verläufe) werden in Phase 2 ergänzt. " +
