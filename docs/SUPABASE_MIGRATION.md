@@ -34,6 +34,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0006_shift_slot.sql` | FHIR-Slot-Persistierung · ablöst Memory-Map · komplettiert Tausch-Markt | bereit zum Ausführen |
 | `supabase/migrations/0007_realtime.sql` | Realtime-Publication für Wunsch + Tausch · live-Updates ohne Reload | bereit zum Ausführen |
 | `supabase/migrations/0008_vollmacht_nachfolge.sql` | Nachfolge-Kette + Übergangs-Function bei Tod/Krankheit/Niederlegung | bereit zum Ausführen |
+| `supabase/migrations/0009_pflege.sql` | pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform | bereit zum Ausführen |
 
 ---
 
@@ -460,11 +461,44 @@ die nächste Person in der Reihenfolge ein.
 
 ---
 
+## Migration 0009 · pflegediagnose + pflegeplan
+
+Pflegerische Hauptdaten endlich aus globalThis raus. Ablöst die
+beiden Memory-Stores aus `lib/pflege/`.
+
+### Was passiert
+1. `pflegediagnose` mit AEDS-Format
+   (Problem · Einflussfaktoren · Symptome) + Status-Enum
+   (akut/chronisch/risiko/geloest) + Evaluations-Felder
+2. `pflegeplan` mit FK auf pflegediagnose, Art (intervention/ziel),
+   Status-Workflow (geplant→läuft→erreicht→abgesetzt), Quelle
+   (katalog/manuell)
+3. 6 RLS-Policies pro Tabelle:
+   - Klient:in selbst (SELECT) über profiles.klient_id
+   - Care-Team (SELECT) über care_team-Mitgliedschaft
+   - Pflege-Beruf (INSERT + UPDATE) über care_team mit beruf='pflege'
+   - Bevollmächtigte mit gesundheit (SELECT) via 0004-Helper
+4. Realtime-Pub aus 0007 erweitert um beide Tabellen + REPLICA IDENTITY FULL
+5. Cascade-Delete: pflegeplan stirbt mit der Diagnose
+
+### Hybrid-Layer
+
+`lib/pflege/supabase-sync.ts` (neu):
+- `syncDiagnoseZuSupabase` + `syncPlanZuSupabase` (fail-soft Upserts)
+- `ladeDiagnosenAusSupabase` + `ladePlanAusSupabase` (für Hydration)
+- camelCase ↔ snake_case Mapper
+
+`pflegediagnose-store.ts` + `pflegeplan-store.ts`:
+- `setzeDiagnose`, `loeseDiagnose`, `evaluiereDiagnose` syncen
+- `generierePlanAusDiagnose`, `fuegeManuellHinzu`, `setzeStatus` syncen
+- Neue `ladeDiagnosenFuerKlient` + `ladePlanFuerKlient` für
+  Page-Loader-Hydration · Memory wins bei Konflikt
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0009** `pflegediagnose` + `pflegeplan` als
-   eigenständige Tabellen (heute noch in `pflege/diagnose-store.ts`
-   in-memory)
-2. **Migration 0010** `belegung` für Stationsmanagement-Persistierung
-3. **Migration 0011** `klient_termin` für die Wochen-Termine
+1. **Migration 0010** `belegung` für Stationsmanagement-Persistierung
+2. **Migration 0011** `klient_termin` für die Wochen-Termine
    (heute statisch in `klient/woche.ts`)
+3. **Migration 0012** `kassen_vorgang` für die Kostenträger-Anträge

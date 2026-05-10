@@ -4,6 +4,7 @@
 // Phase 1: globalThis-Persistenz, Demo-Seed für 3 Klient:innen.
 
 import { getDiagnose } from "./diagnose-katalog";
+import { syncDiagnoseZuSupabase, ladeDiagnosenAusSupabase } from "./supabase-sync";
 
 export type PflegeDiagnoseEintrag = {
   id: string;
@@ -72,6 +73,7 @@ export function setzeDiagnose(input: {
     notiz: input.notiz,
   };
   eintraege.push(e);
+  syncDiagnoseZuSupabase(e).catch(() => {/* fail-soft */});
   return { ok: true, eintrag: e };
 }
 
@@ -81,6 +83,7 @@ export function loeseDiagnose(id: string, notiz?: string): { ok: boolean } {
   e.status = "geloest";
   e.beendetAm = new Date().toISOString().slice(0, 10);
   if (notiz) e.notiz = (e.notiz ? `${e.notiz}\n` : "") + `Auflösung: ${notiz}`;
+  syncDiagnoseZuSupabase(e).catch(() => {/* fail-soft */});
   return { ok: true };
 }
 
@@ -90,7 +93,17 @@ export function evaluiereDiagnose(id: string, von: string, notiz?: string): { ok
   e.evaluiertAm = new Date().toISOString().slice(0, 10);
   e.evaluiertVon = von;
   if (notiz) e.notiz = (e.notiz ? `${e.notiz}\n` : "") + `Evaluation ${e.evaluiertAm}: ${notiz}`;
+  syncDiagnoseZuSupabase(e).catch(() => {/* fail-soft */});
   return { ok: true };
+}
+
+/** Async-Hydration aus Supabase · Memory wins bei Konflikt. */
+export async function ladeDiagnosenFuerKlient(klientId: string): Promise<PflegeDiagnoseEintrag[]> {
+  const fromDb = await ladeDiagnosenAusSupabase(klientId);
+  for (const d of fromDb) {
+    if (!eintraege.find((e) => e.id === d.id)) eintraege.push(d);
+  }
+  return listDiagnosen(klientId);
 }
 
 // ─── Seed ────────────────────────────────────────────────────────────────

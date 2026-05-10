@@ -8,6 +8,7 @@
 // Eintrag aktualisiert.
 
 import { getDiagnose } from "./diagnose-katalog";
+import { syncPlanZuSupabase, ladePlanAusSupabase } from "./supabase-sync";
 
 export type PlanEintragArt = "intervention" | "ziel";
 export type PlanEintragStatus = "geplant" | "läuft" | "erreicht" | "abgesetzt";
@@ -91,6 +92,7 @@ export function generierePlanAusDiagnose(input: {
       quelle: "katalog",
     };
     eintraege.push(e);
+    syncPlanZuSupabase(e).catch(() => {});
     angelegt.push(e);
   }
 
@@ -107,6 +109,7 @@ export function generierePlanAusDiagnose(input: {
       quelle: "katalog",
     };
     eintraege.push(e);
+    syncPlanZuSupabase(e).catch(() => {});
     angelegt.push(e);
   }
 
@@ -133,6 +136,7 @@ export function fuegeManuellHinzu(input: {
     quelle: "manuell",
   };
   eintraege.push(e);
+  syncPlanZuSupabase(e).catch(() => {});
   return { ok: true, eintrag: e };
 }
 
@@ -153,5 +157,15 @@ export function setzeStatus(input: {
   if (input.status === "erreicht" || input.status === "abgesetzt") {
     e.beendetAm = new Date().toISOString().slice(0, 10);
   }
+  syncPlanZuSupabase(e).catch(() => {});
   return { ok: true };
+}
+
+/** Async-Hydration aus Supabase · Memory wins bei Konflikt. */
+export async function ladePlanFuerKlient(klientId: string): Promise<PflegeplanEintrag[]> {
+  const fromDb = await ladePlanAusSupabase(klientId);
+  for (const p of fromDb) {
+    if (!eintraege.find((e) => e.id === p.id)) eintraege.push(p);
+  }
+  return listPlanFuerKlient(klientId);
 }
