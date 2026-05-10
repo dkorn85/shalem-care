@@ -43,6 +43,7 @@
 **🗄 Supabase-Migration 0011** klient_termin · Wochen-Sicht persistent · Klient-Self-Storno · Beruf-Match-Schreibrecht (Therapeut nur Therapie-Termin) · Brücke zu klient_wunsch über termin_id ·
 **🗄 Supabase-Migration 0012** kassen_vorgang + widerspruch · § 13 Abs 3a SGB V + § 84 SGG-Fristen als SQL-Helper · Sozial-Beruf-UPDATE für Hilfeplan-Workflow ·
 **🗄 Supabase-Migration 0013** 3 Klient-Storage-Buckets (vollmacht-scans/identity-dokumente/klient-akte) mit Pfad-Prefix-RLS · sensible Identity-Doku ohne Care-Team-Zugriff ·
+**🗄 Supabase-Migration 0014** Messenger-Schema persistent + RLS-Härtung auf care_team · Klient-bezogene Nachrichten nur für die jeweilige Pflege ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -147,6 +148,18 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 58 · Supabase-Migration 0014 · Messenger-Schema + RLS-Härtung (Session 60 · 2026-05-10)
+
+Der Messenger nutzte bereits Supabase, aber die DDL lebte nur im Dashboard. Diese Migration holt das Schema ins Repo + härtet die RLS auf das care_team-Modell aus 0003.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0014_messenger.sql` | messages mit 13 Feldern (body 4000-Limit, voicemail 1-600s, mentions/hashtags GIN-Index, dm_participants GIN, parent_id cascade) · message_reactions unique pro (msg/user/emoji) · 4 RLS messages (DM/Klient-Self/Care-Team/Bevollm./offene Kanäle) · 3 reactions transitiv · 2 Storage-Buckets (voicemail 10MB · attachment 25MB) · Realtime |
+
+Sicherheits-Härtung: Pflegekraft sieht Klient-bezogene Nachrichten nur wenn sie im care_team der Klient:in ist · saubere DSGVO-Linie.
+
+User-Aktion: SQL aus `0014_messenger.sql` im Dashboard ausführen — idempotent (`if not exists`/`drop policy if exists`), bricht nicht falls Tabellen schon da sind.
 
 ### 57 · Supabase-Migration 0013 · 3 Klient-Storage-Buckets + RLS (Session 59 · 2026-05-10)
 
