@@ -18,29 +18,22 @@ import { seedAnfragenOnce } from "@/lib/verordnung/store";
 import { seedKrankmeldungOnce } from "@/lib/krankmeldung/store";
 import { listWiderspruecheFuerKlient } from "@/lib/kasse/widerspruch-store";
 import { getDiagnose, DOMAIN_LABEL, DOMAIN_FARBE } from "@/lib/pflege/diagnose-katalog";
+import { ladeCareTeamFuerKlient, careTeamFuerKlient, berufFarbe, berufLabel } from "@/lib/care-team/store";
 
 export const metadata = { title: "Team um mich · Multidisziplinär" };
 
 const KLIENT_ID = "klient-hr";
 const KLIENT_NAME = "Helga Reinhardt";
 
-// Welche Berufe sind aktuell beteiligt? (Demo · in Phase 2 aus Schicht-Plan + Verordnungen abgeleitet)
-const TEAM_BETEILIGT = [
-  { beruf: "Pflege",          person: "Dennis Reuter",       rolle: "Bezugspflegekraft P7", farbe: "var(--mon)",          link: "/pflege/heute",     was: "Tour täglich · SIS-Doku · Wundverlauf" },
-  { beruf: "Arzt",            person: "Dr. Susanne Hartmann", rolle: "Hausärztin",          farbe: "var(--vibe-profile)", link: "/arzt/heute",       was: "Visite 1×/Woche · Verordnungen · Konsile" },
-  { beruf: "Therapie",        person: "Sebastian Rauer",     rolle: "Physiotherapeut",     farbe: "var(--fri)",          link: "/therapie/patienten",was: "KG Mob 2×/Wo · 12 Sitzungen · WS1a" },
-  { beruf: "Sozialarbeit",    person: "Mira Wagner",         rolle: "Sozialarbeiterin",    farbe: "var(--tue)",          link: "/sozial/hilfeplan", was: "Hilfeplan-Review · Pflegegrad-Antrag" },
-  { beruf: "Heilerziehung",   person: "Anika Stein",         rolle: "Heilerziehungspflege", farbe: "var(--sat)",         link: "/heilerziehung/teilhabe", was: "Teilhabe-Plan + HPK · BTHG" },
-  { beruf: "Hauswirtschaft",  person: "Helmut Brandt",       rolle: "HW-Leitung",          farbe: "var(--sun)",          link: "/hauswirtschaft/wochenplan", was: "Diabetes-Kostform · Allergen-Filter" },
-  { beruf: "Ehrenamt",        person: "Rita Schöndorf",      rolle: "Hospiz-Begleitung",   farbe: "var(--thu)",          link: "/ehrenamt/begleitung", was: "Wöchentlich Do 15-16:30 · Tee + Erinnerung" },
-];
-
-export default function TeamUmKlientPage() {
+export default async function TeamUmKlientPage() {
   seedPflegediagnosenOnce();
   seedBettenOnce();
   seedKrankmeldungOnce();
   seedAnfragenOnce();
   seedKostentraegerOnce();
+  // Care-Team-Hydration aus Supabase wenn konfiguriert, sonst Demo-Seed
+  await ladeCareTeamFuerKlient(KLIENT_ID);
+  const TEAM_BETEILIGT = careTeamFuerKlient(KLIENT_ID);
 
   const diagnosen = listDiagnosen(KLIENT_ID);
   const aktiveDiagnosen = diagnosen.filter((d) => !d.beendetAm);
@@ -90,19 +83,24 @@ export default function TeamUmKlientPage() {
 
       <CockpitSection eyebrow="Multidisziplinäres Team · alle aktiv beteiligt" title="Wer ist heute für dich da" count={TEAM_BETEILIGT.length}>
         <ul className="space-y-2">
-          {TEAM_BETEILIGT.map((t) => (
-            <li key={t.beruf} className="surface-mute rounded-xl p-3 flex items-baseline gap-3 flex-wrap" style={{ borderLeft: `3px solid rgb(${t.farbe})` }}>
-              <span className="chip text-[10px] font-medium" style={{ background: `rgb(${t.farbe} / 0.18)`, color: `rgb(${t.farbe})` }}>
-                {t.beruf}
-              </span>
-              <span className="text-[13px] font-medium">{t.person}</span>
-              <span className="text-[11px] text-mute">{t.rolle}</span>
-              <Link href={t.link} className="text-[11px] text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline ml-auto">
-                Beruf-Cockpit →
-              </Link>
-              <p className="text-[11px] text-mute basis-full pl-1">→ {t.was}</p>
-            </li>
-          ))}
+          {TEAM_BETEILIGT.map((t) => {
+            const farbe = berufFarbe(t.beruf).replace("var(", "").replace(")", "");
+            return (
+              <li key={`${t.beruf}-${t.personName}`} className="surface-mute rounded-xl p-3 flex items-baseline gap-3 flex-wrap" style={{ borderLeft: `3px solid rgb(${farbe})` }}>
+                <span className="chip text-[10px] font-medium" style={{ background: `rgb(${farbe} / 0.18)`, color: `rgb(${farbe})` }}>
+                  {berufLabel(t.beruf)}
+                </span>
+                <span className="text-[13px] font-medium">{t.personName}</span>
+                <span className="text-[11px] text-mute">{t.rolle}</span>
+                {t.linkCockpit && (
+                  <Link href={t.linkCockpit} className="text-[11px] text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline ml-auto">
+                    Beruf-Cockpit →
+                  </Link>
+                )}
+                {t.was && <p className="text-[11px] text-mute basis-full pl-1">→ {t.was}</p>}
+              </li>
+            );
+          })}
         </ul>
       </CockpitSection>
 

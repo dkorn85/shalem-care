@@ -28,7 +28,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 |---|---|---|
 | `supabase/migrations/0001_klient_wunsch.sql` | Wunsch-Tabellen + RLS + Verlauf-Trigger | bereit zum Ausführen |
 | `supabase/migrations/0002_swap_offer.sql` | Tausch-Markt-Tabellen + RLS + state-change-Trigger | bereit zum Ausführen |
-| `supabase/migrations/0003_care_team.sql` | Care-Team für RLS-Policies | offen |
+| `supabase/migrations/0003_care_team.sql` | profiles-Bridge + care_team-Tabelle + RLS · aktiviert die Stub-Policies aus 0001+0002 | bereit zum Ausführen |
 | `supabase/migrations/0004_vollmachten.sql` | Vorsorge-Vollmachten + Betreuungen | offen |
 
 ---
@@ -199,13 +199,44 @@ Page-Loader.
 
 ---
 
+## Migration 0003 · care_team + profiles-Bridge
+
+Aktiviert die Stub-Policies aus 0001 (klient_wunsch.care_team-SELECT)
+und 0002 (swap_offer.profiles-Mapping) durch die echte Tabelle.
+
+### Was passiert
+1. `profiles` bekommt zwei neue nullable text-Felder:
+   - `person_id` – Bridge zu Demo-Personal-Universum (z.B. "person-pf-001")
+   - `klient_id` – wenn Klient:in selbst eingeloggt (z.B. "klient-hr")
+2. `care_team`-Tabelle mit (user_id, person_id, klient_id, beruf,
+   person_name, rolle, was, link_cockpit, primaer, aktiv, von/bis)
+3. RLS-Policies:
+   - Klient:in selbst sieht ihr ganzes Team
+   - Care-Team-Mitglied sieht das Team aller Klient:innen, bei denen
+     es selbst Mitglied ist (transitive Sicht)
+   - Self-Update für eigene Daten
+   - Insert/Delete vorerst nur via service_role (Phase 2.5: Stations-Admin)
+4. updated_at-Trigger
+5. Idempotenter Demo-Seed für Helga Reinhardt (9 Care-Team-Mitglieder)
+
+### Hybrid-Layer
+
+`lib/care-team/store.ts` mit:
+- **Sync-API** (`careTeamFuerKlient`, `klientenFuerUser`) für Server-Components
+- **Async-API** (`ladeCareTeamFuerKlient`) für Hydration aus Supabase
+- Demo-Seed direkt in `globalThis.__SHALEM_CARE_TEAM__` bei erstem Import
+
+`/klient/team` ruft als ersten Loader-Schritt
+`await ladeCareTeamFuerKlient(KLIENT_ID)` und liest dann sync aus
+dem Memory-Cache.
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0003** `care_team` als Brücke User↔Klient für die
-   Read-Policies in 0001 + 0002
-2. **Migration 0004** `vollmachten` für Vorsorge-Bevollmächtigte, die
+1. **Migration 0004** `vollmachten` für Vorsorge-Bevollmächtigte, die
    im Namen der Klient:in Wünsche editieren dürfen
-3. **Migration 0005** `audit_log` für Lese-Zugriffe (Befund #3 aus
+2. **Migration 0005** `audit_log` für Lese-Zugriffe (Befund #3 aus
    Expertenteam-Audit)
-4. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
+3. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
    noch in-memory)
