@@ -37,6 +37,7 @@
 **🗄 Supabase-Migration 0005** audit_log für Lese-Zugriffe · DSGVO Art. 30 + Klient-Transparenz · Hooks in 4 Profi-Cockpits · Sektion „Wer hat auf meine Daten geschaut" auf /klient/daten ·
 **🗄 Supabase-Migration 0006** shift_slot mit FHIR-Round-Trip + ArbZG-Helper · komplettiert Tausch-Markt-Persistenz (Slots + Offers + History) ·
 **🗄 Supabase-Migration 0007** Realtime-Channels für Wunsch + Tausch · Profi-Cockpits sehen Änderungen live mit Blink-Indikator · RLS gilt auch für Live-Events ·
+**🗄 Supabase-Migration 0008** vollmacht_nachfolge · Rollen-Übergang nach BGB § 1815 mit transaktionaler `nachfolge_aktivieren()`-Function · Aktivierungs-Log + UI-Sicht ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -141,6 +142,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 52 · Supabase-Migration 0008 · vollmacht_nachfolge · Rollen-Übergang (Session 54 · 2026-05-10)
+
+BGB § 1815-Reform 2023 konkret. Wenn die/der primär Bevollmächtigte stirbt/erkrankt/niederlegt, springt die nächste Person ein.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0008_vollmacht_nachfolge.sql` | nachfolge-Tabelle Ranking 1..9 + 5 Auslöser-Typen · aktivierung_log · RLS · transaktionale Function `nachfolge_aktivieren(vollmacht_id, grund)` · Demo-Seed 3 Nachfolgen für Helga (Heike/Bernd/Berufsbetreuerin) |
+| `lib/vollmacht/store.ts` | Aufloeser-Union · VollmachtNachfolge-Type · nachfolgeFuerVollmacht + alleNachfolgenFuerKlient · Demo-Seed |
+| `/klient/daten` | neue Sektion „Vollmachts-Nachfolge" mit Ranking-Liste, Auslöser-Chip, aktiv-seit-Chip, Notiz-Subzeile |
+| `docs/SUPABASE_MIGRATION.md` | 0008-Sektion mit Function-Beschreibung · Roadmap 0009-0011 |
+
+User-Aktion: SQL aus `0008_vollmacht_nachfolge.sql` im Dashboard ausführen — nutzt `darf_im_namen_handeln()` aus 0004 für Log-RLS.
 
 ### 51 · Supabase-Migration 0007 · Realtime · Live-Updates ohne Reload (Session 53 · 2026-05-10)
 
