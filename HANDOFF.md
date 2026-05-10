@@ -40,6 +40,7 @@
 **🗄 Supabase-Migration 0008** vollmacht_nachfolge · Rollen-Übergang nach BGB § 1815 mit transaktionaler `nachfolge_aktivieren()`-Function · Aktivierungs-Log + UI-Sicht ·
 **🗄 Supabase-Migration 0009** pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform · Cascade-Delete · Realtime · Pflege-Beruf-Schreibrecht via care_team ·
 **🗄 Supabase-Migration 0010** Stationsmanagement (bett + belegung + reservierung) · DB-garantierte Eindeutigkeit der aktiven Belegung pro Bett · Pflege-Beruf-Schreibrecht ·
+**🗄 Supabase-Migration 0011** klient_termin · Wochen-Sicht persistent · Klient-Self-Storno · Beruf-Match-Schreibrecht (Therapeut nur Therapie-Termin) · Brücke zu klient_wunsch über termin_id ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -144,6 +145,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 55 · Supabase-Migration 0011 · klient_termin · Wochen-Sicht persistent (Session 57 · 2026-05-10)
+
+Termine sind jetzt persistent + Profis können sie nach Beruf-Match anlegen/ändern. Brücke zu klient_wunsch über gleichen termin_id-Schlüssel.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0011_klient_termin.sql` | Tabelle mit allen WocheTermin-Feldern + uhrzeit-regex-check + dauer 5..480 · 11 Berufs-Werte · 5 Status · Audit-Felder · 5 RLS-Policies (Klient-Self/Care-Team/Beruf-Match-Write/Bevollm.) · Realtime · Demo-Seed 15 Termine |
+| `lib/klient/termin-sync.ts` (neu) | ladeTermineFuerKlient mit Fallback auf statische KLIENT_WOCHE · termineFuerKlientCached · setzeTerminStatusZuSupabase |
+| `/klient/woche` | Promise.all-Loader (Termine + Wünsche parallel) · ersetzt wocheFuerKlient durch ladeTermineFuerKlient |
+| `docs/SUPABASE_MIGRATION.md` | 0011-Sektion · Roadmap 0012 kassen_vorgang, 0013 Storage, 0014 messenger |
+
+User-Aktion: SQL aus `0011_klient_termin.sql` im Dashboard ausführen.
 
 ### 54 · Supabase-Migration 0010 · Stationsmanagement persistent (Session 56 · 2026-05-10)
 
