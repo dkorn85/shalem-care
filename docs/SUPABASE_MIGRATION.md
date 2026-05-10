@@ -33,6 +33,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0005_audit_log.sql` | Lese-+Schreibe-Spur aller sensiblen Klient-Daten · DSGVO Art. 30 + Klient-Transparenz | bereit zum Ausführen |
 | `supabase/migrations/0006_shift_slot.sql` | FHIR-Slot-Persistierung · ablöst Memory-Map · komplettiert Tausch-Markt | bereit zum Ausführen |
 | `supabase/migrations/0007_realtime.sql` | Realtime-Publication für Wunsch + Tausch · live-Updates ohne Reload | bereit zum Ausführen |
+| `supabase/migrations/0008_vollmacht_nachfolge.sql` | Nachfolge-Kette + Übergangs-Function bei Tod/Krankheit/Niederlegung | bereit zum Ausführen |
 
 ---
 
@@ -412,11 +413,58 @@ Pro/Team-Plan upgraden.
 
 ---
 
+## Migration 0008 · vollmacht_nachfolge
+
+Rollen-Übergang in der Vollmachts-Kette nach BGB § 1815-Reform 2023.
+Wenn die/der primär Bevollmächtigte stirbt, schwer erkrankt, dauerhaft
+nicht erreichbar ist oder die Vollmacht aktiv niederlegt, springt
+die nächste Person in der Reihenfolge ein.
+
+### Was passiert
+1. `vollmacht_nachfolge` mit Ranking 1..9 + 5 Auslöser-Typen
+   (tod-vorgaenger, geschaeftsunfaehig, nicht-erreichbar-7-tage,
+    eigene-niederlegung, manuell-klient)
+2. `vollmacht_aktivierung_log` für Übergangs-Verlauf
+3. SQL-Function `nachfolge_aktivieren(vollmacht_id, grund)`:
+   - sperrt alte Vollmacht (FOR UPDATE)
+   - sucht kleinste freie Reihenfolge
+   - inaktiviert alte Vollmacht (widerrufen_am + Grund)
+   - legt neue Vollmacht aus Nachfolge-Daten an (Aufgabenkreise vererbt)
+   - markiert Nachfolge-Eintrag als aktiviert
+   - schreibt Log
+   - alles in einer Transaktion
+4. RLS:
+   - Klient:in selbst sieht + ändert eigene Nachfolgen
+   - Bevollmächtigte:r sieht ihre eigenen Nachfolge-Einträge
+   - Aktivierungs-Log ist read für Klient + Bevollmächtigte mit
+     gesundheit-Aufgabenkreis (via 0004-Helper)
+   - INSERT in Log nur über die Function (security definer)
+5. Idempotenter Demo-Seed: 3 Nachfolgen für die Helga-Tochter-Vollmacht
+   (Heike Liebenau bei Tod, Bernd Reinhardt bei Geschäftsunfähigkeit,
+    Dr. Anna Bachmann als gerichtliche Reserve)
+
+### Hybrid-Layer + UI
+
+`lib/vollmacht/store.ts` erweitert:
+- Aufloeser-Union + AUFLOESER_LABEL
+- VollmachtNachfolge-Type
+- Sync-API: nachfolgeFuerVollmacht, alleNachfolgenFuerKlient
+- Demo-Seed in globalThis.__SHALEM_VOLLMACHT_NACHFOLGE__
+
+`/klient/daten` zeigt neue Sektion „Vollmachts-Nachfolge" mit:
+- Vollmacht + primär Bevollmächtigtem
+- Nachfolge-Kette als nummerierte Liste
+- Auslöser-Chip pro Nachfolge
+- aktiv-seit-Chip wenn schon übergegangen
+- Notiz-Subzeile
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0008** `nachfolgevollmacht` als Rollen-Übergang bei
-   Tod der/des Bevollmächtigten
-2. **Migration 0009** `pflegediagnose` + `pflegeplan` als
+1. **Migration 0009** `pflegediagnose` + `pflegeplan` als
    eigenständige Tabellen (heute noch in `pflege/diagnose-store.ts`
    in-memory)
-3. **Migration 0010** `belegung` für Stationsmanagement-Persistierung
+2. **Migration 0010** `belegung` für Stationsmanagement-Persistierung
+3. **Migration 0011** `klient_termin` für die Wochen-Termine
+   (heute statisch in `klient/woche.ts`)

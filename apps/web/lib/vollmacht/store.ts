@@ -42,6 +42,36 @@ export type Vollmacht = {
   widerrufenGrund?:          string;
 };
 
+export type Aufloeser =
+  | "tod-vorgaenger"
+  | "geschaeftsunfaehig"
+  | "nicht-erreichbar-7-tage"
+  | "eigene-niederlegung"
+  | "manuell-klient";
+
+export const AUFLOESER_LABEL: Record<Aufloeser, string> = {
+  "tod-vorgaenger":          "Tod der Vorgänger:in",
+  "geschaeftsunfaehig":      "Geschäftsunfähigkeit",
+  "nicht-erreichbar-7-tage": "7 Tage nicht erreichbar",
+  "eigene-niederlegung":     "Eigene Niederlegung",
+  "manuell-klient":          "Manuell durch Klient:in",
+};
+
+export type VollmachtNachfolge = {
+  id?:                        number;
+  vollmachtId:                number;
+  reihenfolge:                number;     // 1..9
+  bevollmaechtigterUserId?:   string;
+  bevollmaechtigterName:      string;
+  bevollmaechtigterAnschrift?: string;
+  bevollmaechtigterTelefon?:  string;
+  beziehung?:                 string;
+  aufloeser:                  Aufloeser;
+  notizen?:                   string;
+  aktiviertAm?:               string;
+  aktiviertGrund?:            string;
+};
+
 export const ART_LABEL: Record<VollmachtArt, string> = {
   vorsorge:                "Vorsorge-Vollmacht",
   betreuung:               "Gesetzliche Betreuung",
@@ -74,11 +104,14 @@ export const AUFGABENKREIS_LABEL: Record<Aufgabenkreis, string> = {
 declare global {
   // eslint-disable-next-line no-var
   var __SHALEM_VOLLMACHT__: Vollmacht[] | undefined;
+  // eslint-disable-next-line no-var
+  var __SHALEM_VOLLMACHT_NACHFOLGE__: VollmachtNachfolge[] | undefined;
 }
 
 function seedDemo(): Vollmacht[] {
   return [
     {
+      id: 1,
       klientId: "klient-hr",
       art: "vorsorge",
       bevollmaechtigterName: "Liane Volkmann",
@@ -91,6 +124,7 @@ function seedDemo(): Vollmacht[] {
       aktiv: true,
     },
     {
+      id: 2,
       klientId: "klient-hr",
       art: "patientenverfuegung",
       bevollmaechtigterName: "Helga Reinhardt selbst",
@@ -103,6 +137,7 @@ function seedDemo(): Vollmacht[] {
       aktiv: true,
     },
     {
+      id: 3,
       klientId: "klient-hr",
       art: "angehoerige",
       bevollmaechtigterName: "Heike Liebenau",
@@ -118,6 +153,19 @@ function seedDemo(): Vollmacht[] {
 const STORE: Vollmacht[] = globalThis.__SHALEM_VOLLMACHT__ ?? seedDemo();
 globalThis.__SHALEM_VOLLMACHT__ = STORE;
 
+function seedNachfolgeDemo(): VollmachtNachfolge[] {
+  // Reine Demo-Daten · echte Verknüpfung läuft über vollmachtId.
+  // In der Memory-Welt gibt's keine echte ID → wir nutzen 1 als Demo-Bezug zur ersten Vollmacht (Tochter Liane).
+  return [
+    { vollmachtId: 1, reihenfolge: 1, bevollmaechtigterName: "Heike Liebenau",    beziehung: "Schwester",           aufloeser: "tod-vorgaenger",      notizen: "Erste Nachfolge wenn Tochter Liane verstirbt" },
+    { vollmachtId: 1, reihenfolge: 2, bevollmaechtigterName: "Bernd Reinhardt",   beziehung: "Cousin",              aufloeser: "geschaeftsunfaehig",  notizen: "Zweite Nachfolge bei dauerhafter Geschäftsunfähigkeit beider Vorgängerinnen" },
+    { vollmachtId: 1, reihenfolge: 3, bevollmaechtigterName: "Dr. Anna Bachmann", beziehung: "Berufsbetreuerin",   aufloeser: "manuell-klient",      notizen: "Letzte Reserve · gerichtlich bestellt wenn alle privaten Optionen ausfallen" },
+  ];
+}
+
+const NACHFOLGE_STORE: VollmachtNachfolge[] = globalThis.__SHALEM_VOLLMACHT_NACHFOLGE__ ?? seedNachfolgeDemo();
+globalThis.__SHALEM_VOLLMACHT_NACHFOLGE__ = NACHFOLGE_STORE;
+
 // ─────────────────────────────────────────────────────────────────────
 // Sync-API
 // ─────────────────────────────────────────────────────────────────────
@@ -128,6 +176,24 @@ export function vollmachtenFuerKlient(klientId: string): Vollmacht[] {
 
 export function vollmachtenFuerBevollmaechtigten(userId: string): Vollmacht[] {
   return STORE.filter((v) => v.bevollmaechtigterUserId === userId && v.aktiv);
+}
+
+/** Nachfolge-Liste zu einer Vollmacht (sortiert nach Reihenfolge). */
+export function nachfolgeFuerVollmacht(vollmachtId: number): VollmachtNachfolge[] {
+  return NACHFOLGE_STORE
+    .filter((n) => n.vollmachtId === vollmachtId)
+    .sort((a, b) => a.reihenfolge - b.reihenfolge);
+}
+
+/** Alle Nachfolgen einer Klient:in über alle ihrer Vollmachten. */
+export function alleNachfolgenFuerKlient(klientId: string): { vollmacht: Vollmacht; nachfolgen: VollmachtNachfolge[] }[] {
+  return vollmachtenFuerKlient(klientId)
+    .filter((v) => v.id !== undefined)
+    .map((v) => ({
+      vollmacht: v,
+      nachfolgen: nachfolgeFuerVollmacht(v.id!),
+    }))
+    .filter((x) => x.nachfolgen.length > 0);
 }
 
 /** Darf user_id im Aufgabenkreis X für Klient:in handeln? */

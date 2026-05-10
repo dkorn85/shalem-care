@@ -23,7 +23,7 @@ import { listDiagnosen } from "@/lib/pflege/pflegediagnose-store";
 import { listPlanFuerKlient } from "@/lib/pflege/pflegeplan-store";
 import { belegungenFuerKlient } from "@/lib/station/betten-store";
 import { listVorgaenge } from "@/lib/kostentraeger/store";
-import { ladeVollmachtenFuerKlient, vollmachtenFuerKlient, ART_LABEL, ART_FARBE, AUFGABENKREIS_LABEL } from "@/lib/vollmacht/store";
+import { ladeVollmachtenFuerKlient, vollmachtenFuerKlient, alleNachfolgenFuerKlient, AUFLOESER_LABEL, ART_LABEL, ART_FARBE, AUFGABENKREIS_LABEL } from "@/lib/vollmacht/store";
 import { ladeAuditFuerKlient, auditFuerKlient, RESSOURCE_LABEL, AKTION_LABEL, AKTION_FARBE, auditLog } from "@/lib/audit/store";
 
 export const metadata = {
@@ -57,6 +57,7 @@ export default async function KlientDatenPage() {
   const belegungen = belegungenFuerKlient(KLIENT_ID);
   const vorgaenge = listVorgaenge().filter((v) => v.klientId === KLIENT_ID || v.versicherterName === KLIENT_NAME);
   const vollmachten = vollmachtenFuerKlient(KLIENT_ID);
+  const nachfolgen = alleNachfolgenFuerKlient(KLIENT_ID);
   const audit = auditFuerKlient(KLIENT_ID, 20);
 
   return (
@@ -226,6 +227,41 @@ export default async function KlientDatenPage() {
           </Link>
         </p>
       </Block>
+
+      {/* Nachfolge-Block · BGB § 1815 Vollmachts-Kette */}
+      {nachfolgen.length > 0 && (
+        <Block titel="Vollmachts-Nachfolge" eyebrow={`BGB § 1815 · ${nachfolgen.length} Vollmacht${nachfolgen.length === 1 ? "" : "en"} mit Reserve-Kette`}>
+          <ul className="space-y-3">
+            {nachfolgen.map(({ vollmacht, nachfolgen: nF }) => (
+              <li key={vollmacht.id} className="surface-mute rounded-lg p-3">
+                <p className="text-[11px] mb-2">
+                  <strong>{vollmacht.bevollmaechtigterName}</strong>
+                  {vollmacht.beziehung && <span className="text-mute"> · {vollmacht.beziehung}</span>}
+                  {" — primär bevollmächtigt"}
+                </p>
+                <ol className="space-y-1.5 pl-3" style={{ borderLeft: "2px solid rgb(var(--bg-mute))" }}>
+                  {nF.map((n) => (
+                    <li key={n.id ?? n.reihenfolge} className="text-[11px] flex items-baseline gap-2 flex-wrap">
+                      <span className="font-mono text-[10px] text-soft w-5 shrink-0">#{n.reihenfolge}</span>
+                      <strong>{n.bevollmaechtigterName}</strong>
+                      {n.beziehung && <span className="text-mute">· {n.beziehung}</span>}
+                      <span className="chip text-[9px] ml-auto" style={{ background: "rgb(var(--vibe-team) / 0.18)", color: "rgb(var(--vibe-team))" }}>
+                        Auslöser: {AUFLOESER_LABEL[n.aufloeser]}
+                      </span>
+                      {n.aktiviertAm && (
+                        <span className="chip text-[9px]" style={{ background: "rgb(var(--thu) / 0.18)", color: "rgb(var(--thu))" }}>
+                          aktiv seit {n.aktiviertAm.slice(0, 10)}
+                        </span>
+                      )}
+                      {n.notizen && <p className="text-[10px] text-soft italic basis-full pl-7">↳ {n.notizen}</p>}
+                    </li>
+                  ))}
+                </ol>
+              </li>
+            ))}
+          </ul>
+        </Block>
+      )}
 
       {/* Audit-Block · wer hat auf meine Daten geschaut */}
       <Block titel="Wer hat auf meine Daten geschaut" eyebrow={`${audit.length} Zugriffe · DSGVO Art. 30 Verarbeitungs-Verzeichnis`}>
