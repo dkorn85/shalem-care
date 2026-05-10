@@ -42,6 +42,7 @@
 **🗄 Supabase-Migration 0010** Stationsmanagement (bett + belegung + reservierung) · DB-garantierte Eindeutigkeit der aktiven Belegung pro Bett · Pflege-Beruf-Schreibrecht ·
 **🗄 Supabase-Migration 0011** klient_termin · Wochen-Sicht persistent · Klient-Self-Storno · Beruf-Match-Schreibrecht (Therapeut nur Therapie-Termin) · Brücke zu klient_wunsch über termin_id ·
 **🗄 Supabase-Migration 0012** kassen_vorgang + widerspruch · § 13 Abs 3a SGB V + § 84 SGG-Fristen als SQL-Helper · Sozial-Beruf-UPDATE für Hilfeplan-Workflow ·
+**🗄 Supabase-Migration 0013** 3 Klient-Storage-Buckets (vollmacht-scans/identity-dokumente/klient-akte) mit Pfad-Prefix-RLS · sensible Identity-Doku ohne Care-Team-Zugriff ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -146,6 +147,18 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 57 · Supabase-Migration 0013 · 3 Klient-Storage-Buckets + RLS (Session 59 · 2026-05-10)
+
+Drei private Buckets für hochsensible Klient-Dokumente, jeweils mit eigenen Policies nach Sensibilitäts-Stufe.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0013_storage_buckets.sql` | vollmacht-scans (20MB) + identity-dokumente (10MB) + klient-akte (50MB inkl. Audio) · SQL-Helper storage_klient_id_from_path() · Policies pro Sensibilität (identity sehr restriktiv, klient-akte offen für Care-Team) · audit_log um 3 storage-Ressourcen erweitert |
+| `lib/storage/klient-buckets.ts` (neu) | uploadKlientDokument + listKlientDokumente + signedKlientUrl + loescheKlientDokument · Browser-Client mit fail-soft try/catch · BUCKET_LABEL/BESCHREIBUNG/GROESSE-Records |
+| `docs/SUPABASE_MIGRATION.md` | 0013-Sektion mit Pfad-Konvention · Roadmap 0014-0016 |
+
+User-Aktion: SQL aus `0013_storage_buckets.sql` im Dashboard ausführen — danach Storage-Sektion im Dashboard prüfen, alle 3 Buckets müssen privat sein (kein public-Toggle).
 
 ### 56 · Supabase-Migration 0012 · kassen_vorgang + widerspruch persistent (Session 58 · 2026-05-10)
 
