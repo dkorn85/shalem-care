@@ -23,6 +23,7 @@
 **⌘K Cmd-K-Launcher** überall aufrufbar in 3 Shells · Tastatur-Navigation durch alle ~50 Cockpit-Reiter · Trigger-Chip bottom-left ·
 **✎ Wunsch-Editor in /klient/woche** Klient pflegt eigene Wünsche per Server-Action · 240-Zeichen-Limit · Override > Default mit Lösch-Fallback · DSGVO Art. 4 konkret ·
 **🪞 Wunsch-Spiegel in Profi-Cockpits** Pflege/Therapie/Apotheke/Begleitung sehen die dokumentierten Wünsche mit Quelle 'von selbst/betreuer/angehörige' — schließt den DSGVO-Kreislauf ·
+**🔎 Cmd-K als Universal-Suche** durchsucht zusätzlich Wirkstoffe, Methoden, SOPs, Erreger, Bewohner, Wochen-Termine quer durch alle Demo-Kataloge ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -127,6 +128,24 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 39 · Cmd-K wird Universal-Suche · findet Inhalte, nicht nur Routen (Session 41 · 2026-05-10)
+
+Cmd-K-Launcher von Routen-Finder zur Power-Suche aufgewertet — durchsucht jetzt Wirkstoffe, Methoden, SOPs, Erreger, Klient-Termine, Naturheil-Verfahren, Bestattungsarten.
+
+| Datei | Was |
+|---|---|
+| `lib/cmdk/dynamic.ts` | Aggregator über 11 Datenquellen · BtM-Wirkstoffe + Heim-Bewohner + Wechselwirkungen + MDR-Produkte + 5 SOPs + 7 Erreger-Profile + 10 Begleit-Methoden + Vigilien + 10 Bestattungsarten + 16 Naturheil-Verfahren + 7 Psychedelika + Klient-Wochen-Termine |
+| `components/CmdK.tsx` | Bucket-Trennung 'cockpit' vs 'inhalt' · Default leerer Query → nur Cockpits (sonst überflutet's) · Schlagwörter-Suche · Cockpits-Bias im Score-Sort · Treffer-Counter mit Cockpit/Inhalte-Aufteilung |
+
+Beispiel-Suchen:
+- „tilidin" → BtM-Buch
+- „berkana" → Methoden Begleitung
+- „stemi" → SOPs Rettungsdienst
+- „helga" → Heim-Bewohner Apotheke + Wochen-Termine
+- „mrsa" → Hygiene Rettungsdienst
+- „johanniskraut" → Wechselwirkungen
+- „mistel" → Naturheil
 
 ### 38 · Wunsch-Spiegel in Profi-Cockpits · DSGVO-Kreislauf geschlossen (Session 40 · 2026-05-10)
 
