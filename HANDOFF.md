@@ -46,6 +46,7 @@
 **🗄 Supabase-Migration 0014** Messenger-Schema persistent + RLS-Härtung auf care_team · Klient-bezogene Nachrichten nur für die jeweilige Pflege ·
 **🗄 Supabase-Migration 0015** aktivitaet_feed persistent · 16 Event-Typen · Klient-Self-INSERT auf 3 Self-Events · Realtime · Auto-Cleanup-Helper ·
 **🗄 Migrations-Setup live** Bundle 2782 Zeilen ausgeführt · 26 Tabellen + 5 Storage-Buckets aktiv · Termux-psql-Workflow als Tablet-Alternative ·
+**🗄 Supabase-Migration 0016** klient_notiz persistent · Klient pflegt Wunsch/Frage/Sorge/Freude · konferenz-flag steuert Care-Team-Sichtbarkeit · privates bleibt privat ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -150,6 +151,20 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 60 · Supabase-Migration 0016 · klient_notiz persistent (Session 62 · 2026-05-10)
+
+Klient-Notizen waren bisher reines useState im Component, beim Reload weg. Jetzt persistent + RLS-gesichert mit smartem Konferenz-Flag — privates bleibt privat, konferenz-markiertes sieht das Care-Team.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0016_klient_notiz.sql` | klient_notiz Tabelle (4 Typen, fuer_konferenz-flag, weich-Lösch via beendet_am) · 4 RLS-Policies (Klient-Self ALL, Care-Team SELECT nur Konferenz, Care-Team UPDATE für besprochen, Bevollm. ALL) · Realtime · Demo-Seed Helga |
+| `lib/klient/notiz-store.ts` (neu) | Sync + Async-API · 2000-Char-Limit · TYP_LABEL/FARBE/EMOJI |
+| `lib/klient/notiz-actions.ts` (neu) | setze + entferne mit revalidatePath |
+| `KlientNotizenForm` | useState raus, Server-Actions rein · pending + feedback · relativeZeit-Helper · nimmt initialNotizen-prop |
+| `app/klient/notizen/page.tsx` | async Loader hydriert über ladeNotizenFuerKlient |
+
+User-Aktion: SQL aus `0016_klient_notiz.sql` (oder das Bundle, jetzt 2893 Zeilen) im Dashboard ausführen.
 
 ### 59 · Supabase-Migration 0015 · aktivitaet_feed + Setup-Konsolidierung (Session 61 · 2026-05-10)
 
