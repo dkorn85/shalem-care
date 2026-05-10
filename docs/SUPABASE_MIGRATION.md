@@ -36,6 +36,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0008_vollmacht_nachfolge.sql` | Nachfolge-Kette + Übergangs-Function bei Tod/Krankheit/Niederlegung | bereit zum Ausführen |
 | `supabase/migrations/0009_pflege.sql` | pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform | bereit zum Ausführen |
 | `supabase/migrations/0010_belegung.sql` | bett + belegung + reservierung persistent · Stationsmanagement | bereit zum Ausführen |
+| `supabase/migrations/0011_klient_termin.sql` | Wochen-Termine persistent · Brücke zu klient_wunsch über termin_id · 16 Demo-Termine Helga | bereit zum Ausführen |
 
 ---
 
@@ -534,10 +535,50 @@ globalThis-Map.
 
 ---
 
+## Migration 0011 · klient_termin
+
+Die Wochen-Termine sind jetzt persistent + können von den jeweiligen
+Profis editiert werden. Brücke zu `klient_wunsch.termin_id` bleibt
+über den gleichen ID-Schlüssel (z.B. `kw-001`).
+
+### Was passiert
+1. `klient_termin`-Tabelle mit allen Feldern aus `WocheTermin`-Type:
+   - id, klient_id, datum, uhrzeit (regex-check `^[0-2][0-9]:[0-5][0-9]$`),
+     dauer_min (5-480 check)
+   - 11 erlaubte Berufs-Werte als check
+   - 5 Status-Werte (geplant/laeuft/erledigt/verschoben/abgesagt)
+   - link_cockpit für Klient→Profi-Sprung
+   - durchgefuehrt_von/am für Audit nach status='erledigt'
+   - abgesagt_grund für Klient-Storno
+2. 3 Indexe (klient+datum+uhrzeit für Wochen-Listung,
+   status+datum für Tagesplan, beruf für Filter)
+3. 5 RLS-Policies:
+   - Klient-Self SELECT + UPDATE (Klient darf eigene Termine
+     verschieben/absagen)
+   - Care-Team SELECT
+   - Beruf-Match INSERT + UPDATE (Therapeut:in legt Therapie-Termin
+     an, Pflege Pflege-Termin) über care_team-Mitgliedschaft
+   - Bevollmächtigte mit gesundheit SELECT via 0004-Helper
+4. Realtime aus 0007 erweitert + REPLICA IDENTITY FULL
+5. Idempotenter Demo-Seed mit 15 Termine für Helga (entspricht der
+   bisherigen statischen `KLIENT_WOCHE`-Konstante)
+
+### Hybrid-Layer
+
+`lib/klient/termin-sync.ts` (neu):
+- `ladeTermineFuerKlient(klientId)` · async Hydration mit Fallback
+  auf statische `KLIENT_WOCHE` wenn Supabase aus / Tabelle leer
+- `termineFuerKlientCached` · sync-Read aus Memory-Override-Map
+- `setzeTerminStatusZuSupabase` · Patch-only für Klient-Storno
+
+`/klient/woche` lädt jetzt parallel Termine + Wünsche per
+`Promise.all` und nutzt das Resultat statt der statischen Konstante.
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0011** `klient_termin` für die Wochen-Termine
-   (heute statisch in `klient/woche.ts`)
-2. **Migration 0012** `kassen_vorgang` für die Kostenträger-Anträge
-3. **Migration 0013** Storage-Bucket-Policies (Identity-Dokumente,
+1. **Migration 0012** `kassen_vorgang` für die Kostenträger-Anträge
+2. **Migration 0013** Storage-Bucket-Policies (Identity-Dokumente,
    Vollmachts-Scans)
+3. **Migration 0014** `messenger_message` für die Pflege-Chat-Persistenz
