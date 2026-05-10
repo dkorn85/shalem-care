@@ -7,6 +7,7 @@ import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
 import { SoundToggle } from "./SoundToggle";
 import { NotifyToggle } from "./notify/NotifyToggle";
+import { CmdK } from "./CmdK";
 import { ExpertiseChip } from "./ExpertiseChip";
 
 const KASSE_PRIMAER = "var(--vibe-approval)";
@@ -86,6 +87,7 @@ export async function KasseShell({
       <GameModeToggle />
       <SoundToggle />
       <NotifyToggle rolle="kasse" />
+      <CmdK />
     </div>
   );
 }

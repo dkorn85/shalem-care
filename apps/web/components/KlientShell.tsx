@@ -10,6 +10,7 @@ import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
 import { SoundToggle } from "./SoundToggle";
 import { NotifyToggle } from "./notify/NotifyToggle";
+import { CmdK } from "./CmdK";
 
 const KLIENT_PRIMAER = "var(--wed)";
 const KLIENT_LABEL = "Klient:in";
@@ -65,6 +66,7 @@ export async function KlientShell({
       <GameModeToggle />
       <SoundToggle />
       <NotifyToggle identityId={user.klientId} rolle="klient" />
+      <CmdK />
     </div>
   );
 }

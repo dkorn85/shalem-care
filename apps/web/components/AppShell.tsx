@@ -10,6 +10,7 @@ import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
 import { Brillenmodus } from "./Brillenmodus";
 import { GameModeToggle } from "./GameModeToggle";
 import { SoundToggle } from "./SoundToggle";
+import { CmdK } from "./CmdK";
 import { NotifyToggle } from "./notify/NotifyToggle";
 import { ExpertiseChip } from "./ExpertiseChip";
 import type { ExpertiseRolle } from "@/lib/ui/expertise";
@@ -358,6 +359,7 @@ export async function AppShell({
         rolle={ROLE_KLARTEXT[role]}
         stationId={undefined}
       />
+      <CmdK />
     </div>
   );
 }
