@@ -44,6 +44,8 @@
 **🗄 Supabase-Migration 0012** kassen_vorgang + widerspruch · § 13 Abs 3a SGB V + § 84 SGG-Fristen als SQL-Helper · Sozial-Beruf-UPDATE für Hilfeplan-Workflow ·
 **🗄 Supabase-Migration 0013** 3 Klient-Storage-Buckets (vollmacht-scans/identity-dokumente/klient-akte) mit Pfad-Prefix-RLS · sensible Identity-Doku ohne Care-Team-Zugriff ·
 **🗄 Supabase-Migration 0014** Messenger-Schema persistent + RLS-Härtung auf care_team · Klient-bezogene Nachrichten nur für die jeweilige Pflege ·
+**🗄 Supabase-Migration 0015** aktivitaet_feed persistent · 16 Event-Typen · Klient-Self-INSERT auf 3 Self-Events · Realtime · Auto-Cleanup-Helper ·
+**🗄 Migrations-Setup live** Bundle 2782 Zeilen ausgeführt · 26 Tabellen + 5 Storage-Buckets aktiv · Termux-psql-Workflow als Tablet-Alternative ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -148,6 +150,24 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 59 · Supabase-Migration 0015 · aktivitaet_feed + Setup-Konsolidierung (Session 61 · 2026-05-10)
+
+Aktivitäts-Feed persistent. Dazu mehrere Setup-Patches damit das All-in-One-Bundle im Supabase-SQL-Editor sauber durchläuft.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0000_init_profiles_extension.sql` (neu) | profiles minimal anlegen + Bridge-Spalten + RLS + auto-Trigger + swap_offer_touch_updated() vorgezogen |
+| `supabase/migrations/0001+0002` Patches | Vorwärts-Refs auf care_team/profiles.person_id raus, kommen in 0003 |
+| `supabase/migrations/0003` defensive do-Blöcke | Nachgeholte Policies nur wenn Tabellen existieren |
+| `supabase/migrations/0015_aktivitaet_feed.sql` | aktivitaet_feed mit 16 Event-Typen · 4 Indexe · meta jsonb · 5 RLS-Policies · Realtime · aufraeumen()-Helper |
+| `lib/aktivitaet/supabase-sync.ts` (neu) | sync + lade · camelCase-Mapper |
+| `lib/aktivitaet/feed.ts` | addEvent() · ladeEventsFuerKlient() · dynamic import vermeidet circular dep |
+| `scripts/migrate.sh` + `scripts/build-all-in-one.sh` (neu) | psql-Migrator für Termux + 1-Klick-Bundle (2782 Zeilen) |
+| `docs/SUPABASE_TERMUX_SETUP.md` (neu) | 10-Schritte-Anleitung Tablet/Termux |
+| `apps/web/lib/realtime/wunsch-channel.ts` + `apps/web/lib/storage/klient-buckets.ts` | Build-Fix · nutzen browserSupabase statt browserClient (vermeidet next/headers-Import im Client-Bundle) |
+
+User-Aktion: Bundle aus `00_alle_in_einem.sql` im Dashboard SQL Editor → Run. Sollte 26 Tabellen ergeben (vorher 6).
 
 ### 58 · Supabase-Migration 0014 · Messenger-Schema + RLS-Härtung (Session 60 · 2026-05-10)
 
