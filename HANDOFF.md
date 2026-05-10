@@ -39,6 +39,7 @@
 **🗄 Supabase-Migration 0007** Realtime-Channels für Wunsch + Tausch · Profi-Cockpits sehen Änderungen live mit Blink-Indikator · RLS gilt auch für Live-Events ·
 **🗄 Supabase-Migration 0008** vollmacht_nachfolge · Rollen-Übergang nach BGB § 1815 mit transaktionaler `nachfolge_aktivieren()`-Function · Aktivierungs-Log + UI-Sicht ·
 **🗄 Supabase-Migration 0009** pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform · Cascade-Delete · Realtime · Pflege-Beruf-Schreibrecht via care_team ·
+**🗄 Supabase-Migration 0010** Stationsmanagement (bett + belegung + reservierung) · DB-garantierte Eindeutigkeit der aktiven Belegung pro Bett · Pflege-Beruf-Schreibrecht ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -143,6 +144,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 54 · Supabase-Migration 0010 · Stationsmanagement persistent (Session 56 · 2026-05-10)
+
+Bett + Belegung + Reservierung als drei Tabellen — Pflichtdaten für jede echte Pflegeeinrichtung.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0010_belegung.sql` | bett · belegung mit FK + Pflegegrad-Check + diagnosen-Array + Aufnahme-Art · reservierung mit Status-Workflow · Unique-Index belegung_eine_aktive_pro_bett (DB-garantiert) · 7 RLS-Policies (Klient-Self/Care-Team/Pflege-Write/Bevollm./auth-SELECT) · Realtime |
+| `lib/station/supabase-sync.ts` (neu) | 3× sync als generische upserts · 3× lade · camelCase↔snake_case Mapper |
+| `lib/station/betten-store.ts` | bettBelegen/Reservieren/Stornieren/Entlassen/Verlegen/Blockieren/Freigeben syncen fail-soft · neue ladeStationsdatenFuerKlient |
+| `docs/SUPABASE_MIGRATION.md` | 0010-Sektion mit Unique-Index-Highlight · Roadmap 0011-0013 |
+
+User-Aktion: SQL aus `0010_belegung.sql` im Dashboard ausführen — nutzt `swap_offer_touch_updated` aus 0002, `care_team` aus 0003, `darf_im_namen_handeln` aus 0004, Realtime aus 0007.
 
 ### 53 · Supabase-Migration 0009 · pflegediagnose + pflegeplan persistent (Session 55 · 2026-05-10)
 
