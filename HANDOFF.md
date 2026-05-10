@@ -25,6 +25,7 @@
 **🪞 Wunsch-Spiegel in Profi-Cockpits** Pflege/Therapie/Apotheke/Begleitung sehen die dokumentierten Wünsche mit Quelle 'von selbst/betreuer/angehörige' — schließt den DSGVO-Kreislauf ·
 **🔎 Cmd-K als Universal-Suche** durchsucht zusätzlich Wirkstoffe, Methoden, SOPs, Erreger, Bewohner, Wochen-Termine quer durch alle Demo-Kataloge ·
 **🖨 Wochenplan drucken** A4-Druck der Klient-Wochenübersicht mit Druckdatum + Übergabe-Hinweis für Pflege/Familie ·
+**⚙ Werkzeuge-Menü** Brillenmodus + Sound + Game-Mode + Benachrichtigungen + Cmd-K in einem zentralen FAB-Dropdown statt 5 gestapelter Floater ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -129,6 +130,18 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 41 · Werkzeuge-Menü · 5 FABs in einem (Session 43 · 2026-05-10)
+
+UX-Aufräumung: aus 5 gestapelten fixed-Floatern rechts unten wird ein zentraler `⚙`-FAB, der ein gegliedertes Glas-Panel öffnet.
+
+| Datei | Was |
+|---|---|
+| `components/WerkzeugMenu.tsx` | Zentraler FAB (⚙ ↔ ✕) · Glas-Karte mit 5 Reihen (Suchen ⌘K · Brillenmodus · Benachrichtigungen · Sound · Game-Mode) · jede Reihe Icon-Button + Label + Beschreibung · Click outside / Esc schließt · ⌘K-Trigger via dispatchEvent |
+| `Brillenmodus` / `GameModeToggle` / `SoundToggle` / `NotifyToggle` | `embedded`-Prop ergänzt · default fab (abwärtskompatibel) · embedded = inline ohne fixed-Position |
+| AppShell + KlientShell + KasseShell | Alte 4 FAB-Imports raus, WerkzeugMenu rein · Cmd-K-Hotkey-Chip bottom-left entfernt (Menü ist Eingang, ⌘K-Hotkey funktioniert weiter) |
+
+Brillenmodus-Eingabepanel, Sound-Slider, Game-Mode-Toast bleiben weiterhin als Overlays fixed-positioniert — sind logische Folgeansichten der Buttons.
 
 ### 40 · PDF-Druck der Klient-Wochenübersicht (Session 42 · 2026-05-10)
 
