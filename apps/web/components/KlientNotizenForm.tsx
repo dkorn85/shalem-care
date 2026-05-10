@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
-
-type NotizTyp = "wunsch" | "frage" | "sorge" | "freude";
+import { useState, useTransition } from "react";
+import { setzeNotizAction, entferneNotizAction } from "@/lib/klient/notiz-actions";
+import type { KlientNotiz, NotizTyp } from "@/lib/klient/notiz-store";
 
 const TYPEN: { id: NotizTyp; label: string; emoji: string; farbe: string; placeholder: string }[] = [
   { id: "wunsch", label: "Wunsch",  emoji: "✨", farbe: "var(--wed)",          placeholder: "Was wünschst du dir, das wir besprechen?" },
@@ -11,38 +11,61 @@ const TYPEN: { id: NotizTyp; label: string; emoji: string; farbe: string; placeh
   { id: "freude", label: "Freude",  emoji: "🌿", farbe: "var(--thu)",          placeholder: "Was läuft gerade gut?" },
 ];
 
-type Notiz = {
-  id: string;
-  typ: NotizTyp;
-  text: string;
-  fuerKonferenz: boolean;
-  erstelltAm: string;
-};
+const KLIENT_ID = "klient-hr";
 
-const VOR_BEFUELLT: Notiz[] = [
-  { id: "n-1", typ: "frage",  text: "Wann darf ich wieder selbstständig zur Toilette? Anika sagt die Wunde verheilt — ich frage mich was das für die Mobilisation bedeutet.",  fuerKonferenz: true,  erstelltAm: "vor 3 Tagen" },
-  { id: "n-2", typ: "wunsch", text: "Karin (meine Tochter) soll am Wochenende mit eingeplant werden — sie kommt aus Hamburg, das passt nicht in den normalen Rhythmus.",       fuerKonferenz: true,  erstelltAm: "vor 5 Tagen" },
-  { id: "n-3", typ: "freude", text: "Letzte Woche habe ich zum ersten Mal seit dem Sturz selbst Tee aufgebrüht. Rita war dabei. Es war schön.",                                  fuerKonferenz: false, erstelltAm: "vor 6 Tagen" },
-  { id: "n-4", typ: "sorge",  text: "Die Tabletten-Liste ist sehr lang. Ich verliere manchmal den Überblick. Können wir gemeinsam schauen ob alles noch nötig ist?",            fuerKonferenz: true,  erstelltAm: "vor 8 Tagen" },
-];
-
-export function KlientNotizenForm() {
-  const [notizen, setNotizen] = useState<Notiz[]>(VOR_BEFUELLT);
+export function KlientNotizenForm({ initialNotizen }: { initialNotizen: KlientNotiz[] }) {
+  const [notizen, setNotizen] = useState<KlientNotiz[]>(initialNotizen);
   const [aktiverTyp, setAktiverTyp] = useState<NotizTyp>("wunsch");
   const [text, setText] = useState("");
   const [fuerKonferenz, setFuerKonferenz] = useState(true);
+  const [pending, startTransition] = useTransition();
+  const [feedback, setFeedback] = useState<string | null>(null);
 
   const speichern = () => {
     if (!text.trim()) return;
-    setNotizen([
-      { id: `n-${Date.now()}`, typ: aktiverTyp, text: text.trim(), fuerKonferenz, erstelltAm: "gerade eben" },
-      ...notizen,
-    ]);
-    setText("");
+    setFeedback(null);
+    startTransition(async () => {
+      const r = await setzeNotizAction({
+        klientId: KLIENT_ID,
+        typ: aktiverTyp,
+        text: text.trim(),
+        fuerKonferenz,
+      });
+      if (r.ok && r.notiz) {
+        setNotizen([r.notiz, ...notizen]);
+        setText("");
+        setFeedback("✓ " + r.message);
+      } else if (!r.ok) {
+        setFeedback("⚠ " + r.error);
+      }
+    });
   };
 
-  const entfernen = (id: string) => setNotizen((n) => n.filter((x) => x.id !== id));
+  const entfernen = (id: string) => {
+    setFeedback(null);
+    startTransition(async () => {
+      const r = await entferneNotizAction(id);
+      if (r.ok) {
+        setNotizen((n) => n.filter((x) => x.id !== id));
+        setFeedback("✓ " + r.message);
+      } else {
+        setFeedback("⚠ " + r.error);
+      }
+    });
+  };
+
   const fuerKonferenzCount = notizen.filter((n) => n.fuerKonferenz).length;
+
+  function relativeZeit(iso: string): string {
+    const diffMs = Date.now() - new Date(iso).getTime();
+    const diffMin = Math.round(diffMs / 60000);
+    if (diffMin < 1) return "gerade eben";
+    if (diffMin < 60) return `vor ${diffMin} min`;
+    const h = Math.round(diffMin / 60);
+    if (h < 24) return `vor ${h} h`;
+    const d = Math.round(h / 24);
+    return `vor ${d} ${d === 1 ? "Tag" : "Tagen"}`;
+  }
 
   return (
     <>
@@ -85,12 +108,17 @@ export function KlientNotizenForm() {
           <button
             type="button"
             onClick={speichern}
-            disabled={!text.trim()}
+            disabled={!text.trim() || pending}
             className="btn btn-primary text-[13px] disabled:opacity-40"
           >
-            Eintrag speichern →
+            {pending ? "speichert …" : "Eintrag speichern →"}
           </button>
         </div>
+        {feedback && (
+          <p className="text-[11px] mt-2" style={{ color: feedback.startsWith("✓") ? "rgb(var(--thu))" : "rgb(var(--mon))" }}>
+            {feedback}
+          </p>
+        )}
       </section>
 
       {fuerKonferenzCount > 0 && (
@@ -114,7 +142,7 @@ export function KlientNotizenForm() {
                     {t.emoji} {t.label}
                   </span>
                   <div className="flex items-baseline gap-2">
-                    <span className="text-[10px] text-soft font-mono">{n.erstelltAm}</span>
+                    <span className="text-[10px] text-soft font-mono">{relativeZeit(n.erstelltAm)}</span>
                     {n.fuerKonferenz && (
                       <span className="chip text-[10px]" style={{ background: "rgb(var(--accent) / 0.15)", color: "rgb(var(--accent))" }}>
                         Konferenz

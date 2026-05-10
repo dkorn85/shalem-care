@@ -41,6 +41,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0013_storage_buckets.sql` | 3 private Klient-Buckets + Storage-RLS · audit_log um storage-Ressourcen erweitert | bereit zum Ausführen |
 | `supabase/migrations/0014_messenger.sql` | messages + message_reactions idempotent + neue care_team-aware RLS · 2 Voicemail-/Attachment-Buckets | bereit zum Ausführen |
 | `supabase/migrations/0015_aktivitaet_feed.sql` | Cross-Beruf Event-Stream persistent · 16 Event-Typen · Realtime + Auto-Cleanup-Function | bereit zum Ausführen |
+| `supabase/migrations/0016_klient_notiz.sql` | Freie Klient-Notizen (Wunsch/Frage/Sorge/Freude) · konferenz-flag steuert Care-Team-Sichtbarkeit | bereit zum Ausführen |
 
 ---
 
@@ -742,9 +743,51 @@ Bisher in `lib/aktivitaet/feed.ts` als globalThis-Array.
 
 ---
 
+## Migration 0016 · klient_notiz
+
+Freie Klient-Notizen (Wunsch/Frage/Sorge/Freude) zwischen Konferenzen.
+Bisher rein UI-State in `KlientNotizenForm`, beim Reload weg. Jetzt
+persistent + RLS-gesichert mit cleverem Konferenz-Flag.
+
+### Was passiert
+1. `klient_notiz`-Tabelle mit (id, klient_id, typ 4 Werte, text 2000-Limit,
+   fuer_konferenz boolean, erstellt_am, beendet_am, konferenz_id,
+   besprochen_am)
+2. Indexe: klient+aktiv (partial wo beendet_am null), klient+konferenz-flag
+   (partial für noch-nicht-besprochene), typ
+3. RLS:
+   - **Klient-Self** ALL (volle Kontrolle)
+   - **Care-Team** SELECT NUR wo `fuer_konferenz=true` und nicht beendet
+     (privates bleibt privat!)
+   - **Care-Team** UPDATE auf konferenz-Notizen (markiert als besprochen)
+   - **Bevollmächtigte** mit gesundheit ALL (auch private Notizen,
+     weil Vollmacht oft psychosoziale Begleitung umfasst)
+4. Realtime-Pub erweitert
+5. Idempotenter Demo-Seed mit 4 Notizen Helga (war früher VOR_BEFUELLT
+   im Component)
+
+### Hybrid-Layer
+
+`lib/klient/notiz-store.ts` (neu):
+- Sync-API: `listNotizenFuerKlient`, `notizenFuerKonferenz`,
+  `setzeNotiz`, `entferneNotiz` (weich-Lösch via beendetAm)
+- Async-API: `ladeNotizenFuerKlient` für Hydration
+- 2000-Char-Limit
+- Demo-Seed in globalThis
+
+`lib/klient/notiz-actions.ts` (neu):
+- `setzeNotizAction` + `entferneNotizAction` mit revalidatePath
+
+`KlientNotizenForm.tsx`:
+- Server-Actions statt useState-only
+- nimmt `initialNotizen` prop · async Page-Loader hydriert
+- pending-State + feedback-Toast
+- relativeZeit-Helper für Anzeige
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0016** `klient_notiz` für freie Notizen
-   (heute in `klient/notizen/page.tsx` rein UI)
-2. **Migration 0017** `kompetenz_nachweis` für Mitarbeiter-Curriculum
-3. **Migration 0018** `dienstplan_slot` für Dienstplan-Persistenz
+1. **Migration 0017** `kompetenz_nachweis` für Mitarbeiter-Curriculum
+2. **Migration 0018** `dienstplan_slot` für Dienstplan-Persistenz
+3. **Migration 0019** `konferenz` für Fall-Konferenzen + Pre-Read

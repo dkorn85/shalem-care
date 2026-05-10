@@ -1,12 +1,17 @@
 import Link from "next/link";
 import { KlientShell } from "@/components/KlientShell";
 import { KlientNotizenForm } from "@/components/KlientNotizenForm";
+import { ladeNotizenFuerKlient } from "@/lib/klient/notiz-store";
 
 export const metadata = { title: "Notiztafel · Meine Akte" };
 
+const KLIENT_ID = "klient-hr";
+
 export default async function KlientNotizenPage() {
+  const initialNotizen = await ladeNotizenFuerKlient(KLIENT_ID);
+
   return (
-    <KlientShell user={{ name: "Helga Reinhardt", initials: "HR", relation: "self", klientId: "klient-hr" }}>
+    <KlientShell user={{ name: "Helga Reinhardt", initials: "HR", relation: "self", klientId: KLIENT_ID }}>
       <header className="mb-6">
         <Link href="/klient/akte" className="text-[12px] text-mute hover:text-[rgb(var(--fg))] inline-flex items-center gap-1 mb-3">← Akte</Link>
         <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Meine Notiztafel</p>
@@ -20,7 +25,7 @@ export default async function KlientNotizenPage() {
         </p>
       </header>
 
-      <KlientNotizenForm />
+      <KlientNotizenForm initialNotizen={initialNotizen} />
 
       <section className="surface rounded-2xl p-5 mt-6">
         <p className="text-[11px] uppercase tracking-wider text-soft mb-2 font-medium">Datenschutz</p>
