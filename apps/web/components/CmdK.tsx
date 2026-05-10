@@ -154,13 +154,12 @@ export function CmdK() {
   // Reset Aktiv bei neuem Query
   useEffect(() => { setAktiv(0); }, [query]);
 
-  if (!offen) {
-    return <CmdKHotkeyChip onClick={() => setOffen(true)} />;
-  }
+  // Kein eigener Trigger-Chip mehr — das Werkzeuge-Menü öffnet Cmd-K
+  // via dispatchEvent ⌘K. Cmd-K rendert nur das Modal wenn offen.
+  if (!offen) return null;
 
   return (
     <>
-      <CmdKHotkeyChip onClick={() => setOffen(true)} />
       <div
         className="fixed inset-0 z-50 flex items-start justify-center pt-[12vh] px-4"
         style={{ background: "rgb(0 0 0 / 0.45)", backdropFilter: "blur(6px)" }}
@@ -239,19 +238,3 @@ export function CmdK() {
   );
 }
 
-function CmdKHotkeyChip({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      aria-label="Cockpit-Suche öffnen"
-      className="fixed bottom-4 left-4 z-30 surface rounded-full pl-2 pr-2.5 py-1 text-[11px] font-mono inline-flex items-center gap-1.5 hover:translate-y-[-1px] transition-transform"
-      style={{ background: "rgb(var(--bg-elev) / 0.92)", boxShadow: "0 4px 16px rgb(0 0 0 / 0.10)" }}
-    >
-      <span aria-hidden className="text-[12px]">⌘</span>
-      <span className="text-soft">K</span>
-      <span className="text-soft">·</span>
-      <span>suchen</span>
-    </button>
-  );
-}

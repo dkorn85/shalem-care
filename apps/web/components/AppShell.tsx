@@ -7,11 +7,8 @@ import { LocaleSwitcher } from "./LocaleSwitcher";
 // über das UserMenu (top-right), nicht mehr in der Sidebar.
 import { getLocale } from "@/lib/i18n/server";
 import { MobileNavDrawer, type DrawerItem } from "./MobileNavDrawer";
-import { Brillenmodus } from "./Brillenmodus";
-import { GameModeToggle } from "./GameModeToggle";
-import { SoundToggle } from "./SoundToggle";
 import { CmdK } from "./CmdK";
-import { NotifyToggle } from "./notify/NotifyToggle";
+import { WerkzeugMenu } from "./WerkzeugMenu";
 import { ExpertiseChip } from "./ExpertiseChip";
 import type { ExpertiseRolle } from "@/lib/ui/expertise";
 
@@ -351,13 +348,12 @@ export async function AppShell({
 
       <UndoBanner />
       <BottomNav role={mapRoleForBottomNav(role)} rolePrimaer={rolePrimaer} />
-      <Brillenmodus beruf={ROLE_KLARTEXT[role]} rolePrimaer={rolePrimaer} roleLabel={roleLabel} />
-      <GameModeToggle />
-      <SoundToggle />
-      <NotifyToggle
+      <WerkzeugMenu
+        beruf={ROLE_KLARTEXT[role]}
+        rolePrimaer={rolePrimaer}
+        roleLabel={roleLabel}
         identityId={user.id}
         rolle={ROLE_KLARTEXT[role]}
-        stationId={undefined}
       />
       <CmdK />
     </div>

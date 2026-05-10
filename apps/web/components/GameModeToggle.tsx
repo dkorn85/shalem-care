@@ -8,7 +8,7 @@
 import { useState } from "react";
 import { useGameMode } from "@/lib/ui/game-mode";
 
-export function GameModeToggle() {
+export function GameModeToggle({ embedded = false }: { embedded?: boolean } = {}) {
   const { aktiv, toggle, mounted } = useGameMode();
   const [toast, setToast] = useState<string | null>(null);
 
@@ -26,7 +26,11 @@ export function GameModeToggle() {
         onClick={handleClick}
         aria-label={aktiv ? "Game-Mode aus" : "Game-Mode an"}
         title={aktiv ? "Game-Mode aus" : "Game-Mode an · Mini-Games erscheinen"}
-        className="fixed right-4 bottom-36 lg:bottom-22 z-40 w-10 h-10 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        className={
+          embedded
+            ? "w-9 h-9 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95 shrink-0"
+            : "fixed right-4 bottom-36 lg:bottom-22 z-40 w-10 h-10 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        }
         style={{
           background: aktiv ? "rgb(var(--vibe-stats))" : "rgb(var(--bg-elev))",
           color: aktiv ? "white" : "rgb(var(--fg-mute))",

@@ -6,7 +6,7 @@
 import { useState, useRef, useEffect } from "react";
 import { spiele, useSoundMode, useMasterVolume } from "@/lib/sound/sound-player";
 
-export function SoundToggle() {
+export function SoundToggle({ embedded = false }: { embedded?: boolean } = {}) {
   const { an, setAn, mounted } = useSoundMode();
   const { volume, setVolume } = useMasterVolume();
   const [showSlider, setShowSlider] = useState(false);
@@ -58,7 +58,11 @@ export function SoundToggle() {
         onTouchStart={pressStart}
         onTouchEnd={pressEnd}
         aria-label={an ? "Sound abschalten · Long-Press für Lautstärke" : "Sound einschalten"}
-        className="fixed right-4 bottom-52 lg:bottom-36 z-40 w-10 h-10 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        className={
+          embedded
+            ? "w-9 h-9 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95 shrink-0"
+            : "fixed right-4 bottom-52 lg:bottom-36 z-40 w-10 h-10 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        }
         style={{
           background: an
             ? "linear-gradient(135deg, rgb(var(--vibe-team)), rgb(var(--accent)))"

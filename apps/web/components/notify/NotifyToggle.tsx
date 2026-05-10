@@ -25,11 +25,13 @@ export function NotifyToggle({
   rolle,
   stationId,
   einrichtungId,
+  embedded = false,
 }: {
   identityId?: string;
   rolle?: string;
   stationId?: string;
   einrichtungId?: string;
+  embedded?: boolean;
 } = {}) {
   const { modus, mounted } = useNotifyMode();
   const [pending, setPending] = useState(false);
@@ -75,7 +77,11 @@ export function NotifyToggle({
       onClick={toggle}
       aria-label={TITLE[modus]}
       title={TITLE[modus]}
-      className="fixed right-4 bottom-72 lg:bottom-52 z-40 w-10 h-10 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+      className={
+        embedded
+          ? "w-9 h-9 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95 shrink-0"
+          : "fixed right-4 bottom-72 lg:bottom-52 z-40 w-10 h-10 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+      }
       style={{
         background: aktiv
           ? "linear-gradient(135deg, rgb(var(--accent)), rgb(var(--vibe-stats)))"

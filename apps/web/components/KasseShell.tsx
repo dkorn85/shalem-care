@@ -3,11 +3,8 @@ import { Wordmark, Logo } from "./Logo";
 import { LocaleSwitcher } from "./LocaleSwitcher";
 // PersonaSwitcher entfernt — HauptMenu (UserMenu) deckt Rollenwechsel ab
 import { getLocale } from "@/lib/i18n/server";
-import { Brillenmodus } from "./Brillenmodus";
-import { GameModeToggle } from "./GameModeToggle";
-import { SoundToggle } from "./SoundToggle";
-import { NotifyToggle } from "./notify/NotifyToggle";
 import { CmdK } from "./CmdK";
+import { WerkzeugMenu } from "./WerkzeugMenu";
 import { ExpertiseChip } from "./ExpertiseChip";
 
 const KASSE_PRIMAER = "var(--vibe-approval)";
@@ -83,10 +80,12 @@ export async function KasseShell({
           </div>
         </div>
       </footer>
-      <Brillenmodus beruf="lead" rolePrimaer={KASSE_PRIMAER} roleLabel={KASSE_LABEL} />
-      <GameModeToggle />
-      <SoundToggle />
-      <NotifyToggle rolle="kasse" />
+      <WerkzeugMenu
+        beruf="lead"
+        rolePrimaer={KASSE_PRIMAER}
+        roleLabel={KASSE_LABEL}
+        rolle="kasse"
+      />
       <CmdK />
     </div>
   );

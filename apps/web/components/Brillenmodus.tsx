@@ -25,10 +25,12 @@ export function Brillenmodus({
   beruf,
   rolePrimaer,
   roleLabel,
+  embedded = false,
 }: {
   beruf: string;
   rolePrimaer: string;
   roleLabel: string;
+  embedded?: boolean;
 }) {
   const [aktiv, setAktiv] = useState(false);
   const [open, setOpen] = useState(false);
@@ -93,7 +95,11 @@ export function Brillenmodus({
       <button
         onClick={toggleAktiv}
         aria-label="Brillenmodus aktivieren · KI-Klartext für jeden Begriff"
-        className="fixed right-4 bottom-20 lg:bottom-6 z-40 w-12 h-12 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        className={
+          embedded
+            ? "w-9 h-9 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95 shrink-0"
+            : "fixed right-4 bottom-20 lg:bottom-6 z-40 w-12 h-12 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        }
         style={{
           background: "rgb(var(--bg-elev))",
           color: `rgb(${rolePrimaer})`,
@@ -110,7 +116,11 @@ export function Brillenmodus({
       <button
         onClick={() => (open ? setOpen(false) : setOpen(true))}
         aria-label={open ? "Brillenmodus-Panel schließen" : "Brillenmodus-Panel öffnen"}
-        className="fixed right-4 bottom-20 lg:bottom-6 z-40 w-12 h-12 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        className={
+          embedded
+            ? "w-9 h-9 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95 shrink-0"
+            : "fixed right-4 bottom-20 lg:bottom-6 z-40 w-12 h-12 rounded-full grid place-items-center transition-all hover:scale-105 active:scale-95"
+        }
         style={{
           background: `rgb(${rolePrimaer})`,
           color: "white",
