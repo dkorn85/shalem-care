@@ -22,6 +22,7 @@ export const KARTE_AKZENT: Record<string, string> = {
   "/rettungsdienst": "var(--mon)",
   "/bestatter":      "var(--vibe-profile)",
   "/begleitung":     "var(--wed)",
+  "/tausch":         "var(--vibe-market)",
 };
 
 /** Mapping Basis-Route → ExpertiseRolle (für Stufen-Anzeige). */
@@ -38,6 +39,7 @@ export const KARTE_EXPERTISE: Record<string, ExpertiseRolle | null> = {
   "/rettungsdienst": "rettungsdienst",
   "/bestatter":      "bestatter",
   "/begleitung":     "begleitung",
+  "/tausch":         "pflege",
 };
 
 export type AngereicherteGruppe = SubNavGruppe & {

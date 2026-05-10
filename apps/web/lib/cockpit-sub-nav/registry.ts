@@ -67,6 +67,15 @@ export const COCKPIT_SUB_NAV: SubNavGruppe[] = [
     ],
   },
   {
+    basis: "/tausch",
+    eyebrow: "Tausch-Markt",
+    items: [
+      { href: "/tausch",          label: "Markt",        vibe: "var(--vibe-market)", glyph: "⇆", hint: "alle offenen Anfragen" },
+      { href: "/tausch/mein",     label: "Mein Tausch",  vibe: "var(--mon)",         glyph: "◌", hint: "meine Angebote + Übernahmen" },
+      { href: "/tausch/anbieten", label: "Anbieten",     vibe: "var(--vibe-team)",   glyph: "+", hint: "neue Schicht freigeben" },
+    ],
+  },
+  {
     basis: "/apotheke",
     eyebrow: "Apotheke",
     items: [

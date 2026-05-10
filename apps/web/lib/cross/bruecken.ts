@@ -87,6 +87,22 @@ export const BRUECKEN: Record<string, Bruecke[]> = {
     { zielHref: "/ehrenamt",            zielLabel: "Ehrenamt · Hospiz",        was: "Schicht-Plan kann durch ausgebildete Hospiz-Ehrenamtliche ergänzt werden",    richtung: "rein" },
   ],
 
+  // ───────────── Tausch ─────────────
+  "/tausch": [
+    { zielHref: "/tausch/mein",          zielLabel: "Tausch · Mein",          was: "Eigene Angebote + Übernahmen + Historie",                              richtung: "raus" },
+    { zielHref: "/admin/genehmigungen",  zielLabel: "Träger · Genehmig.",     was: "Stationsleitung-Sicht der matched-Vorgänge",                            richtung: "raus" },
+    { zielHref: "/pflege",               zielLabel: "Pflege · Cockpit",       was: "Schicht-Daten kommen aus dem eigenen Dienstplan",                       richtung: "rein" },
+  ],
+  "/tausch/mein": [
+    { zielHref: "/pflege",                zielLabel: "Pflege · Cockpit",       was: "Eigener Dienstplan + Wochen-Übersicht der Schichten",                  richtung: "rein" },
+    { zielHref: "/admin/genehmigungen",   zielLabel: "Träger · Genehmig.",     was: "Stationsleitung sieht meine matched-Tauschvorgänge zur Freigabe",      richtung: "raus" },
+    { zielHref: "/tausch/anbieten",       zielLabel: "Tausch · Anbieten",      was: "Neue Schicht zum Tausch freigeben",                                       richtung: "raus" },
+  ],
+  "/tausch/[id]": [
+    { zielHref: "/admin/genehmigungen",   zielLabel: "Träger · Genehmig.",     was: "Stationsleitung-Genehmigungs-Cockpit · matched zu approved",            richtung: "raus" },
+    { zielHref: "/pflege",                zielLabel: "Pflege · Cockpit",       was: "Schicht-Daten kommen aus dem eigenen Dienstplan",                       richtung: "rein" },
+  ],
+
   // ───────────── Klient ─────────────
   "/klient/daten": [
     { zielHref: "/klient/woche",   zielLabel: "Klient · Meine Woche",   was: "Wünsche pflegen + Verlauf einsehen je Termin",                                    richtung: "raus" },
