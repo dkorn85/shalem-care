@@ -38,6 +38,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0010_belegung.sql` | bett + belegung + reservierung persistent · Stationsmanagement | bereit zum Ausführen |
 | `supabase/migrations/0011_klient_termin.sql` | Wochen-Termine persistent · Brücke zu klient_wunsch über termin_id · 16 Demo-Termine Helga | bereit zum Ausführen |
 | `supabase/migrations/0012_kassen_vorgang.sql` | Kostenträger-Anträge + Widerspruch-Verlauf · § 13 Abs 3a SGB V · § 84 SGG-Frist-Helper | bereit zum Ausführen |
+| `supabase/migrations/0013_storage_buckets.sql` | 3 private Klient-Buckets + Storage-RLS · audit_log um storage-Ressourcen erweitert | bereit zum Ausführen |
 
 ---
 
@@ -614,9 +615,51 @@ weil Kassen-Anträge gesetzliche Fristen haben.
 
 ---
 
+## Migration 0013 · Storage-Buckets + Policies
+
+Drei neue private Buckets für hochsensible Klient-Dokumente, jeweils
+mit eigenen RLS-Policies auf storage.objects.
+
+### Was passiert
+1. Drei Buckets:
+   - `vollmacht-scans` (20 MB · PDF/JPG/PNG/WEBP)
+   - `identity-dokumente` (10 MB · gleiches MIME-Set)
+   - `klient-akte` (50 MB · plus Audio MP3/M4A/WAV)
+2. SQL-Helper `storage_klient_id_from_path(name)` extrahiert die
+   klient_id aus dem Pfad-Prefix (RLS-Filter)
+3. Policies pro Bucket nach Sensibilitäts-Stufe:
+   - **vollmacht-scans:** Klient-Self ALL · Bevollmächtigte mit
+     gesundheit ALL · Care-Team mit beruf in (pflege, sozial) SELECT
+     (für Notfall-Aktion)
+   - **identity-dokumente:** sehr restriktiv · Klient-Self ALL ·
+     Bevollmächtigte ALL · Care-Team kein Zugriff
+   - **klient-akte:** offen für die ganze Pflege · Klient-Self ALL ·
+     Bevollmächtigte ALL · Care-Team ALL
+4. audit_log um 3 storage-Ressourcen erweitert
+   (`storage-vollmacht`, `storage-identity`, `storage-akte`)
+
+### Pfad-Konvention
+
+`<klient_id>/<dateityp>/<datei>` — RLS prüft die erste Path-Komponente.
+Beispiele:
+- `vollmacht-scans/klient-hr/vorsorge-2024/notar-schreiber.pdf`
+- `identity-dokumente/klient-hr/perso-vorderseite.jpg`
+- `klient-akte/klient-hr/wundverlauf-sakrum/2026-05-09-foto.jpg`
+
+### Hybrid-Layer
+
+`lib/storage/klient-buckets.ts` (neu) mit Browser-Client-Helpers:
+- `uploadKlientDokument` · upsert-Option · cacheControl
+- `listKlientDokumente` · optional Sub-Ordner-Filter
+- `signedKlientUrl` · default 60 min Gültigkeit
+- `loescheKlientDokument`
+- `BUCKET_LABEL` + `BUCKET_BESCHREIBUNG` + `BUCKET_GROESSE_MB`
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0013** Storage-Bucket-Policies (Identity-Dokumente,
-   Vollmachts-Scans)
-2. **Migration 0014** `messenger_message` für die Pflege-Chat-Persistenz
-3. **Migration 0015** `aktivitaet_feed` für die System-Live-Aktivität
+1. **Migration 0014** `messenger_message` für die Pflege-Chat-Persistenz
+2. **Migration 0015** `aktivitaet_feed` für die System-Live-Aktivität
+3. **Migration 0016** `klient_notiz` für freie Notizen
+   (heute in `klient/notizen/page.tsx` rein UI)
