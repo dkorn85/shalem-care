@@ -24,7 +24,7 @@ import {
   berufeImEinsatz,
   type WocheTermin,
 } from "@/lib/klient/woche";
-import { getWunsch } from "@/lib/klient/wunsch-store";
+import { getWunsch, getVerlauf } from "@/lib/klient/wunsch-store";
 
 export const metadata = {
   title: "Meine Woche · Klient",
@@ -186,6 +186,7 @@ function TerminKarte({ t }: { t: WocheTermin }) {
         eigenerWunsch={getWunsch(t.klientId, t.id)?.wunsch}
         geaendertAm={getWunsch(t.klientId, t.id)?.geaendertAm}
         geaendertVon={getWunsch(t.klientId, t.id)?.geaendertVon}
+        verlauf={getVerlauf(t.klientId, t.id)}
       />
 
       <Link

@@ -4,13 +4,14 @@
 //
 // Zwei Zustände:
 //  · Lesen: zeigt den aktuellen Wunsch (Override > Default), darunter ein
-//    kleiner „bearbeiten"-Button.
+//    kleiner „bearbeiten"-Button + ein „Verlauf"-Toggle wenn Historie da ist.
 //  · Schreiben: Textarea + Speichern + Löschen + Abbrechen.
 //
 // Beim Speichern via Server-Action revalidatet sich /klient/woche.
 
 import { useState, useTransition } from "react";
 import { setzeWunschAction, loescheWunschAction } from "@/lib/klient/wunsch-actions";
+import type { VerlaufEintrag } from "@/lib/klient/wunsch-store";
 
 export function WunschEditor({
   klientId,
@@ -19,6 +20,7 @@ export function WunschEditor({
   eigenerWunsch,
   geaendertAm,
   geaendertVon,
+  verlauf = [],
 }: {
   klientId:      string;
   terminId:      string;
@@ -26,8 +28,10 @@ export function WunschEditor({
   eigenerWunsch?: string;
   geaendertAm?:   string;
   geaendertVon?:  "selbst" | "betreuer" | "angehoerige";
+  verlauf?:       VerlaufEintrag[];
 }) {
   const [editiert, setEditiert] = useState(false);
+  const [verlaufOffen, setVerlaufOffen] = useState(false);
   const [text, setText] = useState(eigenerWunsch ?? defaultWunsch ?? "");
   const [pending, startTransition] = useTransition();
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -139,6 +143,35 @@ export function WunschEditor({
         <p className="text-[11px] mt-1.5" style={{ color: feedback.startsWith("✓") ? "rgb(var(--thu))" : "rgb(var(--mon))" }}>
           {feedback}
         </p>
+      )}
+
+      {verlauf.length > 0 && (
+        <div className="mt-1.5 no-print">
+          <button
+            type="button"
+            onClick={() => setVerlaufOffen((v) => !v)}
+            className="text-[10px] text-soft hover:text-[rgb(var(--fg))] underline-offset-2 hover:underline font-mono"
+          >
+            {verlaufOffen ? "Verlauf zuklappen" : `Verlauf · ${verlauf.length} Änderung${verlauf.length === 1 ? "" : "en"}`}
+          </button>
+          {verlaufOffen && (
+            <ol className="mt-1 space-y-0.5 pl-3 text-[10px] text-mute" style={{ borderLeft: "1px solid rgb(var(--bg-mute))" }}>
+              {verlauf.slice().reverse().map((v, i) => (
+                <li key={i} className="leading-snug">
+                  <span className="font-mono text-soft">{v.geaendertAm.slice(0, 16).replace("T", " ")}</span>
+                  {" · "}
+                  <span style={{ color: v.art === "geloescht" ? "rgb(var(--mon))" : "rgb(var(--wed))" }}>
+                    {v.art === "geloescht" ? "entfernt" : "geändert"}
+                  </span>
+                  {" "}von <strong>{v.geaendertVon}</strong>
+                  {v.art === "gesetzt" && v.wunsch && (
+                    <>: <em>„{v.wunsch}"</em></>
+                  )}
+                </li>
+              ))}
+            </ol>
+          )}
+        </div>
       )}
     </div>
   );
