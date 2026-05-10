@@ -17,6 +17,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { COCKPIT_SUB_NAV } from "@/lib/cockpit-sub-nav/registry";
+import { alleDynamischenEintraege } from "@/lib/cmdk/dynamic";
 
 type Eintrag = {
   href:    string;
@@ -24,11 +25,13 @@ type Eintrag = {
   gruppe:  string;        // Beruf · Familie
   hint?:   string;        // Untertitel
   glyph?:  string;
+  bucket:  "cockpit" | "inhalt";
+  schlagwoerter?: string; // zusätzliche Such-Strings (für Inhalte)
 };
 
-const ALLE_EINTRAEGE: Eintrag[] = COCKPIT_SUB_NAV.flatMap((g) => [
+const COCKPIT_EINTRAEGE: Eintrag[] = COCKPIT_SUB_NAV.flatMap((g) => [
   // Beruf-Hub selbst
-  { href: g.basis, label: g.eyebrow, gruppe: g.eyebrow, hint: "Cockpit-Übersicht", glyph: "◇" },
+  { href: g.basis, label: g.eyebrow, gruppe: g.eyebrow, hint: "Cockpit-Übersicht", glyph: "◇", bucket: "cockpit" as const },
   // Sub-Reiter
   ...g.items.map((i) => ({
     href:   i.href,
@@ -36,8 +39,21 @@ const ALLE_EINTRAEGE: Eintrag[] = COCKPIT_SUB_NAV.flatMap((g) => [
     gruppe: g.eyebrow,
     hint:   i.hint,
     glyph:  i.glyph,
+    bucket: "cockpit" as const,
   })),
 ]);
+
+const INHALT_EINTRAEGE: Eintrag[] = alleDynamischenEintraege().map((d) => ({
+  href:          d.href,
+  label:         d.titel,
+  gruppe:        d.kategorie,
+  hint:          d.hint,
+  glyph:         d.glyph,
+  bucket:        "inhalt" as const,
+  schlagwoerter: d.schlagwoerter,
+}));
+
+const ALLE_EINTRAEGE: Eintrag[] = [...COCKPIT_EINTRAEGE, ...INHALT_EINTRAEGE];
 
 export function CmdK() {
   const router = useRouter();
@@ -83,19 +99,24 @@ export function CmdK() {
     }
   }, [offen]);
 
-  // Filter
+  // Filter — Cockpits zuerst (Routen), dann Inhalte
   const treffer = useMemo(() => {
     const q = query.trim().toLowerCase();
-    if (!q) return ALLE_EINTRAEGE.slice(0, 20);
+    if (!q) {
+      // Default: nur die ersten Cockpits, keine Inhalte (sonst überflutet's)
+      return COCKPIT_EINTRAEGE.slice(0, 20);
+    }
     const scored = ALLE_EINTRAEGE
       .map((e) => {
-        const heu = `${e.label} ${e.gruppe} ${e.hint ?? ""} ${e.href}`.toLowerCase();
+        const heu = `${e.label} ${e.gruppe} ${e.hint ?? ""} ${e.href} ${e.schlagwoerter ?? ""}`.toLowerCase();
         const idx = heu.indexOf(q);
-        return { e, score: idx === -1 ? Infinity : idx };
+        // Cockpits leicht bevorzugen, damit "btm" → /apotheke/btm vor allen BtM-Einträgen kommt
+        const bucketBoost = e.bucket === "cockpit" ? -0.5 : 0;
+        return { e, score: idx === -1 ? Infinity : idx + bucketBoost };
       })
       .filter((x) => x.score !== Infinity)
       .sort((a, b) => a.score - b.score)
-      .slice(0, 50)
+      .slice(0, 60)
       .map((x) => x.e);
     return scored;
   }, [query]);
@@ -163,10 +184,15 @@ export function CmdK() {
               className="w-full bg-transparent text-[15px] py-2 outline-none"
             />
             <p className="text-[10px] text-soft font-mono mt-1">
-              {treffer.length} {treffer.length === 1 ? "Treffer" : "Treffer"} ·
-              <kbd className="font-mono mx-1 px-1 rounded surface-mute text-[9px]">↑↓</kbd>navigieren
-              <kbd className="font-mono mx-1 px-1 rounded surface-mute text-[9px]">↵</kbd>öffnen
-              <kbd className="font-mono mx-1 px-1 rounded surface-mute text-[9px]">Esc</kbd>schließen
+              {treffer.length} Treffer
+              {query.trim() && (
+                <> · {treffer.filter((t) => t.bucket === "cockpit").length} Cockpit · {treffer.filter((t) => t.bucket === "inhalt").length} Inhalte</>
+              )}
+              <span className="ml-2">
+                <kbd className="font-mono mx-1 px-1 rounded surface-mute text-[9px]">↑↓</kbd>navigieren
+                <kbd className="font-mono mx-1 px-1 rounded surface-mute text-[9px]">↵</kbd>öffnen
+                <kbd className="font-mono mx-1 px-1 rounded surface-mute text-[9px]">Esc</kbd>schließen
+              </span>
             </p>
           </div>
           {treffer.length === 0 ? (
