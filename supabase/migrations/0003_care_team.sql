@@ -13,18 +13,9 @@
 --   · Cross-Beruf-Brücke: Was-Beschreibung + Link ins zuständige Cockpit
 
 -- ─────────────────────────────────────────────────────────────────────
--- profiles · Bridge-Felder
+-- profiles-Bridge-Felder werden in 0000_init_profiles_extension.sql
+-- angelegt — hier nicht nochmal.
 -- ─────────────────────────────────────────────────────────────────────
-
-alter table profiles
-  add column if not exists person_id  text,
-  add column if not exists klient_id  text;
-
-comment on column profiles.person_id is 'Bridge zu Demo-Personal-Universum (z.B. "person-pf-001"). Phase 2.5: durch echte staff_id ersetzt.';
-comment on column profiles.klient_id is 'Wenn Klient:in selbst eingeloggt: ID im Klient-Universum (z.B. "klient-hr").';
-
-create index if not exists profiles_person_id  on profiles (person_id) where person_id is not null;
-create index if not exists profiles_klient_id  on profiles (klient_id) where klient_id is not null;
 
 -- ─────────────────────────────────────────────────────────────────────
 -- care_team · Wer kümmert sich
