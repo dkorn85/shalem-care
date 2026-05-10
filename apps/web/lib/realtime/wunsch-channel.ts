@@ -16,7 +16,7 @@
 // Fail-soft: wenn Supabase nicht konfiguriert oder Connection
 // fehlschlägt, gibt subscribeWunschChannel eine no-op-unsub zurück.
 
-import { browserClient } from "@/lib/auth/client";
+import { browserSupabase } from "@/lib/auth/browser-client";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 
 export type WunschEvent = {
@@ -41,7 +41,7 @@ export function subscribeWunschChannel(
 ): () => void {
   let channel: RealtimeChannel | null = null;
   try {
-    const client = browserClient();
+    const client = browserSupabase();
     channel = client
       .channel(`wunsch-${klientId}`)
       .on(

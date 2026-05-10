@@ -12,7 +12,7 @@
 //
 // Fail-soft: ohne Supabase wird ein no-op zurückgegeben + Toast.
 
-import { browserClient } from "@/lib/auth/client";
+import { browserSupabase } from "@/lib/auth/browser-client";
 
 export type KlientBucket = "vollmacht-scans" | "identity-dokumente" | "klient-akte";
 
@@ -55,7 +55,7 @@ export async function uploadKlientDokument(input: {
   upsert?:   boolean;
 }): Promise<{ ok: true; pfad: string } | { ok: false; error: string }> {
   try {
-    const client = browserClient();
+    const client = browserSupabase();
     const fullPath = bauePfad(input.klientId, input.pfad);
     const { error } = await client.storage
       .from(input.bucket)
@@ -77,7 +77,7 @@ export async function listKlientDokumente(input: {
   unter?:   string;     // optional: Sub-Ordner z.B. "vorsorge-2024"
 }): Promise<KlientDatei[]> {
   try {
-    const client = browserClient();
+    const client = browserSupabase();
     const ordner = input.unter
       ? `${input.klientId}/${input.unter}`
       : input.klientId;
@@ -103,7 +103,7 @@ export async function signedKlientUrl(input: {
   gueltigSekunden?: number;
 }): Promise<string | null> {
   try {
-    const client = browserClient();
+    const client = browserSupabase();
     const { data, error } = await client.storage
       .from(input.bucket)
       .createSignedUrl(input.fullPath, input.gueltigSekunden ?? 3600);
@@ -120,7 +120,7 @@ export async function loescheKlientDokument(input: {
   fullPath: string;
 }): Promise<{ ok: boolean; error?: string }> {
   try {
-    const client = browserClient();
+    const client = browserSupabase();
     const { error } = await client.storage
       .from(input.bucket)
       .remove([input.fullPath]);
