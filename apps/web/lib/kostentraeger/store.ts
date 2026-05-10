@@ -5,6 +5,7 @@ import { listKrankenkassen } from "../krankmeldung/krankenkasse-api";
 import { listKrankmeldungenForEinrichtung, listAktiveKrankmeldungen } from "../krankmeldung/store";
 import { listAnfragen } from "../verordnung/store";
 import { getKlient } from "../hierarchy/store";
+import { syncVorgangZuSupabase, ladeVorgaengeAusSupabase } from "./supabase-sync";
 
 type GlobalShape = { __shalemKassenVorgaenge?: KassenVorgang[] };
 const g = globalThis as unknown as GlobalShape;
@@ -34,7 +35,19 @@ export function setVorgangStatus(
   v.bearbeitetAm = new Date().toISOString();
   v.bearbeitetVon = bearbeitetVon;
   if (notiz !== undefined) v.notiz = notiz;
+  syncVorgangZuSupabase(v).catch(() => {});
   return v;
+}
+
+/** Async-Hydration aus Supabase · Memory wins. */
+export async function ladeVorgaengeFuerKlient(klientId?: string): Promise<KassenVorgang[]> {
+  const fromDb = await ladeVorgaengeAusSupabase(klientId ? { klientId } : undefined);
+  for (const v of fromDb) {
+    if (!vorgaenge.find((e) => e.id === v.id)) vorgaenge.push(v);
+  }
+  return klientId
+    ? vorgaenge.filter((v) => v.klientId === klientId)
+    : vorgaenge;
 }
 
 // ─── Seed: aus existierenden Krankmeldungen + Verordnungs-Anfragen ableiten ──

@@ -37,6 +37,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0009_pflege.sql` | pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform | bereit zum Ausführen |
 | `supabase/migrations/0010_belegung.sql` | bett + belegung + reservierung persistent · Stationsmanagement | bereit zum Ausführen |
 | `supabase/migrations/0011_klient_termin.sql` | Wochen-Termine persistent · Brücke zu klient_wunsch über termin_id · 16 Demo-Termine Helga | bereit zum Ausführen |
+| `supabase/migrations/0012_kassen_vorgang.sql` | Kostenträger-Anträge + Widerspruch-Verlauf · § 13 Abs 3a SGB V · § 84 SGG-Frist-Helper | bereit zum Ausführen |
 
 ---
 
@@ -576,9 +577,46 @@ Profis editiert werden. Brücke zu `klient_wunsch.termin_id` bleibt
 
 ---
 
+## Migration 0012 · kassen_vorgang + widerspruch
+
+Kostenträger-Anträge endlich aus Memory raus. Wichtig für Echtbetrieb,
+weil Kassen-Anträge gesetzliche Fristen haben.
+
+### Was passiert
+1. `kassen_vorgang`-Tabelle mit allen Feldern aus `KassenVorgang`-Type:
+   - 7 Vorgangs-Typen (eau, krankengeld, hkp_genehmigung, hilfsmittel,
+     abrechnung, praevention, verordnung_review)
+   - 5 Status (eingegangen/in_pruefung/genehmigt/abgelehnt/rueckfrage)
+   - betrag_cents als bigint (Centgenau)
+   - 4 Indexe (ik+status, klient partial, einrichtung partial, status)
+2. `widerspruch`-Tabelle mit FK auf vorgang (cascade-delete) +
+   6 Status-Workflow + Frist-Felder
+3. RLS:
+   - Klient-Self SELECT auf vorgang + Self-CRUD auf widerspruch
+   - Care-Team SELECT auf beide
+   - Sozialarbeit-Beruf UPDATE auf vorgang (Hilfeplan-Workflow)
+   - Bevollmächtigte mit gesundheit ODER behoerden
+4. SQL-Helper-Functions:
+   - `frist_dreizehn_dreia(eingang)` → 21 Tage (§ 13 Abs 3a SGB V)
+   - `frist_paragraph_84_sgg(bescheid)` → 1 Monat ab Bescheid
+5. Realtime aus 0007 erweitert + REPLICA IDENTITY FULL
+
+### Hybrid-Layer
+
+`lib/kostentraeger/supabase-sync.ts` (neu):
+- syncVorgangZuSupabase fail-soft Upsert
+- ladeVorgaengeAusSupabase mit optionalem ik/klient-Filter
+- camelCase ↔ snake_case Mapper
+
+`lib/kostentraeger/store.ts`:
+- `setVorgangStatus` syncht fail-soft
+- Neue `ladeVorgaengeFuerKlient(klientId?)` für Page-Hydration
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0012** `kassen_vorgang` für die Kostenträger-Anträge
-2. **Migration 0013** Storage-Bucket-Policies (Identity-Dokumente,
+1. **Migration 0013** Storage-Bucket-Policies (Identity-Dokumente,
    Vollmachts-Scans)
-3. **Migration 0014** `messenger_message` für die Pflege-Chat-Persistenz
+2. **Migration 0014** `messenger_message` für die Pflege-Chat-Persistenz
+3. **Migration 0015** `aktivitaet_feed` für die System-Live-Aktivität
