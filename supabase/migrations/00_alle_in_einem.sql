@@ -611,40 +611,55 @@ select * from (values
 where not exists (select 1 from care_team where klient_id = 'klient-hr');
 
 -- ─────────────────────────────────────────────────────────────────────
--- Nachgeholte Policies aus 0001/0002 (jetzt funktional, weil
--- care_team + profiles.person_id existieren)
+-- Nachgeholte Policies aus 0001/0002 — defensiv in do-Blöcken,
+-- damit die Migration nicht abbricht wenn die Tabellen aus
+-- irgendeinem Grund nicht existieren (z.B. partielle Re-Runs).
 -- ─────────────────────────────────────────────────────────────────────
 
--- klient_wunsch · Care-Team SELECT
-drop policy if exists "klient_wunsch_care_team_select" on klient_wunsch;
-create policy "klient_wunsch_care_team_select"
-  on klient_wunsch
-  for select
-  using (
-    klient_id in (
-      select klient_id from care_team
-      where user_id = auth.uid() and aktiv = true
-    )
-  );
+do $$
+begin
+  if exists (select 1 from pg_tables where schemaname = 'public' and tablename = 'klient_wunsch') then
+    execute 'drop policy if exists "klient_wunsch_care_team_select" on klient_wunsch';
+    execute $POL$
+      create policy "klient_wunsch_care_team_select"
+        on klient_wunsch
+        for select
+        using (
+          klient_id in (
+            select klient_id from care_team
+            where user_id = auth.uid() and aktiv = true
+          )
+        )
+    $POL$;
+  end if;
+end $$;
 
--- swap_offer · Owner-Update/Delete jetzt mit person_id-Bridge
-drop policy if exists "swap_offer_owner_update" on swap_offer;
-create policy "swap_offer_owner_update"
-  on swap_offer
-  for update
-  using (
-    offered_by = auth.uid()::text
-    or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
-  );
+do $$
+begin
+  if exists (select 1 from pg_tables where schemaname = 'public' and tablename = 'swap_offer') then
+    execute 'drop policy if exists "swap_offer_owner_update" on swap_offer';
+    execute $POL$
+      create policy "swap_offer_owner_update"
+        on swap_offer
+        for update
+        using (
+          offered_by = auth.uid()::text
+          or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
+        )
+    $POL$;
 
-drop policy if exists "swap_offer_owner_delete" on swap_offer;
-create policy "swap_offer_owner_delete"
-  on swap_offer
-  for delete
-  using (
-    offered_by = auth.uid()::text
-    or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
-  );
+    execute 'drop policy if exists "swap_offer_owner_delete" on swap_offer';
+    execute $POL$
+      create policy "swap_offer_owner_delete"
+        on swap_offer
+        for delete
+        using (
+          offered_by = auth.uid()::text
+          or offered_by in (select person_id from profiles where user_id = auth.uid() and person_id is not null)
+        )
+    $POL$;
+  end if;
+end $$;
 
 -- ════════════════════════════════════════════════════════════════════════════
 -- ║ 0004_vollmachten.sql
