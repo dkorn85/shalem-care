@@ -70,6 +70,24 @@ supabase link --project-ref <project-id>
 supabase db push
 ```
 
+### Mit psql vom Tablet (Termux)
+
+Vollständige Anleitung: [docs/SUPABASE_TERMUX_SETUP.md](./SUPABASE_TERMUX_SETUP.md)
+
+Kurz:
+
+```bash
+pkg install postgresql git           # einmalig in Termux
+git clone <repo> && cd shalem-care
+echo 'export SHALEM_PG_URL="postgresql://postgres.<projekt>:DB-PASSWORT@aws-0-eu-central-1.pooler.supabase.com:6543/postgres"' >> ~/.shalem-care.env
+chmod 600 ~/.shalem-care.env
+source ~/.shalem-care.env
+
+./scripts/migrate.sh --status        # was ist schon in der DB
+./scripts/migrate.sh 0001            # eine bestimmte Migration
+./scripts/migrate.sh                 # alle in Reihenfolge (mit Bestätigung)
+```
+
 ---
 
 ## ENV-Variablen
