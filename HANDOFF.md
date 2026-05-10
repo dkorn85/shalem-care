@@ -31,6 +31,7 @@
 **⇆ Tausch-Markt vollwertig** Detail-Page mit Verlauf · Mein-Tausch-Sicht · TauschAktionen mit Akzept/Genehm/Ablehn-Begründung/Zurückzieh · eigene Sub-Nav-Familie ·
 **📋 Expertenteam-Evaluierung** 7-Perspektiven-Audit als `docs/EXPERTENTEAM_EVALUIERUNG.md` mit Prio-Matrix für nächste Phasen ·
 **🗄 Supabase-Migration Phase 2 · Schritt 1** Hybrid-Store für Wünsche (klient_wunsch + klient_wunsch_verlauf mit RLS + Verlauf-Trigger) · fail-soft auf Memory ohne ENVs ·
+**🗄 Supabase-Migration 0002** Tausch-Markt persistent (swap_offer + swap_offer_history mit RLS + state-change-Trigger) · Hybrid via syncOfferZuSupabase + ladeAusSupabase ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -135,6 +136,20 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 46 · Supabase-Migration 0002 · Tausch-Markt persistent (Session 48 · 2026-05-10)
+
+Zweiter Schritt der Phase-2-Persistenz nach Wunsch-Tabellen.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0002_swap_offer.sql` | swap_offer + swap_offer_history · 7 SwapState als check · 6 SwapEvent · 3 Indexe · updated_at-Trigger · state-change-Trigger schreibt history automatisch · RLS auth-SELECT (Markt offen), Eigentümer:in INSERT/UPDATE/DELETE über profiles |
+| `lib/swap-store-supabase-sync.ts` | syncOfferZuSupabase fail-soft Upsert · ladeOffersAusSupabase mit history-merge |
+| `lib/swap-store-memory.ts` | createOffer + updateOffer rufen Sync fail-soft · neue Methode `ladeAusSupabase()` für Hydration |
+| `/tausch` + `/tausch/mein` + `/tausch/[id]` | store.ladeAusSupabase() als erster Page-Loader-Schritt mit Optional-Detection |
+| `docs/SUPABASE_MIGRATION.md` | 0002-Sektion + Roadmap-Update (0003 care_team, 0004 vollmachten, 0005 audit_log, 0006 shift_slot) |
+
+User-Aktion: SQL aus `0002_swap_offer.sql` im Dashboard ausführen, Hybrid-Modus läuft sofort wenn ENVs gesetzt.
 
 ### 45 · Supabase-Migration Phase 2 · Wunsch-Tabellen + Hybrid-Store (Session 47 · 2026-05-10)
 
