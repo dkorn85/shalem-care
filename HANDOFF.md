@@ -38,6 +38,7 @@
 **🗄 Supabase-Migration 0006** shift_slot mit FHIR-Round-Trip + ArbZG-Helper · komplettiert Tausch-Markt-Persistenz (Slots + Offers + History) ·
 **🗄 Supabase-Migration 0007** Realtime-Channels für Wunsch + Tausch · Profi-Cockpits sehen Änderungen live mit Blink-Indikator · RLS gilt auch für Live-Events ·
 **🗄 Supabase-Migration 0008** vollmacht_nachfolge · Rollen-Übergang nach BGB § 1815 mit transaktionaler `nachfolge_aktivieren()`-Function · Aktivierungs-Log + UI-Sicht ·
+**🗄 Supabase-Migration 0009** pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform · Cascade-Delete · Realtime · Pflege-Beruf-Schreibrecht via care_team ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -142,6 +143,20 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 53 · Supabase-Migration 0009 · pflegediagnose + pflegeplan persistent (Session 55 · 2026-05-10)
+
+Pflegerische Hauptdaten endlich aus globalThis raus.
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0009_pflege.sql` | pflegediagnose AEDS + Status-Enum · pflegeplan mit FK + Cascade-Delete + Status-Workflow · 5 Indexe pro Tabelle · 6 RLS-Policies (Klient-Self · Care-Team · Pflege-Beruf-Write · Bevollmächtigte) · Realtime-Pub erweitert |
+| `lib/pflege/supabase-sync.ts` (neu) | syncDiagnoseZuSupabase + syncPlanZuSupabase + ladeDiagnosenAusSupabase + ladePlanAusSupabase mit camelCase↔snake_case Mapper |
+| `lib/pflege/pflegediagnose-store.ts` | setze/loese/evaluiere syncen · neue ladeDiagnosenFuerKlient für Hydration |
+| `lib/pflege/pflegeplan-store.ts` | generierePlanAusDiagnose + fuegeManuellHinzu + setzeStatus syncen · neue ladePlanFuerKlient |
+| `docs/SUPABASE_MIGRATION.md` | 0009-Sektion · Roadmap 0010 belegung, 0011 klient_termin, 0012 kassen_vorgang |
+
+User-Aktion: SQL aus `0009_pflege.sql` im Dashboard ausführen — nutzt `swap_offer_touch_updated` aus 0002, `care_team` aus 0003, `darf_im_namen_handeln` aus 0004 und Realtime-Pub aus 0007.
 
 ### 52 · Supabase-Migration 0008 · vollmacht_nachfolge · Rollen-Übergang (Session 54 · 2026-05-10)
 
