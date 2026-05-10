@@ -24,7 +24,7 @@ import {
   berufeImEinsatz,
   type WocheTermin,
 } from "@/lib/klient/woche";
-import { getWunsch, getVerlauf } from "@/lib/klient/wunsch-store";
+import { getWunsch, getVerlauf, ladeWuenscheFuerKlient } from "@/lib/klient/wunsch-store";
 
 export const metadata = {
   title: "Meine Woche · Klient",
@@ -34,7 +34,10 @@ export const metadata = {
 const KLIENT_ID = "klient-hr";
 const KLIENT_NAME = "Helga Reinhardt";
 
-export default function KlientWochePage() {
+export default async function KlientWochePage() {
+  // Wenn Supabase konfiguriert ist, hydriere zuerst aus DB, sonst sofort weiter
+  await ladeWuenscheFuerKlient(KLIENT_ID);
+
   const termine = wocheFuerKlient(KLIENT_ID);
   const tage = termineProTag(termine);
   const berufe = berufeImEinsatz(termine);

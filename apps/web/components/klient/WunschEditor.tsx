@@ -11,7 +11,7 @@
 
 import { useState, useTransition } from "react";
 import { setzeWunschAction, loescheWunschAction } from "@/lib/klient/wunsch-actions";
-import type { VerlaufEintrag } from "@/lib/klient/wunsch-store";
+import type { VerlaufEintrag, WunschQuelle } from "@/lib/klient/wunsch-store";
 
 export function WunschEditor({
   klientId,
@@ -27,7 +27,7 @@ export function WunschEditor({
   defaultWunsch?: string;
   eigenerWunsch?: string;
   geaendertAm?:   string;
-  geaendertVon?:  "selbst" | "betreuer" | "angehoerige";
+  geaendertVon?:  WunschQuelle;
   verlauf?:       VerlaufEintrag[];
 }) {
   const [editiert, setEditiert] = useState(false);

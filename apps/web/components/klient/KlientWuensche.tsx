@@ -10,7 +10,7 @@
 
 import Link from "next/link";
 import { wocheFuerKlient, WOCHE_BERUF_LABEL, WOCHE_BERUF_FARBE, WOCHE_BERUF_GLYPH } from "@/lib/klient/woche";
-import { alleWuenscheFuerKlient } from "@/lib/klient/wunsch-store";
+import { alleWuenscheFuerKlient, type WunschQuelle } from "@/lib/klient/wunsch-store";
 
 type AggregierterWunsch = {
   terminId:    string;
@@ -18,7 +18,7 @@ type AggregierterWunsch = {
   beruf:       string;
   glyph:       string;
   farbe:       string;
-  quelle:      "default" | "selbst" | "betreuer" | "angehoerige";
+  quelle:      "default" | WunschQuelle;
   geaendertAm?: string;
   datum:       string;
   uhrzeit:     string;
