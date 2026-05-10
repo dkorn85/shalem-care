@@ -36,6 +36,7 @@
 **🗄 Supabase-Migration 0004** Vollmachten (Vorsorge/Betreuung/PV/Angehörige) + SQL-Helper darf_im_namen_handeln() + Erweiterung klient_wunsch-RLS ·
 **🗄 Supabase-Migration 0005** audit_log für Lese-Zugriffe · DSGVO Art. 30 + Klient-Transparenz · Hooks in 4 Profi-Cockpits · Sektion „Wer hat auf meine Daten geschaut" auf /klient/daten ·
 **🗄 Supabase-Migration 0006** shift_slot mit FHIR-Round-Trip + ArbZG-Helper · komplettiert Tausch-Markt-Persistenz (Slots + Offers + History) ·
+**🗄 Supabase-Migration 0007** Realtime-Channels für Wunsch + Tausch · Profi-Cockpits sehen Änderungen live mit Blink-Indikator · RLS gilt auch für Live-Events ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -140,6 +141,22 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 51 · Supabase-Migration 0007 · Realtime · Live-Updates ohne Reload (Session 53 · 2026-05-10)
+
+Pflege/Therapie/Apotheke sehen Wunsch-Änderungen jetzt live. Tausch-Markt-Vorgänge propagieren live (PDL sieht matched-Status sofort).
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0007_realtime.sql` | supabase_realtime-Pub um 4 Tabellen erweitert (wunsch + verlauf + swap_offer + history) · REPLICA IDENTITY FULL · Custom NOTIFY-Function `notify_wunsch_change` mit Trigger für direkten LISTEN-Use · audit_log bewusst nicht freigeschaltet |
+| `lib/realtime/wunsch-channel.ts` | subscribeWunschChannel mit klient_id-Filter · fail-soft no-op-unsub ohne Supabase |
+| `components/klient/WunschLiveBadge.tsx` | Live-Indikator (Punkt + Label) · 2.4s-Blink bei Event + router.refresh() für SSR-Update |
+| `KlientWuensche` | Header zeigt WunschLiveBadge · alle 4 Profi-Cockpits sind automatisch live verbunden |
+| `docs/SUPABASE_MIGRATION.md` | 0007-Sektion mit Sicherheit (RLS gilt für Realtime) + Limits (200/100k Free) · Roadmap 0008-0010 |
+
+Sicherheit: RLS-Policies aus 0001/0003/0004 gelten auch für Realtime — Subscriber bekommen nur Events ihrer berechtigten Klient:innen.
+
+User-Aktion: SQL aus `0007_realtime.sql` im Dashboard ausführen, dann Database → Replication → supabase_realtime checken (4 Tabellen aktiv).
 
 ### 50 · Supabase-Migration 0006 · shift_slot · FHIR-Slot persistent (Session 52 · 2026-05-10)
 
