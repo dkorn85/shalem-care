@@ -108,6 +108,25 @@ create trigger on_auth_user_created
   after insert on auth.users
   for each row execute function handle_new_user();
 
+-- ─────────────────────────────────────────────────────────────────────
+-- Generischer updated_at-Trigger-Helper
+-- (wird von vielen Folge-Migrationen genutzt unter dem Namen
+-- swap_offer_touch_updated — historisch in 0002 entstanden, jetzt
+-- hier vorgezogen damit jede spätere Migration sich darauf verlassen
+-- kann.)
+-- ─────────────────────────────────────────────────────────────────────
+
+create or replace function swap_offer_touch_updated()
+returns trigger
+language plpgsql
+as $$
+begin
+  new.updated_at := now();
+  return new;
+end $$;
+
+comment on function swap_offer_touch_updated is 'Generischer BEFORE UPDATE-Trigger · setzt new.updated_at = now() · wiederverwendet für swap_offer + 8 weitere Tabellen.';
+
 -- ════════════════════════════════════════════════════════════════════════════
 -- ║ 0001_klient_wunsch.sql
 -- ════════════════════════════════════════════════════════════════════════════
