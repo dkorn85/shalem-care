@@ -24,6 +24,7 @@
 **✎ Wunsch-Editor in /klient/woche** Klient pflegt eigene Wünsche per Server-Action · 240-Zeichen-Limit · Override > Default mit Lösch-Fallback · DSGVO Art. 4 konkret ·
 **🪞 Wunsch-Spiegel in Profi-Cockpits** Pflege/Therapie/Apotheke/Begleitung sehen die dokumentierten Wünsche mit Quelle 'von selbst/betreuer/angehörige' — schließt den DSGVO-Kreislauf ·
 **🔎 Cmd-K als Universal-Suche** durchsucht zusätzlich Wirkstoffe, Methoden, SOPs, Erreger, Bewohner, Wochen-Termine quer durch alle Demo-Kataloge ·
+**🖨 Wochenplan drucken** A4-Druck der Klient-Wochenübersicht mit Druckdatum + Übergabe-Hinweis für Pflege/Familie ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -128,6 +129,17 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 40 · PDF-Druck der Klient-Wochenübersicht (Session 42 · 2026-05-10)
+
+Familien-Use-Case: Tochter Liane druckt Helgas Wochenplan aus und reicht ihn an die Pflege weiter. Nutzt die bestehenden Print-Patterns aus Kasse/Bescheid + DruckenButton.
+
+| Datei | Was |
+|---|---|
+| `/klient/woche` | DruckenButton im Header · Print-Header (.hidden print:block) mit Wordmark + Klient-Name + Druckdatum · .no-print auf Sub-Nav/Aufklär-Block/KPIs/CrossBrücken/Footer/Cockpit-Links · Sticky-Tag-Header wird beim Druck statisch (print:static + print:border-b) · Print-Footer mit Übergabe-Hinweis + DSGVO Art. 4 |
+| `WunschEditor` | bearbeiten-Button + Editier-Box mit .no-print (read-only Wunsch bleibt sichtbar) |
+
+Druck enthält pro Tag den Header + alle Termine (Zeit, Person, Ort, Was-Passiert + sichtbare Wünsche). Druckdatum oben, Übergabe-Erklärung unten.
 
 ### 39 · Cmd-K wird Universal-Suche · findet Inhalte, nicht nur Routen (Session 41 · 2026-05-10)
 
