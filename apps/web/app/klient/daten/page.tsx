@@ -24,6 +24,7 @@ import { listPlanFuerKlient } from "@/lib/pflege/pflegeplan-store";
 import { belegungenFuerKlient } from "@/lib/station/betten-store";
 import { listVorgaenge } from "@/lib/kostentraeger/store";
 import { ladeVollmachtenFuerKlient, vollmachtenFuerKlient, ART_LABEL, ART_FARBE, AUFGABENKREIS_LABEL } from "@/lib/vollmacht/store";
+import { ladeAuditFuerKlient, auditFuerKlient, RESSOURCE_LABEL, AKTION_LABEL, AKTION_FARBE, auditLog } from "@/lib/audit/store";
 
 export const metadata = {
   title: "Meine Daten · Klient · DSGVO Art. 15",
@@ -38,7 +39,14 @@ export default async function KlientDatenPage() {
   // Hybrid-Hydration aus Supabase wenn konfiguriert
   await Promise.all([
     ladeVollmachtenFuerKlient(KLIENT_ID),
+    ladeAuditFuerKlient(KLIENT_ID, 30),
   ]);
+  // Audit-Eintrag für diese Eigen-Auskunft (Selbst-Sicht ist auch Zugriff)
+  await auditLog({
+    userName: KLIENT_NAME, userRole: "klient",
+    klientId: KLIENT_ID, ressource: "identity", aktion: "read",
+    kontext: { reason: "selbst-auskunft", route: "/klient/daten" },
+  });
 
   const termine = wocheFuerKlient(KLIENT_ID);
   const wuensche = alleWuenscheFuerKlient(KLIENT_ID);
@@ -49,6 +57,7 @@ export default async function KlientDatenPage() {
   const belegungen = belegungenFuerKlient(KLIENT_ID);
   const vorgaenge = listVorgaenge().filter((v) => v.klientId === KLIENT_ID || v.versicherterName === KLIENT_NAME);
   const vollmachten = vollmachtenFuerKlient(KLIENT_ID);
+  const audit = auditFuerKlient(KLIENT_ID, 20);
 
   return (
     <KlientShell user={{ name: KLIENT_NAME, initials: "HR", relation: "self", klientId: KLIENT_ID }}>
@@ -216,6 +225,40 @@ export default async function KlientDatenPage() {
             → /klient/bescheide
           </Link>
         </p>
+      </Block>
+
+      {/* Audit-Block · wer hat auf meine Daten geschaut */}
+      <Block titel="Wer hat auf meine Daten geschaut" eyebrow={`${audit.length} Zugriffe · DSGVO Art. 30 Verarbeitungs-Verzeichnis`}>
+        {audit.length === 0 ? (
+          <p className="text-[11px] italic text-soft">Noch keine dokumentierten Zugriffe.</p>
+        ) : (
+          <ul className="space-y-1.5">
+            {audit.slice(0, 12).map((e, i) => {
+              const farbe = AKTION_FARBE[e.aktion].replace("var(", "").replace(")", "");
+              const wann = new Date(e.at);
+              const minutenHer = Math.round((Date.now() - wann.getTime()) / 60000);
+              const wannLabel = minutenHer < 60 ? `vor ${minutenHer} min`
+                              : minutenHer < 60 * 24 ? `vor ${Math.round(minutenHer / 60)} h`
+                              : `vor ${Math.round(minutenHer / (60 * 24))} T`;
+              return (
+                <li key={e.id ?? i} className="surface-mute rounded-lg p-2 flex items-baseline gap-2 flex-wrap">
+                  <span className="chip text-[9px]" style={{ background: `rgb(${farbe} / 0.18)`, color: `rgb(${farbe})` }}>
+                    {AKTION_LABEL[e.aktion]}
+                  </span>
+                  <span className="text-[12px] font-semibold">{e.userName ?? "—"}</span>
+                  {e.userRole && <span className="text-[10px] text-mute">· {e.userRole}</span>}
+                  <span className="text-[11px] text-mute">{RESSOURCE_LABEL[e.ressource]}</span>
+                  {e.ressourceId && <code className="text-[10px] font-mono text-soft">{e.ressourceId}</code>}
+                  <span className="text-[10px] font-mono text-soft ml-auto">{wannLabel}</span>
+                  {e.kontext?.reason ? <p className="text-[10px] text-soft italic basis-full pl-1">↳ {String(e.kontext.reason)}</p> : null}
+                </li>
+              );
+            })}
+          </ul>
+        )}
+        {audit.length > 12 && (
+          <p className="text-[10px] text-soft mt-2">… und {audit.length - 12} weitere · vollen Verlauf im DSGVO-Export</p>
+        )}
       </Block>
 
       {/* DSGVO-Action-Block */}

@@ -20,6 +20,7 @@ import { belegungenFuerKlient } from "@/lib/station/betten-store";
 import { listVorgaenge } from "@/lib/kostentraeger/store";
 import { alleWuenscheFuerKlient, vollerVerlaufFuerKlient } from "@/lib/klient/wunsch-store";
 import { vollmachtenFuerKlient } from "@/lib/vollmacht/store";
+import { auditFuerKlient } from "@/lib/audit/store";
 
 export type DsgvoExportPaket = {
   exportiertAm: string;
@@ -31,6 +32,7 @@ export type DsgvoExportPaket = {
   wuensche:        ReturnType<typeof alleWuenscheFuerKlient>;
   wunschVerlauf:   ReturnType<typeof vollerVerlaufFuerKlient>;
   vollmachten:     ReturnType<typeof vollmachtenFuerKlient>;
+  audit:           ReturnType<typeof auditFuerKlient>;
   hinweis: string;
 };
 
@@ -55,6 +57,7 @@ export async function exportiereIdentity(id: string): Promise<
     wuensche:        identity.art === "klient" ? alleWuenscheFuerKlient(id) : [],
     wunschVerlauf:   identity.art === "klient" ? vollerVerlaufFuerKlient(id) : [],
     vollmachten:     identity.art === "klient" ? vollmachtenFuerKlient(id) : [],
+    audit:           identity.art === "klient" ? auditFuerKlient(id, 500) : [],
     hinweis:
       "Dieses Paket umfasst die im System verfügbaren Person-Daten zum Zeitpunkt des Exports. " +
       "Weitere Daten (Diktate, Konferenz-Aufzeichnungen, Medikations-Verläufe) werden in Phase 2 ergänzt. " +

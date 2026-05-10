@@ -68,7 +68,7 @@ export default function HeimversorgungPage() {
         </section>
       </NurAbProfi>
 
-      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" zugriffVon="Lukas Faber" zugriffRolle="apotheke" zugriffKontext="verblisterung-check" />
 
       <section className="space-y-3">
         {HEIM_BEWOHNER.map((b) => <BewohnerKarte key={b.id} b={b} />)}

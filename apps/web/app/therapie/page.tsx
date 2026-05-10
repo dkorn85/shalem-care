@@ -122,7 +122,7 @@ export default async function TherapiePage() {
 
       <MeineKlienten personId="person-therapeut-001" beruf="therapie" />
 
-      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" zugriffVon="Sebastian Rauer" zugriffRolle="therapie" zugriffKontext="behandlungs-vorbereitung" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="therapie" eigenePersonId="person-therapeut-001" />}
 

@@ -63,7 +63,7 @@ export default function BegleitungPage() {
         </p>
       </section>
 
-      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" zugriffVon="Marlene Voss" zugriffRolle="begleitung" zugriffKontext="vor sitzung" />
 
       <section className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 mb-6">
         <Kpi label="Aktive Begleitungen" value={BEGLEITUNGEN.filter((b) => b.letzte !== "abgeschlossen").length} farbe="var(--wed)" icon="🤲" />

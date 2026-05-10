@@ -11,6 +11,7 @@
 import Link from "next/link";
 import { wocheFuerKlient, WOCHE_BERUF_LABEL, WOCHE_BERUF_FARBE, WOCHE_BERUF_GLYPH } from "@/lib/klient/woche";
 import { alleWuenscheFuerKlient, type WunschQuelle } from "@/lib/klient/wunsch-store";
+import { auditLog } from "@/lib/audit/store";
 
 type AggregierterWunsch = {
   terminId:    string;
@@ -24,15 +25,30 @@ type AggregierterWunsch = {
   uhrzeit:     string;
 };
 
-export function KlientWuensche({
+export async function KlientWuensche({
   klientId,
   klientName,
   kompakt = false,
+  zugriffVon,
+  zugriffRolle,
+  zugriffKontext,
 }: {
-  klientId:    string;
-  klientName?: string;
-  kompakt?:    boolean;
+  klientId:        string;
+  klientName?:     string;
+  kompakt?:        boolean;
+  zugriffVon?:     string;     // wer schaut gerade?
+  zugriffRolle?:   string;
+  zugriffKontext?: string;     // z.B. "schichtbriefing"
 }) {
+  // Audit-Log für DSGVO Art. 30 — fail-soft, blockiert nicht den Render
+  if (zugriffVon || zugriffRolle) {
+    await auditLog({
+      userName: zugriffVon, userRole: zugriffRolle,
+      klientId, ressource: "wunsch", aktion: "list",
+      kontext: zugriffKontext ? { reason: zugriffKontext } : undefined,
+    }).catch(() => {});
+  }
+
   const termine = wocheFuerKlient(klientId);
   const overrides = alleWuenscheFuerKlient(klientId);
   const overrideMap = new Map(overrides.map((o) => [o.terminId, o]));

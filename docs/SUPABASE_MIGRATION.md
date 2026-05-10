@@ -30,6 +30,7 @@ spiegelt — bei Server-Restart wird Memory aus Supabase neu gehydriert.
 | `supabase/migrations/0002_swap_offer.sql` | Tausch-Markt-Tabellen + RLS + state-change-Trigger | bereit zum Ausführen |
 | `supabase/migrations/0003_care_team.sql` | profiles-Bridge + care_team-Tabelle + RLS · aktiviert die Stub-Policies aus 0001+0002 | bereit zum Ausführen |
 | `supabase/migrations/0004_vollmachten.sql` | Vorsorge/Betreuung/PV/Angehörigen-Vollmachten + RLS-Erweiterung klient_wunsch | bereit zum Ausführen |
+| `supabase/migrations/0005_audit_log.sql` | Lese-+Schreibe-Spur aller sensiblen Klient-Daten · DSGVO Art. 30 + Klient-Transparenz | bereit zum Ausführen |
 
 ---
 
@@ -274,11 +275,59 @@ echten RLS-Schreib-Zugriff auf klient_wunsch (mit Aufgabenkreis-Check).
 
 ---
 
+## Migration 0005 · audit_log
+
+Schließt Befund #3 aus dem Expertenteam-Audit: zentrale Lese-/Schreibe-
+Spur aller sensiblen Klient-Daten (DSGVO Art. 30 Verzeichnis +
+Transparenz-Recht der Klient:in nach Art. 15).
+
+### Was passiert
+1. `audit_log`-Tabelle mit (at, user_id+role+name, klient_id, ressource,
+   ressource_id, aktion, kontext jsonb, ip_hash)
+2. Check-Constraints: 14 Ressource-Typen, 7 Aktion-Typen
+3. RLS-Policies:
+   - Klient:in selbst: vollständige Sicht über profiles.klient_id
+   - Bevollmächtigte:r mit Aufgabenkreis 'gesundheit': über
+     darf_im_namen_handeln() aus 0004
+   - Mitarbeitende: nur eigene Zugriffe (Selbst-Audit, Schutz)
+   - INSERT nur via service_role (Server-Action)
+4. Demo-Seed: 7 Beispiel-Zugriffe für Helga über die letzten 3 Tage
+
+### Hybrid-Layer
+
+`lib/audit/store.ts`:
+- `auditLog({...})` als universeller Schreibe-Hook für Profi-Cockpits
+- Sync-API: `auditFuerKlient(klientId, limit)`, `auditFuerUser(userId, limit)`
+- Async-API: `ladeAuditFuerKlient` mit Memory-Refresh
+- MAX_MEMORY = 500 Einträge im RAM
+- Schreibe parallel Memory + Supabase fail-soft
+
+### Eingebauter Hook in 4 Profi-Cockpits
+
+`KlientWuensche`-Spiegel-Komponente nimmt jetzt `zugriffVon` +
+`zugriffRolle` + `zugriffKontext` Props und logged jeden Aufruf.
+Eingebaut in:
+- `/pflege` (Pflegekraft, schichtbriefing)
+- `/therapie` (Sebastian Rauer, behandlungs-vorbereitung)
+- `/apotheke/heimversorgung` (Lukas Faber, verblisterung-check)
+- `/begleitung` (Marlene Voss, vor sitzung)
+
+### UI-Sicht für Klient:in
+
+`/klient/daten` zeigt eine neue Sektion "Wer hat auf meine Daten
+geschaut" mit den 12 jüngsten Audit-Einträgen pro Klient:in. Pro
+Eintrag: Aktion-Chip, User + Rolle, Ressource + ID, vor-X-Zeit,
+Kontext-Reason als Subzeile.
+
+DSGVO-Export-Paket erweitert um `audit` (bis 500 Einträge).
+
+---
+
 ## Was als nächstes kommt
 
-1. **Migration 0005** `audit_log` für Lese-Zugriffe (Befund #3 aus
-   Expertenteam-Audit · Wer hat wann welche Klient-Daten gesehen)
-2. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
-   noch in-memory)
-3. **Migration 0007** Realtime-Channels für Wunsch-Spiegel (Pflege
+1. **Migration 0006** `shift_slot` für FHIR-Slot-Persistierung (heute
+   noch in-memory) · komplettiert die Tausch-Markt-Persistenz
+2. **Migration 0007** Realtime-Channels für Wunsch-Spiegel (Pflege
    sieht Wunsch-Änderung sofort)
+3. **Migration 0008** `nachfolgevollmacht` als Rollen-Übergang bei
+   Tod der/des Bevollmächtigten

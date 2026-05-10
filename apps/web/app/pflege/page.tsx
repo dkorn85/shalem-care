@@ -162,7 +162,7 @@ export default async function PflegeHome() {
 
       <MeineKlienten personId={personId} beruf="pflege" />
 
-      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" />
+      <KlientWuensche klientId="klient-hr" klientName="Helga Reinhardt" zugriffVon={nurse.name} zugriffRolle="pflege" zugriffKontext="schichtbriefing" />
 
       {konf && <KonferenzCard konferenz={konf} eigenerBeruf="pflege" eigenePersonId="person-dr" />}
       <AndereBegleiter eigenerBeruf="pflege" />
