@@ -11,6 +11,7 @@ import { KlientShell } from "@/components/KlientShell";
 import { CockpitSubNav } from "@/components/CockpitSubNav";
 import { CockpitKpi } from "@/components/BerufCockpitCard";
 import { CrossBruecken } from "@/components/CrossBruecken";
+import { WunschEditor } from "@/components/klient/WunschEditor";
 import {
   WOCHE_BERUF_LABEL,
   WOCHE_BERUF_FARBE,
@@ -22,6 +23,7 @@ import {
   berufeImEinsatz,
   type WocheTermin,
 } from "@/lib/klient/woche";
+import { getWunsch } from "@/lib/klient/wunsch-store";
 
 export const metadata = {
   title: "Meine Woche · Klient",
@@ -59,10 +61,10 @@ export default function KlientWochePage() {
       <section className="surface rounded-2xl p-4 mb-5" style={{ borderLeft: "3px solid rgb(var(--wed))" }}>
         <p className="text-[11px] leading-relaxed text-pretty">
           Diese Übersicht ist <strong>für dich</strong>. Du kannst hier sehen, wer wann zu dir
-          kommt und was vorgesehen ist. Wenn ein Wunsch noch nicht eingetragen ist, sprich
-          deine Pflegekraft an oder ergänze ihn selbst (Phase&nbsp;2: Wunsch-Eingabe direkt
-          hier möglich). Die Profi-Cockpits unten links sind nur für die Mitarbeitenden,
-          aber du kannst jederzeit reinklicken um zu sehen, woran sie arbeiten.
+          kommt — und du kannst <strong>jeden Wunsch direkt ergänzen oder ändern</strong>.
+          Klick einfach auf „bearbeiten" unter dem entsprechenden Termin. Dein Wunsch
+          wird sofort in den Profi-Cockpits sichtbar und gilt ab dem nächsten Termin.
+          DSGVO Art. 4: deine Daten gehören dir.
         </p>
       </section>
 
@@ -150,14 +152,14 @@ function TerminKarte({ t }: { t: WocheTermin }) {
       <p className="text-[11px] text-mute mt-0.5">{t.person} · {t.ort}</p>
       <p className="text-[12px] mt-1.5 leading-relaxed text-pretty">{t.wasPassiert}</p>
 
-      {t.meinWunsch && (
-        <div className="surface-mute rounded-lg p-2 mt-2" style={{ borderLeft: "2px solid rgb(var(--wed))" }}>
-          <p className="text-[10px] uppercase tracking-wider font-mono mb-0.5" style={{ color: "rgb(var(--wed))" }}>
-            Mein Wunsch
-          </p>
-          <p className="text-[11px] italic">{t.meinWunsch}</p>
-        </div>
-      )}
+      <WunschEditor
+        klientId={t.klientId}
+        terminId={t.id}
+        defaultWunsch={t.meinWunsch}
+        eigenerWunsch={getWunsch(t.klientId, t.id)?.wunsch}
+        geaendertAm={getWunsch(t.klientId, t.id)?.geaendertAm}
+        geaendertVon={getWunsch(t.klientId, t.id)?.geaendertVon}
+      />
 
       <Link
         href={t.linkCockpit}
