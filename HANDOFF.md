@@ -41,6 +41,7 @@
 **🗄 Supabase-Migration 0009** pflegediagnose + pflegeplan persistent · NANDA + NIC/NOC + DNQP-konform · Cascade-Delete · Realtime · Pflege-Beruf-Schreibrecht via care_team ·
 **🗄 Supabase-Migration 0010** Stationsmanagement (bett + belegung + reservierung) · DB-garantierte Eindeutigkeit der aktiven Belegung pro Bett · Pflege-Beruf-Schreibrecht ·
 **🗄 Supabase-Migration 0011** klient_termin · Wochen-Sicht persistent · Klient-Self-Storno · Beruf-Match-Schreibrecht (Therapeut nur Therapie-Termin) · Brücke zu klient_wunsch über termin_id ·
+**🗄 Supabase-Migration 0012** kassen_vorgang + widerspruch · § 13 Abs 3a SGB V + § 84 SGG-Fristen als SQL-Helper · Sozial-Beruf-UPDATE für Hilfeplan-Workflow ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -145,6 +146,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 56 · Supabase-Migration 0012 · kassen_vorgang + widerspruch persistent (Session 58 · 2026-05-10)
+
+Kostenträger-Anträge endlich aus Memory raus. Wichtig wegen gesetzlicher Fristen (§ 13 Abs 3a SGB V · § 84 SGG).
+
+| Datei | Was |
+|---|---|
+| `supabase/migrations/0012_kassen_vorgang.sql` | kassen_vorgang mit 7 Typen + 5 Status + betrag_cents · widerspruch mit FK cascade-delete + 6-Status-Workflow · 4 RLS-Policies pro Tabelle (Klient-Self/Care-Team/Sozial-UPDATE/Bevollm. gesundheit\|behoerden) · 2 Frist-Helper-Functions · Realtime |
+| `lib/kostentraeger/supabase-sync.ts` (neu) | syncVorgangZuSupabase + ladeVorgaengeAusSupabase mit ik+klient-Filter · 18-Feld-Mapper |
+| `lib/kostentraeger/store.ts` | setVorgangStatus syncht · neue ladeVorgaengeFuerKlient |
+| `docs/SUPABASE_MIGRATION.md` | 0012-Sektion · Roadmap 0013 Storage, 0014 messenger, 0015 aktivitaet_feed |
+
+User-Aktion: SQL aus `0012_kassen_vorgang.sql` im Dashboard ausführen.
 
 ### 55 · Supabase-Migration 0011 · klient_termin · Wochen-Sicht persistent (Session 57 · 2026-05-10)
 
