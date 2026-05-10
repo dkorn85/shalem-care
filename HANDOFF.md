@@ -21,6 +21,7 @@
 **🌉 Cross-Beruf-Brücken** klickbar in 17 Sub-Cockpits · raus/rein-Logik · verbindet Apotheke ↔ Pflege/Arzt/Klient, Bestatter ↔ Pflege/Begleitung/Rettungsdienst-Hygiene, Therapie/Psy ↔ Apotheke/BtM ·
 **◐ /klient/woche** Klient-Wochenübersicht alle 11 Berufsgruppen mit dokumentierten Wünschen + Sprung ins Profi-Cockpit je Termin ·
 **⌘K Cmd-K-Launcher** überall aufrufbar in 3 Shells · Tastatur-Navigation durch alle ~50 Cockpit-Reiter · Trigger-Chip bottom-left ·
+**✎ Wunsch-Editor in /klient/woche** Klient pflegt eigene Wünsche per Server-Action · 240-Zeichen-Limit · Override > Default mit Lösch-Fallback · DSGVO Art. 4 konkret ·
 **🧹 Layout/User-Anzeige bereinigt** — UserMenu top-right ist einzige Quelle ·
 [Expertise-Konzept-Doc](docs/EXPERTISE_KONZEPT.md) als Maßstab für künftige Cockpits
 
@@ -125,6 +126,19 @@
 | `b6a4a02` | RTCPeerConnection-Mesh über Supabase-Broadcast · ≤4 Peers | `/konferenz/[id]/live` |
 | `b52907c` | LiveKit-SFU-Setup-Cockpit · Token-Stub · 6-Schritte-Checklist | `/admin/ti/sfu` |
 | `e09cb5c` | Cloud-Recording + FHIR-Encounter · Retention-Policy | `/admin/recordings` |
+
+### 37 · Klient pflegt Wünsche selbst · DSGVO Art. 4 konkret (Session 39 · 2026-05-10)
+
+`/klient/woche` zeigt nun pro Termin einen WunschEditor — jede:r Klient:in (oder Vertretung mit Vollmacht) kann eigene Wünsche direkt ergänzen, ändern oder entfernen. Override gewinnt über Default; bei Lösch fällt der Default zurück.
+
+| Datei | Was |
+|---|---|
+| `lib/klient/wunsch-store.ts` | globalThis-Map (Phase 1) · 240-Zeichen-Limit · WunschQuelle-Union 'selbst' \| 'betreuer' \| 'angehoerige' · key = klientId::terminId |
+| `lib/klient/wunsch-actions.ts` | `setzeWunschAction` + `loescheWunschAction` mit revalidatePath /klient/woche |
+| `components/klient/WunschEditor.tsx` | Client-Component zwei Zustände (Lesen/Schreiben) · Textarea + Speichern + Entfernen + Abbrechen · optimistic Update + Char-Counter |
+| `/klient/woche` | jede TerminKarte rendert WunschEditor statt statischem Wunsch-Block · Aufklär-Block aktualisiert |
+
+Phase 2: Supabase-Tabelle `klient_wunsch` mit RLS so, dass Identitäts-Inhaber:in schreiben darf, Pflege/Therapie ihres Klient-Kreises nur lesen.
 
 ### 36 · Cmd-K-Launcher · globale Tastatur-Suche (Session 38 · 2026-05-10)
 
